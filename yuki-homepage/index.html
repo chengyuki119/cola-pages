@@ -341,42 +341,29 @@
     opacity: .55;
   }
 
-  /* 匿名留言板 */
-  .anon-box {
+  /* 匿名提问箱入口 */
+  .askbox-card {
+    display: flex;
+    align-items: center;
+    gap: 18px;
     background: var(--card);
     border-radius: var(--radius);
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-  }
-  .anon-box textarea {
-    width: 100%;
-    min-height: 110px;
-    border: none;
-    border-radius: 12px;
-    background: #ffffff;
-    padding: 12px 14px;
-    font-family: inherit;
-    font-size: 14px;
-    color: var(--text);
-    line-height: 1.6;
-    resize: vertical;
-    outline: none;
-  }
-  .anon-box textarea::placeholder { color: var(--muted); }
-  .anon-box button {
-    align-self: flex-end;
-    margin-top: 10px;
-    border: none;
-    background: var(--accent);
-    color: #fff;
-    font-size: 14px;
-    padding: 9px 22px;
-    border-radius: 999px;
+    padding: 22px;
     cursor: pointer;
-    transition: opacity .2s;
+    transition: background .2s, transform .2s;
   }
-  .anon-box button:hover { opacity: .85; }
+  .askbox-card:hover { background: var(--card-hover); transform: translateY(-2px); }
+  .askbox-emoji {
+    width: 64px; height: 64px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #ffd9e333, #ffc4d633);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 30px;
+    flex-shrink: 0;
+  }
+  .askbox-info h3 { font-size: 16px; }
+  .askbox-info p { color: var(--muted); font-size: 13px; }
+  .askbox-arrow { margin-left: auto; color: var(--muted); font-size: 20px; }
 
   /* ===== 入口卡片（小铺） ===== */
   .entry-card {
@@ -575,14 +562,18 @@
       </div>
     </section>
 
-    <!-- 匿名留言板 -->
+    <!-- 匿名提问箱 -->
     <section id="anon">
-      <h2>匿名留言板</h2>
-      <p class="section-sub">想说的悄悄话匿名发给我，只有我能看到 · ୧⍢⃝୨</p>
-      <div class="anon-box">
-        <textarea id="anon-text" maxlength="1500" placeholder="在这里写下想对我说的悄悄话…（完全匿名哦）"></textarea>
-        <button id="anon-send">💌 发送留言</button>
-      </div>
+      <h2>匿名提问箱</h2>
+      <p class="section-sub">悄悄问我任何话，完全匿名 · 我的回答在这里可以看到 · ୧⍢⃝୨</p>
+      <a class="askbox-card" id="askbox-card">
+        <div class="askbox-emoji">✉️</div>
+        <div class="askbox-info">
+          <h3>给我递个小纸条吧</h3>
+          <p>匿名提问 · 我会在这里回复 · 点进去可以看所有回答</p>
+        </div>
+        <div class="askbox-arrow">›</div>
+      </a>
     </section>
 
     <!-- 主页精选：第一张点进去是拍立得展示页 -->
@@ -817,7 +808,7 @@
 
 <script>
   var WECHAT_ID = 'yuki_060119'; // ★ 微信号在这里改
-  var DISCORD_WEBHOOK = ''; // ★ 匿名留言接收地址：在 Discord 服务器里建一个 Webhook，把网址粘到这里
+  var ASKBOX_URL = ''; // ★ 匿名提问箱网址：创建好提问箱后把链接粘到这里
 
   // ===== 页面切换（Home / VCT / BJD / 拍立得展示）=====
   var pages = ['home', 'vct', 'bjd', 'album'];
@@ -973,27 +964,10 @@
     }
   });
 
-  // ===== 匿名留言：直接发到我的 Discord 服务器 =====
-  document.getElementById('anon-send').addEventListener('click', function () {
-    var text = document.getElementById('anon-text').value.trim();
-    if (!text) { toast('先写点什么再发送哦'); return; }
-    if (!DISCORD_WEBHOOK) { toast('留言功能还没设置好，先让 Cola 帮你配置'); return; }
-    var btn = this;
-    btn.disabled = true;
-    btn.textContent = '发送中…';
-    fetch(DISCORD_WEBHOOK, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content: '💌 收到一条匿名留言：\n\n' + text })
-    }).then(function () {
-      toast('留言发送成功啦');
-      document.getElementById('anon-text').value = '';
-    }).catch(function () {
-      toast('发送失败，稍后再试试');
-    }).finally(function () {
-      btn.disabled = false;
-      btn.textContent = '💌 发送留言';
-    });
+  // ===== 匿名提问箱：点卡片打开提问箱页面 =====
+  document.getElementById('askbox-card').addEventListener('click', function () {
+    if (!ASKBOX_URL) { toast('提问箱还在准备中，马上就好'); return; }
+    window.open(ASKBOX_URL, '_blank');
   });
 
   // ===== 灯箱：全屏展示 + 可选下载（主页精选卡片除外：点它直接进子页）=====
