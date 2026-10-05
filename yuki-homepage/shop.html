@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<!--
+  ═══════════════════════════════════════════════
+  小柚的小铺 · 独立购物页（shop.html）
+
+  怎么上架商品（用任意文本编辑器打开本文件）：
+  1. 商品图：命名为 photos/shop1.jpg ~ shop6.jpg 放 photos 文件夹即自动显示
+  2. 商品名/价格/描述：搜索「商品名」找到卡片，改文字和价格即可
+  3. 卖出的商品：把 class="product" 改成 "product sold"，会显示「已售出」
+  4. 加更多商品：复制一个 <div class="product">…</div> 块，图片编号往后排
+  ═══════════════════════════════════════════════
+-->
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小柚的小铺 · Yuki's Shop</title>
+<style>
+  :root {
+    --bg: #fff7f9;
+    --card: #ffeef3;
+    --card-hover: #ffe1ea;
+    --text: #5a424c;
+    --muted: #b08f9c;
+    --accent: #ff8fab;
+    --radius: 16px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    line-height: 1.6;
+  }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; }
+
+  .shop-header {
+    background:
+      linear-gradient(180deg, rgba(255,247,249,0) 55%, rgba(255,247,249,1) 100%),
+      linear-gradient(135deg, #ffd9e3 0%, #ffc4d6 50%, #ffe6ef 100%);
+    padding: 92px 24px 40px;
+    text-align: center;
+  }
+  .shop-header h1 { font-size: 30px; }
+  .shop-header p { color: var(--muted); font-size: 14px; }
+  .back-link {
+    position: absolute;
+    top: 24px; left: 80px;
+    display: inline-flex; align-items: center; gap: 8px;
+    color: var(--muted);
+    font-size: 14px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.8);
+    transition: background .2s;
+  }
+  .back-link:hover { background: #fff; }
+  .shop-header { position: relative; }
+
+  .shop-body {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 12px 24px 72px;
+  }
+  .notice {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 28px;
+  }
+  .notice b { color: var(--text); }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 18px;
+  }
+  .product {
+    background: #fff;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 2px 14px rgba(255,143,171,.10);
+    transition: transform .2s, box-shadow .2s;
+    position: relative;
+    display: flex; flex-direction: column;
+  }
+  .product:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(255,143,171,.18); }
+  .product-img {
+    aspect-ratio: 1;
+    background: linear-gradient(160deg, #ffe4ec, #ffd0de);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 52px;
+    overflow: hidden;
+  }
+  .product-img img { width: 100%; height: 100%; object-fit: cover; }
+  .product-info { padding: 14px 16px 16px; flex: 1; display: flex; flex-direction: column; }
+  .product-tag {
+    align-self: flex-start;
+    font-size: 11px;
+    color: var(--accent);
+    background: #ffe1ea;
+    border-radius: 999px;
+    padding: 2px 10px;
+    margin-bottom: 8px;
+  }
+  .product-info h3 { font-size: 16px; }
+  .product-info p { color: var(--muted); font-size: 13px; margin: 4px 0 12px; flex: 1; }
+  .product-row { display: flex; align-items: center; justify-content: space-between; }
+  .price { font-size: 18px; font-weight: 700; color: var(--accent); }
+  .price small { font-size: 12px; font-weight: 400; }
+  .buy-btn {
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-size: 13px;
+    padding: 8px 18px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background .2s;
+  }
+  .buy-btn:hover { background: #ff7398; }
+
+  /* 已售出 */
+  .product.sold .product-img { filter: grayscale(.7); }
+  .product.sold::after {
+    content: "已售出";
+    position: absolute;
+    top: 14px; left: -34px;
+    background: var(--muted);
+    color: #fff;
+    font-size: 13px;
+    padding: 4px 40px;
+    transform: rotate(-35deg);
+  }
+  .product.sold .buy-btn { background: var(--muted); cursor: default; }
+
+  .toast {
+    position: fixed;
+    bottom: 32px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--text);
+    color: #fff;
+    font-size: 14px;
+    padding: 10px 22px;
+    border-radius: 999px;
+    opacity: 0;
+    transition: opacity .25s, transform .25s;
+    z-index: 400;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* 付款方式 */
+  .pay-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+  }
+  .pay-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 16px;
+    text-align: center;
+  }
+  .pay-card p { font-size: 14px; margin-top: 10px; }
+  .pay-img {
+    aspect-ratio: 1;
+    background: #ffffff;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted); font-size: 13px;
+    text-align: center;
+    overflow: hidden;
+  }
+  .pay-img img { width: 100%; height: 100%; object-fit: contain; }
+
+  footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    padding: 24px 0 40px;
+  }
+</style>
+</head>
+<body>
+
+<header class="shop-header">
+  <a class="back-link" href="index.html">← 返回主页</a>
+  <h1>🧶 小柚的小铺</h1>
+  <p>Yuki's Shop · 手作小物 · 每一件都是亲手做的</p>
+</header>
+
+<div class="shop-body">
+  <div class="notice">
+    <b>怎么买：</b>点「找我下单」会自动复制微信号 <b>yuki_060119</b>，来微信告诉我要哪件就行；也欢迎发邮件到 <b>chengyuki119@gmail.com</b>。
+  </div>
+
+  <div class="grid">
+    <!-- 商品 1：把 photos/shop1.jpg 放进 photos 文件夹即自动显示 -->
+    <div class="product">
+      <div class="product-img" data-img="photos/shop1.jpg">🎀</div>
+      <div class="product-info">
+        <span class="product-tag">手作</span>
+        <h3>商品名 1</h3>
+        <p>商品描述：材料、尺寸、做工细节写在这里</p>
+        <div class="product-row">
+          <span class="price"><small>¥</small>00.0</span>
+          <button class="buy-btn">找我下单</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="product">
+      <div class="product-img" data-img="photos/shop2.jpg">🧸</div>
+      <div class="product-info">
+        <span class="product-tag">手作</span>
+        <h3>商品名 2</h3>
+        <p>商品描述：材料、尺寸、做工细节写在这里</p>
+        <div class="product-row">
+          <span class="price"><small>¥</small>00.0</span>
+          <button class="buy-btn">找我下单</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="product">
+      <div class="product-img" data-img="photos/shop3.jpg">🪡</div>
+      <div class="product-info">
+        <span class="product-tag">手作</span>
+        <h3>商品名 3</h3>
+        <p>商品描述：材料、尺寸、做工细节写在这里</p>
+        <div class="product-row">
+          <span class="price"><small>¥</small>00.0</span>
+          <button class="buy-btn">找我下单</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="product">
+      <div class="product-img" data-img="photos/shop4.jpg">💝</div>
+      <div class="product-info">
+        <span class="product-tag">手作</span>
+        <h3>商品名 4</h3>
+        <p>商品描述：材料、尺寸、做工细节写在这里</p>
+        <div class="product-row">
+          <span class="price"><small>¥</small>00.0</span>
+          <button class="buy-btn">找我下单</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="product">
+      <div class="product-img" data-img="photos/shop5.jpg">✨</div>
+      <div class="product-info">
+        <span class="product-tag">手作</span>
+        <h3>商品名 5</h3>
+        <p>商品描述：材料、尺寸、做工细节写在这里</p>
+        <div class="product-row">
+          <span class="price"><small>¥</small>00.0</span>
+          <button class="buy-btn">找我下单</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 这个卡片演示了「已售出」的样子，不需要就删掉 -->
+    <div class="product sold">
+      <div class="product-img" data-img="photos/shop6.jpg">🌸</div>
+      <div class="product-info">
+        <span class="product-tag">手作</span>
+        <h3>商品名 6（已售出示例）</h3>
+        <p>卖出的商品会像这样显示「已售出」绶带</p>
+        <div class="product-row">
+          <span class="price"><small>¥</small>00.0</span>
+          <button class="buy-btn">已售出</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section style="margin-top:44px;">
+    <h2 style="font-size:18px;margin-bottom:14px;display:flex;align-items:center;gap:8px;"><span style="width:4px;height:18px;background:var(--accent);border-radius:2px;display:inline-block;"></span>付款方式</h2>
+    <div class="pay-grid">
+      <div class="pay-card">
+        <div class="pay-img" data-img="pay-wechat.jpg"><span>微信收款码<br>图片命名 pay-wechat.jpg</span></div>
+        <p>微信支付</p>
+      </div>
+      <div class="pay-card">
+        <div class="pay-img" data-img="pay-alipay.jpg"><span>支付宝收款码<br>图片命名 pay-alipay.jpg</span></div>
+        <p>支付宝</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>© 2026 Yuki · 小柚的小铺 · Made with Cola</footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  var WECHAT_ID = 'yuki_060119'; // ★ 微信号在这里改
+
+  // 商品图：文件存在就自动显示
+  document.querySelectorAll('.product-img[data-img]').forEach(function (el) {
+    var src = el.getAttribute('data-img');
+    var probe = new Image();
+    probe.onload = function () {
+      el.innerHTML = '';
+      var img = document.createElement('img');
+      img.src = src;
+      img.alt = '商品图';
+      el.appendChild(img);
+    };
+    probe.src = src;
+  });
+
+  // 收款码：图片存在就自动显示
+  document.querySelectorAll('.pay-img[data-img]').forEach(function (el) {
+    var src = el.getAttribute('data-img');
+    var probe = new Image();
+    probe.onload = function () {
+      el.innerHTML = '';
+      var img = document.createElement('img');
+      img.src = src;
+      img.alt = '收款码';
+      el.appendChild(img);
+    };
+    probe.src = src;
+  });
+
+  // 下单：复制微信号
+  function toast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(function () { t.classList.remove('show'); }, 1800);
+  }
+  document.querySelectorAll('.buy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      if (btn.closest('.sold')) { toast('这件已经售出啦'); return; }
+      function done() { toast('微信号已复制：' + WECHAT_ID + '，来找我下单吧'); }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(WECHAT_ID).then(done, function () { fallbackCopy(); done(); });
+      } else { fallbackCopy(); done(); }
+      function fallbackCopy() {
+        var ta = document.createElement('textarea');
+        ta.value = WECHAT_ID;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+    });
+  });
+</script>
+</body>
+</html>
