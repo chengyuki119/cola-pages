@@ -1,28 +1,18 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-<!--
-  ═══════════════════════════════════════════════
-  小柚的小铺 · 独立购物页（shop.html）
-
-  怎么上架商品（用任意文本编辑器打开本文件）：
-  1. 商品图：命名为 photos/shop1.jpg ~ shop6.jpg 放 photos 文件夹即自动显示
-  2. 商品名/价格/描述：搜索「商品名」找到卡片，改文字和价格即可
-  3. 卖出的商品：把 class="product" 改成 "product sold"，会显示「已售出」
-  4. 加更多商品：复制一个 <div class="product">…</div> 块，图片编号往后排
-  ═══════════════════════════════════════════════
--->
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>小柚的小铺 · Yuki's Shop</title>
 <style>
   :root {
-    --bg: #fff7f9;
-    --card: #ffeef3;
-    --card-hover: #ffe1ea;
-    --text: #5a424c;
-    --muted: #b08f9c;
-    --accent: #ff8fab;
+    --bg: #fffcfd;
+    --card: #fff2f7;
+    --card-hover: #ffe7f0;
+    --text: #5d6780;
+    --muted: #9aa5bd;
+    --accent: #ff6fa5;
+    --accent-soft: #ffc8d6;
     --radius: 16px;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -31,35 +21,48 @@
     color: var(--text);
     font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
     line-height: 1.6;
+    padding-top: 60px; /* 避开固定顶栏 */
   }
+  body.lang-en .product.sold::after { content: "Sold"; }
+
+  /* 状态标签：在售 / 仅展示 / 售尽 */
+  .st {
+    position: absolute;
+    top: 10px; right: 10px;
+    font-size: 12px;
+    padding: 3px 12px;
+    border-radius: 999px;
+    color: #fff;
+  }
+  .st-on { background: #9ecfae; }
+  .st-display { background: #b3ace0; }
+  .st-out { background: #c4bcb6; }
+  .product.off .product-img { filter: grayscale(.7); }
+  .no-buy { font-size: 13px; color: var(--muted); }
   a { color: inherit; text-decoration: none; }
   button { font-family: inherit; }
 
   .shop-header {
-    background:
-      linear-gradient(180deg, rgba(255,247,249,0) 55%, rgba(255,247,249,1) 100%),
-      linear-gradient(135deg, #ffd9e3 0%, #ffc4d6 50%, #ffe6ef 100%);
-    padding: 92px 24px 40px;
-    text-align: center;
+    background: #ffdfe9;
+    padding: 84px 0 40px;
+    position: relative;
   }
-  .shop-header h1 { font-size: 30px; }
+  .shop-header-inner { max-width: 900px; margin: 0 auto; padding: 0 24px; } /* 与主页照片页同宽，同一条左边线 */
+  .shop-header h1 { font-size: 30px; margin: 20px 0 6px; }
   .shop-header p { color: var(--muted); font-size: 14px; }
   .back-link {
-    position: absolute;
-    top: 24px; left: 80px;
     display: inline-flex; align-items: center; gap: 8px;
-    color: var(--muted);
+    color: var(--text);
     font-size: 14px;
     padding: 8px 14px;
     border-radius: 999px;
-    background: rgba(255,255,255,.8);
+    background: rgba(255,255,255,.85);
     transition: background .2s;
   }
   .back-link:hover { background: #fff; }
-  .shop-header { position: relative; }
 
   .shop-body {
-    max-width: 920px;
+    max-width: 900px;
     margin: 0 auto;
     padding: 12px 24px 72px;
   }
@@ -82,15 +85,16 @@
     background: #fff;
     border-radius: var(--radius);
     overflow: hidden;
-    box-shadow: 0 2px 14px rgba(255,143,171,.10);
+    box-shadow: 0 2px 14px rgba(255,143,171,.12);
     transition: transform .2s, box-shadow .2s;
     position: relative;
     display: flex; flex-direction: column;
   }
-  .product:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(255,143,171,.18); }
+  .product:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(255,143,171,.20); }
   .product-img {
+    position: relative;
     aspect-ratio: 1;
-    background: linear-gradient(160deg, #ffe4ec, #ffd0de);
+    background: #ffe9f2;
     display: flex; align-items: center; justify-content: center;
     font-size: 52px;
     overflow: hidden;
@@ -113,7 +117,7 @@
   .price small { font-size: 12px; font-weight: 400; }
   .buy-btn {
     border: none;
-    background: var(--accent);
+    background: var(--accent-soft);
     color: #fff;
     font-size: 13px;
     padding: 8px 18px;
@@ -121,21 +125,12 @@
     cursor: pointer;
     transition: background .2s;
   }
-  .buy-btn:hover { background: #ff7398; }
+  .buy-btn:hover { background: var(--accent); }
 
-  /* 已售出 */
-  .product.sold .product-img { filter: grayscale(.7); }
-  .product.sold::after {
-    content: "已售出";
-    position: absolute;
-    top: 14px; left: -34px;
-    background: var(--muted);
-    color: #fff;
-    font-size: 13px;
-    padding: 4px 40px;
-    transform: rotate(-35deg);
-  }
-  .product.sold .buy-btn { background: var(--muted); cursor: default; }
+  /* 售尽 / 仅展示：图片灰化，不放购买按钮 */
+
+  .star { cursor: pointer; font-size: 20px; color: #e8dcd2; transition: color .15s; }
+  .star.on { color: #ffb84d; }
 
   .toast {
     position: fixed;
@@ -183,14 +178,181 @@
     font-size: 12px;
     padding: 24px 0 40px;
   }
+
+  /* ===== 顶部白色长条（与主页一致）===== */
+  .topbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 60px;
+    background: #ffffff;
+    box-shadow: 0 2px 12px rgba(255,143,171,.18);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+  }
+  .lang-switch {
+    display: flex;
+    gap: 4px;
+    background: var(--card);
+    padding: 4px;
+    border-radius: 999px;
+  }
+  .lang-btn {
+    border: none;
+    background: transparent;
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    color: var(--muted);
+    transition: background .2s, color .2s;
+  }
+  .lang-btn.active {
+    background: var(--accent-soft);
+    color: #fff;
+  }
+  .burger {
+    width: 42px; height: 42px;
+    border: none;
+    border-radius: 12px;
+    background: var(--card);
+    cursor: pointer;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 5px;
+  }
+  .burger span {
+    width: 20px; height: 2px;
+    background: var(--text);
+    border-radius: 2px;
+    transition: transform .25s, opacity .25s;
+  }
+  .burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .burger.open span:nth-child(2) { opacity: 0; }
+  .burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  .site-logo {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: 96px; height: 48px;
+    border-radius: 8px;
+    display: block;
+    overflow: hidden;
+  }
+  .site-logo img { width: 100%; height: 100%; object-fit: cover; }
+  .menu-mask {
+    position: fixed; inset: 0;
+    background: rgba(93,103,128,.25);
+    opacity: 0; visibility: hidden;
+    transition: opacity .25s;
+    z-index: 150;
+  }
+  .menu-mask.open { opacity: 1; visibility: visible; }
+  .menu {
+    position: fixed;
+    top: 60px; right: 0; bottom: 0;
+    width: 250px;
+    background: #fffafc;
+    box-shadow: -4px 0 24px rgba(255,143,171,.18);
+    transform: translateX(100%);
+    transition: transform .25s;
+    z-index: 180;
+    padding: 24px 18px 24px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .menu.open { transform: translateX(0); }
+  .menu-link {
+    display: flex; align-items: center; gap: 12px;
+    padding: 13px 16px;
+    border-radius: 12px;
+    font-size: 15px;
+    color: var(--text);
+    transition: background .2s;
+  }
+  .menu-link:hover { background: var(--card); }
+  /* 手风琴菜单：顶层 + / 展开 ⌄ / 子项 - （与主页一致） */
+  .menu-group { display: flex; flex-direction: column; }
+  .menu-toggle {
+    display: flex; align-items: center; gap: 12px;
+    padding: 13px 16px;
+    border: none;
+    background: none;
+    border-radius: 12px;
+    font-size: 15px;
+    color: var(--text);
+    cursor: pointer;
+    text-align: left;
+    transition: background .2s;
+  }
+  .menu-toggle:hover, .menu-group.open .menu-toggle { background: var(--card); }
+  .menu-toggle .plus {
+    margin-left: auto;
+    color: var(--muted);
+    font-size: 17px;
+    line-height: 1;
+  }
+  .menu-toggle .plus::before { content: "+"; }
+  .menu-group.open .menu-toggle .plus::before { content: "⌄"; }
+  .submenu {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height .3s ease;
+  }
+  .menu-group.open .submenu { max-height: 300px; }
+  .submenu a { padding-left: 40px; }
+  .submenu .dash { color: var(--muted); }
+  .menu-icon {
+    width: 20px; height: 20px;
+    border-radius: 6px;
+    background: var(--card-hover);
+    display: inline-flex;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .menu-icon img { width: 100%; height: 100%; object-fit: cover; }
 </style>
 </head>
 <body>
+<header class="topbar">
+  <div class="lang-switch">
+    <button class="lang-btn" data-lang="zh">简体中文</button>
+    <button class="lang-btn" data-lang="en">English</button>
+  </div>
+  <a class="site-logo" href="index.html" aria-label="回主页"><img src="logo.png" alt="logo"></a>
+  <button class="burger" id="burger" aria-label="菜单">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+<div class="menu-mask" id="menu-mask"></div>
+<nav class="menu" id="menu">
+  <a class="menu-link" href="index.html">Home</a>
+  <div class="menu-group">
+    <button class="menu-toggle"><span data-zh="照片展示" data-en="Photo Gallery">照片展示</span><span class="plus"></span></button>
+    <div class="submenu">
+      <a href="index.html#instax"><span class="dash">-</span><span data-zh="拍立得展示" data-en="Instax Display">拍立得展示</span></a>
+      <a href="index.html#film"><span class="dash">-</span><span data-zh="胶卷相机照片展示" data-en="Film Camera Pictures">胶卷相机照片展示</span></a>
+      <a href="index.html#bjd"><span class="dash">-</span><span data-zh="BJD 展示" data-en="BJD Display">BJD 展示</span></a>
+    </div>
+  </div>
+  <div class="menu-group">
+    <button class="menu-toggle"><span data-zh="我的小铺" data-en="My Shop">我的小铺</span><span class="plus"></span></button>
+    <div class="submenu">
+      <a href="shop.html"><span class="dash">-</span><span data-zh="逛小铺" data-en="Shop">逛小铺</span></a>
+      <a href="shop.html#reviews"><span class="dash">-</span><span data-zh="评价返图" data-en="Review">评价返图</span></a>
+    </div>
+  </div>
+  <a class="menu-link" href="index.html#anon"><span data-zh="匿名留言" data-en="Ask Box">匿名留言</span></a>
+  <a class="menu-link" href="admin.html"><span data-zh="柚子专属" data-en="Owner">柚子专属</span></a>
+</nav>
 
 <header class="shop-header">
-  <a class="back-link" href="index.html">← 返回主页</a>
-  <h1>🧶 小柚的小铺</h1>
-  <p>Yuki's Shop · 手作小物 · 每一件都是亲手做的</p>
+  <div class="shop-header-inner">
+    <a class="back-link" href="index.html"><span data-zh="← 返回主页" data-en="← Back to Home">← 返回主页</span></a>
+    <h1><span data-zh="小柚的小铺" data-en="Yuki's Shop">小柚的小铺</span></h1>
+    <p><span data-zh="Yuki's Shop · 手作小物 · 每一件都是亲手做的" data-en="Yuki's Shop · Handmade with love, every piece made by hand">Yuki's Shop · 手作小物 · 每一件都是亲手做的</span></p>
+  </div>
 </header>
 
 <div class="shop-body">
@@ -198,90 +360,39 @@
     <b>怎么买：</b>点「找我下单」会自动复制微信号 <b>yuki_060119</b>，来微信告诉我要哪件就行；也欢迎发邮件到 <b>chengyuki119@gmail.com</b>。
   </div>
 
-  <div class="grid">
-    <!-- 商品 1：把 photos/shop1.jpg 放进 photos 文件夹即自动显示 -->
-    <div class="product">
-      <div class="product-img" data-img="photos/shop1.jpg">🎀</div>
-      <div class="product-info">
-        <span class="product-tag">手作</span>
-        <h3>商品名 1</h3>
-        <p>商品描述：材料、尺寸、做工细节写在这里</p>
-        <div class="product-row">
-          <span class="price"><small>¥</small>00.0</span>
-          <button class="buy-btn">找我下单</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="product">
-      <div class="product-img" data-img="photos/shop2.jpg">🧸</div>
-      <div class="product-info">
-        <span class="product-tag">手作</span>
-        <h3>商品名 2</h3>
-        <p>商品描述：材料、尺寸、做工细节写在这里</p>
-        <div class="product-row">
-          <span class="price"><small>¥</small>00.0</span>
-          <button class="buy-btn">找我下单</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="product">
-      <div class="product-img" data-img="photos/shop3.jpg">🪡</div>
-      <div class="product-info">
-        <span class="product-tag">手作</span>
-        <h3>商品名 3</h3>
-        <p>商品描述：材料、尺寸、做工细节写在这里</p>
-        <div class="product-row">
-          <span class="price"><small>¥</small>00.0</span>
-          <button class="buy-btn">找我下单</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="product">
-      <div class="product-img" data-img="photos/shop4.jpg">💝</div>
-      <div class="product-info">
-        <span class="product-tag">手作</span>
-        <h3>商品名 4</h3>
-        <p>商品描述：材料、尺寸、做工细节写在这里</p>
-        <div class="product-row">
-          <span class="price"><small>¥</small>00.0</span>
-          <button class="buy-btn">找我下单</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="product">
-      <div class="product-img" data-img="photos/shop5.jpg">✨</div>
-      <div class="product-info">
-        <span class="product-tag">手作</span>
-        <h3>商品名 5</h3>
-        <p>商品描述：材料、尺寸、做工细节写在这里</p>
-        <div class="product-row">
-          <span class="price"><small>¥</small>00.0</span>
-          <button class="buy-btn">找我下单</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 这个卡片演示了「已售出」的样子，不需要就删掉 -->
-    <div class="product sold">
-      <div class="product-img" data-img="photos/shop6.jpg">🌸</div>
-      <div class="product-info">
-        <span class="product-tag">手作</span>
-        <h3>商品名 6（已售出示例）</h3>
-        <p>卖出的商品会像这样显示「已售出」绶带</p>
-        <div class="product-row">
-          <span class="price"><small>¥</small>00.0</span>
-          <button class="buy-btn">已售出</button>
-        </div>
-      </div>
-    </div>
+  <div class="grid" id="product-grid">
+    <p style="grid-column:1/-1;text-align:center;color:var(--muted);">加载中…</p>
   </div>
 
+  <section id="past" style="margin-top:44px;">
+    <h2 style="font-size:18px;margin-bottom:14px;display:flex;align-items:center;gap:8px;"><span style="width:4px;height:18px;background:var(--accent);border-radius:2px;display:inline-block;"></span><span data-zh="往期商品" data-en="Past Items">往期商品</span></h2>
+    <div class="grid" id="past-grid"></div>
+  </section>
+
+  <section id="reviews" style="margin-top:44px;">
+    <h2 style="font-size:18px;margin-bottom:14px;display:flex;align-items:center;gap:8px;"><span style="width:4px;height:18px;background:var(--accent);border-radius:2px;display:inline-block;"></span><span data-zh="评价返图" data-en="Reviews">评价返图</span></h2>
+    <div class="card" style="background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:20px;">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:10px;"><span data-zh="买过小铺东西的小可爱，欢迎晒图评价～" data-en="Bought something? Share your photos & review~">买过小铺东西的小可爱，欢迎晒图评价～</span></p>
+      <input id="r-name" maxlength="30" placeholder="你的名字（选填）" style="width:100%;margin-bottom:10px;padding:12px 14px;font-size:15px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <span style="font-size:13px;color:var(--muted);">评分</span>
+        <span id="r-stars" style="display:inline-flex;gap:4px;">
+          <span class="star" data-v="1">★</span><span class="star" data-v="2">★</span><span class="star" data-v="3">★</span><span class="star" data-v="4">★</span><span class="star" data-v="5">★</span>
+        </span>
+        <span id="r-star-text" style="font-size:13px;color:var(--accent);">5/5</span>
+      </div>
+      <textarea id="r-text" style="width:100%;min-height:70px;border:none;border-radius:12px;background:#fff;padding:12px 14px;font-family:inherit;font-size:15px;color:var(--text);resize:vertical;outline:none;" placeholder="写下你的评价～"></textarea>
+      <div style="margin-top:10px;font-size:13px;color:var(--muted);">上传照片</div>
+      <input id="r-file" type="file" accept="image/*" style="margin-top:6px;font-size:13px;">
+      <div class="actions" style="display:flex;justify-content:flex-end;margin-top:10px;">
+        <button class="buy-btn" id="r-submit" style="padding:8px 22px;"><span data-zh="提交评价" data-en="Submit">提交评价</span></button>
+      </div>
+    </div>
+    <div id="review-list"><p style="text-align:center;color:var(--muted);font-size:14px;">加载中…</p></div>
+  </section>
+
   <section style="margin-top:44px;">
-    <h2 style="font-size:18px;margin-bottom:14px;display:flex;align-items:center;gap:8px;"><span style="width:4px;height:18px;background:var(--accent);border-radius:2px;display:inline-block;"></span>付款方式</h2>
+    <h2 style="font-size:18px;margin-bottom:14px;display:flex;align-items:center;gap:8px;"><span style="width:4px;height:18px;background:var(--accent);border-radius:2px;display:inline-block;"></span><span data-zh="付款方式" data-en="Payment">付款方式</span></h2>
     <div class="pay-grid">
       <div class="pay-card">
         <div class="pay-img" data-img="pay-wechat.jpg"><span>微信收款码<br>图片命名 pay-wechat.jpg</span></div>
@@ -300,18 +411,189 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  var WECHAT_ID = 'yuki_060119'; // ★ 微信号在这里改
+  var WECHAT_ID = 'yuki_060119'; //  微信号在这里改
+  var SUPABASE_URL = 'https://zajcglvlzsolygvjeumb.supabase.co';
+  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InphamNnbHZsenNvbHlndmpldW1iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyMzI4NjUsImV4cCI6MjEwNjgwODg2NX0.7_Pthb3wPInb5v4o7IoWejozEvDZQgNPS8DgwikQ8ys';
 
-  // 商品图：文件存在就自动显示
-  document.querySelectorAll('.product-img[data-img]').forEach(function (el) {
-    var src = el.getAttribute('data-img');
+  // ===== 中英双语切换 =====
+  var LANG = 'zh';
+  try { LANG = localStorage.getItem('yuki-lang') || 'zh'; } catch (err) {}
+  var I18N_EN = {
+    '← 返回主页': '← Back to Home',
+    '小柚的小铺': 'Yuki\'s Shop',
+    'Yuki\'s Shop · 手作小物 · 每一件都是亲手做的': 'Yuki\'s Shop · Handmade with love, every piece made by hand',
+    '怎么买：': 'How to buy: ',
+    '点「找我下单」会自动复制微信号': 'Tap "Contact to order" copies my WeChat ID ',
+    '，来微信告诉我要哪件就行；也欢迎发邮件到': ', then message me on WeChat; or email ',
+    '。': '.',
+    '付款方式': 'Payment',
+    '微信支付': 'WeChat Pay',
+    '支付宝': 'Alipay',
+    '微信收款码': 'WeChat QR code',
+    '图片命名 pay-wechat.jpg': 'image: pay-wechat.jpg',
+    '支付宝收款码': 'Alipay QR code',
+    '图片命名 pay-alipay.jpg': 'image: pay-alipay.jpg',
+    '© 2026 Yuki · 小柚的小铺 · Made with Cola': '© 2026 Yuki · Yuki\'s Shop · Made with Cola',
+    '找我下单': 'Contact to order',
+    '已售出': 'Sold'
+  };
+  var I18N_ZH = {};
+  Object.keys(I18N_EN).forEach(function (k) { I18N_ZH[I18N_EN[k]] = k; });
+
+  function t(zh, en) { return LANG === 'en' ? en : zh; }
+
+  function applyLang(lang) {
+    LANG = lang;
+    document.body.classList.toggle('lang-en', lang === 'en');
+    var dict = lang === 'en' ? I18N_EN : I18N_ZH;
+    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+    var nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(function (n) {
+      if (!n.parentElement || n.parentElement.closest('script, style')) return;
+      var txt = n.nodeValue;
+      var trimmed = txt.trim();
+      if (trimmed && dict[trimmed] !== undefined) {
+        n.nodeValue = txt.replace(trimmed, dict[trimmed]);
+      }
+    });
+    document.querySelectorAll('.lang-btn').forEach(function (b) {
+      b.classList.toggle('active', b.getAttribute('data-lang') === lang);
+    });
+    document.querySelectorAll('[data-zh][data-en]').forEach(function (node) {
+      node.textContent = lang === 'en' ? node.getAttribute('data-en') : node.getAttribute('data-zh');
+    });
+    try { localStorage.setItem('yuki-lang', lang); } catch (err) {}
+    renderProducts();
+  }
+  document.querySelectorAll('.lang-btn').forEach(function (b) {
+    b.addEventListener('click', function () { applyLang(b.getAttribute('data-lang')); });
+  });
+
+  function esc(s) {
+    var d = document.createElement('div');
+    d.textContent = s == null ? '' : String(s);
+    return d.innerHTML;
+  }
+
+  // 下单：复制微信号
+  function toast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(function () { t.classList.remove('show'); }, 1800);
+  }
+  function bindBuy(btn) {
+    btn.addEventListener('click', function () {
+      if (btn.closest('.sold')) { toast('这件已经售出啦'); return; }
+      function done() { toast('微信号已复制：' + WECHAT_ID + '，来找我下单吧'); }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(WECHAT_ID).then(done, function () { fallbackCopy(); done(); });
+      } else { fallbackCopy(); done(); }
+      function fallbackCopy() {
+        var ta = document.createElement('textarea');
+        ta.value = WECHAT_ID;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+    });
+  }
+
+  var PRODUCTS = [];
+  function statusOf(p) {
+    if (p.display_only) return 'display';
+    if (p.sold || !(p.stock > 0)) return 'out';
+    return 'on';
+  }
+  function productCard(p) {
+    var img = p.image_url
+      ? '<img src="' + esc(p.image_url) + '" alt="' + esc(p.name) + '">'
+      : '';
+    var st = statusOf(p);
+    var stText = st === 'on' ? t('在售','On sale') : st === 'display' ? t('仅展示','Display only') : t('售尽','Sold out');
+    var stCls = st === 'on' ? 'st-on' : st === 'display' ? 'st-display' : 'st-out';
+    var off = st === 'on' ? '' : ' off';
+    return '<div class="product' + off + '">' +
+      '<div class="product-img">' + img + '<span class="st ' + stCls + '">' + stText + '</span></div>' +
+      '<div class="product-info">' +
+      '<span class="product-tag">' + esc(p.tag || t('手作','Handmade')) + '</span>' +
+      '<h3>' + esc(p.name) + '</h3>' +
+      '<p>' + esc(p.description || '') + '</p>' +
+      '<div class="product-row">' +
+      '<span class="price">' + (p.price ? '<small>¥</small>' + esc(p.price) : '') + '</span>' +
+      (st === 'on' ? '<button class="buy-btn">' + t('找我下单','Contact to order') + '</button>' : '<span class="no-buy">' + (st === 'display' ? t('仅展示，不能下单','Not for sale') : '') + '</span>') +
+      '</div></div></div>';
+  }
+  function renderProducts() {
+    var onSale = PRODUCTS.filter(function (p) { return statusOf(p) !== 'out'; });
+    var past = PRODUCTS.filter(function (p) { return statusOf(p) === 'out'; });
+    var grid = document.getElementById('product-grid');
+    if (!onSale.length) {
+      grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--muted);">' + t('新品准备中，敬请期待～', 'New goodies coming soon~') + '</p>';
+    } else {
+      grid.innerHTML = onSale.map(productCard).join('');
+      grid.querySelectorAll('.buy-btn').forEach(bindBuy);
+    }
+    var pastSec = document.getElementById('past');
+    var pastGrid = document.getElementById('past-grid');
+    if (!past.length) {
+      pastSec.style.display = 'none';
+    } else {
+      pastSec.style.display = '';
+      pastGrid.innerHTML = past.map(productCard).join('');
+      pastGrid.querySelectorAll('.buy-btn').forEach(bindBuy);
+    }
+  }
+
+  fetch(SUPABASE_URL + '/rest/v1/products?select=id,name,price,description,tag,image_url,sold,stock,display_only&order=created_at.desc&limit=100', {
+    headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }
+  }).then(function (r) { return r.json(); }).then(function (rows) {
+    PRODUCTS = rows || [];
+    renderProducts();
+  }).catch(function () {
+    document.getElementById('product-grid').innerHTML =
+      '<p style="grid-column:1/-1;text-align:center;color:var(--muted);">' + t('商品加载失败，请刷新重试','Failed to load, please refresh') + '</p>';
+  });
+
+  // 初始语言
+  applyLang(LANG);
+
+  // ===== 汉堡菜单 =====
+  var burger = document.getElementById('burger');
+  var menu = document.getElementById('menu');
+  var mask = document.getElementById('menu-mask');
+  function closeMenu() {
+    burger.classList.remove('open');
+    menu.classList.remove('open');
+    mask.classList.remove('open');
+  }
+  burger.addEventListener('click', function () {
+    burger.classList.toggle('open');
+    menu.classList.toggle('open');
+    mask.classList.toggle('open');
+  });
+  mask.addEventListener('click', closeMenu);
+  menu.querySelectorAll('a').forEach(function (a) { a.addEventListener('click', closeMenu); });
+
+  // 手风琴菜单：+ 展开 ⌄ / 收起（与主页一致）
+  document.querySelectorAll('.menu-toggle').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      btn.closest('.menu-group').classList.toggle('open');
+    });
+  });
+
+  // 菜单图标：图片存在就自动显示
+  document.querySelectorAll('.menu-icon[data-icon]').forEach(function (slot) {
+    var src = slot.getAttribute('data-icon');
     var probe = new Image();
     probe.onload = function () {
-      el.innerHTML = '';
+      slot.innerHTML = '';
       var img = document.createElement('img');
       img.src = src;
-      img.alt = '商品图';
-      el.appendChild(img);
+      img.alt = '';
+      slot.appendChild(img);
     };
     probe.src = src;
   });
@@ -330,30 +612,94 @@
     probe.src = src;
   });
 
-  // 下单：复制微信号
-  function toast(msg) {
-    var t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(function () { t.classList.remove('show'); }, 1800);
+  // ===== 评价返图 =====
+  var RATING = 0;
+  function starText(n) { return '★★★★★'.slice(0, n) + '☆☆☆☆☆'.slice(0, 5 - n); }
+  function paintStars() {
+    document.querySelectorAll('#r-stars .star').forEach(function (s) {
+      s.classList.toggle('on', parseInt(s.getAttribute('data-v'), 10) <= RATING);
+    });
+    document.getElementById('r-star-text').textContent = RATING > 0 ? RATING + '/5' : '';
   }
-  document.querySelectorAll('.buy-btn').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      if (btn.closest('.sold')) { toast('这件已经售出啦'); return; }
-      function done() { toast('微信号已复制：' + WECHAT_ID + '，来找我下单吧'); }
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(WECHAT_ID).then(done, function () { fallbackCopy(); done(); });
-      } else { fallbackCopy(); done(); }
-      function fallbackCopy() {
-        var ta = document.createElement('textarea');
-        ta.value = WECHAT_ID;
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
+  document.getElementById('r-stars').addEventListener('click', function (e) {
+    var s = e.target.closest('.star');
+    if (!s) return;
+    RATING = parseInt(s.getAttribute('data-v'), 10);
+    paintStars();
+  });
+  paintStars();
+  function fmtDate(iso) {
+    var d = new Date(iso);
+    return (d.getMonth() + 1) + '.' + d.getDate();
+  }
+  function loadReviews() {
+    fetch(SUPABASE_URL + '/rest/v1/reviews?select=id,name,content,rating,image_url,created_at&order=created_at.desc&limit=100', {
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }
+    }).then(function (r) { return r.json(); }).then(function (rows) {
+      var list = document.getElementById('review-list');
+      if (!rows || !rows.length) {
+        list.innerHTML = '<p style="text-align:center;color:var(--muted);font-size:14px;">' + t('还没有评价，来做第一个吧～', 'No reviews yet, be the first~') + '</p>';
+        return;
       }
+      list.innerHTML = rows.map(function (rv) {
+        var img = rv.image_url ? '<img src="' + esc(rv.image_url) + '" style="width:100%;border-radius:12px;margin-top:10px;">' : '';
+        var stars = '<span style="color:#ffb84d;letter-spacing:2px;">' + starText(rv.rating || 5) + '</span> <span style="font-size:12px;">' + (rv.rating || 5) + '/5</span>';
+        return '<div style="background:#fff;border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;box-shadow:0 2px 10px rgba(180,120,150,.10);">' +
+          '<div style="font-size:13px;color:var(--muted);">' + esc(rv.name || t('小可爱','a lovely buyer')) + ' · ' + fmtDate(rv.created_at) + '</div>' +
+          '<div style="margin-top:4px;">' + stars + '</div>' +
+          '<div style="font-size:14px;margin-top:4px;white-space:pre-wrap;word-break:break-word;">' + esc(rv.content) + '</div>' +
+          img + '</div>';
+      }).join('');
+    }).catch(function () {
+      document.getElementById('review-list').innerHTML = '<p style="text-align:center;color:var(--muted);font-size:14px;">' + t('评价加载失败，请刷新重试','Failed to load reviews, please refresh') + '</p>';
+    });
+  }
+  document.getElementById('r-submit').addEventListener('click', function () {
+    var btn = this;
+    var name = document.getElementById('r-name').value.trim();
+    var text = document.getElementById('r-text').value.trim();
+    var file = document.getElementById('r-file').files[0];
+    if (!text) { toast(t('先写点评价内容哦', 'Please write something first')); return; }
+    if (!RATING) { toast(t('记得点星星评分哦', 'Please pick a star rating first')); return; }
+    btn.disabled = true;
+    btn.style.opacity = '.5';
+    var upload = file
+      ? fetch(SUPABASE_URL + '/storage/v1/object/reviews/' + Date.now() + '-' + file.name.replace(/[^\w.\-]/g, '_'), {
+          method: 'POST',
+          headers: { 'apikey': SUPABASE_ANON_KEY, 'Content-Type': file.type || 'image/jpeg' },
+          body: file
+        }).then(function (r) { if (!r.ok) throw new Error('upload failed'); return r.json(); })
+          .then(function (res) { return SUPABASE_URL + '/storage/v1/object/public/reviews/' + res.Key.split('/').slice(1).join('/'); })
+      : Promise.resolve(null);
+    upload.then(function (imageUrl) {
+      return fetch(SUPABASE_URL + '/rest/v1/reviews', {
+        method: 'POST',
+        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name, content: text, rating: RATING, image_url: imageUrl })
+      });
+    }).then(function (r) {
+      if (!r.ok) throw new Error();
+      toast(t('评价提交成功，谢谢你～', 'Review submitted, thank you~'));
+      document.getElementById('r-name').value = '';
+      document.getElementById('r-text').value = '';
+      document.getElementById('r-file').value = '';
+      RATING = 0;
+      paintStars();
+      loadReviews();
+    }).catch(function () {
+      toast(t('提交失败，稍后再试试', 'Submission failed, try again later'));
+    }).finally(function () {
+      btn.disabled = false;
+      btn.style.opacity = '';
     });
   });
+  loadReviews();
+  if (location.hash === '#reviews') {
+    setTimeout(function () {
+      var el = document.getElementById('reviews');
+      if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 74, behavior: 'smooth' });
+    }, 300);
+  }
 </script>
 </body>
 </html>

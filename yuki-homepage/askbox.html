@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>匿名提问箱 · Yuki / 柚子</title>
+<style>
+  :root {
+    --bg: #fffcfd;
+    --card: #fff2f7;
+    --card-hover: #ffe7f0;
+    --text: #5d6780;
+    --muted: #9aa5bd;
+    --accent: #ff6fa5;
+    --accent-soft: #ffc8d6;
+    --radius: 16px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    line-height: 1.6;
+    padding-top: 60px; /* 避开固定顶栏 */
+  }
+
+  /* ===== 顶部白色长条 + 汉堡菜单（与主页一致）===== */
+  .topbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 60px;
+    background: #ffffff;
+    box-shadow: 0 2px 12px rgba(255,143,171,.18);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+  }
+  .lang-switch {
+    display: flex;
+    gap: 4px;
+    background: var(--card);
+    padding: 4px;
+    border-radius: 999px;
+  }
+  .lang-btn {
+    border: none;
+    background: transparent;
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    color: var(--muted);
+    transition: background .2s, color .2s;
+  }
+  .lang-btn.active { background: var(--accent-soft); color: #fff; }
+  .burger {
+    width: 42px; height: 42px;
+    border: none;
+    border-radius: 12px;
+    background: var(--card);
+    cursor: pointer;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 5px;
+  }
+  .burger span {
+    width: 20px; height: 2px;
+    background: var(--text);
+    border-radius: 2px;
+    transition: transform .25s, opacity .25s;
+  }
+  .burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .burger.open span:nth-child(2) { opacity: 0; }
+  .burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  .site-logo {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: 96px; height: 48px;
+    border-radius: 8px;
+    display: block;
+    overflow: hidden;
+  }
+  .site-logo img { width: 100%; height: 100%; object-fit: cover; }
+  .menu-mask {
+    position: fixed; inset: 0;
+    background: rgba(93,103,128,.25);
+    opacity: 0; visibility: hidden;
+    transition: opacity .25s;
+    z-index: 150;
+  }
+  .menu-mask.open { opacity: 1; visibility: visible; }
+  .menu {
+    position: fixed;
+    top: 60px; right: 0; bottom: 0;
+    width: 250px;
+    background: #fffafc;
+    box-shadow: -4px 0 24px rgba(255,143,171,.18);
+    transform: translateX(100%);
+    transition: transform .25s;
+    z-index: 180;
+    padding: 24px 18px 24px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .menu.open { transform: translateX(0); }
+  .menu-link {
+    display: flex; align-items: center; gap: 12px;
+    padding: 13px 16px;
+    border-radius: 12px;
+    font-size: 15px;
+    color: var(--text);
+    transition: background .2s;
+  }
+  .menu-link:hover { background: var(--card); }
+  .menu-group { display: flex; flex-direction: column; }
+  .menu-toggle {
+    display: flex; align-items: center; gap: 12px;
+    padding: 13px 16px;
+    border: none;
+    background: none;
+    border-radius: 12px;
+    font-size: 15px;
+    color: var(--text);
+    cursor: pointer;
+    text-align: left;
+    transition: background .2s;
+  }
+  .menu-toggle:hover, .menu-group.open .menu-toggle { background: var(--card); }
+  .menu-toggle .plus {
+    margin-left: auto;
+    color: var(--muted);
+    font-size: 17px;
+    line-height: 1;
+  }
+  .menu-toggle .plus::before { content: "+"; }
+  .menu-group.open .menu-toggle .plus::before { content: "⌄"; }
+  .submenu {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height .3s ease;
+  }
+  .menu-group.open .submenu { max-height: 300px; }
+  .submenu a { padding-left: 40px; }
+  .submenu .dash { color: var(--muted); }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 48px 24px 64px; }
+  .back-link {
+    display: inline-flex; align-items: center; gap: 8px;
+    color: var(--muted); font-size: 14px;
+    padding: 8px 14px; border-radius: 999px;
+    background: var(--card); text-decoration: none; color: var(--text);
+    transition: background .2s;
+  }
+  .back-link:hover { background: var(--card-hover); }
+  h1 { font-size: 24px; margin: 24px 0 6px; }
+  .sub { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+
+  .ask-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 18px;
+    display: flex; flex-direction: column;
+    margin-bottom: 40px;
+  }
+  .ask-card textarea {
+    width: 100%; min-height: 110px;
+    border: none; border-radius: 12px;
+    background: #fff; padding: 12px 14px;
+    font-family: inherit; font-size: 14px;
+    color: var(--text); line-height: 1.6;
+    resize: vertical; outline: none;
+  }
+  .ask-card textarea::placeholder { color: var(--muted); }
+  .ask-card input {
+    margin-top: 10px;
+    border: none; border-radius: 12px;
+    background: #fff; padding: 10px 14px;
+    font-family: inherit; font-size: 13px;
+    color: var(--text); outline: none;
+  }
+  .ask-card input::placeholder { color: var(--muted); }
+  .contact-hint { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .ask-card button {
+    align-self: flex-end; margin-top: 12px;
+    border: none; background: var(--accent-soft); color: #fff;
+    font-size: 14px; padding: 9px 22px; border-radius: 999px;
+    cursor: pointer; transition: opacity .2s;
+  }
+  .ask-card button:hover { opacity: .85; }
+  .ask-card button:disabled { opacity: .5; cursor: default; }
+
+  h2 { font-size: 17px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  h2::before { content: ""; width: 4px; height: 17px; background: var(--accent); border-radius: 2px; }
+
+  .qa {
+    background: #fff;
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 10px rgba(180,120,150,.12);
+  }
+  .qa-q { font-size: 14px; white-space: pre-wrap; word-break: break-word; }
+  .qa-meta { font-size: 12px; color: var(--muted); margin-top: 8px; }
+  .qa-reply {
+    margin-top: 12px;
+    background: var(--card);
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 14px;
+    white-space: pre-wrap; word-break: break-word;
+  }
+  .qa-reply .reply-label { font-size: 12px; color: var(--accent); font-weight: 600; display: block; margin-bottom: 4px; }
+  .qa-pending { margin-top: 12px; font-size: 13px; color: var(--muted); font-style: italic; }
+  .empty { text-align: center; color: var(--muted); font-size: 14px; padding: 30px 0; }
+
+  .toast {
+    position: fixed; bottom: 32px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--text); color: #fff;
+    font-size: 14px; padding: 10px 22px;
+    border-radius: 999px; opacity: 0;
+    transition: opacity .25s, transform .25s;
+    z-index: 400; pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="lang-switch">
+    <button class="lang-btn" data-lang="zh">简体中文</button>
+    <button class="lang-btn" data-lang="en">English</button>
+  </div>
+  <a class="site-logo" href="index.html" aria-label="回主页"><img src="logo.png" alt="logo"></a>
+  <button class="burger" id="burger" aria-label="菜单">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+<div class="menu-mask" id="menu-mask"></div>
+<nav class="menu" id="menu">
+  <a class="menu-link" href="index.html">Home</a>
+  <div class="menu-group">
+    <button class="menu-toggle"><span data-zh="照片展示" data-en="Photo Gallery">照片展示</span><span class="plus"></span></button>
+    <div class="submenu">
+      <a href="index.html#instax"><span class="dash">-</span><span data-zh="拍立得展示" data-en="Instax Display">拍立得展示</span></a>
+      <a href="index.html#film"><span class="dash">-</span><span data-zh="胶卷相机照片展示" data-en="Film Camera Pictures">胶卷相机照片展示</span></a>
+      <a href="index.html#bjd"><span class="dash">-</span><span data-zh="BJD 展示" data-en="BJD Display">BJD 展示</span></a>
+    </div>
+  </div>
+  <div class="menu-group">
+    <button class="menu-toggle"><span data-zh="我的小铺" data-en="My Shop">我的小铺</span><span class="plus"></span></button>
+    <div class="submenu">
+      <a href="shop.html"><span class="dash">-</span><span data-zh="逛小铺" data-en="Shop">逛小铺</span></a>
+      <a href="shop.html#reviews"><span class="dash">-</span><span data-zh="评价返图" data-en="Review">评价返图</span></a>
+    </div>
+  </div>
+  <a class="menu-link" href="askbox.html"><span data-zh="匿名留言" data-en="Ask Box">匿名留言</span></a>
+  <a class="menu-link" href="admin.html"><span data-zh="柚子专属" data-en="Owner">柚子专属</span></a>
+</nav>
+
+<div class="wrap">
+  <a class="back-link" href="index.html" data-zh="← 返回主页" data-en="← Back to Home">← 返回主页</a>
+  <h1><span data-zh="匿名提问箱" data-en="Anonymous Q&A Box">匿名提问箱</span></h1>
+  <p class="sub"><span data-zh="悄悄问我任何话，完全匿名 · 柚子的回复会显示在下面" data-en="Ask me anything, totally anonymous · Yuki's replies are posted below">悄悄问我任何话，完全匿名 · 柚子的回复会显示在下面</span></p>
+
+  <div class="ask-card">
+    <textarea id="q-text" maxlength="1000" data-ph-zh="在这里写下想问的、想说的…（完全匿名哦）" data-ph-en="Write whatever you want to ask or say… (totally anonymous)"></textarea>
+    <input id="q-contact" maxlength="200" data-ph-zh="想被回复到的话，可以留个联系方式（选填，只有柚子能看到）" data-ph-en="Leave a contact if you want a reply back (optional, only Yuki can see it)">
+    <p class="contact-hint"><span data-zh="联系方式不会公开显示，只有柚子本人在后台能看到" data-en="Your contact is never shown publicly — only Yuki can see it in her dashboard">联系方式不会公开显示，只有柚子本人在后台能看到</span></p>
+    <button id="q-send"><span data-zh="匿名投递" data-en="Send anonymously">匿名投递</span></button>
+  </div>
+
+  <h2><span data-zh="柚子的回答墙" data-en="Yuki's Answer Wall">柚子的回答墙</span></h2>
+  <div id="qa-list"><p class="empty">加载中…</p></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  var SUPABASE_URL = 'https://zajcglvlzsolygvjeumb.supabase.co';
+  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InphamNnbHZsenNvbHlndmpldW1iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyMzI4NjUsImV4cCI6MjEwNjgwODg2NX0.7_Pthb3wPInb5v4o7IoWejozEvDZQgNPS8DgwikQ8ys';
+
+  function toast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(function () { t.classList.remove('show'); }, 2200);
+  }
+
+  function api(path, options) {
+    options = options || {};
+    options.headers = Object.assign({
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+      'Content-Type': 'application/json'
+    }, options.headers || {});
+    return fetch(SUPABASE_URL + '/rest/v1/' + path, options);
+  }
+
+  function esc(s) {
+    var d = document.createElement('div');
+    d.textContent = s == null ? '' : String(s);
+    return d.innerHTML;
+  }
+
+  function fmtTime(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    if (LANG === 'en') return (d.getMonth() + 1) + '/' + d.getDate();
+    return (d.getMonth() + 1) + '月' + d.getDate() + '日';
+  }
+
+  // ===== 中英双语切换（与主页联动）=====
+  var LANG = 'zh';
+  try { LANG = localStorage.getItem('yuki-lang') || 'zh'; } catch (err) {}
+  function t(zh, en) { return LANG === 'en' ? en : zh; }
+  function applyLang(lang) {
+    LANG = lang;
+    document.querySelectorAll('[data-zh][data-en]').forEach(function (node) {
+      node.textContent = lang === 'en' ? node.getAttribute('data-en') : node.getAttribute('data-zh');
+    });
+    document.querySelectorAll('[data-ph-zh]').forEach(function (node) {
+      node.placeholder = lang === 'en' ? node.getAttribute('data-ph-en') : node.getAttribute('data-ph-zh');
+    });
+    document.querySelectorAll('.lang-btn').forEach(function (b) {
+      b.classList.toggle('active', b.getAttribute('data-lang') === lang);
+    });
+    try { localStorage.setItem('yuki-lang', lang); } catch (err) {}
+    loadWall();
+  }
+  document.querySelectorAll('.lang-btn').forEach(function (b) {
+    b.addEventListener('click', function () { applyLang(b.getAttribute('data-lang')); });
+  });
+
+  // ===== 汉堡菜单（与主页一致）=====
+  var burger = document.getElementById('burger');
+  var menu = document.getElementById('menu');
+  var mask = document.getElementById('menu-mask');
+  function closeMenu() {
+    burger.classList.remove('open');
+    menu.classList.remove('open');
+    mask.classList.remove('open');
+  }
+  burger.addEventListener('click', function () {
+    burger.classList.toggle('open');
+    menu.classList.toggle('open');
+    mask.classList.toggle('open');
+  });
+  mask.addEventListener('click', closeMenu);
+  menu.querySelectorAll('a').forEach(function (a) { a.addEventListener('click', closeMenu); });
+  document.querySelectorAll('.menu-toggle').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      btn.closest('.menu-group').classList.toggle('open');
+    });
+  });
+
+  // 投递提问
+  document.getElementById('q-send').addEventListener('click', function () {
+    var btn = this;
+    var text = document.getElementById('q-text').value.trim();
+    var contact = document.getElementById('q-contact').value.trim();
+    if (!text) { toast(t('先写点什么再投递哦', 'Write something first')); return; }
+    btn.disabled = true;
+    btn.textContent = t('投递中…', 'Sending…');
+    api('questions?select=id', {
+      method: 'POST',
+      headers: { 'Prefer': 'return=representation' },
+      body: JSON.stringify({ content: text })
+    }).then(function (r) {
+      if (!r.ok) throw new Error('insert failed');
+      return r.json();
+    }).then(function (rows) {
+      if (contact && rows && rows[0] && rows[0].id) {
+        return api('contacts', {
+          method: 'POST',
+          body: JSON.stringify({ question_id: rows[0].id, contact: contact })
+        });
+      }
+    }).then(function () {
+      toast(t('投递成功！柚子会看到你的悄悄话', 'Sent! Yuki will see your message'));
+      document.getElementById('q-text').value = '';
+      document.getElementById('q-contact').value = '';
+      loadWall();
+    }).catch(function () {
+      toast(t('投递失败，稍后再试试', 'Failed to send, please try again later'));
+    }).finally(function () {
+      btn.disabled = false;
+      btn.innerHTML = '<span data-zh="匿名投递" data-en="Send anonymously">' + t('匿名投递', 'Send anonymously') + '</span>';
+    });
+  });
+
+  // 回答墙
+  function loadWall() {
+    api('questions?select=id,content,reply,created_at,replied_at&order=created_at.desc&limit=100')
+      .then(function (r) { return r.json(); })
+      .then(function (rows) {
+        var list = document.getElementById('qa-list');
+        if (!rows || !rows.length) {
+          list.innerHTML = '<p class="empty">' + t('还没有人投递，来做第一个吧', 'No messages yet — be the first!') + '</p>';
+          return;
+        }
+        list.innerHTML = rows.map(function (q) {
+          var replyHtml = q.reply
+            ? '<div class="qa-reply"><span class="reply-label">' + t('柚子 回复：', 'Yuki replied:') + '</span>' + esc(q.reply) + '</div>'
+            : '<div class="qa-pending">' + t('已收到，等柚子回复哦～', 'Received! Yuki will reply soon~') + '</div>';
+          return '<div class="qa">' +
+            '<div class="qa-q">' + esc(q.content) + '</div>' +
+            '<div class="qa-meta">' + t('匿名', 'Anonymous') + ' · ' + fmtTime(q.created_at) + '</div>' +
+            replyHtml + '</div>';
+        }).join('');
+      })
+      .catch(function () {
+        document.getElementById('qa-list').innerHTML =
+          '<p class="empty">' + t('加载失败，请稍后刷新重试', 'Failed to load, please refresh') + '</p>';
+      });
+  }
+  applyLang(LANG);
+  loadWall();
+</script>
+</body>
+</html>
