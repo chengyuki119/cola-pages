@@ -1306,18 +1306,20 @@
     try { (window.parent.__REQS || window.__REQS).push({ t: 'seed-call', access: !!ACCESS, seeded: SETTINGS['photos_seeded'] || '', seeding: SEEDING, ts: Date.now() % 100000 }); } catch (e) {}
     if (SETTINGS['photos_seeded'] || SEEDING || !ACCESS) return;
     SEEDING = true;
-    fetch('index.html').then(function (r) { return r.text(); }).then(function (html) {
+    fetch('/photos/index.html').then(function (r) { return r.text(); }).then(function (html) {
       var doc = new DOMParser().parseFromString(html, 'text/html');
       var rows = [];
-      [['page-instax', 'instax'], ['page-film', 'film']].forEach(function (pg) {
-        var box = doc.querySelector('#' + pg[0] + ' .album');
+      doc.querySelectorAll('section[data-sec]').forEach(function (secEl) {
+        var key = secEl.getAttribute('data-sec');
+        if (key === 'bjd') return; // BJD 不做照片展示
+        var box = secEl.querySelector('.album');
         if (!box) return;
         box.querySelectorAll('.album-item').forEach(function (fig, i) {
           var src = fig.getAttribute('data-img');
           if (!src) return;
           var cap = fig.querySelector('figcaption');
           rows.push({
-            category: pg[1],
+            category: key,
             image_url: src,
             caption_zh: cap ? (cap.getAttribute('data-zh') || cap.textContent.trim()) : '',
             caption_en: cap ? (cap.getAttribute('data-en') || '') : '',

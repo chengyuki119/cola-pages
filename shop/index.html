@@ -566,15 +566,10 @@
     });
   });
   loadReviews();
-  if (location.hash === '#reviews') {
+  var shopSec = new URLSearchParams(location.search).get('sec');
+  if (shopSec === 'reviews' || shopSec === 'pay') {
     setTimeout(function () {
-      var el = document.getElementById('reviews');
-      if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 74, behavior: 'smooth' });
-    }, 300);
-  }
-  if (location.hash === '#pay') {
-    setTimeout(function () {
-      var el = document.getElementById('pay');
+      var el = document.getElementById(shopSec);
       if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 74, behavior: 'smooth' });
     }, 300);
   }

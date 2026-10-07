@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<!--
+  ═══════════════════════════════════════════════
+  自己动手改这里（用任意文本编辑器打开本文件即可）：
+
+  1. 名字/签名：搜索「Yuki」和「欢迎食用」改成你的
+  2. 头像：文件名 avatar.jpg（放同文件夹即自动显示）
+  3. 封面背景图：文件名 cover.jpg（放同文件夹即自动显示）
+  4. 社交链接：搜索 class="link-card"，改 href 和账号名；
+     微信卡片点击自动复制微信号，号码在 JS 里的 WECHAT_ID 处改
+  5. 主页精选图：各 4 张，photos/vct1~4.jpg 和 photos/bjd1~4.jpg
+  6. 子页面全部照片：photos/vct5.jpg、vct6.jpg… 一直排下去，
+     文件存在就自动显示（子页面已预留到 12 张，更多就复制一行 div 改编号）
+
+  改完保存，刷新浏览器就能看到效果。
+  ═══════════════════════════════════════════════
+-->
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Photo Gallery · Yuki / 柚子</title>
+<link rel="stylesheet" href="/css/site.css">
+  <link rel="stylesheet" href="/site-menu.css">
+  <script src="/js/site-common.js"></script>
+  <script src="/site-menu.js" defer></script>
+</head>
+<body>
+
+<!-- 顶部白色长条：左边切换语言，中间 logo 点击回主页，右边菜单 -->
+<header class="topbar">
+  <div class="lang-switch">
+    <button class="lang-btn" data-lang="zh">简体中文</button>
+    <button class="lang-btn" data-lang="en">English</button>
+  </div>
+  <a class="site-logo" href="/" aria-label="回主页"><img src="/logo.png" alt="logo"></a>
+  <button class="burger" id="burger" aria-label="菜单">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+<div class="menu-mask" id="menu-mask"></div>
+<nav class="menu" id="menu"></nav>
+
+<div class="page active" id="page-photos">
+  <div class="subpage-header">
+    <a class="back-link" href="/"><span data-zh="← 返回主页" data-en="← Back to Home">← 返回主页</span></a>
+    <h1 class="subpage-title" data-zh="Photo Gallery" data-en="Photo Gallery">Photo Gallery</h1>
+    <p class="subpage-sub" data-zh="点开可全屏查看，可自行选择是否下载原图" data-en="Tap to view full screen · Optional download">点开可全屏查看，可自行选择是否下载原图</p>
+  </div>
+  <div class="page-body album-body" style="padding-top:0;">
+<section id="sec-instax" data-sec="instax">
+      <h2 data-zh="拍立得展示" data-en="Instax Picture Display">拍立得展示</h2>
+      <div class="album">
+        <figure class="album-item" data-img="photos/vct1.jpg">
+          <div class="album-img"></div>
+          <figcaption data-zh="Instax 01: VCT 美洲赛区第二阶段" data-en="Instax 01: VCT America Stage 2">Instax 01: VCT 美洲赛区第二阶段</figcaption>
+        </figure>
+      </div>
+    </section>
+<section id="sec-film" data-sec="film">
+      <h2 data-zh="胶卷相机照片展示" data-en="Film Camera Pictures Display">胶卷相机照片展示</h2>
+
+      <div class="album">
+        <figure class="album-item" data-img="photos/film1.jpg">
+          <div class="album-img"></div>
+          <figcaption data-zh="Film 01: 8/27 · 比赛结束" data-en="Film 01: 8/27 · After the game">Film 01: 8/27 · 比赛结束</figcaption>
+        </figure>
+        <figure class="album-item" data-img="photos/film2.jpg">
+          <div class="album-img"></div>
+          <figcaption data-zh="Film 02: 看不清" data-en="Film 02: Blurry">Film 02: 看不清</figcaption>
+        </figure>
+        <figure class="album-item" data-img="photos/film3.jpg">
+          <div class="album-img"></div>
+          <figcaption data-zh="Film 03: Spike, Jhein & Sato 合照" data-en="Film 03: Spike, Jhein & Sato group photo">Film 03: Spike, Jhein & Sato 合照</figcaption>
+        </figure>
+        <figure class="album-item" data-img="photos/film4.jpg">
+          <div class="album-img"></div>
+          <figcaption data-zh="Film 04: Sato & Spike 合照" data-en="Film 04: Sato & Spike group photo">Film 04: Sato & Spike 合照</figcaption>
+        </figure>
+        <figure class="album-item" data-img="photos/film5.jpg">
+          <div class="album-img"></div>
+          <figcaption data-zh="Film 05: Sato & Kingg 合照" data-en="Film 05: Sato & Kingg group photo">Film 05: Sato & Kingg 合照</figcaption>
+        </figure>
+        <figure class="album-item" data-img="photos/film6.jpg">
+          <div class="album-img"></div>
+          <figcaption data-zh="Film 06: Boia & Spike 自拍" data-en="Film 06: Boia & Spike selfie">Film 06: Boia & Spike 自拍</figcaption>
+        </figure>
+        <figure class="album-item" data-img="photos/film7.jpg">
+          <div class="album-img"></div>
+          <figcaption data-zh="Film 07: Onur, Blowz & Jhein 合照" data-en="Film 07: Onur, Blowz & Jhein group photo">Film 07: Onur, Blowz & Jhein 合照</figcaption>
+        </figure>
+        <figure class="album-item" data-img="photos/film8.jpg">
+          <div class="album-img"></div>
+          <figcaption data-zh="Film 08: Kingg, Onur, Blowz & Jhein 合照" data-en="Film 08: Kingg, Onur, Blowz & Jhein group photo">Film 08: Kingg, Onur, Blowz & Jhein 合照</figcaption>
+        </figure>
+        <figure class="album-item" data-img="photos/film9.jpg">
+          <div class="album-img"></div>
+          <figcaption data-zh="Film 09: 8.27 赛后" data-en="Film 09: After match 8.27">Film 09: 8.27 赛后</figcaption>
+        </figure>
+        <figure class="album-item" data-img="photos/film10.jpg">
+          <div class="album-img"></div>
+          <figcaption data-zh="Film 10: Sato & Boia 自拍" data-en="Film 10: Sato & Boia selfie">Film 10: Sato & Boia 自拍</figcaption>
+        </figure>
+        <figure class="album-item" data-img="photos/film13.jpg">
+          <div class="album-img"></div>
+          <figcaption data-zh="Film 11: 8.27 对阵 MIBR" data-en="Film 11: 8.27 vs MIBR">Film 11: 8.27 对阵 MIBR</figcaption>
+        </figure>
+        <figure class="album-item" data-img="photos/film12.jpg">
+          <div class="album-img"></div>
+          <figcaption data-zh="Film 12: 8.27 对阵 MIBR 1 比 0 拿下" data-en="Film 12: 8.27 vs MIBR 1-0">Film 12: 8.27 对阵 MIBR 1 比 0 拿下</figcaption>
+        </figure>
+        <figure class="album-item" data-img="photos/film11.jpg">
+          <div class="album-img"></div>
+          <figcaption data-zh="Film 13: 8.27 与 MIBR 赛后" data-en="Film 13: After game vs MIBR 8.27">Film 13: 8.27 与 MIBR 赛后</figcaption>
+        </figure>
+        <figure class="album-item" data-img="photos/film14.jpg">
+          <div class="album-img"></div>
+          <figcaption>Film 14: Neon</figcaption>
+        </figure>
+        <figure class="album-item" data-img="photos/film15.jpg">
+          <div class="album-img"></div>
+          <figcaption data-zh="Film 15: 与 Sato 合照" data-en="Film 15: Group photo with Sato">Film 15: 与 Sato 合照</figcaption>
+        </figure>
+        <figure class="album-item" data-img="photos/film16.jpg">
+          <div class="album-img"></div>
+          <figcaption data-zh="Film 16: 8.28 LOUD 对阵 NRG" data-en="Film 16: 8.28 LOUD vs NRG">Film 16: 8.28 LOUD 对阵 NRG</figcaption>
+        </figure>
+        <figure class="album-item" data-img="photos/film17.jpg">
+          <div class="album-img"></div>
+          <figcaption data-zh="Film 17: Blowz & Boia 合照" data-en="Film 17: Blowz & Boia group photo">Film 17: Blowz & Boia 合照</figcaption>
+        </figure>
+        <figure class="album-item" data-img="photos/film18.jpg">
+          <div class="album-img"></div>
+          <figcaption data-zh="Film 18: 8.28 对阵 100T" data-en="Film 18: 8.28 vs 100T">Film 18: 8.28 对阵 100T</figcaption>
+        </figure>
+        <figure class="album-item" data-img="photos/film19.jpg">
+          <div class="album-img"></div>
+          <figcaption>Film 19: Sato</figcaption>
+        </figure>
+        <figure class="album-item" data-img="photos/film20.jpg">
+          <div class="album-img"></div>
+          <figcaption data-zh="Film 20: Kingg 娃娃" data-en="Film 20: Kingg's doll">Film 20: Kingg 娃娃</figcaption>
+        </figure>
+        <figure class="album-item" data-img="photos/film21.jpg">
+          <div class="album-img"></div>
+          <figcaption data-zh="Film 21: 8.28 赛后" data-en="Film 21: After game 8.28">Film 21: 8.28 赛后</figcaption>
+        </figure>
+        <figure class="album-item" data-img="photos/film22.jpg">
+          <div class="album-img"></div>
+          <figcaption>Film 22: LEV</figcaption>
+        </figure>
+        <figure class="album-item" data-img="photos/film23.jpg">
+          <div class="album-img"></div>
+          <figcaption data-zh="Film 23: Riot Games 场馆外" data-en="Film 23: Outside of Riot Games Arena">Film 23: Riot Games 场馆外</figcaption>
+        </figure>
+        <figure class="album-item" data-img="photos/film24.jpg">
+          <div class="album-img"></div>
+          <figcaption data-zh="Film 24: Spike 键盘" data-en="Film 24: Spike's keyboard">Film 24: Spike 键盘</figcaption>
+        </figure>
+      
+      </div>
+  </section>
+    <footer>© 2026 Yuki · Made with Cola</footer>
+  </div>
+</div>
+<div class="lightbox" id="lightbox">
+  <img id="lightbox-img" alt="">
+  <div class="lightbox-info" id="lightbox-info"></div>
+  <div class="lightbox-bar">
+    <a class="lightbox-btn" id="lightbox-download" download="photo.jpg">下载原图</a>
+    <button class="lightbox-btn" id="lightbox-close">关闭</button>
+  </div>
+</div>
+
+
+<div class="toast" id="toast"></div>
+<script>
+  // ===== Photo Gallery：独立子页（数据库驱动 + 静态回退） =====
+  var PHOTO_STYLES = {};
+  function albumHtml(list) {
+    return list.map(function (p) {
+      var zh = p.caption_zh || '';
+      var en = p.caption_en || zh;
+      var st = PHOTO_STYLES[p.id];
+      return '<figure class="album-item' + (st && st !== 'normal' ? ' st-' + escAttrDb(st) : '') + '" data-img="' + escAttrDb(p.image_url) + '">' +
+        '<div class="album-img"></div>' +
+        '<figcaption data-zh="' + escAttrDb(zh) + '" data-en="' + escAttrDb(en) + '">' + escDb(zh) + '</figcaption>' +
+        '</figure>';
+    }).join('');
+  }
+  function fillAlbum(box, list) {
+    box.innerHTML = albumHtml(list);
+    box.querySelectorAll('.album-item').forEach(function (fig) {
+      loadDbImg(fig.querySelector('.album-img'), fig.getAttribute('data-img'));
+      bindCaption(fig.querySelector('figcaption'));
+    });
+  }
+  function loadPhotoRows() {
+    // 新字段（pinned/home）没建之前自动回退旧查询，照片功能不受影响
+    return fetch(DB_BASE + 'photos?select=id,category,image_url,caption_zh,caption_en,pinned,home&order=pinned.desc,sort.asc,created_at.asc&limit=300', { headers: DB_HEADERS })
+      .then(function (r) { if (!r.ok) throw new Error(); return r.json(); })
+      .catch(function () {
+        return dbFetch('photos?select=id,category,image_url,caption_zh,caption_en&order=sort.asc,created_at.asc&limit=300');
+      });
+  }
+
+  // 静态占位照片：数据库没数据时兜底显示，缺文件自动隐藏
+  document.querySelectorAll('section[data-sec] .album-item[data-img]').forEach(function (fig) {
+    var src = normImg(fig.getAttribute('data-img'));
+    var probe = new Image();
+    probe.onload = function () {
+      var img = document.createElement('img');
+      img.src = src;
+      img.alt = '照片';
+      fig.querySelector('.album-img').appendChild(img);
+    };
+    probe.onerror = function () { fig.style.display = 'none'; };
+    probe.src = src;
+  });
+  document.querySelectorAll('section[data-sec] .album-item figcaption').forEach(bindCaption);
+
+  Promise.all([
+    dbFetch('photo_sections?select=id,key,name_zh,name_en,sort&order=sort.asc,created_at.asc&limit=100'),
+    loadPhotoRows(),
+    dbFetch('site_settings?select=key,value&key=eq.photo_styles&limit=1').then(function (rr) {
+      (rr || []).forEach(function (row) { try { PHOTO_STYLES = JSON.parse(row.value || '{}') || {}; } catch (e) {} });
+      return null;
+    })
+  ]).then(function (res) {
+    var sections = res[0] || [];
+    var rows = res[1] || [];
+    if (!sections.length) return;
+    var groups = {};
+    rows.forEach(function (p) {
+      (groups[p.category] = groups[p.category] || []).push(p);
+    });
+    sections.forEach(function (sec) {
+      var list = groups[sec.key] || [];
+      if (sec.key === 'bjd') return; // BJD 不做照片展示（预览在主页）
+      var box = document.querySelector('#sec-' + sec.key + ' .album');
+      if (!box) {
+        // 新增分区：动态建区块
+        var secEl = document.createElement('section');
+        secEl.id = 'sec-' + sec.key;
+        secEl.setAttribute('data-sec', sec.key);
+        secEl.innerHTML = '<h2 data-zh="' + escAttrDb(sec.name_zh) + '" data-en="' + escAttrDb(sec.name_en) + '">' + escDb(sec.name_zh) + '</h2><div class="album"></div>';
+        var footer = document.querySelector('footer');
+        if (footer) footer.parentNode.insertBefore(secEl, footer);
+        else document.querySelector('.page-body').appendChild(secEl);
+        box = secEl.querySelector('.album');
+      }
+      if (list.length) fillAlbum(box, list);
+    });
+    window.PHOTO_SECTIONS = sections.filter(function (sec) {
+      return sec.key !== 'bjd' && ((groups[sec.key] || []).length || document.getElementById('sec-' + sec.key));
+    }).sort(function (a, b) { return (a.sort || 0) - (b.sort || 0); });
+    // 照片展示文案（后台同步）：页面标题 + 说明小字
+    dbFetch('site_settings?select=key,value&key=eq.gallery_copy&limit=1').then(function (rr) {
+      var gc = {};
+      try { (rr || []).forEach(function (row) { gc = JSON.parse(row.value || '{}') || {}; }); } catch (e) {}
+      var tt = document.querySelector('.subpage-title');
+      if (tt && gc.title_zh) {
+        tt.setAttribute('data-zh', gc.title_zh);
+        tt.setAttribute('data-en', gc.title_en || gc.title_zh);
+        tt.textContent = (LANG === 'en' && gc.title_en) ? gc.title_en : gc.title_zh;
+      }
+      if (gc.sub_zh || gc.sub_en) {
+        var sp = document.querySelector('.subpage-sub');
+        if (sp) {
+          var zh = gc.sub_zh || sp.getAttribute('data-zh') || '';
+          var en = gc.sub_en || zh;
+          sp.setAttribute('data-zh', zh);
+          sp.setAttribute('data-en', en);
+          sp.textContent = (LANG === 'en') ? en : zh;
+        }
+      }
+    });
+  }).catch(function () {});
+
+  // /photos/?sec=xxx → 滚动到对应分区（来自菜单）
+  (function () {
+    var sec = new URLSearchParams(location.search).get('sec');
+    if (sec) {
+      var el = document.getElementById('sec-' + sec);
+      if (el) scrollToEl(el);
+    }
+  })();
+  if (window.SiteMenu) SiteMenu.notify('gallery');
+  applyLang(LANG);
+</script>
+
+</body>
+</html>

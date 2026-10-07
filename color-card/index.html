@@ -1,6 +1,175 @@
 <!DOCTYPE html>
-<html lang="zh"><head><meta charset="utf-8">
-<meta http-equiv="refresh" content="0;url=/#cards">
-<link rel="canonical" href="/#cards">
-<script>location.replace('/#cards');</script>
-</head><body></body></html>
+<html lang="zh-CN">
+<!--
+  ═══════════════════════════════════════════════
+  自己动手改这里（用任意文本编辑器打开本文件即可）：
+
+  1. 名字/签名：搜索「Yuki」和「欢迎食用」改成你的
+  2. 头像：文件名 avatar.jpg（放同文件夹即自动显示）
+  3. 封面背景图：文件名 cover.jpg（放同文件夹即自动显示）
+  4. 社交链接：搜索 class="link-card"，改 href 和账号名；
+     微信卡片点击自动复制微信号，号码在 JS 里的 WECHAT_ID 处改
+  5. 主页精选图：各 4 张，photos/vct1~4.jpg 和 photos/bjd1~4.jpg
+  6. 子页面全部照片：photos/vct5.jpg、vct6.jpg… 一直排下去，
+     文件存在就自动显示（子页面已预留到 12 张，更多就复制一行 div 改编号）
+
+  改完保存，刷新浏览器就能看到效果。
+  ═══════════════════════════════════════════════
+-->
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Color Cards · Yuki / 柚子</title>
+<link rel="stylesheet" href="/css/site.css">
+  <link rel="stylesheet" href="/site-menu.css">
+  <script src="/js/site-common.js"></script>
+  <script src="/site-menu.js" defer></script>
+</head>
+<body>
+
+<!-- 顶部白色长条：左边切换语言，中间 logo 点击回主页，右边菜单 -->
+<header class="topbar">
+  <div class="lang-switch">
+    <button class="lang-btn" data-lang="zh">简体中文</button>
+    <button class="lang-btn" data-lang="en">English</button>
+  </div>
+  <a class="site-logo" href="/" aria-label="回主页"><img src="/logo.png" alt="logo"></a>
+  <button class="burger" id="burger" aria-label="菜单">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+<div class="menu-mask" id="menu-mask"></div>
+<nav class="menu" id="menu"></nav>
+
+<div class="page active" id="page-color-card">
+  <div id="cards-list-page">
+  <div class="subpage-header">
+    <a class="back-link" href="/"><span data-zh="← 返回主页" data-en="← Back to Home">← 返回主页</span></a>
+    <h1 class="subpage-title" data-zh="色卡" data-en="Color Cards">色卡</h1>
+    <p class="subpage-sub" data-zh="原创圈我的色卡宝宝们" data-en="My color card babies">原创圈我的色卡宝宝们</p>
+  </div>
+  <div class="page-body album-body" style="padding-top:0;">
+    <div id="cards-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;"></div>
+  </div>
+  </div>
+  <div id="card-page-view" style="display:none;">
+  <div class="subpage-header">
+    <a class="back-link" href="/color-card/"><span data-zh="← 返回色卡列表" data-en="← Back to Color Cards">← 返回色卡列表</span></a>
+    <h1 class="subpage-title" id="card-view-title">色卡详情</h1>
+    <p class="subpage-sub" data-zh="原创圈我的色卡宝宝们" data-en="My color card babies">原创圈我的色卡宝宝们</p>
+  </div>
+  <div class="page-body album-body" style="padding-top:0;">
+    <div id="card-view-body"></div>
+  </div>
+  </div>
+</div>
+<div id="share-pop"></div>
+<div class="toast" id="toast"></div>
+<script>
+  // ===== 色卡：独立子页（列表 + 详情 /color-card/?card=N）=====
+  var CURRENT_CARD = -1;
+  function renderCardView() {
+    var body = document.getElementById('card-view-body');
+    var c = CARDS_CACHE[CURRENT_CARD];
+    if (!body) return;
+    if (!c) { body.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px 0;">没有找到这张色卡</p>'; return; }
+    var title = document.getElementById('card-view-title');
+    if (title) title.textContent = c.name || '未命名色卡';
+    var priceLines = c.artists.map(function (a, i) {
+      var rows = a.rows.map(function (r) {
+        return '<div class="sc-row">' +
+          '<span>' + escDb(r.label || '其他') + '</span>' +
+          '<span style="text-align:right;">¥' + (r.price == null ? '' : escDb(r.price)) + '</span>' +
+          '<span class="r-x">×</span>' +
+          '<span style="text-align:right;">' + (parseInt(r.qty, 10) || 0) + '</span>' +
+          '<span class="r-eq">=</span>' +
+          '<b class="r-total">¥' + fmtMoney(rowTotalV(r)) + '</b>' +
+          '</div>';
+      }).join('');
+      return '<div style="margin-bottom:' + (i === c.artists.length - 1 ? '0' : '16px') + ';">' +
+        '<div style="font-size:12px;color:var(--muted);margin-bottom:4px;">画师 ' + (i + 1) + '</div>' +
+        '<b style="font-size:14px;display:block;margin-bottom:8px;">' + escDb(a.name || ('画师 ' + (i + 1))) + '</b>' +
+        rows +
+        '<div style="border-top:1px solid var(--card-hover);margin-top:8px;padding-top:8px;font-size:13px;color:var(--muted);">' + labelAggV(a) + ' · 共 ' + artistCountV(a) + ' 张 · 小计 <b style="color:var(--accent);">¥' + fmtMoney(artistSubV(a)) + '</b></div>' +
+        '</div>';
+    }).join('');
+    body.innerHTML =
+      (c.image ? '<div style="width:100%;max-width:420px;aspect-ratio:1/1;margin:0 auto 18px;overflow:hidden;border-radius:var(--radius);background:var(--card);"><img src="' + escAttrDb(normImg(c.image)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="色卡"></div>' : '') +
+      '<div style="text-align:center;margin-bottom:18px;">' +
+      '<span style="font-size:18px;font-weight:700;">' + escDb(c.name || '未命名色卡') + '</span>' +
+      (c.shop ? '<span style="color:var(--muted);font-size:14px;">　|　' + escDb(c.shop) + '</span>' : '') +
+      '</div>' +
+      '<div style="text-align:center;margin-bottom:18px;"><span style="font-size:20px;font-weight:700;color:var(--accent);">色卡最终总金额 ¥' + fmtMoney(cardFinalV(c)) + '</span><span style="color:var(--muted);font-size:14px;margin-left:14px;">色卡总数 ' + cardCountV(c) + ' 张</span></div>' +
+      '<div class="card" style="padding:18px 20px;margin-bottom:14px;">' +
+      '<h2 style="font-size:16px;">私调明细</h2>' +
+      (c.origPrice != null && c.origPrice !== '' ?
+        '<div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--card-hover);padding-bottom:10px;margin-bottom:14px;">' +
+        '<span style="font-size:14px;color:var(--muted);">色卡购入价</span>' +
+        '<b style="font-size:15px;">¥' + fmtMoney(c.origPrice) + '</b>' +
+        '</div>' : '') +
+      priceLines +
+      '<div style="border-top:1px solid var(--card-hover);margin-top:12px;padding-top:10px;display:flex;align-items:center;justify-content:space-between;">' +
+      '<span style="font-size:15px;font-weight:700;">色卡最终总金额</span>' +
+      '<b style="font-size:17px;color:var(--accent);">¥' + fmtMoney(cardFinalV(c)) + '</b>' +
+      '</div>' +
+      '</div>';
+  }
+
+  // 数据：与后台同一份
+  dbFetch('site_settings?select=key,value&limit=100').then(function (rows) {
+    var S = {};
+    (rows || []).forEach(function (r) { S[r.key] = r.value; });
+    var cardsRaw = null;
+    try { cardsRaw = JSON.parse(S['cards'] || 'null'); } catch (e) {}
+    var cardsList = Array.isArray(cardsRaw) ? cardsRaw : (cardsRaw && cardsRaw.artists ? cardsRaw.artists : []);
+    CARDS_CACHE = cardsList.map(function (c) { return normCardView(c); });
+    var cGrid = document.getElementById('cards-grid');
+    if (!CARDS_CACHE.length) {
+      cGrid.style.display = 'block';
+      cGrid.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px 0;font-size:14px;">还没有色卡，去后台「色卡管理」新建吧</p>';
+    } else {
+      cGrid.style.display = 'grid';
+      cGrid.innerHTML = CARDS_CACHE.map(function (c, i) {
+        return '<div class="card sc-product" data-i="' + i + '" style="margin-bottom:0;padding:0;overflow:hidden;cursor:pointer;position:relative;">' +
+          (c.image ? '<div style="width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--card);"><img src="' + escAttrDb(normImg(c.image)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="色卡"></div>' : '') +
+          '<div style="padding:12px 14px;">' +
+          '<div style="display:flex;align-items:center;gap:8px;">' +
+          '<b style="flex:1;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(c.name || '未命名色卡') + '</b>' +
+          shareBtnHtml(i, null, true) +
+          '</div>' +
+          (c.shop ? '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + escDb(c.shop) + '</div>' : '') +
+          '<div style="font-size:12px;color:var(--muted);margin-top:3px;">画师 ' + c.artists.length + ' 位 · 共 ' + cardCountV(c) + ' 张</div>' +
+          '<div style="display:flex;align-items:center;gap:8px;margin-top:4px;">' +
+          '<span style="flex:1;font-size:14px;color:var(--accent);font-weight:600;">总价 ¥' + fmtMoney(cardFinalV(c)) + '</span>' +
+          cardEditBtn(i) +
+          '</div>' +
+          '</div></div>';
+      }).join('');
+    }
+    // ?card=N → 直接打开色卡详情
+    var card = new URLSearchParams(location.search).get('card');
+    if (card != null && !isNaN(parseInt(card, 10))) {
+      CURRENT_CARD = parseInt(card, 10);
+      document.getElementById('cards-list-page').style.display = 'none';
+      document.getElementById('card-page-view').style.display = '';
+      renderCardView();
+    }
+  }).catch(function () {});
+
+  document.getElementById('cards-grid').addEventListener('click', function (e) {
+    if (e.target.closest('.share-btn')) return; // 分享按钮自己处理
+    var eb = e.target.closest('.card-edit-btn');
+    if (eb) { // 编辑卡：直接进入后台的编辑色卡（按 card_id）
+      try { sessionStorage.setItem('admin-edit-card', eb.getAttribute('data-edit-card')); } catch (err) {}
+      location.href = '/admin.html#cards';
+      return;
+    }
+    var pc = e.target.closest('.sc-product');
+    if (pc) location.href = '/color-card/?card=' + pc.getAttribute('data-i');
+  });
+  if (window.SiteMenu) SiteMenu.notify('cards');
+  applyLang(LANG);
+</script>
+
+</body>
+</html>
