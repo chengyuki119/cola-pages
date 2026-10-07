@@ -202,32 +202,39 @@
   .photo:hover { transform: scale(1.03); }
   .photo img { width: 100%; height: 100%; object-fit: cover; }
 
-  /* 相册：拼贴网格，横图扁图填排、竖图跨两行，编号大致从左到右 */
+  /* 相册：照片卡片 Grid。列数由每分区「每行显示」设置驱动（--pr），默认 4；
+     平板最多 3 列、手机最多 2 列，只缩不增，桌面端严格等于设置值 */
   .album {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(var(--pr, 4), 1fr);
     gap: 14px;
     padding: 6px 0 30px;
   }
+  @media (max-width: 900px) { .album { grid-template-columns: repeat(var(--pr-md, 3), 1fr); } }
+  @media (max-width: 640px) { .album { grid-template-columns: repeat(var(--pr-sm, 2), 1fr); } }
   .album-item {
     margin: 0;
-    align-self: start;
+    display: flex;
+    flex-direction: column;
     background: #fff;
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 2px 10px rgba(180,120,150,.12);
   }
-  @media (max-width: 700px) {
-    .album { grid-template-columns: repeat(2, 1fr); }
-  }
-  .album-item .album-img { aspect-ratio: 1 / 1; line-height: 0; }
+  .album-item .album-img { aspect-ratio: 1 / 1; line-height: 0; position: relative; overflow: hidden; }
   .album-item img { width: 100%; height: 100%; object-fit: cover; display: block; cursor: pointer; }
   .album-item figcaption {
     font-size: 13px;
     color: var(--muted);
     line-height: 1.45;
-    padding: 7px 12px 8px;
+    padding: 7px 12px 9px;
     outline: none;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 2.9em;
+    box-sizing: border-box;
   }
   .album-item figcaption:empty::before {
     content: "在这里写一小段话…";
@@ -459,15 +466,13 @@
   .lb-zh { font-size: 15px; margin-top: 12px; }
   .lb-en { font-size: 12px; opacity: .75; margin-top: 2px; }
   .lb-sec { display: inline-block; font-size: 12px; margin-top: 8px; color: #ffd3e2; background: rgba(255,255,255,.12); border-radius: 999px; padding: 2px 10px; }
-  /* 照片展示类型：拍立得 / 胶卷 / VCD（轻装饰，不影响照片清晰度） */
-  .album-item.st-instax { background: #fff; padding: 10px 10px 4px; border-radius: 6px; box-shadow: 0 4px 14px rgba(180,120,150,.18); }
-  .album-item.st-film { background: #3f3844; padding: 16px 8px 10px; border-radius: 8px; position: relative; }
-  .album-item.st-film::before, .album-item.st-film::after { content: ''; position: absolute; left: 8px; right: 8px; height: 7px; background-image: repeating-linear-gradient(90deg, rgba(255,255,255,.55) 0 5px, transparent 5px 13px); border-radius: 2px; }
-  .album-item.st-film::before { top: 4px; }
-  .album-item.st-film::after { bottom: 4px; }
-  .album-item.st-film figcaption { color: #fff; }
-  .album-item.st-film figcaption:empty::before { color: rgba(255,255,255,.4); }
-  .album-item.st-vcd .album-img { border-radius: 10px; box-shadow: inset 0 0 0 3px rgba(255,255,255,.55); position: relative; }
+  /* 照片展示类型：拍立得 / 胶卷 / VCD（装饰作用于图片区，标题统一在白色卡底部） */
+  .album-item.st-instax .album-img { background: #fff; padding: 8px 8px 6px; box-sizing: border-box; box-shadow: 0 2px 8px rgba(180,120,150,.16); }
+  .album-item.st-film .album-img { background: #3f3844; padding: 14px 8px 10px; box-sizing: border-box; }
+  .album-item.st-film .album-img::before, .album-item.st-film .album-img::after { content: ''; position: absolute; left: 8px; right: 8px; height: 6px; background-image: repeating-linear-gradient(90deg, rgba(255,255,255,.55) 0 5px, transparent 5px 13px); border-radius: 2px; }
+  .album-item.st-film .album-img::before { top: 4px; }
+  .album-item.st-film .album-img::after { bottom: 4px; }
+  .album-item.st-vcd .album-img { border-radius: 10px; box-shadow: inset 0 0 0 3px rgba(255,255,255,.55); }
   .album-item.st-vcd .album-img::after { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, rgba(255,255,255,.06) 0 2px, transparent 2px 4px); pointer-events: none; border-radius: 10px; }
   .lightbox-bar { display: flex; gap: 12px; cursor: default; }
   .lightbox-btn {

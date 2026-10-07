@@ -273,16 +273,27 @@
   .edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex: 1; min-width: 0; }
   .edit-grid .e-desc, .edit-grid .e-file { grid-column: 1 / -1; }
   /* 照片管理列表：紧凑一行卡（缩略图 72px + 信息） */
-  /* 照片列表卡：与色卡列表卡同一套语言（白卡、图贴边、文字右对齐区、⋮ 同一垂直线） */
-  .photo-item { display: flex; align-items: stretch; padding: 0; overflow: hidden; position: relative; }
-  .photo-item > .kebab { background: #fff; top: 50%; transform: translateY(-50%); right: 10px; }
-  .photo-item .thumb { width: 72px; min-height: 72px; border-radius: 0; overflow: hidden; background: var(--card-hover); flex-shrink: 0; position: relative; }
+  /* 照片管理：4 列照片卡片网格（与前台同一套视觉；管理操作全在卡片内） */
+  #photo-list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  @media (max-width: 900px) { #photo-list { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 640px) { #photo-list { grid-template-columns: repeat(2, 1fr); } }
+  .photo-item { display: flex; flex-direction: column; padding: 0; overflow: hidden; position: relative; }
+  .photo-item > .kebab { background: rgba(255,255,255,.92); top: 8px; right: 8px; z-index: 2; }
+  .photo-item .thumb { width: 100%; aspect-ratio: 1 / 1; overflow: hidden; background: var(--card-hover); position: relative; }
   .photo-item .thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
-  .photo-item .info { flex: 1; min-width: 0; padding: 10px 46px 10px 12px; display: flex; flex-direction: column; justify-content: center; gap: 3px; }
-  .photo-item .ph-title { font-size: 14px; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .photo-item .info { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 3px; }
+  .photo-item .ph-title { font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 1.4em; }
   .photo-item .ph-meta { font-size: 12px; color: var(--muted); }
-  .photo-item .edit-grid { margin-top: 6px; }
+  .photo-item .edit-grid { grid-template-columns: 1fr; margin-top: 6px; }
   .photo-item .actions { margin-top: 8px; }
+  /* 每行显示选择器（分区设置）：4 个可视化布局选项，不用原生 select */
+  .pr-picker { display: flex; gap: 6px; flex-wrap: wrap; }
+  .pr-opt { display: flex; flex-direction: column; align-items: center; gap: 4px; border: 1px solid #f6d9e6; background: var(--card); border-radius: 10px; padding: 7px 8px 5px; cursor: pointer; font-size: 11px; color: var(--muted); font-family: inherit; transition: background .2s, border-color .2s, color .2s; }
+  .pr-opt:hover { background: var(--card-hover); }
+  .pr-opt.active { background: var(--accent-soft); border-color: var(--accent); color: #fff; }
+  .pr-demo { display: grid; gap: 2px; width: 38px; height: 22px; }
+  .pr-demo i { background: var(--accent-soft); border-radius: 2px; display: block; }
+  .pr-opt.active .pr-demo i { background: #fff; }
   /* 上传新照片：字段行内小标签 + 统一间距 */
   .fld-inline { display: flex; align-items: center; gap: 8px; min-width: 0; }
   .fld-label { font-size: 12px; color: var(--muted); flex-shrink: 0; }
@@ -446,6 +457,7 @@
           <input id="sec-zh" placeholder="分区名称（中文），如：日常碎片">
           <input id="sec-en" placeholder="分区名称（英文），如：Daily Moments">
           <input id="sec-sort" type="number" placeholder="排序数字（小的在前，可留空）">
+          <div class="full" style="margin-top:2px;"><div style="font-size:12px;color:var(--muted);margin-bottom:4px;">每行显示（前台 Photo Gallery 布局）</div><div id="sec-pr"></div></div>
         </div>
         <div class="actions">
           <button class="btn-save" id="btn-add-section">添加分区</button>
@@ -961,6 +973,42 @@
     var s = SECTIONS.filter(function (x) { return x.key === key; })[0];
     return s ? s.name_zh : key;
   }
+  // 每分区「每行显示」（1..4）：存 site_settings.photo_grid（{ 分区key: N }），按分区独立保存
+  function photoGridParse() {
+    try { return JSON.parse(SETTINGS['photo_grid'] || '{}') || {}; } catch (e) { return {}; }
+  }
+  function photoGridOf(key) {
+    var n = parseInt(photoGridParse()[key], 10);
+    return (n >= 1 && n <= 4) ? n : 4; // 旧分区没有设置：默认 4 个一排
+  }
+  function photoGridSave(key, n) { // n 为 null 表示删除该分区的设置
+    var pg = photoGridParse();
+    if (n == null) delete pg[key]; else pg[key] = n;
+    SETTINGS['photo_grid'] = JSON.stringify(pg);
+    saveSetting('photo_grid', pg);
+  }
+  function prPickerHtml(val) {
+    val = val || 4;
+    return '<div class="pr-picker" data-value="' + val + '">' + [1, 2, 3, 4].map(function (n) {
+      var cells = '';
+      for (var i = 0; i < n * 2; i++) cells += '<i></i>';
+      return '<button type="button" class="pr-opt' + (n === val ? ' active' : '') + '" data-n="' + n + '">' +
+        '<span class="pr-demo pr-demo-' + n + '">' + cells + '</span>' +
+        '<span>' + n + ' 个一排</span></button>';
+    }).join('') + '</div>';
+  }
+  document.addEventListener('click', function (e) {
+    var opt = e.target.closest('.pr-opt');
+    if (!opt) return;
+    var pick = opt.closest('.pr-picker');
+    pick.querySelectorAll('.pr-opt').forEach(function (o) { o.classList.toggle('active', o === opt); });
+    pick.setAttribute('data-value', opt.getAttribute('data-n'));
+  });
+  (function initSecPr() {
+    var el = document.getElementById('sec-pr');
+    if (el && !el.innerHTML) el.innerHTML = prPickerHtml(4); // 新增分区默认 4 个一排
+  })();
+
   function loadSections(done) {
     api('photo_sections?select=id,key,name_zh,name_en,sort&order=sort.asc,created_at.asc&limit=100')
       .then(function (r) { return r.json(); })
@@ -977,7 +1025,7 @@
                 '<div style="display:flex;align-items:center;gap:12px;">' +
                 '<div style="flex:1;min-width:0;">' +
                 '<div class="sec-name">' + esc(s.name_zh) + '</div>' +
-                '<div class="sec-meta">' + esc(s.name_en) + ' · 排序 ' + (s.sort == null ? 0 : s.sort) + '</div>' +
+                '<div class="sec-meta">' + esc(s.name_en) + ' · 排序 ' + (s.sort == null ? 0 : s.sort) + ' · 每行 ' + photoGridOf(s.key) + ' 张</div>' +
                 '</div>' +
                 '<button class="kebab sec-kebab" title="编辑分区">⋮</button>' +
                 '</div>' +
@@ -999,6 +1047,8 @@
       body: JSON.stringify({ key: key, name_zh: zh, name_en: en || zh, sort: sort === '' ? 99 : parseInt(sort, 10) })
     }).then(function (r) {
       if (!r.ok) throw new Error();
+      var prPick = document.querySelector('#sec-pr .pr-picker');
+      if (prPick) photoGridSave(key, parseInt(prPick.getAttribute('data-value') || '4', 10));
       toast('分区已添加');
       document.getElementById('sec-zh').value = '';
       document.getElementById('sec-en').value = '';
@@ -1019,6 +1069,7 @@
         '<input data-f="name_en" value="' + escAttr(sec.name_en) + '" placeholder="名称（英文）">' +
         '<input data-f="sort" type="number" value="' + (sec.sort == null ? 0 : sec.sort) + '" placeholder="排序数字">' +
         '</div>' +
+        '<div style="margin-top:8px;"><div style="font-size:12px;color:var(--muted);margin-bottom:4px;">每行显示（前台 Photo Gallery 布局）</div>' + prPickerHtml(photoGridOf(sec.key)) + '</div>' +
         '<div class="actions" style="justify-content:flex-start;">' +
         '<button class="btn-mini btn-save-section">保存</button>' +
         '<button class="btn-del btn-del-section">删除</button>' +
@@ -1032,12 +1083,15 @@
         body[k] = k === 'sort' ? (el.value === '' ? 0 : parseInt(el.value, 10)) : el.value.trim();
       });
       if (!body.name_zh) { toast('名称不能为空'); return; }
+      var pick = card.querySelector('.pr-picker');
+      if (pick) photoGridSave(sec.key, parseInt(pick.getAttribute('data-value') || '4', 10));
       api('photo_sections?id=eq.' + id, { method: 'PATCH', body: JSON.stringify(body) })
         .then(function (r) { if (!r.ok) throw new Error(); toast('已保存'); loadSections(); })
         .catch(function () { toast('保存失败'); });
     }
     if (e.target.classList.contains('btn-del-section')) {
       if (!confirm('确定删除这个分区吗？分区里的照片不会删，但不会再显示。')) return;
+      photoGridSave(sec.key, null);
       api('photo_sections?id=eq.' + id, { method: 'DELETE' })
         .then(function (r) { if (!r.ok) throw new Error(); toast('已删除'); loadSections(); })
         .catch(function () { toast('删除失败'); });
@@ -1303,7 +1357,6 @@
   }
   var SEEDING = false; // 防重入：两个 loadPhotoList 并发时只导一次
   function seedPhotosFromHomepage() {
-    try { (window.parent.__REQS || window.__REQS).push({ t: 'seed-call', access: !!ACCESS, seeded: SETTINGS['photos_seeded'] || '', seeding: SEEDING, ts: Date.now() % 100000 }); } catch (e) {}
     if (SETTINGS['photos_seeded'] || SEEDING || !ACCESS) return;
     SEEDING = true;
     fetch('/photos/index.html').then(function (r) { return r.text(); }).then(function (html) {
@@ -1376,7 +1429,7 @@
             (p.home ? '<span class="sold-badge" style="background:#8fb8a0;' + (p.pinned ? '' : 'margin-left:0;') + '">主页展示</span>' : '');
           return '<div class="card photo-item' + (p.pinned ? ' pinned' : '') + '" data-id="' + p.id + '">' +
             '<button class="kebab ph-kebab" title="菜单">⋮</button>' +
-            '<div class="thumb"><img src="' + esc(p.image_url) + '"></div>' +
+            '<div class="thumb"><img src="' + esc(p.image_url) + '" loading="lazy"></div>' +
             '<div class="info">' +
             '<span class="ph-title">' + esc(p.caption_zh || p.caption_en || '未命名照片') + '</span>' +
             '<span class="ph-meta">' + esc(sectionName(p.category)) + ' · ' + esc(stName) + ' · 排序 ' + (p.sort == null ? 0 : p.sort) + '</span>' +
@@ -1483,6 +1536,7 @@
         if (en.anon_p) document.getElementById('hm-anon-p').value = en.anon_p;
         LINKS = parseSetting('links', []);
         renderLinkList();
+        if (typeof loadSections === 'function') loadSections(); // SETTINGS 就绪后重渲染分区列表（每行显示值）
         AREAS = parseSetting('areas', null);
         if (!AREAS || !AREAS.length) {
           AREAS = FIXED_AREAS.map(function (a, i) {

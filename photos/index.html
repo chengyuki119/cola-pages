@@ -22,8 +22,7 @@
 <title>Photo Gallery · Yuki / 柚子</title>
 <link rel="stylesheet" href="/css/site.css">
   <link rel="stylesheet" href="/site-menu.css">
-  <script src="/js/site-common.js"></script>
-  <script src="/site-menu.js" defer></script>
+    <script src="/site-menu.js" defer></script>
 </head>
 <body>
 
@@ -174,6 +173,7 @@
 
 
 <div class="toast" id="toast"></div>
+<script src="/js/site-common.js"></script>
 <script>
   // ===== Photo Gallery：独立子页（数据库驱动 + 静态回退） =====
   var PHOTO_STYLES = {};
@@ -219,6 +219,23 @@
   });
   document.querySelectorAll('section[data-sec] .album-item figcaption').forEach(bindCaption);
 
+  // 每分区「每行显示」：存 site_settings.photo_grid（{ 分区key: 1..4 }），默认 4
+  var PHOTO_GRID = {};
+  function applyGrid(secEl, key) {
+    var n = parseInt(PHOTO_GRID[key], 10);
+    if (!(n >= 1 && n <= 4)) n = 4;
+    secEl.style.setProperty('--pr', n);
+    secEl.style.setProperty('--pr-md', Math.min(n, 3));
+    secEl.style.setProperty('--pr-sm', Math.min(n, 2));
+  }
+  function applyGrids() {
+    document.querySelectorAll('section[data-sec]').forEach(function (secEl) { applyGrid(secEl, secEl.getAttribute('data-sec')); });
+  }
+  dbFetch('site_settings?select=key,value&key=eq.photo_grid&limit=1').then(function (rr) {
+    (rr || []).forEach(function (row) { try { PHOTO_GRID = JSON.parse(row.value || '{}') || {}; } catch (e) {} });
+    applyGrids();
+  });
+
   Promise.all([
     dbFetch('photo_sections?select=id,key,name_zh,name_en,sort&order=sort.asc,created_at.asc&limit=100'),
     loadPhotoRows(),
@@ -249,11 +266,13 @@
         else document.querySelector('.page-body').appendChild(secEl);
         box = secEl.querySelector('.album');
       }
+      applyGrid(secEl, sec.key);
       if (list.length) fillAlbum(box, list);
     });
     window.PHOTO_SECTIONS = sections.filter(function (sec) {
       return sec.key !== 'bjd' && ((groups[sec.key] || []).length || document.getElementById('sec-' + sec.key));
     }).sort(function (a, b) { return (a.sort || 0) - (b.sort || 0); });
+    applyGrids(); // 新建分区也套上列数
     // 照片展示文案（后台同步）：页面标题 + 说明小字
     dbFetch('site_settings?select=key,value&key=eq.gallery_copy&limit=1').then(function (rr) {
       var gc = {};
