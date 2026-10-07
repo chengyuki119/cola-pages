@@ -168,6 +168,7 @@ function loadDbImg(el, src) {
   var probe = new Image();
   probe.onload = function () {
     el.style.background = 'none';
+    Array.prototype.forEach.call(el.querySelectorAll('img'), function (x) { if (x.parentNode) x.parentNode.removeChild(x); }); // 幂等：先清旧图再换新，避免同一容器叠多张
     var img = document.createElement('img');
     img.src = src;
     img.alt = '照片';

@@ -294,6 +294,12 @@
   .pr-demo { display: grid; gap: 2px; width: 38px; height: 22px; }
   .pr-demo i { background: var(--accent-soft); border-radius: 2px; display: block; }
   .pr-opt.active .pr-demo i { background: #fff; }
+  /* 主页展示开关：自定义粉色开关，不用原生 checkbox */
+  .tgl { position: relative; width: 38px; height: 22px; border-radius: 11px; border: 1px solid #f6d9e6; background: var(--card); cursor: pointer; padding: 0; flex-shrink: 0; transition: background .2s, border-color .2s; }
+  .tgl .tgl-knob { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; border: 1px solid #f0cfdf; box-sizing: border-box; transition: left .2s, background .2s; }
+  .tgl.on { background: var(--accent-soft); border-color: var(--accent); }
+  .tgl.on .tgl-knob { left: 18px; background: var(--accent); border-color: var(--accent); }
+  .tgl-label { display: inline-flex; align-items: center; gap: 7px; cursor: pointer; font-size: 13px; flex-shrink: 0; color: var(--text); }
   /* 上传新照片：字段行内小标签 + 统一间距 */
   .fld-inline { display: flex; align-items: center; gap: 8px; min-width: 0; }
   .fld-label { font-size: 12px; color: var(--muted); flex-shrink: 0; }
@@ -2021,8 +2027,7 @@
         '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-right:40px;">' +
         '<input class="c-name" style="flex:1.2;min-width:140px;font-weight:600;" value="' + escAttr(c.name || '') + '" placeholder="色卡名称">' +
         '<input class="c-shop" style="flex:1;min-width:120px;" value="' + escAttr(c.shop || '') + '" placeholder="色卡 PO">' +
-        '<label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px;flex-shrink:0;">' +
-        '<input type="checkbox" class="c-home-show"' + (c.homeShow !== false ? ' checked' : '') + '>主页展示</label>' +
+        '<span class="tgl-label"><button type="button" class="tgl c-home-toggle' + (c.homeShow !== false ? ' on' : '') + '" aria-pressed="' + (c.homeShow !== false) + '" aria-label="主页展示"><span class="tgl-knob"></span></button>主页展示</span>' +
         '</div>' +
         '<div style="display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap;">' +
         (c.image ? '<img src="' + escAttr(c.image) + '" style="width:44px;height:44px;object-fit:cover;border-radius:8px;flex-shrink:0;">' : '') +
@@ -2546,13 +2551,6 @@
     if (e.target.classList.contains('c-bought')) c.bought = e.target.value; // 购入日期：只手动改，不自动变
     if (e.target.classList.contains('c-lastrec')) c.lastRec = e.target.value; // 最后记录：保存时自动更新，也可手动选
     if (e.target.classList.contains('c-orig')) c.origPrice = e.target.value; // 收卡价格（原「原本价格」）：只手动改，不随画师价格/张数变动
-    if (e.target.classList.contains('c-home-show')) {
-      if (e.target.checked) {
-        var n2 = CARDS.filter(function (x) { var o = normCard(x); return o !== c && o.homeShow !== false; }).length;
-        if (n2 >= 4) { toast('主页展示最多 4 个，先取消一个吧'); e.target.checked = false; return; }
-      }
-      c.homeShow = e.target.checked;
-    }
     var blkIn = e.target.closest('.sc-artist-block');
     if (blkIn && e.target.classList.contains('a-name')) {
       normArtist(c.artists[parseInt(blkIn.getAttribute('data-ai'), 10)]).name = e.target.value;
@@ -2577,6 +2575,19 @@
     card.querySelector('.sc-card-total').textContent = '¥' + fmtMoney(cardFinal(c));
     card.querySelector('.sc-card-count').textContent = cardCount(c);
     updateTotal();
+  });
+  // 色卡「主页展示」开关：点击切换，立即保存；不限数量
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('.c-home-toggle');
+    if (!t) return;
+    var cardEl = t.closest('.sc-artist');
+    if (!cardEl) return;
+    var c = normCard(CARDS[parseInt(cardEl.getAttribute('data-i'), 10)]);
+    if (!c) return;
+    c.homeShow = (c.homeShow === false); // false → true；true/未设置 → false
+    t.classList.toggle('on', c.homeShow !== false);
+    t.setAttribute('aria-pressed', String(c.homeShow !== false));
+    saveCardsQuiet(function () { renderCards(); }); // 立即保存并刷新列表角标，后台/首页同步
   });
   document.getElementById('sc-artist-list').addEventListener('change', function (e) {
     if (e.target.classList.contains('a-name')) {

@@ -340,11 +340,13 @@
     // 色卡：主页简洁预览（点卡片进色卡子页详情）
     var chGrid = document.getElementById('cards-home-grid');
     if (chGrid) {
-      var flaggedCards = CARDS_CACHE.map(function (c, i) { return { c: c, i: i }; }).filter(function (x) { return x.c.homeShow !== false; });
-      var showCards = (flaggedCards.length ? flaggedCards : CARDS_CACHE.map(function (c, i) { return { c: c, i: i }; })).slice(0, 4); // 主页最多 4 张
+      var showCards = CARDS_CACHE.map(function (c, i) { return { c: c, i: i }; }).filter(function (x) { return x.c.homeShow !== false; }); // 只显示勾选「主页展示」的色卡，不限数量
       if (!CARDS_CACHE.length) {
         chGrid.style.display = 'block';
         chGrid.innerHTML = '<p style="color:var(--muted);text-align:center;padding:30px 0;font-size:14px;">还没有色卡，去后台「色卡管理」新建吧</p>';
+      } else if (!showCards.length) {
+        chGrid.style.display = 'block';
+        chGrid.innerHTML = '<p style="color:var(--muted);text-align:center;padding:30px 0;font-size:14px;">暂无展示中的色卡</p>';
       } else {
         chGrid.style.display = 'grid';
         chGrid.innerHTML = showCards.map(function (x) {
