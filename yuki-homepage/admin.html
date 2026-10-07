@@ -16,6 +16,7 @@
     --radius: 16px;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { overflow-x: hidden; overflow-x: clip; }
   body {
     background: var(--bg);
     color: var(--text);
@@ -46,99 +47,10 @@
     transition: background .2s;
   }
   .back-link:hover { background: var(--card-hover); }
-  .burger {
-    width: 42px; height: 42px;
-    border: none;
-    border-radius: 12px;
-    background: var(--card);
-    cursor: pointer;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    gap: 5px;
-  }
-  .burger span {
-    width: 20px; height: 2px;
-    background: var(--text);
-    border-radius: 2px;
-    transition: transform .25s, opacity .25s;
-  }
-  .burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-  .burger.open span:nth-child(2) { opacity: 0; }
-  .burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
-  .site-logo {
-    position: absolute;
-    left: 50%; top: 50%;
-    transform: translate(-50%, -50%);
-    width: 96px; height: 48px;
-    border-radius: 8px;
-    display: block;
-    overflow: hidden;
-  }
-  .site-logo img { width: 100%; height: 100%; object-fit: cover; }
-  .menu-mask {
-    position: fixed; inset: 0;
-    background: rgba(93,103,128,.25);
-    opacity: 0; visibility: hidden;
-    transition: opacity .25s;
-    z-index: 150;
-  }
-  .menu-mask.open { opacity: 1; visibility: visible; }
-  .menu {
-    position: fixed;
-    top: 60px; right: 0; bottom: 0;
-    width: 250px;
-    background: #fffafc;
-    box-shadow: -4px 0 24px rgba(255,143,171,.18);
-    transform: translateX(100%);
-    transition: transform .25s;
-    z-index: 180;
-    padding: 24px 18px 24px;
-    display: flex; flex-direction: column; gap: 6px;
-  }
-  .menu.open { transform: translateX(0); }
-  .menu-link {
-    display: flex; align-items: center; gap: 12px;
-    padding: 13px 16px;
-    border-radius: 12px;
-    font-size: 15px;
-    color: var(--text);
-    transition: background .2s;
-  }
-  .menu-link:hover { background: var(--card); }
-  .menu-group { display: flex; flex-direction: column; }
-  .menu-toggle {
-    display: flex; align-items: center; gap: 12px;
-    padding: 13px 16px;
-    border: none;
-    background: none;
-    border-radius: 12px;
-    font-size: 15px;
-    color: var(--text);
-    cursor: pointer;
-    text-align: left;
-    transition: background .2s;
-  }
-  .menu-toggle:hover, .menu-group.open .menu-toggle { background: var(--card); }
-  .menu-toggle .plus {
-    margin-left: auto;
-    color: var(--muted);
-    font-size: 17px;
-    line-height: 1;
-  }
-  .menu-toggle .plus::before { content: "+"; }
-  .menu-group.open .menu-toggle .plus::before { content: "⌄"; }
-  .submenu {
-    overflow: hidden;
-    max-height: 0;
-    transition: max-height .3s ease;
-  }
-  .menu-group.open .submenu { max-height: 300px; }
-  .submenu a { padding-left: 40px; }
-  .submenu .dash { color: var(--muted); }
 
-  .wrap { max-width: 680px; margin: 0 auto; padding: 40px 20px 64px; }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 40px 24px 64px; }
   a { color: inherit; text-decoration: none; }
-  h1 { font-size: 22px; margin-bottom: 4px; }
+  h1 { font-size: 26px; margin: 20px 0 6px; }
   .sub { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
 
   .gate {
@@ -161,16 +73,44 @@
   }
   .hint { font-size: 12px; color: var(--muted); }
 
-  .tabs { display: flex; gap: 8px; margin-bottom: 18px; }
+  .tabs { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
   .tab-btn {
-    flex: 1;
+    flex: 1 1 auto; white-space: nowrap;
     border: none; background: var(--card);
-    font-size: 14px; padding: 10px 0;
+    font-size: 13px; padding: 9px 12px;
     border-radius: 12px; cursor: pointer;
     color: var(--muted);
     transition: background .2s, color .2s;
   }
   .tab-btn.active { background: var(--accent-soft); color: #fff; }
+  /* 后台页面切换器：所有后台页面共用一个下拉 */
+  .pp-wrap { position: relative; display: inline-block; margin-bottom: 18px; }
+  .pp-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    border: none; background: var(--card); color: var(--text);
+    font-size: 13px; padding: 9px 14px;
+    border-radius: 12px; cursor: pointer;
+    transition: background .2s;
+  }
+  .pp-btn:hover { background: var(--card-hover); }
+  .pp-btn .pp-arrow { font-size: 10px; color: var(--muted); }
+  .pp-menu {
+    position: absolute; top: calc(100% + 6px); left: 0; z-index: 60;
+    background: #fff; border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(180,120,150,.18);
+    padding: 6px; width: 200px; box-sizing: border-box;
+    display: none; animation: ppIn .16s ease;
+  }
+  .pp-menu.open { display: block; }
+  .pp-menu .tab-btn {
+    display: block; width: 100%; text-align: left; box-sizing: border-box;
+    border: none; background: none; color: var(--text);
+    font-size: 13px; padding: 9px 12px;
+    border-radius: 8px; cursor: pointer;
+  }
+  .pp-menu .tab-btn:hover { background: var(--card-hover); }
+  .pp-menu .tab-btn.active { background: var(--accent-soft); color: #fff; }
+  @keyframes ppIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 
   .card {
     background: #fff;
@@ -207,14 +147,50 @@
   }
   .btn-save { background: var(--accent-soft); color: #fff; }
   .btn-del { background: #f6d9e6; color: var(--text); }
+  /* 按钮组件统一：不管在不在 .actions 里，都是同一套圆角小按钮（不再有浏览器默认样式）*/
+  .btn-mini, .btn-del, .btn-save {
+    border: none; font-family: inherit; font-size: 13px;
+    padding: 7px 16px; border-radius: 999px; cursor: pointer;
+    transition: background .2s, opacity .2s;
+  }
+  .btn-mini:hover { background: var(--card-hover); }
+  .btn-del:hover { background: #f0c3da; }
+  .btn-save:hover { opacity: .85; }
+  .dy-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .dy-chip { display: inline-flex; align-items: center; border: none; background: var(--card-hover); color: var(--muted); border-radius: 999px; padding: 5px 12px; font-size: 12px; cursor: pointer; transition: background .2s, color .2s; }
+  .dy-chip:hover { color: var(--text); }
+  .dy-chip.active { background: var(--accent-soft); color: #fff; }
+  /* 竖排文字防护：所有表单勾选/徽章标签禁止逐字换行 */
+  .sc-artist label, .bjd-item label, .sold-badge { white-space: nowrap; }
+  /* 统一下拉菜单（替代浏览器原生 select 面板） */
+  .sel-btn { display: inline-flex; align-items: center; gap: 6px; border: none; background: var(--card); color: var(--text); border-radius: 999px; padding: 6px 12px; font-size: 12px; cursor: pointer; font-family: inherit; line-height: 1.4; }
+  .sel-btn:hover { background: var(--card-hover); }
+  .sel-btn::after { content: '▾'; color: var(--muted); font-size: 10px; }
+  .sel-menu { position: fixed; z-index: 1000; background: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(180,120,150,.18); padding: 6px; min-width: 160px; max-height: 260px; overflow-y: auto; display: none; box-sizing: border-box; }
+  .sel-opt { display: block; width: 100%; border: none; background: none; text-align: left; padding: 9px 12px; font-size: 13px; cursor: pointer; border-radius: 8px; color: var(--text); font-family: inherit; line-height: 1.4; }
+  .sel-opt:hover { background: var(--card-hover); }
+  .sel-opt.active { background: var(--accent-soft); color: #fff; }
+  .dy-chip input { position: absolute; opacity: 0; pointer-events: none; }
   .btn-mini { background: var(--card); color: var(--text); }
+  /* 头像 / 主页背景图上传区：两行对齐，隐藏原生 file 控件 */
+  .hm-upload-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .hm-upload-row + .hm-upload-row { margin-top: 12px; }
+  .hm-upload-name { font-size: 13px; color: var(--text); min-width: 84px; flex-shrink: 0; }
+  .hm-file-name { font-size: 12px; color: var(--muted); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* 主页区域 / 主页文案的简化管理：显隐 chip + 卡片头 ⋮（不用绝对定位的 .kebab） */
+  .vis-chip { display: inline-flex; align-items: center; border: none; background: var(--card-hover); color: var(--muted); border-radius: 999px; padding: 4px 10px; font-size: 12px; cursor: pointer; font-family: inherit; flex-shrink: 0; }
+  .vis-chip.vis-on { background: var(--accent-soft); color: #fff; }
+  .area-kebab, .hm-kebab { width: 32px; height: 32px; flex-shrink: 0; border: none; border-radius: 10px; background: var(--card); color: var(--muted); font-size: 16px; cursor: pointer; font-family: inherit; line-height: 1; }
+  .area-kebab:hover, .hm-kebab:hover { background: var(--card-hover); color: var(--text); }
   .empty { text-align: center; color: var(--muted); font-size: 14px; padding: 30px 0; }
+  h3 { font-size: 15px; margin: 0 0 12px; }
+  h3.outside { margin: 18px 0 12px; }
 
   /* 上架表单 */
   .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .form-grid .full { grid-column: 1 / -1; }
   .img-preview {
-    width: 100%; aspect-ratio: 16/9;
+    width: 100%; aspect-ratio: 1/1;
     border-radius: 12px; background: var(--card);
     display: flex; align-items: center; justify-content: center;
     color: var(--muted); font-size: 13px; overflow: hidden;
@@ -233,15 +209,77 @@
     cursor: pointer; transition: background .2s;
   }
   .kebab:hover { background: var(--card-hover); color: var(--text); }
+  .section-item .kebab, .link-item .kebab { position: static; flex-shrink: 0; }
+  .sc-row { display: grid; grid-template-columns: 100px 92px 18px 60px 18px 70px auto; gap: 8px; align-items: center; position: relative; margin-bottom: 8px; }
+  .sc-row input { width: 100%; box-sizing: border-box; }
+  .sc-row .r-x, .sc-row .r-eq { text-align: center; color: var(--muted); }
+  .sc-row .r-total { text-align: right; font-size: 13px; }
+  .sc-row .kebab { position: static; justify-self: end; }
+  #sc-pop { position: fixed; z-index: 999; background: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(180,120,150,.18); padding: 6px; width: 168px; box-sizing: border-box; display: none; animation: scPopIn .16s ease; }
+  @keyframes scPopIn { from { opacity: 0; transform: scale(.94); } }
+  /* 自定义日期选择器（替代系统原生，购入日期/最后记录共用） */
+  #date-pop { position: fixed; z-index: 999; background: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(180,120,150,.18); padding: 10px; width: 231px; box-sizing: border-box; display: none; animation: scPopIn .16s ease; }
+  .dp-head { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+  .dp-title { flex: 1; text-align: center; font-size: 13px; font-weight: 700; }
+  .dp-nav, .dp-today { border: none; background: var(--card-hover); color: var(--accent); font-size: 12px; border-radius: 999px; cursor: pointer; padding: 5px 10px; line-height: 1; }
+  .dp-nav:hover, .dp-today:hover { background: var(--accent-soft); color: #fff; }
+  .dp-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+  .dp-wd { font-size: 11px; color: var(--muted); text-align: center; padding: 4px 0; }
+  .dp-day { border: none; background: none; font-size: 12px; color: var(--text); border-radius: 8px; padding: 6px 0; cursor: pointer; line-height: 1; font-family: inherit; }
+  .dp-day:hover { background: var(--card-hover); }
+  .dp-day.today { color: var(--accent); font-weight: 700; }
+  .dp-day.sel, .dp-day.sel:hover { background: var(--accent); color: #fff; }
+  .dp-jump { display: flex; gap: 6px; margin-top: 8px; align-items: center; }
+  .dp-input { flex: 1; min-width: 0; border: none; background: var(--card); border-radius: 8px; padding: 6px 10px; font-size: 12px; font-family: inherit; color: var(--text); }
+  .dp-empty { visibility: hidden; }
+  @media (max-width: 520px) {
+    .sc-row { grid-template-columns: 56px 48px 10px 38px 10px 44px auto; gap: 4px; }
+    .sc-row input { font-size: 13px; padding: 7px 8px; }
+    .sc-row .kebab { width: 26px; }
+  }
+  @media (max-width: 360px) {
+    .sc-row { grid-template-columns: 50px 42px 8px 32px 8px 38px auto; gap: 3px; }
+    .sc-row .kebab { width: 22px; height: 30px; }
+  }
+  #sc-pop .sc-opt { display: flex; align-items: center; gap: 8px; width: 100%; box-sizing: border-box; border: none; background: none; padding: 9px 12px; font-size: 13px; line-height: 1; cursor: pointer; border-radius: 8px; text-align: left; color: var(--text); }
+  #sc-pop .sc-opt:hover { background: var(--card); }
+  #sc-pop .sc-opt:disabled { color: var(--muted); cursor: default; background: none; }
+  #sc-pop .sc-opt-del { background: #f6d9e6; color: var(--text); }
+  #sc-pop .sc-opt-del:hover { background: #f3c9dd; }
+  /* 色卡 / BJD 列表：同一个卡片尺寸规范（同一网格、同一间距、同一卡片结构）*/
+  #sc-artist-list, #bjd-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
+  #sc-artist-list .sc-artist, #bjd-list .bjd-item { margin-bottom: 0; }
+  #sc-artist-list .sc-artist.editing, #bjd-list .bjd-item.editing { grid-column: 1 / -1; }
+  .sc-artist > .kebab { background: #fff; }
+  .sc-card-img { width: 100%; aspect-ratio: 1/1; overflow: hidden; background: var(--card); }
+  .sc-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .sc-card-img .sc-img-empty { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 12px; }
+  .sc-info { padding: 12px 14px 14px; min-width: 0; }
+  .sc-info .sc-name { font-size: 15px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+  .sc-info .sc-name:hover { color: var(--accent); }
+  .sc-info .sc-shop { font-size: 12px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-height: 19px; }
+  .sc-info .sc-meta { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .sc-info .sc-price { font-size: 14px; color: var(--accent); font-weight: 600; margin-top: 4px; }
+  /* 编辑态内所有 ⋮（卡片级/画师级/行级）都在同一条垂直线上 */
+  .sc-artist.editing > .sc-kebab { right: 16px; }
+  .sc-artist.editing .sc-artist-block > .kebab { right: 0; }
+  .section-item { margin-bottom: 10px; }
+  .section-item .sec-name { font-size: 15px; font-weight: 600; }
+  .section-item .sec-meta { font-size: 12px; color: var(--muted); margin-top: 3px; }
   .edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex: 1; min-width: 0; }
   .edit-grid .e-desc, .edit-grid .e-file { grid-column: 1 / -1; }
-  .btn-cancel-edit { background: var(--card); color: var(--text); }
+  /* 照片管理列表：紧凑一行卡（缩略图 72px + 信息） */
+  .photo-item { display: flex; gap: 12px; align-items: flex-start; }
+  .photo-item .thumb { width: 72px; height: 72px; border-radius: 12px; overflow: hidden; background: var(--card); flex-shrink: 0; }
+  .photo-item .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .photo-item .info { flex: 1; min-width: 0; }
+  /* 小铺商品：缩略图更矮、保持原始比例不裁切 */
   .shop-item .thumb {
-    width: 74px; height: 74px; border-radius: 12px; overflow: hidden;
+    width: auto; min-width: 60px; height: 60px; border-radius: 12px; overflow: hidden;
     background: var(--card); flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center; font-size: 24px;
+    display: flex; align-items: center; justify-content: center; font-size: 20px;
   }
-  .shop-item .thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .shop-item .thumb img { width: auto; height: 100%; object-fit: contain; display: block; }
   .shop-item .info { flex: 1; min-width: 0; }
   .shop-item .info h3 { font-size: 15px; }
   .shop-item .info p { font-size: 12px; color: var(--muted); }
@@ -251,7 +289,8 @@
   .st-out { background: #c4bcb6; }
   .private-line { font-size: 12px; color: var(--muted); margin-top: 4px; }
 
-  .toast {
+    .btn-save-tb { margin-left: auto; background: var(--accent-soft) !important; color: #fff !important; }
+.toast {
     position: fixed; bottom: 32px; left: 50%;
     transform: translateX(-50%) translateY(20px);
     background: var(--text); color: #fff;
@@ -261,9 +300,25 @@
     z-index: 400; pointer-events: none;
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    padding: 24px 0 40px;
+  }
+
+  @media (max-width: 400px) {
+    .topbar { padding: 0 10px; }
+  }
+  @media (max-width: 520px) {
+    .form-grid, .edit-grid { grid-template-columns: 1fr; }
+  }
 </style>
+  <link rel="stylesheet" href="site-menu.css">
+  <script src="site-menu.js" defer></script>
 </head>
 <body>
+<datalist id="tag-list"></datalist>
 <header class="topbar">
   <a class="back-link" href="index.html">← 返回主页</a>
   <a class="site-logo" href="index.html" aria-label="回主页"><img src="logo.png" alt="logo"></a>
@@ -272,26 +327,7 @@
   </button>
 </header>
 <div class="menu-mask" id="menu-mask"></div>
-<nav class="menu" id="menu">
-  <a class="menu-link" href="index.html">Home</a>
-  <div class="menu-group">
-    <button class="menu-toggle">照片展示<span class="plus"></span></button>
-    <div class="submenu">
-      <a href="index.html#instax"><span class="dash">-</span>拍立得展示</a>
-      <a href="index.html#film"><span class="dash">-</span>胶卷相机照片展示</a>
-      <a href="index.html#bjd"><span class="dash">-</span>BJD 展示</a>
-    </div>
-  </div>
-  <div class="menu-group">
-    <button class="menu-toggle">我的小铺<span class="plus"></span></button>
-    <div class="submenu">
-      <a href="shop.html"><span class="dash">-</span>逛小铺</a>
-      <a href="shop.html#reviews"><span class="dash">-</span>评价返图</a>
-    </div>
-  </div>
-  <a class="menu-link" href="askbox.html">匿名留言</a>
-  <a class="menu-link" href="admin.html">柚子专属</a>
-</nav>
+<nav class="menu" id="menu"></nav>
 
 <div class="wrap">
   <h1>柚子的后台 <button class="logout" id="btn-logout" style="display:none;">退出登录</button></h1>
@@ -307,27 +343,34 @@
 
   <!-- 登录后 -->
   <div id="admin-body" style="display:none;">
-    <div class="tabs">
-      <button class="tab-btn active" data-tab="messages">匿名留言</button>
-      <button class="tab-btn" data-tab="shop">小铺上架</button>
-      <button class="tab-btn" data-tab="photos">照片管理</button>
+    <div class="pp-wrap" id="pp-wrap">
+      <button class="pp-btn" id="pp-btn" type="button">当前页面：<span id="pp-cur">主页管理</span> <span class="pp-arrow">▼</span></button>
+      <div class="pp-menu" id="pp-menu">
+        <button class="tab-btn active" data-tab="home">主页管理</button>
+        <button class="tab-btn" data-tab="days">重要日子</button>
+        <button class="tab-btn" data-tab="photos">照片管理</button>
+        <button class="tab-btn" data-tab="bjd">BJD管理</button>
+        <button class="tab-btn" data-tab="cards">色卡管理</button>
+        <button class="tab-btn" data-tab="shop">小铺上架</button>
+        <button class="tab-btn" data-tab="messages">匿名留言</button>
+      </div>
     </div>
 
     <!-- 留言管理 -->
-    <div id="tab-messages">
+    <div id="tab-messages" style="display:none;">
       <div id="qa-list"><p class="empty">加载中…</p></div>
     </div>
 
     <!-- 小铺管理 -->
     <div id="tab-shop" style="display:none;">
       <div class="card">
-        <h3 style="font-size:15px;margin-bottom:12px;">上架新商品</h3>
+        <h3>上架新商品</h3>
         <div class="form-grid">
           <input id="p-name" placeholder="商品名称 *">
           <input id="p-price" placeholder="价格，如 39.9（可留空）">
           <input id="p-stock" type="number" min="0" placeholder="库存数量（0 = 售尽）">
           <input id="p-cost" type="number" min="0" step="0.01" placeholder="成本，只有你自己能看到">
-          <input id="p-tag" placeholder="标签，如 手作 / 毛线 / 黏土">
+          <input id="p-tag" list="tag-list" placeholder="标签，如 手作 / 毛线 / 黏土">
           <input id="p-file" type="file" accept="image/*">
           <textarea id="p-desc" class="full" style="min-height:56px;" placeholder="商品描述：材料、尺寸、细节…"></textarea>
         </div>
@@ -336,13 +379,34 @@
           <button class="btn-save" id="btn-add-product">上架这个商品</button>
         </div>
       </div>
-      <h3 style="font-size:15px;margin:18px 0 12px;">已上架的商品</h3>
+      <h3 class="outside">已上架的商品</h3>
       <div id="product-list"><p class="empty">加载中…</p></div>
     </div>
 
     <div id="tab-photos" style="display:none;">
       <div class="card">
-        <h3 style="font-size:15px;margin-bottom:12px;">上传新照片</h3>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+          <h3 style="margin:0;">照片展示文案</h3>
+          <button type="button" class="hm-kebab" data-edit="gl-copy-edit" data-view="gl-copy-view" title="编辑">⋮</button>
+        </div>
+        <div id="gl-copy-view" style="margin-top:10px;font-size:13px;line-height:1.9;">
+          <div>相册页标题：<span data-v="gl-title-zh"></span> / <span data-v="gl-title-en"></span></div>
+          <div>说明小字：<span data-v="gl-sub-zh"></span></div>
+          <div id="gl-sec-view"></div>
+        </div>
+        <div id="gl-copy-edit" style="display:none;">
+          <div class="form-grid" style="margin-top:10px;">
+            <input id="gl-title-zh" placeholder="相册页标题（中文）">
+            <input id="gl-title-en" placeholder="相册页标题（英文）">
+            <input id="gl-sub-zh" class="full" placeholder="说明小字（中文），如：点开可全屏查看">
+            <input id="gl-sub-en" class="full" placeholder="说明小字（英文）">
+          </div>
+          <div id="gl-sec-edit" style="margin-top:8px;"></div>
+          <div class="actions"><button class="btn-save" id="btn-save-gallery">保存照片文案</button></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>上传新照片</h3>
         <div class="form-grid">
           <select id="ph-category">
             <option value="instax">拍立得展示</option>
@@ -350,6 +414,12 @@
             <option value="bjd">BJD 展示</option>
           </select>
           <input id="ph-sort" type="number" placeholder="排序数字（小的在前，可留空）">
+          <select id="ph-style">
+            <option value="normal">普通照片</option>
+            <option value="instax">拍立得</option>
+            <option value="film">胶卷相机</option>
+            <option value="vcd">VCD / 录像带</option>
+          </select>
           <input id="ph-file" class="full" type="file" accept="image/*">
           <input id="ph-cap-zh" class="full" placeholder="照片标题（中文，可留空）">
           <input id="ph-cap-en" class="full" placeholder="照片标题（英文，可留空）">
@@ -358,18 +428,180 @@
           <button class="btn-save" id="btn-add-photo">上传这张照片</button>
         </div>
       </div>
-      <h3 style="font-size:15px;margin:18px 0 12px;">已上传的照片</h3>
+      <h3 class="outside">新增照片分区</h3>
+      <div class="card">
+        <div class="form-grid">
+          <input id="sec-zh" placeholder="分区名称（中文），如：日常碎片">
+          <input id="sec-en" placeholder="分区名称（英文），如：Daily Moments">
+          <input id="sec-sort" type="number" placeholder="排序数字（小的在前，可留空）">
+        </div>
+        <div class="actions">
+          <button class="btn-save" id="btn-add-section">添加分区</button>
+        </div>
+      </div>
+      <div id="section-list" style="margin-top:12px;"></div>
+
+      <h3 class="outside">已上传的照片</h3>
       <div id="photo-list"><p class="empty">加载中…</p></div>
+    </div>
+
+    <div id="tab-home">
+      <div class="card">
+        <h3>主页区域</h3>
+        <p style="font-size:12px;color:var(--muted);margin:-4px 0 12px;">点「⋮」编辑、排序、复制、删除；点「显示中」切换显隐；改完点「保存」，主页刷新后同步</p>
+        <div id="area-list"></div>
+        <div class="actions" style="justify-content:space-between;">
+          <button class="btn-mini" id="btn-area-add">＋ 添加新区域</button>
+          <button class="btn-save" id="btn-save-areas">保存</button>
+        </div>
+      </div>
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+          <h3 style="margin:0;">主页文案</h3>
+          <button type="button" class="hm-kebab" data-edit="hm-hero-edit" data-view="hm-hero-view" title="编辑">⋮</button>
+        </div>
+        <div id="hm-hero-view" style="margin-top:10px;font-size:13px;line-height:1.9;">
+          <div>名字：<span data-v="hm-name"></span></div>
+          <div>第一行小字：<span data-v="hm-line1"></span></div>
+          <div>第二行小字：<span data-v="hm-line2"></span></div>
+        </div>
+        <div id="hm-hero-edit" style="display:none;">
+          <div class="form-grid" style="margin-top:10px;">
+            <input id="hm-name" class="full" placeholder="名字，如：Yuki / 柚子">
+            <input id="hm-line1" class="full" placeholder="第一行小字（可留空不改）">
+            <input id="hm-line2" class="full" placeholder="第二行小字（可留空不改）">
+          </div>
+          <div class="actions">
+            <button class="btn-save" id="btn-save-hero">保存文案</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>头像 / 背景图</h3>
+        <div class="hm-upload-row">
+          <span class="hm-upload-name">头像</span>
+          <label class="btn-mini hm-file-btn">选择图片<input id="hm-avatar-file" type="file" accept="image/*" hidden></label>
+          <span class="hm-file-name" id="hm-avatar-name"></span>
+          <button class="btn-save" id="btn-avatar">上传头像</button>
+        </div>
+        <div class="hm-upload-row">
+          <span class="hm-upload-name">主页背景图</span>
+          <label class="btn-mini hm-file-btn">选择图片<input id="hm-cover-file" type="file" accept="image/*" hidden></label>
+          <span class="hm-file-name" id="hm-cover-name"></span>
+          <button class="btn-save" id="btn-cover">上传背景图</button>
+        </div>
+      </div>
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+          <h3 style="margin:0;">入口卡片</h3>
+          <button type="button" class="hm-kebab" data-edit="hm-entries-edit" data-view="hm-entries-view" title="编辑">⋮</button>
+        </div>
+        <div id="hm-entries-view" style="margin-top:10px;font-size:13px;line-height:1.9;">
+          <div>小铺卡片标题：<span data-v="hm-shop-h"></span></div>
+          <div>小铺卡片小字：<span data-v="hm-shop-p"></span></div>
+          <div>提问箱卡片标题：<span data-v="hm-anon-h"></span></div>
+          <div>提问箱卡片小字：<span data-v="hm-anon-p"></span></div>
+        </div>
+        <div id="hm-entries-edit" style="display:none;">
+          <div class="form-grid" style="margin-top:10px;">
+            <input id="hm-shop-h" placeholder="小铺卡片标题（可留空不改）">
+            <input id="hm-shop-p" placeholder="小铺卡片小字（可留空不改）">
+            <input id="hm-anon-h" placeholder="提问箱卡片标题（可留空不改）">
+            <input id="hm-anon-p" placeholder="提问箱卡片小字（可留空不改）">
+          </div>
+          <div class="actions">
+            <button class="btn-save" id="btn-save-entries">保存卡片文案</button>
+          </div>
+        </div>
+      </div>
+      <h3 class="outside">找到我 · 卡片管理</h3>
+      <div class="card">
+        <div class="form-grid">
+          <select id="lk-icon">
+            <option value="gmail">Gmail 图标</option>
+            <option value="instagram">Instagram 图标</option>
+            <option value="x">X / Twitter 图标</option>
+            <option value="discord">Discord 图标</option>
+            <option value="wechat">微信图标</option>
+            <option value="xhs">小红书图标</option>
+            <option value="netease">网易云图标</option>
+            <option value="link">通用链接图标</option>
+          </select>
+          <input id="lk-sort" type="number" placeholder="排序数字（小的在前，可留空）">
+          <input id="lk-name" placeholder="名称，如：Instagram">
+          <input id="lk-sub" placeholder="小字，如：zyc.0119（可留空）">
+          <input id="lk-url" class="full" placeholder="链接，如：https://...（微信纯展示可留空）">
+        </div>
+        <div class="actions">
+          <button class="btn-save" id="btn-add-link">添加卡片</button>
+        </div>
+      </div>
+      <div id="link-list" style="margin-top:12px;"><p class="empty">加载中…</p></div>
+    </div>
+
+    <div id="tab-days" style="display:none;">
+      <p class="sub" style="margin-bottom:14px;">生日、纪念日和重要日期，主页日历自动同步显示（重复选「每年」就每年自动出现）</p>
+      <div class="card" id="days-form-card" style="margin-bottom:14px;">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <input id="dy-name" placeholder="名称，如：桓桓生日" style="flex:1;min-width:150px;">
+          <input id="dy-day" type="text" class="date-pick" readonly placeholder="选择日期" style="flex:1;min-width:140px;cursor:pointer;">
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px;font-size:12px;">
+          <span style="color:var(--muted);">类型</span>
+          <label class="dy-chip active"><input type="radio" name="dy-type" value="birthday" checked>生日</label>
+          <label class="dy-chip"><input type="radio" name="dy-type" value="anniversary">纪念日</label>
+          <label class="dy-chip"><input type="radio" name="dy-type" value="event">重要日</label>
+          <span style="color:var(--muted);margin-left:8px;">重复</span>
+          <label class="dy-chip"><input type="radio" name="dy-repeat" value="none">不重复</label>
+          <label class="dy-chip"><input type="radio" name="dy-repeat" value="daily">每天</label>
+          <label class="dy-chip"><input type="radio" name="dy-repeat" value="weekly">每周</label>
+          <label class="dy-chip"><input type="radio" name="dy-repeat" value="monthly">每月</label>
+          <label class="dy-chip active"><input type="radio" name="dy-repeat" value="yearly" checked>每年</label>
+          <button class="btn-mini btn-save-tb" id="btn-day-save" style="border:none;font-size:13px;padding:7px 16px;border-radius:999px;cursor:pointer;">保存</button>
+        </div>
+      </div>
+      <div id="days-list"></div>
+    </div>
+    <div id="tab-bjd" style="display:none;">
+      <div class="card">
+        <h3>BJD 管理</h3>
+        <div id="bjd-list"></div>
+        <div class="actions" style="flex-wrap:wrap;">
+          <button class="btn-mini" id="btn-bjd-add">+ 新增 BJD</button>
+          <span id="bjd-total" style="font-size:14px;font-weight:600;color:var(--accent);align-self:center;"></span>
+          <button class="btn-mini btn-save-tb" id="btn-bjd-save">保存</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-cards" style="display:none;">
+      <div class="card">
+        <h3>色卡管理</h3>
+        <div id="sc-artist-list"></div>
+        <div class="actions" style="flex-wrap:wrap;">
+          <button class="btn-mini" id="btn-sc-add">+ 新建色卡</button>
+          <span id="sc-total" style="font-size:14px;font-weight:600;color:var(--accent);align-self:center;"></span>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
+          <div id="sc-pop"></div>
+          <div id="date-pop"><div class="dp-head"><button class="dp-nav" id="dp-prev">‹</button><b class="dp-title"></b><button class="dp-nav" id="dp-next">›</button><button class="dp-today" id="dp-today">今天</button></div><div class="dp-grid"></div><div class="dp-jump"><input class="dp-input" placeholder="直接输入，如 2026-10-07"><button class="dp-nav dp-go" type="button">定位</button></div></div>
 
 <script>
   var SUPABASE_URL = 'https://zajcglvlzsolygvjeumb.supabase.co';
   var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InphamNnbHZsenNvbHlndmpldW1iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyMzI4NjUsImV4cCI6MjEwNjgwODg2NX0.7_Pthb3wPInb5v4o7IoWejozEvDZQgNPS8DgwikQ8ys';
   var ACCESS = null, REFRESH = null;
+  // 从其它页面菜单跳转过来时（admin.html#shop 等），登录后直接开到对应标签页
+  var PENDING_TAB = null;
+  (function () {
+    var h = location.hash.replace('#', '');
+    if (h === 'records') h = 'cards'; // 兼容旧链接 admin.html#records
+    if (['messages', 'shop', 'photos', 'home', 'cards', 'days', 'bjd'].indexOf(h) !== -1) PENDING_TAB = h;
+  })();
 
   function toast(msg) {
     var el = document.getElementById('toast');
@@ -418,7 +650,15 @@
     document.getElementById('gate').style.display = 'none';
     document.getElementById('admin-body').style.display = 'block';
     document.getElementById('btn-logout').style.display = 'inline';
-    loadMessages(); loadProducts();
+    if (window.SiteMenu) SiteMenu.refresh(); // 登录后菜单里的柚子专属变成可展开分组
+    loadMessages(); loadProducts(); loadHome();
+    loadPhotoList(); loadDays(); // 登录后再拉一次：未登录时匿名请求可能拿不到数据
+    seedPhotosFromHomepage(); // 主页已有照片自动导入（幂等，按 image_url 去重）
+    if (PENDING_TAB) {
+      var pb = document.querySelector('.tab-btn[data-tab="' + PENDING_TAB + '"]');
+      if (pb) pb.click();
+      PENDING_TAB = null;
+    }
   }
   document.getElementById('btn-login').addEventListener('click', function () {
     var email = document.getElementById('email').value.trim();
@@ -448,12 +688,22 @@
     }
   })();
 
-  // ===== 标签页 =====
+  // ===== 标签页（页面切换器）=====
+  function ppClose() { document.getElementById('pp-menu').classList.remove('open'); }
+  document.getElementById('pp-btn').addEventListener('click', function (e) {
+    e.stopPropagation();
+    document.getElementById('pp-menu').classList.toggle('open');
+  });
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('#pp-wrap')) ppClose();
+  });
   document.querySelectorAll('.tab-btn').forEach(function (b) {
     b.addEventListener('click', function () {
       document.querySelectorAll('.tab-btn').forEach(function (x) { x.classList.remove('active'); });
       b.classList.add('active');
-      ['messages', 'shop', 'photos'].forEach(function (name) {
+      document.getElementById('pp-cur').textContent = b.textContent;
+      ppClose();
+      ['messages', 'shop', 'photos', 'home', 'cards', 'bjd', 'days'].forEach(function (name) {
         var panel = document.getElementById('tab-' + name);
         if (panel) panel.style.display = b.dataset.tab === name ? '' : 'none';
       });
@@ -565,6 +815,7 @@
       document.getElementById('p-file').value = '';
       pendingFile = null;
       document.getElementById('p-preview').textContent = '选了图片会在这里预览';
+      rememberTag(tag); // 新标签存起来，下次直接选
       loadProducts();
     }).catch(function () { toast('上架失败，重试一下'); })
       .finally(function () { btn.disabled = false; btn.textContent = '上架这个商品'; });
@@ -578,6 +829,7 @@
         if (!rows || !rows.length) { list.innerHTML = '<p class="empty">还没有商品，先上架一件吧</p>'; return; }
         PRODUCT_CACHE = {};
         rows.forEach(function (p) { PRODUCT_CACHE[p.id] = p; });
+        refreshTagList(); // 已有商品的标签全部进选项
         list.innerHTML = rows.map(function (p) {
           var thumb = p.image_url
             ? '<img src="' + esc(p.image_url) + '">'
@@ -631,7 +883,7 @@
         '<div class="edit-grid">' +
         '<input class="e-name" value="' + escAttr(p.name) + '" placeholder="商品名称">' +
         '<input class="e-price" value="' + escAttr(p.price) + '" placeholder="价格">' +
-        '<input class="e-tag" value="' + escAttr(p.tag) + '" placeholder="标签">' +
+        '<input class="e-tag" list="tag-list" value="' + escAttr(p.tag) + '" placeholder="标签">' +
         '<input class="e-stock" type="number" min="0" value="' + (p.stock == null ? '' : p.stock) + '" placeholder="库存">' +
         '<input class="e-cost" type="number" step="0.01" value="' + (p.cost == null ? '' : p.cost) + '" placeholder="成本（仅自己可见）">' +
         '<input class="e-file" type="file" accept="image/*" style="grid-column:1/-1;">' +
@@ -670,7 +922,7 @@
       var doPatch = function (imageUrl) {
         if (imageUrl) body.image_url = imageUrl;
         api('products?id=eq.' + id, { method: 'PATCH', body: JSON.stringify(body) })
-          .then(function (r) { if (!r.ok) throw new Error(); toast('已保存'); loadProducts(); })
+          .then(function (r) { if (!r.ok) throw new Error(); toast('已保存'); rememberTag(body.tag); loadProducts(); })
           .catch(function () { toast('保存失败，重试一下'); });
       };
       if (f) {
@@ -691,6 +943,219 @@
     }
   });
 
+  // ===== 照片分区 =====
+  var SECTIONS = [];
+  function sectionName(key) {
+    var s = SECTIONS.filter(function (x) { return x.key === key; })[0];
+    return s ? s.name_zh : key;
+  }
+  function loadSections(done) {
+    api('photo_sections?select=id,key,name_zh,name_en,sort&order=sort.asc,created_at.asc&limit=100')
+      .then(function (r) { return r.json(); })
+      .then(function (rows) {
+        SECTIONS = rows || [];
+        var sel = document.getElementById('ph-category');
+        sel.innerHTML = SECTIONS.map(function (s) {
+          return '<option value="' + esc(s.key) + '">' + esc(s.name_zh) + '</option>';
+        }).join('');
+        var list = document.getElementById('section-list');
+        list.innerHTML = SECTIONS.length
+          ? SECTIONS.map(function (s) {
+              return '<div class="card section-item" data-id="' + s.id + '">' +
+                '<div style="display:flex;align-items:center;gap:12px;">' +
+                '<div style="flex:1;min-width:0;">' +
+                '<div class="sec-name">' + esc(s.name_zh) + '</div>' +
+                '<div class="sec-meta">' + esc(s.name_en) + ' · 排序 ' + (s.sort == null ? 0 : s.sort) + '</div>' +
+                '</div>' +
+                '<button class="kebab sec-kebab" title="编辑分区">⋮</button>' +
+                '</div>' +
+                '</div>';
+            }).join('')
+          : '<p class="empty">还没有分区</p>';
+        if (done) done();
+      })
+      .catch(function () {});
+  }
+  document.getElementById('btn-add-section').addEventListener('click', function () {
+    var zh = document.getElementById('sec-zh').value.trim();
+    var en = document.getElementById('sec-en').value.trim();
+    var sort = document.getElementById('sec-sort').value.trim();
+    if (!zh) { toast('分区名称（中文）要填一个'); return; }
+    var key = 'sec-' + Date.now();
+    api('photo_sections', {
+      method: 'POST',
+      body: JSON.stringify({ key: key, name_zh: zh, name_en: en || zh, sort: sort === '' ? 99 : parseInt(sort, 10) })
+    }).then(function (r) {
+      if (!r.ok) throw new Error();
+      toast('分区已添加');
+      document.getElementById('sec-zh').value = '';
+      document.getElementById('sec-en').value = '';
+      document.getElementById('sec-sort').value = '';
+      loadSections();
+    }).catch(function () { toast('添加失败，重试一下'); });
+  });
+  document.getElementById('section-list').addEventListener('click', function (e) {
+    var card = e.target.closest('.section-item');
+    if (!card) return;
+    var id = card.getAttribute('data-id');
+    var sec = SECTIONS.filter(function (x) { return x.id === id; })[0];
+    if (e.target.classList.contains('sec-kebab')) {
+      if (!sec) return;
+      card.innerHTML =
+        '<div class="edit-grid">' +
+        '<input data-f="name_zh" value="' + escAttr(sec.name_zh) + '" placeholder="名称（中文）">' +
+        '<input data-f="name_en" value="' + escAttr(sec.name_en) + '" placeholder="名称（英文）">' +
+        '<input data-f="sort" type="number" value="' + (sec.sort == null ? 0 : sec.sort) + '" placeholder="排序数字">' +
+        '</div>' +
+        '<div class="actions" style="justify-content:flex-start;">' +
+        '<button class="btn-mini btn-save-section">保存</button>' +
+        '<button class="btn-del btn-del-section">删除</button>' +
+        '<button class="btn-mini btn-cancel-section">取消</button>' +
+        '</div>';
+    }
+    if (e.target.classList.contains('btn-save-section')) {
+      var body = {};
+      card.querySelectorAll('[data-f]').forEach(function (el) {
+        var k = el.getAttribute('data-f');
+        body[k] = k === 'sort' ? (el.value === '' ? 0 : parseInt(el.value, 10)) : el.value.trim();
+      });
+      if (!body.name_zh) { toast('名称不能为空'); return; }
+      api('photo_sections?id=eq.' + id, { method: 'PATCH', body: JSON.stringify(body) })
+        .then(function (r) { if (!r.ok) throw new Error(); toast('已保存'); loadSections(); })
+        .catch(function () { toast('保存失败'); });
+    }
+    if (e.target.classList.contains('btn-del-section')) {
+      if (!confirm('确定删除这个分区吗？分区里的照片不会删，但不会再显示。')) return;
+      api('photo_sections?id=eq.' + id, { method: 'DELETE' })
+        .then(function (r) { if (!r.ok) throw new Error(); toast('已删除'); loadSections(); })
+        .catch(function () { toast('删除失败'); });
+    }
+    if (e.target.classList.contains('btn-cancel-section')) {
+      loadSections();
+    }
+  });
+
+  // ===== 重要日子管理（与主页日历同一套数据）=====
+  var DAYS = [];
+  var DAYS_EDIT = null; // 正在编辑的记录 id（顶部新增表单用）
+  var DAY_EDIT = null; // 列表内原位编辑的记录 id
+  var DAY_TYPE_NAMES = { birthday: '生日', anniversary: '纪念日', event: '重要日' };
+  function loadDays() {
+    api('important_days?select=*&order=day.asc&limit=200').then(function (r) { return r.json(); }).then(function (rows) {
+      DAYS = Array.isArray(rows) ? rows : [];
+      renderDays();
+    }).catch(function () {
+      document.getElementById('days-list').innerHTML = '<p class="empty">加载失败，请先在 Supabase 跑「重要日子-设置.sql」</p>';
+    });
+  }
+  function renderDays() {
+    var box = document.getElementById('days-list');
+    box.innerHTML = DAYS.map(function (d) {
+      if (d.id === DAY_EDIT) {
+        return '<div class="card day-item editing" data-id="' + d.id + '" style="padding:12px 14px;margin-bottom:10px;">' +
+          '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">' +
+          '<input class="de-name" style="flex:1;min-width:140px;" value="' + escAttr(d.name) + '">' +
+          '<input type="text" class="de-day date-pick" readonly value="' + escAttr(d.day) + '" style="width:132px;cursor:pointer;flex-shrink:0;">' +
+          '</div>' +
+          '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px;font-size:12px;">' +
+          '<span style="color:var(--muted);">类型</span>' +
+          [['birthday','生日'],['anniversary','纪念日'],['event','重要日']].map(function (o) {
+            return '<label class="dy-chip' + (d.type === o[0] ? ' active' : '') + '"><input type="radio" name="de-type" value="' + o[0] + '"' + (d.type === o[0] ? ' checked' : '') + '>' + o[1] + '</label>';
+          }).join('') +
+          '<span style="color:var(--muted);margin-left:8px;">重复</span>' +
+          [['none','不重复'],['daily','每天'],['weekly','每周'],['monthly','每月'],['yearly','每年']].map(function (o) {
+            return '<label class="dy-chip' + ((d.repeat || 'none') === o[0] ? ' active' : '') + '"><input type="radio" name="de-repeat" value="' + o[0] + '"' + ((d.repeat || 'none') === o[0] ? ' checked' : '') + '>' + o[1] + '</label>';
+          }).join('') +
+          '<button class="btn-mini de-save" style="margin-left:auto;">保存</button>' +
+          '<button class="btn-mini de-cancel">取消</button>' +
+          '</div></div>';
+      }
+      return '<div class="card day-item" data-id="' + d.id + '" style="display:flex;align-items:center;gap:10px;padding:12px 14px;margin-bottom:10px;">' +
+        '<div style="flex:1;min-width:0;">' +
+        '<b style="font-size:14px;">' + esc(d.name) + '</b>' +
+        '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + d.day + ' · ' + (DAY_TYPE_NAMES[d.type] || d.type) + (d.repeat && d.repeat !== 'none' ? ' · ' + ({ daily: '每天', weekly: '每周', monthly: '每月', yearly: '每年' }[d.repeat] || d.repeat) + '重复' : ' · 不重复') + '</div>' +
+        '</div>' +
+        '<button class="btn-mini dy-edit">编辑</button>' +
+        '<button class="btn-del dy-del">删除</button>' +
+        '</div>';
+    }).join('') || '<p class="empty">还没有记录，用上面表单添加一条吧</p>';
+  }
+  function dayFormValues() {
+    return {
+      name: document.getElementById('dy-name').value.trim(),
+      day: document.getElementById('dy-day').value,
+      type: (document.querySelector('input[name="dy-type"]:checked') || {}).value || 'event',
+      repeat: (document.querySelector('input[name="dy-repeat"]:checked') || {}).value || 'none'
+    };
+  }
+  function setDayForm(d) {
+    document.getElementById('dy-name').value = d ? d.name : '';
+    document.getElementById('dy-day').value = d ? d.day : '';
+    document.querySelector('input[name="dy-type"][value="' + (d ? d.type : 'birthday') + '"]').checked = true;
+    document.querySelector('input[name="dy-repeat"][value="' + (d ? (d.repeat || 'none') : 'none') + '"]').checked = true;
+    syncDayChips();
+  }
+  function syncDayChips() {
+    document.querySelectorAll('#days-form-card input[type="radio"]').forEach(function (r) {
+      r.parentNode.classList.toggle('active', r.checked);
+    });
+  }
+  document.getElementById('days-form-card').addEventListener('change', function (e) {
+    if (e.target.type === 'radio') syncDayChips();
+  });
+  document.getElementById('btn-day-save').addEventListener('click', function () {
+    var v = dayFormValues();
+    if (!v.name || !v.day) { toast('名称和日期都要填哦'); return; }
+    var req = DAYS_EDIT
+      ? api('important_days?id=eq.' + DAYS_EDIT, { method: 'PATCH', body: JSON.stringify(v) })
+      : api('important_days', { method: 'POST', body: JSON.stringify(v) });
+    req.then(function (r) { if (!r.ok) throw new Error(); toast('已保存'); DAYS_EDIT = null; setDayForm(null); loadDays(); })
+      .catch(function () { toast('保存失败'); });
+  });
+  document.getElementById('days-list').addEventListener('change', function (e) {
+    if (e.target.type !== 'radio') return;
+    var row = e.target.closest('.day-item');
+    if (!row) return;
+    row.querySelectorAll('input[type="radio"]').forEach(function (r2) { r2.parentNode.classList.toggle('active', r2.checked); });
+  });
+  document.getElementById('days-list').addEventListener('click', function (e) {
+    var card = e.target.closest('.day-item');
+    if (!card) return;
+    var id = card.getAttribute('data-id');
+    var d = DAYS.filter(function (x) { return x.id === id; })[0];
+    if (!d) return;
+    if (e.target.classList.contains('dy-edit')) {
+      DAY_EDIT = id; // 原位编辑：就在这一行展开，不跳动、不滚到顶部
+      renderDays();
+    }
+    if (e.target.classList.contains('de-save')) {
+      var row = e.target.closest('.day-item');
+      var v2 = {
+        name: row.querySelector('.de-name').value.trim(),
+        day: row.querySelector('.de-day').value,
+        type: (row.querySelector('input[name="de-type"]:checked') || {}).value || 'event',
+        repeat: (row.querySelector('input[name="de-repeat"]:checked') || {}).value || 'none'
+      };
+      if (!v2.name || !v2.day) { toast('名称和日期都要填哦'); return; }
+      api('important_days?id=eq.' + id, { method: 'PATCH', body: JSON.stringify(v2) })
+        .then(function (r2) { if (!r2.ok) throw new Error(); toast('已保存'); DAY_EDIT = null; loadDays(); })
+        .catch(function () { toast('保存失败'); });
+      return;
+    }
+    if (e.target.classList.contains('de-cancel')) {
+      DAY_EDIT = null;
+      renderDays();
+      return;
+    }
+    if (e.target.classList.contains('dy-del')) {
+      if (!confirm('确定删除「' + d.name + '」吗？')) return;
+      api('important_days?id=eq.' + id, { method: 'DELETE' })
+        .then(function (r) { if (!r.ok) throw new Error(); toast('已删除'); if (DAYS_EDIT === id) { DAYS_EDIT = null; setDayForm(null); } loadDays(); })
+        .catch(function () { toast('删除失败'); });
+    }
+  });
+  loadDays();
+
   // ===== 照片管理 =====
   document.getElementById('btn-add-photo').addEventListener('click', function () {
     var btn = this;
@@ -709,43 +1174,200 @@
     }).then(function (r) { if (!r.ok) throw new Error('upload'); return r.json(); })
       .then(function (res) {
         var url = SUPABASE_URL + '/storage/v1/object/public/gallery/' + res.Key.split('/').slice(1).join('/');
-        return api('photos', { method: 'POST', body: JSON.stringify({ category: cat, image_url: url, caption_zh: cz, caption_en: ce, sort: sort === '' ? 0 : parseInt(sort, 10) }) });
+        return api('photos', { method: 'POST', headers: { 'Prefer': 'return=representation' }, body: JSON.stringify({ category: cat, image_url: url, caption_zh: cz, caption_en: ce, sort: sort === '' ? 0 : parseInt(sort, 10) }) });
       })
       .then(function (r) {
         if (!r.ok) throw new Error();
+        return r.json().catch(function () { return []; });
+      })
+      .then(function (created) {
+        var newId = created && created[0] && created[0].id;
+        var st = document.getElementById('ph-style').value;
+        if (newId && st && st !== 'normal') setPhotoStyle(newId, st); // 新照片的展示类型
         toast('照片已上传，照片页能看到啦');
         fileInput.value = '';
         document.getElementById('ph-cap-zh').value = '';
         document.getElementById('ph-cap-en').value = '';
+        document.getElementById('ph-style').value = 'normal';
         loadPhotoList();
       })
       .catch(function () { toast('上传失败，重试一下'); })
       .finally(function () { btn.disabled = false; btn.textContent = '上传这张照片'; });
   });
 
+  var PHOTO_ROWS = [];
+  // ===== 标签复用：保存过的标签自动进选项，不重复创建 =====
+  function savedTags() {
+    try { var v = JSON.parse(SETTINGS['tags'] || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; }
+  }
+  function refreshTagList() {
+    var all = savedTags().slice();
+    Object.keys(PRODUCT_CACHE).forEach(function (id) {
+      var t = (PRODUCT_CACHE[id].tag || '').trim();
+      if (t && all.indexOf(t) === -1) all.push(t);
+    });
+    var dl = document.getElementById('tag-list');
+    if (dl) dl.innerHTML = all.filter(Boolean).map(function (t) { return '<option value="' + escAttr(t) + '">'; }).join('');
+  }
+  function rememberTag(t) {
+    t = (t || '').trim();
+    if (!t) return;
+    var all = savedTags();
+    if (all.indexOf(t) > -1) return; // 已存在：不重复创建
+    all.push(t);
+    saveSetting('tags', all).then(function (r) {
+      if (r.ok) { SETTINGS['tags'] = JSON.stringify(all); refreshTagList(); }
+    });
+  }
+  // ===== 照片展示文案：相册页标题 / 说明 / 分类名（⋮ 编辑，保存后前台同步） =====
+  function renderGalleryCopy() {
+    var gc = {};
+    try { gc = JSON.parse(SETTINGS['gallery_copy'] || '{}') || {}; } catch (e) {}
+    document.getElementById('gl-title-zh').value = gc.title_zh || '';
+    document.getElementById('gl-title-en').value = gc.title_en || '';
+    document.getElementById('gl-sub-zh').value = gc.sub_zh || '';
+    document.getElementById('gl-sub-en').value = gc.sub_en || '';
+    var secs = SECTIONS.filter(function (s) { return s.key !== 'bjd'; });
+    document.getElementById('gl-sec-edit').innerHTML = secs.map(function (s) {
+      return '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;align-items:center;">' +
+        '<span style="font-size:12px;color:var(--muted);min-width:64px;">' + esc(s.key) + '</span>' +
+        '<input class="gs-zh" data-id="' + s.id + '" value="' + escAttr(s.name_zh) + '" placeholder="分类名称（中文）" style="flex:1;min-width:120px;">' +
+        '<input class="gs-en" data-id="' + s.id + '" value="' + escAttr(s.name_en || '') + '" placeholder="分类名称（英文）" style="flex:1;min-width:120px;">' +
+        '</div>';
+    }).join('');
+    document.getElementById('gl-sec-view').innerHTML = secs.map(function (s) {
+      return '<div>' + esc(s.name_zh) + (s.name_en ? ' <span style="color:var(--muted);font-size:12px;">' + esc(s.name_en) + '</span>' : '') + '</div>';
+    }).join('');
+    refreshHmViews();
+  }
+  document.getElementById('btn-save-gallery').addEventListener('click', function () {
+    var body = {
+      title_zh: document.getElementById('gl-title-zh').value.trim(),
+      title_en: document.getElementById('gl-title-en').value.trim(),
+      sub_zh: document.getElementById('gl-sub-zh').value.trim(),
+      sub_en: document.getElementById('gl-sub-en').value.trim()
+    };
+    saveSetting('gallery_copy', body).then(function (r) {
+      if (!r.ok) throw new Error();
+      var patches = [];
+      document.querySelectorAll('#gl-sec-edit .gs-zh').forEach(function (inp) {
+        var sid = inp.getAttribute('data-id');
+        var zh = inp.value.trim();
+        var en = document.querySelector('#gl-sec-edit .gs-en[data-id="' + sid + '"]').value.trim();
+        if (!zh) return;
+        var orig = SECTIONS.filter(function (s) { return String(s.id) === String(sid); })[0];
+        if (orig && (orig.name_zh !== zh || (orig.name_en || '') !== en)) {
+          patches.push(api('photo_sections?id=eq.' + sid, { method: 'PATCH', body: JSON.stringify({ name_zh: zh, name_en: en }) }));
+        }
+      });
+      return Promise.all(patches);
+    }).then(function () {
+      toast('已保存，照片页刷新生效');
+      loadSections(function () { loadPhotoList(); renderGalleryCopy(); });
+    }).catch(function () { toast('保存失败'); });
+  });
+  // ===== 展示类型（普通/拍立得/胶卷/VCD）：存 site_settings，不动表结构 =====
+  var PH_STYLE_OPTS = [['normal', '普通照片'], ['instax', '拍立得'], ['film', '胶卷相机'], ['vcd', 'VCD / 录像带']];
+  function photoStyles() {
+    try { var v = JSON.parse(SETTINGS['photo_styles'] || '{}'); return v && typeof v === 'object' ? v : {}; } catch (e) { return {}; }
+  }
+  function setPhotoStyle(id, style) {
+    if (!id) return Promise.resolve();
+    var m = photoStyles();
+    if (!style || style === 'normal') delete m[id]; else m[id] = style;
+    SETTINGS['photo_styles'] = JSON.stringify(m);
+    return saveSetting('photo_styles', m);
+  }
+  // ===== 静态照片自动导入：主页已有的照片 → photos 表（单一数据源，不用重新录入） =====
+  function seedId(src) {
+    function fnv(str, seed) { var h = seed, i; for (i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = (h * 0x01000193) >>> 0; } return ('00000000' + h.toString(16)).slice(-8); }
+    var h1 = fnv(src, 0x811c9dc5), h2 = fnv(src + '#v', 0x9dc5811c), h3 = fnv(src + '#w', 0x1c9dc581), h4 = fnv(src + '#x', 0xc5811c9d);
+    return h1 + '-' + h2.slice(0, 4) + '-4' + h2.slice(1, 4) + '-8' + h3.slice(1, 4) + '-' + h4 + h3.slice(0, 4);
+  }
+  var SEEDING = false; // 防重入：两个 loadPhotoList 并发时只导一次
+  function seedPhotosFromHomepage() {
+    try { (window.parent.__REQS || window.__REQS).push({ t: 'seed-call', access: !!ACCESS, seeded: SETTINGS['photos_seeded'] || '', seeding: SEEDING, ts: Date.now() % 100000 }); } catch (e) {}
+    if (SETTINGS['photos_seeded'] || SEEDING || !ACCESS) return;
+    SEEDING = true;
+    fetch('index.html').then(function (r) { return r.text(); }).then(function (html) {
+      var doc = new DOMParser().parseFromString(html, 'text/html');
+      var rows = [];
+      [['page-instax', 'instax'], ['page-film', 'film']].forEach(function (pg) {
+        var box = doc.querySelector('#' + pg[0] + ' .album');
+        if (!box) return;
+        box.querySelectorAll('.album-item').forEach(function (fig, i) {
+          var src = fig.getAttribute('data-img');
+          if (!src) return;
+          var cap = fig.querySelector('figcaption');
+          rows.push({
+            category: pg[1],
+            image_url: src,
+            caption_zh: cap ? (cap.getAttribute('data-zh') || cap.textContent.trim()) : '',
+            caption_en: cap ? (cap.getAttribute('data-en') || '') : '',
+            sort: i + 1
+          });
+        });
+      });
+      if (!rows.length) { SETTINGS['photos_seeded'] = '1'; return saveSetting('photos_seeded', '1'); }
+      rows.forEach(function (x) { x.id = seedId(x.image_url); }); // 确定性 id + upsert：无论触发几次都只有一行，绝不重复创建
+      return api('photos', { method: 'POST', headers: { 'Prefer': 'resolution=merge-duplicates,return=representation' }, body: JSON.stringify(rows) })
+        .then(function (r) {
+          if (!r.ok) throw new Error();
+          SETTINGS['photos_seeded'] = '1';
+          return saveSetting('photos_seeded', '1');
+        })
+        .then(function () { toast('已把主页现有 ' + rows.length + ' 张照片导入照片管理'); SEEDING = false; loadPhotoList(); })
+        .catch(function () { SEEDING = false; toast('照片导入失败，刷新重试'); });
+    }).catch(function () {});
+  }
+  // 照片上移/下移：与相邻一张交换 sort，前台按 sort 展示
+  function photoMove(id, dir) {
+    var idx = -1;
+    (PHOTO_ROWS || []).forEach(function (p, i) { if (String(p.id) === String(id)) idx = i; });
+    var j = idx + dir;
+    if (idx < 0 || j < 0 || j >= PHOTO_ROWS.length) return;
+    var a = PHOTO_ROWS[idx], b = PHOTO_ROWS[j];
+    var sa = a.sort == null ? 0 : a.sort, sb = b.sort == null ? 0 : b.sort;
+    Promise.all([
+      api('photos?id=eq.' + a.id, { method: 'PATCH', body: JSON.stringify({ sort: sb }) }),
+      api('photos?id=eq.' + b.id, { method: 'PATCH', body: JSON.stringify({ sort: sa }) })
+    ]).then(function (rs) {
+      if (!rs[0].ok || !rs[1].ok) throw new Error();
+      toast('已移动');
+      loadPhotoList();
+    }).catch(function () { toast('移动失败'); });
+  }
   function loadPhotoList() {
-    api('photos?select=id,category,image_url,caption_zh,caption_en,sort&order=sort.asc,created_at.asc&limit=300')
-      .then(function (r) { return r.json(); })
+    var load = function (path) {
+      return api(path).then(function (r) { if (!r.ok) throw new Error(); return r.json(); });
+    };
+    load('photos?select=id,category,image_url,caption_zh,caption_en,sort,pinned,home&order=pinned.desc,sort.asc,created_at.asc&limit=300')
+      .catch(function () { return load('photos?select=id,category,image_url,caption_zh,caption_en,sort&order=sort.asc,created_at.asc&limit=300'); })
       .then(function (rows) {
+        PHOTO_ROWS = rows || [];
         var list = document.getElementById('photo-list');
         if (!rows || !rows.length) { list.innerHTML = '<p class="empty">还没有上传过照片</p>'; return; }
         list.innerHTML = rows.map(function (p) {
-          var catName = p.category === 'instax' ? '拍立得' : p.category === 'film' ? '胶卷相机' : 'BJD';
-          return '<div class="card photo-item" data-id="' + p.id + '">' +
+          var catOptions = SECTIONS.map(function (s) {
+            return '<option value="' + esc(s.key) + '"' + (p.category === s.key ? ' selected' : '') + '>' + esc(s.name_zh) + '</option>';
+          }).join('');
+          return '<div class="card photo-item' + (p.pinned ? ' pinned' : '') + '" data-id="' + p.id + '" style="position:relative;">' +
+            '<button class="kebab ph-kebab" title="菜单">⋮</button>' +
             '<div class="thumb"><img src="' + esc(p.image_url) + '"></div>' +
             '<div class="info">' +
-            '<span class="sold-badge st-on">' + catName + '</span>' +
-            '<div class="edit-grid">' +
+            '<span class="sold-badge st-on">' + esc(sectionName(p.category)) + '</span>' +
+            (p.pinned ? '<span class="sold-badge st-on" style="background:var(--accent);">置顶</span>' : '') +
+            (p.home ? '<span class="sold-badge st-on" style="background:#8fb8a0;">主页展示</span>' : '') +
+            '<div class="edit-grid" style="display:none;">' +
             '<input data-f="caption_zh" value="' + escAttr(p.caption_zh) + '" placeholder="标题（中文）">' +
             '<input data-f="caption_en" value="' + escAttr(p.caption_en) + '" placeholder="标题（英文）">' +
             '<input data-f="sort" type="number" value="' + (p.sort == null ? 0 : p.sort) + '" placeholder="排序数字">' +
-            '<select data-f="category">' +
-            '<option value="instax"' + (p.category === 'instax' ? ' selected' : '') + '>拍立得展示</option>' +
-            '<option value="film"' + (p.category === 'film' ? ' selected' : '') + '>胶卷相机照片展示</option>' +
-            '<option value="bjd"' + (p.category === 'bjd' ? ' selected' : '') + '>BJD 展示</option>' +
-            '</select>' +
+            '<select data-f="category">' + catOptions + '</select>' +
+            '<select data-f="style" style="grid-column:1/-1;">' + PH_STYLE_OPTS.map(function (o) {
+              return '<option value="' + o[0] + '"' + ((photoStyles()[p.id] || 'normal') === o[0] ? ' selected' : '') + '>' + o[1] + '</option>';
+            }).join('') + '</select>' +
             '</div>' +
-            '<div class="actions" style="justify-content:flex-start;">' +
+            '<div class="actions" style="justify-content:flex-start;display:none;">' +
             '<button class="btn-mini btn-save-photo">保存</button>' +
             '<button class="btn-del btn-del-photo">删除</button>' +
             '</div></div></div>';
@@ -759,14 +1381,25 @@
     var card = e.target.closest('.photo-item');
     if (!card) return;
     var id = card.getAttribute('data-id');
+    if (e.target.closest('.ph-kebab')) {
+      if (SC_POP && POP_BTN === e.target.closest('.ph-kebab')) { popClose(); return; }
+      var prow = (PHOTO_ROWS || []).filter(function (x) { return x && x.id === id; })[0]
+        || { id: id, pinned: card.classList.contains('pinned'), home: false };
+      popOpen('photo', -1, -1, -1, e.target.closest('.ph-kebab'), prow);
+      return;
+    }
+    if (SC_POP) { popClose(); return; } // 菜单开着时点其他地方：只关菜单
     if (e.target.classList.contains('btn-save-photo')) {
       var body = {};
+      var newStyle = null;
       card.querySelectorAll('[data-f]').forEach(function (el) {
         var k = el.getAttribute('data-f');
+        if (k === 'style') { newStyle = el.value; return; } // 展示类型存 settings，不动 photos 表结构
         body[k] = k === 'sort' ? (el.value === '' ? 0 : parseInt(el.value, 10)) : el.value.trim();
       });
       api('photos?id=eq.' + id, { method: 'PATCH', body: JSON.stringify(body) })
-        .then(function (r) { if (!r.ok) throw new Error(); toast('已保存'); loadPhotoList(); })
+        .then(function (r) { if (!r.ok) throw new Error(); return setPhotoStyle(id, newStyle); })
+        .then(function () { toast('已保存'); loadPhotoList(); })
         .catch(function () { toast('保存失败'); });
     }
     if (e.target.classList.contains('btn-del-photo')) {
@@ -776,29 +1409,1348 @@
         .catch(function () { toast('删除失败'); });
     }
   });
-  loadPhotoList();
+  loadSections(function () { loadPhotoList(); renderGalleryCopy(); });
 
-  // ===== 汉堡菜单（与主页一致）=====
-  var burger = document.getElementById('burger');
-  var menu = document.getElementById('menu');
-  var mask = document.getElementById('menu-mask');
-  function closeMenu() {
-    burger.classList.remove('open');
-    menu.classList.remove('open');
-    mask.classList.remove('open');
+  // ===== 主页管理 =====
+  var LINK_ICONS = {
+    gmail: '<svg viewBox="0 0 24 24" fill="none" stroke="#ea8c7b" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m2 7 10 6L22 7"/></svg>',
+    instagram: '<svg viewBox="0 0 24 24" fill="none" stroke="#e073a8" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="#e073a8" stroke="none"/></svg>',
+    x: '<svg viewBox="0 0 24 24" fill="#d5d7de"><path d="M18.9 2H22l-6.8 7.8L23.2 22h-6.3l-4.9-6.4L6.4 22H3.3l7.3-8.3L1.2 2h6.4l4.4 5.9L18.9 2Zm-1.1 18h1.7L7 3.7H5.2L17.8 20Z"/></svg>',
+    discord: '<svg viewBox="0 0 24 24" fill="#5865f2"><path d="M20.32 4.37a19.8 19.8 0 0 0-4.89-1.52.07.07 0 0 0-.08.04c-.21.38-.44.87-.6 1.25a18.3 18.3 0 0 0-5.5 0 12.6 12.6 0 0 0-.61-1.25.08.08 0 0 0-.08-.04 19.7 19.7 0 0 0-4.88 1.52.07.07 0 0 0-.04.03C.53 9.05-.32 13.58.1 18.06a.08.08 0 0 0 .03.05 19.9 19.9 0 0 0 6 3.03.08.08 0 0 0 .08-.03c.46-.63.87-1.3 1.22-2a.08.08 0 0 0-.04-.11 13.1 13.1 0 0 1-1.87-.9.08.08 0 0 1-.01-.13c.13-.09.25-.19.37-.29a.07.07 0 0 1 .08 0 14.2 14.2 0 0 0 12.06 0 .07.07 0 0 1 .08 0c.12.1.25.2.38.29a.08.08 0 0 1-.01.13c-.6.35-1.22.64-1.87.9a.08.08 0 0 0-.04.11c.36.7.77 1.37 1.22 2a.08.08 0 0 0 .08.03 19.8 19.8 0 0 0 6.02-3.03.08.08 0 0 0 .03-.05c.5-5.18-.84-9.68-3.55-13.66a.06.06 0 0 0-.03-.03ZM8.02 15.33c-1.18 0-2.16-1.08-2.16-2.42 0-1.33.96-2.42 2.16-2.42 1.21 0 2.18 1.1 2.16 2.42 0 1.34-.96 2.42-2.16 2.42Zm7.97 0c-1.18 0-2.16-1.08-2.16-2.42 0-1.33.95-2.42 2.16-2.42 1.21 0 2.18 1.1 2.16 2.42 0 1.34-.95 2.42-2.16 2.42Z"/></svg>',
+    wechat: '<svg viewBox="0 0 24 24" fill="#57bb6a"><path d="M9.3 4C5.3 4 2 6.7 2 10.1c0 1.9 1 3.5 2.7 4.7l-.7 2.1 2.4-1.2c.7.2 1.4.4 2.2.4h.4a5.5 5.5 0 0 1-.2-1.5c0-3.2 3-5.8 6.7-5.8h.4C15.3 6 12.6 4 9.3 4ZM7 7.4a.9.9 0 1 1 0 1.8.9.9 0 0 1 0-1.8Zm4.6 0a.9.9 0 1 1 0 1.8.9.9 0 0 1 0-1.8ZM15.5 10c-3.2 0-5.8 2.1-5.8 4.8 0 2.6 2.6 4.8 5.8 4.8.6 0 1.2-.1 1.8-.3l2 1-.6-1.7c1.4-.9 2.3-2.2 2.3-3.8 0-2.6-2.6-4.8-5.5-4.8Zm-2 2.3a.8.8 0 1 1 0 1.6.8.8 0 0 1 0-1.6Zm4 0a.8.8 0 1 1 0 1.6.8.8 0 0 1 0-1.6Z"/></svg>',
+    xhs: '<svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="6" fill="#ff2442"/><text x="12" y="16.5" text-anchor="middle" font-size="11" font-weight="bold" fill="#ffffff">红</text></svg>',
+    netease: '<svg viewBox="0 0 24 24" fill="none" stroke="#e35d5d" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>',
+    link: '<svg viewBox="0 0 24 24" fill="none" stroke="#b9a7b3" stroke-width="2"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1.5 1.5"/><path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7L12.5 19"/></svg>'
+  };
+  var SETTINGS = {};
+  var LINKS = [];
+  var FIXED_AREAS = [
+    { key: 'links', title_zh: '找到我', title_en: 'Find Me' },
+    { key: 'gallery', title_zh: '照片展示', title_en: 'Photo Gallery' },
+    { key: 'shop', title_zh: '我的小铺', title_en: 'My Shop' },
+    { key: 'anon', title_zh: '匿名提问箱', title_en: 'Ask Box' },
+    { key: 'cards', title_zh: '色卡展示', title_en: 'Color Cards' }
+  ];
+  var AREAS = [];
+  var AREA_EDIT = -1; // 当前编辑中的区域（-1 = 都是展示态）
+  function parseSetting(key, fallback) {
+    try { var v = JSON.parse(SETTINGS[key] || 'null'); return v == null ? fallback : v; } catch (e) { return fallback; }
   }
-  burger.addEventListener('click', function () {
-    burger.classList.toggle('open');
-    menu.classList.toggle('open');
-    mask.classList.toggle('open');
+  function saveSetting(key, obj) {
+    return api('site_settings', {
+      method: 'POST',
+      headers: { 'Prefer': 'resolution=merge-duplicates' },
+      body: JSON.stringify({ key: key, value: JSON.stringify(obj) })
+    });
+  }
+  function loadHome() {
+    api('site_settings?select=key,value&limit=100')
+      .then(function (r) { return r.json(); })
+      .then(function (rows) {
+        SETTINGS = {};
+        (rows || []).forEach(function (r) { SETTINGS[r.key] = r.value; });
+        var hero = parseSetting('hero', {});
+        if (hero.name) document.getElementById('hm-name').value = hero.name;
+        if (hero.line1) document.getElementById('hm-line1').value = hero.line1;
+        if (hero.line2) document.getElementById('hm-line2').value = hero.line2;
+        var en = parseSetting('entries', {});
+        if (en.shop_h) document.getElementById('hm-shop-h').value = en.shop_h;
+        if (en.shop_p) document.getElementById('hm-shop-p').value = en.shop_p;
+        if (en.anon_h) document.getElementById('hm-anon-h').value = en.anon_h;
+        if (en.anon_p) document.getElementById('hm-anon-p').value = en.anon_p;
+        LINKS = parseSetting('links', []);
+        renderLinkList();
+        AREAS = parseSetting('areas', null);
+        if (!AREAS || !AREAS.length) {
+          AREAS = FIXED_AREAS.map(function (a, i) {
+            return { key: a.key, title_zh: a.title_zh, title_en: a.title_en, visible: true, sort: i + 1 };
+          });
+        }
+        FIXED_AREAS.forEach(function (fa) {
+          if (!AREAS.some(function (a) { return a.key === fa.key; })) {
+            AREAS.push({ key: fa.key, title_zh: fa.title_zh, title_en: fa.title_en, visible: true, sort: AREAS.length + 1 });
+          }
+        });
+        AREAS.sort(function (a, b) { return (a.sort || 0) - (b.sort || 0); }); // 载入时按已保存的 sort 排一次，之后顺序由列表数组决定
+        renderAreaList();
+        refreshHmViews();
+        renderGalleryCopy(); // SETTINGS 载入完成后重填照片文案表单（分区部分由 loadSections 回调再补）
+        var c = parseSetting('cards', null);
+        if (c) {
+          CARDS = normCardsRaw(c);
+          CARDS_SAVED = JSON.parse(JSON.stringify(CARDS)); // 档案基准 = 载入的已保存数据
+          // 旧数据补 id 后静默存回，主页「编辑卡」从此有真实 card_id 可传
+          if (CARDS.some(function (x) { return !x.id; })) saveCardsQuiet(function () {});
+        }
+        var b = parseSetting('bjds', null);
+        if (b) BJDS = b.map(normBjd);
+        // 主页「编辑卡」直达：按 card_id 精准匹配，自动打开对应色卡的编辑状态
+        try {
+          var ec = sessionStorage.getItem('admin-edit-card');
+          if (ec) {
+            sessionStorage.removeItem('admin-edit-card');
+            var ei = -1;
+            for (var k = 0; k < CARDS.length; k++) { if (CARDS[k].id && CARDS[k].id === ec) { ei = k; break; } }
+            if (ei < 0 && /^\d+$/.test(ec)) ei = parseInt(ec, 10); // 旧版兼容：位置编号
+            if (ei >= 0 && CARDS[ei]) { CARDS_EDIT = ei; EDIT_TYPE = 'card'; PENDING_TAB = 'cards'; }
+          }
+        } catch (e) {}
+        renderCards();
+        renderBjds();
+      })
+      .catch(function () { document.getElementById('link-list').innerHTML = '<p class="empty">加载失败，刷新试试</p>'; });
+  }
+  document.getElementById('btn-save-hero').addEventListener('click', function () {
+    var body = {
+      name: document.getElementById('hm-name').value.trim(),
+      line1: document.getElementById('hm-line1').value.trim(),
+      line2: document.getElementById('hm-line2').value.trim()
+    };
+    if (!body.name) { toast('名字要填一个'); return; }
+    saveSetting('hero', body).then(function (r) {
+      if (!r.ok) throw new Error();
+      toast('已保存，主页刷新生效');
+    }).catch(function () { toast('保存失败'); });
   });
-  mask.addEventListener('click', closeMenu);
-  menu.querySelectorAll('a').forEach(function (a) { a.addEventListener('click', closeMenu); });
-  document.querySelectorAll('.menu-toggle').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      btn.closest('.menu-group').classList.toggle('open');
+  document.getElementById('btn-save-entries').addEventListener('click', function () {
+    var body = {
+      shop_h: document.getElementById('hm-shop-h').value.trim(),
+      shop_p: document.getElementById('hm-shop-p').value.trim(),
+      anon_h: document.getElementById('hm-anon-h').value.trim(),
+      anon_p: document.getElementById('hm-anon-p').value.trim()
+    };
+    saveSetting('entries', body).then(function (r) {
+      if (!r.ok) throw new Error();
+      toast('已保存，主页刷新生效');
+    }).catch(function () { toast('保存失败'); });
+  });
+  function uploadSite(inputId, key) {
+    var f = document.getElementById(inputId).files[0];
+    if (!f) { toast('先选一张图'); return; }
+    if (!ACCESS) { toast('请先登录'); return; }
+    toast('上传中…');
+    fetch(SUPABASE_URL + '/storage/v1/object/site/' + Date.now() + '-' + f.name.replace(/[^\w.\-]/g, '_'), {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + ACCESS, 'Content-Type': f.type || 'image/jpeg' },
+      body: f
+    }).then(function (r) { if (!r.ok) throw new Error(); return r.json(); })
+      .then(function (res) {
+        var url = SUPABASE_URL + '/storage/v1/object/public/site/' + res.Key.split('/').slice(1).join('/');
+        return saveSetting(key, { url: url });
+      })
+      .then(function (r) { if (!r.ok) throw new Error(); toast('已上传，主页刷新生效'); })
+      .catch(function () { toast('上传失败'); });
+  }
+  document.getElementById('btn-avatar').addEventListener('click', function () { uploadSite('hm-avatar-file', 'avatar'); });
+  document.getElementById('btn-cover').addEventListener('click', function () { uploadSite('hm-cover-file', 'cover'); });
+  document.getElementById('hm-avatar-file').addEventListener('change', function () { document.getElementById('hm-avatar-name').textContent = this.files[0] ? this.files[0].name : ''; });
+  document.getElementById('hm-cover-file').addEventListener('change', function () { document.getElementById('hm-cover-name').textContent = this.files[0] ? this.files[0].name : ''; });
+  function renderLinkList() {
+    var list = document.getElementById('link-list');
+    list.innerHTML = LINKS.length
+      ? LINKS.map(function (l, i) {
+          return '<div class="card link-item" data-i="' + i + '">' +
+            '<div style="display:flex;align-items:center;gap:12px;">' +
+            '<span style="width:28px;height:28px;flex-shrink:0;display:inline-flex;">' + (LINK_ICONS[l.icon] || LINK_ICONS.link) + '</span>' +
+            '<div style="flex:1;min-width:0;">' +
+            '<div class="sec-name">' + esc(l.name) + '</div>' +
+            '<div class="sec-meta">' + esc(l.sub || '') + (l.url ? ' · ' + esc(l.url) : ' · 纯展示') + ' · 排序 ' + (l.sort == null ? 0 : l.sort) + '</div>' +
+            '</div>' +
+            '<button class="kebab lk-kebab" title="编辑卡片">⋮</button>' +
+            '</div>' +
+            '</div>';
+        }).join('')
+      : '<p class="empty">还没有卡片（主页会显示默认的）</p>';
+  }
+  function renderAreaList() {
+    var list = document.getElementById('area-list');
+    list.innerHTML = AREAS.map(function (a, i) {
+      var custom = String(a.key).indexOf('area-') === 0;
+      if (i !== AREA_EDIT) {
+        return '<div class="card area-item" data-i="' + i + '" style="margin-bottom:10px;">' +
+          '<div style="display:flex;align-items:center;gap:12px;">' +
+          '<button type="button" class="vis-chip' + (a.visible === false ? '' : ' vis-on') + '" title="点击切换显示/隐藏">' + (a.visible === false ? '已隐藏' : '显示中') + '</button>' +
+          '<div style="flex:1;min-width:0;">' +
+          '<div style="font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(a.title_zh || '未命名区域') +
+          (a.title_en ? ' <span style="color:var(--muted);font-size:12px;">' + esc(a.title_en) + '</span>' : '') + '</div>' +
+          (custom && (a.content_zh || a.content_en) ? '<div style="font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(a.content_zh || a.content_en) + '</div>' : '') +
+          '</div>' +
+          '<button type="button" class="area-kebab" title="菜单">⋮</button>' +
+          '</div></div>';
+      }
+      return '<div class="card area-item editing" data-i="' + i + '" style="margin-bottom:10px;">' +
+        '<div class="form-grid">' +
+        '<input class="ar-zh" value="' + escAttr(a.title_zh || '') + '" placeholder="标题（中文）">' +
+        '<input class="ar-en" value="' + escAttr(a.title_en || '') + '" placeholder="标题（英文）">' +
+        (custom ?
+          '<input class="ar-czh full" value="' + escAttr(a.content_zh || '') + '" placeholder="内容（中文）">' +
+          '<input class="ar-cen full" value="' + escAttr(a.content_en || '') + '" placeholder="内容（英文，可留空同中文）">' : '') +
+        '</div></div>';
+    }).join('');
+  }
+  document.getElementById('btn-save-areas').addEventListener('click', function () {
+    if (AREA_EDIT > -1 && AREAS[AREA_EDIT]) {
+      var row = document.querySelector('#area-list .area-item.editing');
+      if (row) {
+        var ae = AREAS[AREA_EDIT];
+        ae.title_zh = row.querySelector('.ar-zh').value.trim();
+        ae.title_en = row.querySelector('.ar-en').value.trim();
+        if (String(ae.key).indexOf('area-') === 0) {
+          ae.content_zh = row.querySelector('.ar-czh').value.trim();
+          ae.content_en = row.querySelector('.ar-cen').value.trim();
+        }
+        if (!ae.title_zh) { toast('区域标题（中文）要填一个'); return; }
+      }
+    }
+    if (!AREAS.length) { toast('至少要留一个区块哦'); return; }
+    var body = AREAS.map(function (a, i) {
+      var out = { key: a.key, title_zh: a.title_zh, title_en: a.title_en || a.title_zh, visible: a.visible !== false, sort: i + 1 };
+      if (String(a.key).indexOf('area-') === 0) { out.content_zh = a.content_zh || ''; out.content_en = a.content_en || ''; }
+      return out;
+    });
+    saveSetting('areas', body).then(function (r) {
+      if (!r.ok) throw new Error();
+      toast('已保存，主页刷新生效');
+      AREA_EDIT = -1;
+      AREAS = body;
+      renderAreaList();
+      refreshHmViews();
+    }).catch(function () { toast('保存失败'); });
+  });
+  document.getElementById('area-list').addEventListener('click', function (e) {
+    var kebab = e.target.closest('.area-kebab');
+    if (kebab) {
+      if (SC_POP && POP_BTN === kebab) { popClose(); return; } // 再点同一个 ⋮ → 关闭
+      var row = e.target.closest('.area-item');
+      popOpen('area', parseInt(row.getAttribute('data-i'), 10), -1, -1, kebab);
+      return;
+    }
+    var chip = e.target.closest('.vis-chip');
+    if (chip) {
+      var row2 = chip.closest('.area-item');
+      var i2 = parseInt(row2.getAttribute('data-i'), 10);
+      AREAS[i2].visible = AREAS[i2].visible === false; // 只改内存，点「保存」才落库
+      renderAreaList();
+    }
+  });
+  document.getElementById('btn-area-add').addEventListener('click', function () {
+    AREAS.push({ key: 'area-' + Date.now(), title_zh: '', title_en: '', content_zh: '', content_en: '', visible: true });
+    AREA_EDIT = AREAS.length - 1; // 新区域直接进编辑态，填完点「保存」
+    renderAreaList();
+  });
+  // 主页文案 / 入口卡片：平时只显示内容，点 ⋮ 才展开编辑
+  function refreshHmViews() {
+    ['hm-name', 'hm-line1', 'hm-line2', 'hm-shop-h', 'hm-shop-p', 'hm-anon-h', 'hm-anon-p', 'gl-title-zh', 'gl-title-en', 'gl-sub-zh', 'gl-sub-en'].forEach(function (id) {
+      var el = document.querySelector('[data-v="' + id + '"]');
+      if (el) el.textContent = document.getElementById(id).value || '（未设置）';
+    });
+  }
+  document.querySelectorAll('.hm-kebab').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var ed = document.getElementById(b.getAttribute('data-edit'));
+      var vw = document.getElementById(b.getAttribute('data-view'));
+      var opening = ed.style.display === 'none';
+      if (opening) refreshHmViews();
+      ed.style.display = opening ? '' : 'none';
+      vw.style.display = opening ? 'none' : '';
     });
   });
+  // ===== 色卡管理（一张色卡 · 多名画师）=====
+  var CARDS = [];
+  var CARDS_SAVED = []; // 最近一次「正式保存」的快照：画师价格档案只从这里读取，草稿/自动保存不进档
+  var BJDS = [];
+  var BJDS_EDIT = -1;
+  var EDIT_TYPE = null; // 当前编辑对象：'card' | 'bjd'
+  var BJD_SIZES = ['三分头', '四分头', '四分', '肉四', '小六', '矮胖六', '正常六分', '八分', '十二分']; // 娃娃头尺寸（固定九种）
+  var BJD_BODY_TYPES = ['大四分', '正常四分', '肉丝', '小六', '正常六分', '少女体', '男体', '长腿', '矮胖体', '肥脚', '其他'];
+  var BJD_EYE_SOURCES = ['自制', '购买', '收来的', '其他'];
+  var BJD_STATUS = ['已拥有', '预定中', '等待到货', '其他'];
+  function normBjd(b) {
+    b = b || {};
+    b.name = b.name || '';
+    b.image = b.image || '';
+    b.head = b.head || {};
+    b.head.brand = b.head.brand || ''; b.head.sculpt = b.head.sculpt || '';
+    b.head.size = b.head.size || ''; b.head.note = b.head.note || '';
+    b.body = b.body || {};
+    b.body.brand = b.body.brand || ''; b.body.model = b.body.model || '';
+    b.body.type = b.body.type || ''; b.body.note = b.body.note || '';
+    b.eyes = b.eyes || {};
+    b.eyes.maker = b.eyes.maker || ''; b.eyes.source = b.eyes.source || '';
+    b.eyes.size = b.eyes.size || ''; b.eyes.iris = b.eyes.iris || ''; b.eyes.note = b.eyes.note || '';
+    b.clothes = b.clothes || {};
+    b.clothes.brand = b.clothes.brand || ''; b.clothes.note = b.clothes.note || '';
+    b.faceup = b.faceup || {};
+    b.faceup.faceup = b.faceup.faceup || ''; b.faceup.artist = b.faceup.artist || ''; b.faceup.date = b.faceup.date || '';
+    b.price = b.price || {};
+    b.price.total = b.price.total || ''; b.price.doll = b.price.doll || ''; // doll = 娃娃头/本体
+    b.price.faceup = b.price.faceup || ''; b.price.eyes = b.price.eyes || ''; b.price.body = b.price.body || '';
+    b.price.clothes = b.price.clothes || '';
+    b.purchase = b.purchase || {};
+    b.purchase.date = b.purchase.date || ''; b.purchase.channel = b.purchase.channel || ''; b.purchase.status = b.purchase.status || '';
+    b.photos = Array.isArray(b.photos) ? b.photos : [];
+    b.notes = b.notes || '';
+    if (!b.head.size && b.size) b.head.size = b.size; // 旧数据迁移：整体尺寸 → 娃娃头尺寸
+    delete b.size;
+    b.parts = b.parts || {};
+    b.parts.head = b.parts.head !== false; b.parts.body = b.parts.body !== false;
+    b.parts.eyes = b.parts.eyes !== false; b.parts.clothes = b.parts.clothes === true;
+    b.homeShow = b.homeShow !== false; // 主页展示
+    b.createdAt = b.createdAt || null;
+    return b;
+  }
+  function opts(list, cur) {
+    return [''].concat(list).map(function (v) {
+      return '<option value="' + v + '"' + (v === cur ? ' selected' : '') + '>' + (v || '请选择') + '</option>';
+    }).join('');
+  }
+  function bjdField(label, input) {
+    return '<div class="bjd-f" style="min-width:100%;flex:1;"><div style="font-size:12px;color:var(--muted);margin-bottom:3px;">' + label + '</div>' + input + '</div>';
+  }
+  function bjdGroup(title, inner, part) {
+    var hide = part && bjdParts && bjdParts[part] === false;
+    return '<div' + (part ? ' data-part="' + part + '"' : '') + ' style="border-top:1px solid var(--card-hover);margin-top:12px;padding-top:10px;' + (hide ? 'display:none;' : '') + '">' +
+      '<div style="font-size:13px;font-weight:700;margin-bottom:8px;">' + title + '</div>' + inner + '</div>';
+  }
+  var bjdParts = null; // 当前编辑娃娃的部件开关（渲染用）
+  function normEntry(a) {
+    // 兼容旧数据：single/double 转成 rows
+    if (!a.rows) {
+      a.rows = [];
+      if (a.single != null && a.single !== '') a.rows.push({ label: '单人', qty: parseInt(a.singleQty, 10) || 1, price: a.single });
+      if (a.double != null && a.double !== '') a.rows.push({ label: '双人', qty: parseInt(a.doubleQty, 10) || 1, price: a.double });
+      if (!a.rows.length) a.rows.push({ label: '单人', qty: 1, price: '' });
+    }
+    return a;
+  }
+  function entryTotal(a) {
+    var t = 0;
+    (a.rows || []).forEach(function (r) { t += (parseFloat(r.price) || 0) * (parseInt(r.qty, 10) || 0); });
+    return t;
+  }
+  function entryCount(a) {
+    var n = 0;
+    (a.rows || []).forEach(function (r) { n += parseInt(r.qty, 10) || 0; });
+    return n;
+  }
+  function normCard(c) {
+    // 旧数据（一个条目=一名画师）转成新结构（一张色卡·多名画师）
+    if (!c.artists) {
+      c.artists = [];
+      var sN = 0, dN = 0, oN = 0, price = '', qty = '';
+      (c.rows || []).forEach(function (r) {
+        var q = parseInt(r.qty, 10) || 0;
+        if (r.label === '单人') { sN += q; if (price === '') { price = r.price; qty = r.qty; } }
+        else if (r.label === '双人') { dN += q; }
+        else { oN += q; }
+      });
+      if (c.po || c.rows) {
+        c.artists.push({ name: c.po || '画师 1', price: price, qty: qty || 1, s: sN, d: dN, o: oN });
+      }
+    }
+    if (!c.artists.length) c.artists.push({ name: '', price: '', qty: 1, s: '', d: '', o: '' });
+    c.artists.forEach(function (a) {
+      if (a.qty == null) a.qty = 1;
+      if (a.s == null) a.s = '';
+      if (a.d == null) a.d = '';
+      if (a.o == null) a.o = '';
+    });
+    return c;
+  }
+  function normCardsRaw(v) {
+    var arr = Array.isArray(v) ? v : (v && v.artists ? v.artists : []);
+    return arr.map(function (c) { return normCard(c); });
+  }
+  function artistCount(a) {
+    return (parseInt(a.s, 10) || 0) + (parseInt(a.d, 10) || 0) + (parseInt(a.o, 10) || 0);
+  }
+  function artistSub(a) {
+    return (parseFloat(a.price) || 0) * (parseInt(a.qty, 10) || 0);
+  }
+  function cardTotal(c) {
+    return c.artists.reduce(function (t, a) { return t + artistSub(a); }, 0);
+  }
+  function cardCount(c) {
+    return c.artists.reduce(function (t, a) { return t + artistCount(a); }, 0);
+  }
+  var CARDS_EDIT = -1;
+  var SC_POP = null;  // 当前悬浮菜单：{ type: 'card'|'card-e'|'artist'|'row', i, ai, ri }
+  var POP_BTN = null; // 触发菜单的 ⋮ 按钮（定位基准，永不移动）
+  // 5 分钟无操作自动保存当前编辑内容（不更新画师价格档案）
+  var idleTimer = null;
+  function armIdleSave() {
+    if (idleTimer) clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () {
+      if (snap() !== JSON.stringify(CARDS_SAVED)) {
+        saveCardsQuiet(function () { toast('已自动保存'); }, true);
+      }
+    }, 5 * 60 * 1000);
+  }
+  ['click', 'input', 'change', 'keydown'].forEach(function (ev) {
+    document.addEventListener(ev, armIdleSave, true);
+  });
+  function normArtist(a) {
+    if (!a.rows) {
+      a.rows = [];
+      if (a.s != null && a.s !== '' || a.price != null || a.d != null && a.d !== '' || a.o) {
+        if (a.price != null && a.price !== '' || a.qty != null) a.rows.push({ label: '单人', price: a.price, qty: a.qty || 1 });
+        if (a.d) a.rows.push({ label: '双人', qty: parseInt(a.d, 10) || 0, price: a.price });
+        if (a.o) a.rows.push({ label: '其他', qty: parseInt(a.o, 10) || 0, price: a.price });
+      }
+      if (!a.rows.length) a.rows.push({ label: '单人', price: '', qty: 1 });
+    }
+    a.rows.forEach(function (r) {
+      if (r.qty == null) r.qty = 1;
+      if (r.label == null) r.label = '';
+    });
+    return a;
+  }
+  function newCardId() {
+    return 'card-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  }
+  function todayStr() {
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  function normCard(c) {
+    if (!c.id) c.id = newCardId(); // 唯一 id：主页「编辑卡」按 id 精准跳转，不靠位置/名称
+    if (!c.artists) {
+      c.artists = [];
+      if (c.po || c.rows) c.artists.push({ name: c.po || '画师 1', rows: c.rows || [] });
+    }
+    if (!c.artists.length) c.artists.push({ name: '', rows: [{ label: '单人', price: '', qty: 1 }] });
+    c.artists.forEach(normArtist);
+    c.homeShow = c.homeShow !== false; // 主页展示
+    return c;
+  }
+  function normCardsRaw(v) {
+    var arr = Array.isArray(v) ? v : (v && v.artists ? v.artists : []);
+    return arr.map(function (c) { return normCard(c); });
+  }
+  function rowTotal(r) {
+    return (parseFloat(r.price) || 0) * (parseInt(r.qty, 10) || 0);
+  }
+  function artistCount(a) {
+    return a.rows.reduce(function (t, r) { return t + (parseInt(r.qty, 10) || 0); }, 0);
+  }
+  function labelAgg(a) {
+    var agg = {}, order = [];
+    a.rows.forEach(function (r) {
+      var l = r.label || '其他';
+      if (!(l in agg)) { agg[l] = 0; order.push(l); }
+      agg[l] += parseInt(r.qty, 10) || 0;
+    });
+    return order.map(function (l) { return l + ' ' + agg[l] + ' 张'; }).join(' · ');
+  }
+  function artistSub(a) {
+    return a.rows.reduce(function (t, r) { return t + rowTotal(r); }, 0);
+  }
+  function cardTotal(c) {
+    return c.artists.reduce(function (t, a) { return t + artistSub(a); }, 0);
+  }
+  function cardCount(c) {
+    return c.artists.reduce(function (t, a) { return t + artistCount(a); }, 0);
+  }
+  function cardFinal(c) {
+    return cardTotal(c) + (parseFloat(c.origPrice) || 0); // 色卡最终总金额 = 色卡购入价 + 全部私调费用
+  }
+  function fmtMoney(v) {
+    return (parseFloat(v) || 0).toFixed(2); // 金额统一两位小数，避免浮点长尾
+  }
+  var HIST = [], RIST = [];    // 撤销 / 恢复栈（CARDS 深拷贝快照，最多 50 步）
+  var aNameSnap = {};          // 画师名输入框聚焦时的原名，用于判断「已有画师→新增画师」
+  function snap() { return JSON.stringify(CARDS); }
+  function pushHist(s) {
+    HIST.push(s || snap());
+    if (HIST.length > 50) HIST.shift();
+    RIST = [];
+  }
+  function doUndo() {
+    if (!HIST.length) { toast('没有可撤销的操作'); return; }
+    RIST.push(snap());
+    CARDS = JSON.parse(HIST.pop());
+    aNameSnap = {};
+    if (CARDS_EDIT >= CARDS.length) CARDS_EDIT = CARDS.length - 1;
+    renderCards();
+  }
+  function doRedo() {
+    if (!RIST.length) { toast('没有可恢复的操作'); return; }
+    HIST.push(snap());
+    CARDS = JSON.parse(RIST.pop());
+    aNameSnap = {};
+    if (CARDS_EDIT >= CARDS.length) CARDS_EDIT = CARDS.length - 1;
+    renderCards();
+  }
+  function artistArchive() {
+    // 画师价格档案：只读「已正式保存」的色卡数据（同名取最先出现的记录，可重复使用）
+    var map = {};
+    CARDS_SAVED.forEach(function (c0) {
+      normCard(c0).artists.forEach(function (a0) {
+        var n = (a0.name || '').trim();
+        if (!n || map[n]) return;
+        map[n] = (a0.rows || []).map(function (r) { return { label: r.label || '', price: r.price }; });
+      });
+    });
+    return map;
+  }
+  function renderCards() {
+    var list = document.getElementById('sc-artist-list');
+    list.innerHTML = CARDS.map(function (c, i) {
+      c = normCard(c);
+      if (i !== CARDS_EDIT) {
+        return '<div class="card sc-artist" data-i="' + i + '" style="position:relative;padding:0;overflow:hidden;">' +
+          '<button class="kebab sc-kebab" title="菜单">⋮</button>' +
+          '<div class="sc-card-img">' +
+          (c.image ? '<img src="' + escAttr(c.image) + '" alt="色卡">' : '<div class="sc-img-empty">暂无图片</div>') +
+          '</div>' +
+          '<div class="sc-info">' +
+          '<b class="sc-name">' + esc(c.name || '未命名色卡') + '</b>' +
+          '<div class="sc-shop">' + esc(c.shop || '') + '</div>' +
+          '<div class="sc-meta">画师 ' + c.artists.length + ' 位 · 共 ' + cardCount(c) + ' 张</div>' +
+          '<div class="sc-price" style="white-space:nowrap;">总金额 ¥' + fmtMoney(cardFinal(c)) + '</div>' +
+          '</div>' +
+          '</div>';
+      }
+      var blocks = c.artists.map(function (a, ai) {
+        a = normArtist(a);
+        var rowsHtml = a.rows.map(function (r, ri) {
+          return '<div class="sc-row" data-ri="' + ri + '">' +
+            '<input class="r-label" value="' + escAttr(r.label || '') + '" placeholder="类型，如：单人 / QQ人">' +
+            '<input class="r-price" type="number" value="' + (r.price == null ? '' : r.price) + '" placeholder="¥/张">' +
+            '<span class="r-x">×</span>' +
+            '<input class="r-qty" type="number" value="' + (r.qty == null ? 1 : r.qty) + '">' +
+            '<span class="r-eq">=</span>' +
+            '<b class="r-total">¥' + fmtMoney(rowTotal(r)) + '</b>' +
+            '<button class="kebab sc-row-menu" title="选项">⋮</button>' +
+            '</div>';
+        }).join('');
+        return '<div class="sc-artist-block" data-ai="' + ai + '" style="border-top:1px solid var(--card-hover);margin-top:12px;padding-top:10px;position:relative;">' +
+          '<button class="kebab sc-artist-menu" title="选项">⋮</button>' +
+          '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-right:40px;">' +
+          '<span style="font-size:12px;color:var(--muted);flex-shrink:0;">画师 ' + (ai + 1) + '</span>' +
+          '<input class="a-name" list="artist-arch" style="flex:1;min-width:120px;" value="' + escAttr(a.name || '') + '" placeholder="画师名称（可输入或选已有画师）">' +
+          '</div>' +
+          '<div class="sc-rows" style="margin-top:8px;">' + rowsHtml + '</div>' +
+          '<div class="actions" style="justify-content:flex-start;margin-top:4px;">' +
+          '<button class="btn-mini sc-add-row">+ 添加项目</button>' +
+          '</div>' +
+          '<div class="a-stats" style="margin-top:6px;font-size:12px;color:var(--muted);">张数统计（自动）：' + labelAgg(a) + ' · 共 ' + artistCount(a) + ' 张</div>' +
+          '<div class="a-sub" style="margin-top:2px;font-size:12px;color:var(--muted);">画师 ' + (ai + 1) + ' 小计：<b class="a-sub-v" style="color:var(--accent);">¥' + fmtMoney(artistSub(a)) + '</b></div>' +
+          '</div>';
+      }).join('');
+      return '<div class="card sc-artist editing" data-i="' + i + '" style="position:relative;">' +
+        '<button class="kebab sc-kebab" title="收起">⋮</button>' +
+        '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-right:40px;">' +
+        '<input class="c-name" style="flex:1.2;min-width:140px;font-weight:600;" value="' + escAttr(c.name || '') + '" placeholder="色卡名称">' +
+        '<input class="c-shop" style="flex:1;min-width:120px;" value="' + escAttr(c.shop || '') + '" placeholder="色卡 PO">' +
+        '<label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px;flex-shrink:0;">' +
+        '<input type="checkbox" class="c-home-show"' + (c.homeShow !== false ? ' checked' : '') + '>主页展示</label>' +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap;">' +
+        (c.image ? '<img src="' + escAttr(c.image) + '" style="width:44px;height:44px;object-fit:cover;border-radius:8px;flex-shrink:0;">' : '') +
+        '<label class="btn-mini sc-file-btn">上传图片<input type="file" class="sc-file" accept="image/*" hidden></label>' +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:13px;">' +
+        '<label style="display:flex;align-items:center;gap:6px;flex-shrink:0;">购入日期<input type="text" class="c-bought date-pick" readonly value="' + escAttr(c.bought || '') + '" placeholder="选择日期" style="width:100px;padding:7px 10px;font-size:13px;cursor:pointer;"></label>' +
+        '<label style="display:flex;align-items:center;gap:6px;flex-shrink:0;">收卡价格<input type="number" class="c-orig" min="0" value="' + escAttr(c.origPrice == null ? '' : c.origPrice) + '" placeholder="¥" style="width:90px;padding:7px 10px;font-size:13px;"></label>' +
+        '<label style="display:flex;align-items:center;gap:6px;flex-shrink:0;">最后记录<input type="text" class="c-lastrec date-pick" readonly value="' + escAttr(c.lastRec || '') + '" placeholder="自动更新" style="width:100px;padding:7px 10px;font-size:13px;cursor:pointer;"></label>' +
+        '<span style="color:var(--muted);font-size:12px;">保存时自动更新</span>' +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:14px;">' +
+        '<span>色卡最终总金额 <b class="sc-card-total" style="color:var(--accent);font-size:16px;">¥' + fmtMoney(cardFinal(c)) + '</b></span>' +
+        '<span style="color:var(--muted);">总张数 <b class="sc-card-count">' + cardCount(c) + '</b> 张</span>' +
+        '</div>' +
+        '<div class="sc-artists" style="margin-top:4px;">' + blocks + '</div>' +
+        '<div class="actions" style="justify-content:flex-start;margin-top:4px;">' +
+        '<button class="btn-mini sc-add-artist">+ 添加画师</button>' +
+        '<button class="btn-mini" id="btn-sc-undo">上一步</button>' +
+        '<button class="btn-mini" id="btn-sc-redo">下一步</button>' +
+        '<button class="btn-mini btn-save-tb" id="btn-sc-save-tb">保存</button>' +
+        '</div>' +
+        '</div>';
+    }).join('') || '<p class="empty">还没有色卡，点下面「+ 新建色卡」</p>';
+    // 画师价格档案下拉数据（datalist：可选已有画师，也可自由输入新画师）
+    list.innerHTML += '<datalist id="artist-arch">' + Object.keys(artistArchive()).map(function (n) { return '<option value="' + escAttr(n) + '">'; }).join('') + '</datalist>';
+    updateTotal();
+    // 编辑中才显示右下角「保存」
+    if (CARDS_EDIT >= 0) EDIT_TYPE = 'card'; else if (EDIT_TYPE === 'card') EDIT_TYPE = null;
+    enhanceSelects();
+  }
+  function updateTotal() {
+    var sum = 0;
+    CARDS.forEach(function (c) { sum += cardFinal(normCard(c)); });
+    var el = document.getElementById('sc-total');
+    el.textContent = CARDS.length ? '总额：' + fmtMoney(sum) : '';
+  }
+  function saveCardsQuiet(done, keepArchive) {
+    if (CARDS_EDIT >= 0 && CARDS[CARDS_EDIT]) CARDS[CARDS_EDIT].lastRec = todayStr(); // 最后一次记录色卡日期：保存时自动当天
+    saveSetting('cards', JSON.parse(JSON.stringify(CARDS))).then(function (r) {
+      if (!r.ok) throw new Error();
+      if (!keepArchive) CARDS_SAVED = JSON.parse(JSON.stringify(CARDS)); // 点「保存」才更新画师价格档案；自动保存不更新
+      if (done) done(); else toast('已保存');
+    }).catch(function () { toast('保存失败'); });
+  }
+  function toolbarSave() {
+    if (EDIT_TYPE === 'bjd') {
+      saveBjdsQuiet(function () {
+        BJDS_EDIT = -1; // 保存成功后退出编辑，自动收起
+        EDIT_TYPE = null;
+        renderBjds();
+        toast('已保存');
+      });
+      return;
+    }
+    if (EDIT_TYPE === 'card') {
+      saveCardsQuiet(function () {
+        CARDS_EDIT = -1; // 保存成功后退出编辑，这张卡自动收起
+        EDIT_TYPE = null;
+        renderCards();
+        toast('已保存');
+      });
+      return;
+    }
+    toast('先点「⋮ → 编辑」再保存');
+  }
+  document.getElementById('btn-bjd-save').addEventListener('click', toolbarSave);
+
+  document.getElementById('btn-sc-add').addEventListener('click', function () {
+    // 新建只负责新建：加一张空卡（张数默认 0），不自动进入编辑
+    BJDS_EDIT = -1;
+    pushHist();
+    CARDS.unshift({ name: '', shop: '', image: '', homeShow: true, artists: [{ name: '', rows: [{ label: '', qty: 0 }] }] }); // 最新排最上面
+    popClose();
+    renderCards();
+    var el = document.querySelector('#sc-artist-list .sc-artist');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); // 平滑滚到刚新增的卡
+  });
+
+  // ===== 悬浮菜单（Popover）：固定定位，不推挤内容，⋮ 坐标永远不变 =====
+  function popItems() {
+    if (!SC_POP) return '';
+    if (SC_POP.type === 'row') {
+      var c0 = normCard(CARDS[SC_POP.i]);
+      var a0 = normArtist(c0.artists[SC_POP.ai]);
+      return '<button class="sc-opt sc-opt-del" data-opt="del">删除</button>' +
+        '<button class="sc-opt" data-opt="copy">复制</button>' +
+        '<button class="sc-opt" data-opt="up"' + (SC_POP.ri === 0 ? ' disabled' : '') + '>↑ 往上移动</button>' +
+        '<button class="sc-opt" data-opt="down"' + (SC_POP.ri === a0.rows.length - 1 ? ' disabled' : '') + '>↓ 往下移动</button>' +
+        '<button class="sc-opt" data-opt="cancel">✕ 取消</button>';
+    }
+    if (SC_POP.type === 'artist') {
+      var c1 = normCard(CARDS[SC_POP.i]);
+      return '<button class="sc-opt sc-opt-del" data-opt="del">删除画师</button>' +
+        '<button class="sc-opt" data-opt="copy">复制画师</button>' +
+        '<button class="sc-opt" data-opt="up"' + (SC_POP.ai === 0 ? ' disabled' : '') + '>↑ 往上移动</button>' +
+        '<button class="sc-opt" data-opt="down"' + (SC_POP.ai === c1.artists.length - 1 ? ' disabled' : '') + '>↓ 往下移动</button>' +
+        '<button class="sc-opt" data-opt="cancel">✕ 取消</button>';
+    }
+    if (SC_POP.type === 'bjd' || SC_POP.type === 'bjd-e') {
+      return (SC_POP.type === 'bjd' ? '<button class="sc-opt" data-opt="edit">编辑</button>' : '') +
+        '<button class="sc-opt sc-opt-del" data-opt="del">删除</button>' +
+        '<button class="sc-opt" data-opt="up"' + (SC_POP.i === 0 ? ' disabled' : '') + '>↑ 往上移动</button>' +
+        '<button class="sc-opt" data-opt="down"' + (SC_POP.i === BJDS.length - 1 ? ' disabled' : '') + '>↓ 往下移动</button>' +
+        (SC_POP.type === 'bjd' ? '<button class="sc-opt" data-opt="cancel">✕ 取消</button>'
+                               : '<button class="sc-opt" data-opt="collapse">收起编辑</button>');
+    }
+    if (SC_POP.type === 'photo') {
+      return (SC_POP.ph.pinned ? '<button class="sc-opt" data-opt="unpin">取消置顶</button>'
+                               : '<button class="sc-opt" data-opt="pin">置顶</button>') +
+        (SC_POP.ph.home ? '<button class="sc-opt" data-opt="unhome">取消主页展示</button>'
+                        : '<button class="sc-opt" data-opt="home">设置为主页展示</button>') +
+        '<button class="sc-opt" data-opt="edit">编辑</button>' +
+        '<button class="sc-opt" data-opt="copy">复制</button>' +
+        '<button class="sc-opt" data-opt="up">↑ 往上</button>' +
+        '<button class="sc-opt" data-opt="down">↓ 往下</button>' +
+        '<button class="sc-opt sc-opt-del" data-opt="del">删除</button>';
+    }
+    if (SC_POP.type === 'area') {
+      var a0 = AREAS[SC_POP.i];
+      var custom0 = String(a0.key).indexOf('area-') === 0;
+      return '<button class="sc-opt" data-opt="edit">编辑</button>' +
+        '<button class="sc-opt" data-opt="up"' + (SC_POP.i === 0 ? ' disabled' : '') + '>↑ 往上</button>' +
+        '<button class="sc-opt" data-opt="down"' + (SC_POP.i === AREAS.length - 1 ? ' disabled' : '') + '>↓ 往下</button>' +
+        '<button class="sc-opt" data-opt="copy">复制</button>' +
+        '<button class="sc-opt sc-opt-del" data-opt="del"' + (custom0 ? '' : ' disabled') + '>删除</button>' +
+        '<button class="sc-opt" data-opt="cancel">✕ 取消</button>';
+    }
+    var last = SC_POP.type === 'card' ? '<button class="sc-opt" data-opt="cancel">✕ 取消</button>'
+                                      : '<button class="sc-opt" data-opt="collapse">收起编辑</button>';
+    return (SC_POP.type === 'card' ? '<button class="sc-opt" data-opt="edit">编辑色卡</button>' : '') +
+      '<button class="sc-opt" data-opt="copy">复制色卡</button>' +
+      '<button class="sc-opt sc-opt-del" data-opt="del">删除色卡</button>' +
+      '<button class="sc-opt" data-opt="up"' + (SC_POP.i === 0 ? ' disabled' : '') + '>↑ 往上移动</button>' +
+      '<button class="sc-opt" data-opt="down"' + (SC_POP.i === CARDS.length - 1 ? ' disabled' : '') + '>↓ 往下移动</button>' +
+      last;
+  }
+  // ===== 自定义日期选择器（购入日期 / 最后记录共用，替代系统原生） =====
+  var DP = null; // { input, y, m }
+  var DP_WD = ['一', '二', '三', '四', '五', '六', '日']; // 与主页日历一致：周一起始
+  function dpClose() { DP = null; document.getElementById('date-pop').style.display = 'none'; }
+  function dpOpen(input) {
+    var m = /^(\d{4})-(\d{2})/.exec(input.value || '');
+    var t = new Date();
+    DP = { input: input, y: m ? parseInt(m[1], 10) : t.getFullYear(), m: m ? parseInt(m[2], 10) - 1 : t.getMonth() };
+    popClose();
+    dpRender();
+    var inp = document.querySelector('#date-pop .dp-input');
+    if (inp) inp.value = '';
+    var pop = document.getElementById('date-pop');
+    pop.style.display = 'block';
+    var r = input.getBoundingClientRect();
+    pop.style.left = Math.max(8, Math.min(r.left, window.innerWidth - 245)) + 'px';
+    pop.style.top = Math.min(r.bottom + 6, window.innerHeight - 290) + 'px';
+  }
+  function dpRender() {
+    var pop = document.getElementById('date-pop');
+    pop.querySelector('.dp-title').textContent = DP.y + ' 年 ' + (DP.m + 1) + ' 月';
+    var t0 = new Date();
+    var offset = (new Date(DP.y, DP.m, 1).getDay() + 6) % 7; // 周一 = 0
+    var days = new Date(DP.y, DP.m + 1, 0).getDate();
+    var html = DP_WD.map(function (w) { return '<div class="dp-wd">' + w + '</div>'; }).join('');
+    for (var i = 0; i < offset; i++) html += '<span class="dp-empty"></span>';
+    for (var d = 1; d <= days; d++) {
+      var ds = DP.y + '-' + String(DP.m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+      html += '<button class="dp-day' + (ds === DP.input.value ? ' sel' : '') + (DP.y === t0.getFullYear() && DP.m === t0.getMonth() && d === t0.getDate() ? ' today' : '') + '" data-d="' + ds + '">' + d + '</button>';
+    }
+    pop.querySelector('.dp-grid').innerHTML = html;
+  }
+  function dpPick(ds) {
+    if (!DP) return;
+    DP.input.value = ds;
+    DP.input.dispatchEvent(new Event('input', { bubbles: true }));
+    DP.input.dispatchEvent(new Event('change', { bubbles: true })); // 走现有赋值逻辑（内存草稿），点「保存」落库
+    dpClose();
+  }
+  document.getElementById('date-pop').addEventListener('click', function (e) {
+    e.stopPropagation();
+    var t = e.target;
+    if (t.classList.contains('dp-nav')) { if (t.classList.contains('dp-go')) { dpJump(); return; } DP.m += t.id === 'dp-prev' ? -1 : 1; if (DP.m < 0) { DP.m = 11; DP.y--; } if (DP.m > 11) { DP.m = 0; DP.y++; } dpRender(); return; }
+    if (t.id === 'dp-today') { var td = new Date(); dpPick(td.getFullYear() + '-' + String(td.getMonth() + 1).padStart(2, '0') + '-' + String(td.getDate()).padStart(2, '0')); return; }
+    if (t.classList.contains('dp-day')) { dpPick(t.getAttribute('data-d')); return; }
+  });
+  function dpJump() {
+    var inp = document.querySelector('#date-pop .dp-input');
+    var m = /^((\d{4})-(\d{1,2})-(\d{1,2}))$/.exec((inp.value || '').trim());
+    if (!m) { toast('格式：2026-10-07'); return; }
+    var y = parseInt(m[2], 10), mo = parseInt(m[3], 10), da = parseInt(m[4], 10);
+    var dt = new Date(y, mo - 1, da);
+    if (dt.getFullYear() !== y || dt.getMonth() !== mo - 1 || dt.getDate() !== da) { toast('这个日期不存在哦'); return; }
+    dpPick(y + '-' + String(mo).padStart(2, '0') + '-' + String(da).padStart(2, '0')); // 直接选中：不用再翻月份点日期
+  }
+  document.querySelector('#date-pop .dp-input').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.stopPropagation(); dpJump(); }
+  });
+  document.addEventListener('click', function (e) {
+    if (DP && !e.target.closest('#date-pop') && !e.target.classList.contains('date-pick')) dpClose(); // 点外面关闭
+  });
+
+  document.addEventListener('click', function (e) {
+    var t = e.target;
+    if (t.classList && (t.classList.contains('date-pick') || t.getAttribute('data-dp') === '1')) dpOpen(t); // 色卡购入日期/最后记录、重要日子、BJD 表单的日期字段
+  });
+
+  // ===== 统一下拉菜单（替代浏览器原生 select 面板，自动增强新旧 select） =====
+  function closeSelMenus() { document.querySelectorAll('.sel-menu').forEach(function (m) { m.style.display = 'none'; }); }
+  function enhanceSelects() {
+    document.querySelectorAll('select:not([data-enh])').forEach(function (sel) {
+      sel.setAttribute('data-enh', '1');
+      sel.style.display = 'none';
+      var btn = document.createElement('button');
+      btn.type = 'button'; btn.className = 'sel-btn';
+      btn.textContent = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].textContent : '';
+      sel.parentNode.insertBefore(btn, sel);
+      var menu = document.createElement('div');
+      menu.className = 'sel-menu';
+      menu.innerHTML = Array.prototype.map.call(sel.options, function (o) {
+        return '<button type="button" class="sel-opt' + (o.selected ? ' active' : '') + '" data-v="' + escAttr(o.value) + '">' + esc(o.textContent) + '</button>';
+      }).join('');
+      sel.parentNode.insertBefore(menu, sel);
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var wasOpen = menu.style.display === 'block';
+        closeSelMenus(); dpClose();
+        if (!wasOpen) {
+          var r = btn.getBoundingClientRect();
+          menu.style.left = Math.max(8, Math.min(r.left, window.innerWidth - 200)) + 'px';
+          menu.style.top = Math.min(r.bottom + 4, window.innerHeight - 120) + 'px';
+          menu.style.display = 'block';
+        }
+      });
+      menu.addEventListener('click', function (e) {
+        var b = e.target.closest('.sel-opt'); if (!b) return;
+        sel.value = b.getAttribute('data-v');
+        sel.dispatchEvent(new Event('change', { bubbles: true }));
+        btn.textContent = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].textContent : '';
+        Array.prototype.forEach.call(menu.children, function (x) { x.classList.toggle('active', x === b); });
+        closeSelMenus();
+      });
+    });
+  }
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('.sel-menu') && !e.target.closest('.sel-btn')) closeSelMenus();
+  });
+  var selEnhPending = false;
+  function scheduleEnhance() {
+    if (selEnhPending) return;
+    selEnhPending = true;
+    setTimeout(function () { selEnhPending = false; enhanceSelects(); }, 50);
+  }
+  new MutationObserver(scheduleEnhance).observe(document.body, { childList: true, subtree: true });
+  enhanceSelects();
+
+  function popOpen(type, i, ai, ri, btn, extra) {
+    dpClose(); // 打开 ⋮ 菜单时收起日期选择器
+    SC_POP = { type: type, i: i, ai: ai, ri: ri };
+    if (extra) SC_POP.ph = extra;
+    POP_BTN = btn;
+    var pop = document.getElementById('sc-pop');
+    pop.innerHTML = popItems();
+    pop.style.visibility = 'hidden';
+    pop.style.display = 'block';
+    // 以 ⋮ 为定位基准：优先向下弹，下方空间不够向上弹；贴边收回，绝不跑出屏幕
+    var r = btn.getBoundingClientRect();
+    var mw = pop.offsetWidth, mh = pop.offsetHeight;
+    var left = Math.min(Math.max(8, r.right - mw), window.innerWidth - mw - 8);
+    var top = r.bottom + 6;
+    if (top + mh > window.innerHeight - 8) top = Math.max(8, r.top - mh - 6);
+    pop.style.left = left + 'px';
+    pop.style.top = top + 'px';
+    pop.style.visibility = 'visible';
+  }
+  function popClose() {
+    SC_POP = null;
+    POP_BTN = null;
+    var pop = document.getElementById('sc-pop');
+    pop.style.display = 'none';
+    pop.innerHTML = '';
+  }
+  function popAct(opt) {
+    var ctx = SC_POP;
+    popClose();
+    if (!ctx || opt === 'cancel') return; // 取消：只关菜单，不动任何数据
+    if (ctx.type === 'photo') {
+      if (opt === 'pin' || opt === 'unpin') {
+        api('photos?id=eq.' + ctx.ph.id, { method: 'PATCH', body: JSON.stringify({ pinned: opt === 'pin' }) })
+          .then(function (r) { if (!r.ok) throw new Error(); toast('已更新'); loadPhotoList(); })
+          .catch(function () { toast('保存失败'); });
+      } else if (opt === 'home' || opt === 'unhome') {
+        api('photos?id=eq.' + ctx.ph.id, { method: 'PATCH', body: JSON.stringify({ home: opt === 'home' }) })
+          .then(function (r) { if (!r.ok) throw new Error(); toast('已更新'); loadPhotoList(); })
+          .catch(function () { toast('保存失败'); });
+      } else if (opt === 'edit') {
+        var card = document.querySelector('.photo-item[data-id="' + ctx.ph.id + '"]');
+        if (card) {
+          var show = card.querySelector('.edit-grid').style.display === 'none';
+          card.querySelector('.edit-grid').style.display = show ? '' : 'none';
+          card.querySelector('.actions').style.display = show ? 'flex' : 'none';
+        }
+      } else if (opt === 'copy') {
+        var pc = (PHOTO_ROWS || []).filter(function (x) { return x && String(x.id) === String(ctx.ph.id); })[0];
+        if (!pc) return;
+        api('photos', { method: 'POST', body: JSON.stringify({ category: pc.category, image_url: pc.image_url, caption_zh: pc.caption_zh, caption_en: pc.caption_en, sort: pc.sort == null ? 0 : pc.sort }) })
+          .then(function (r) { if (!r.ok) throw new Error(); toast('已复制'); loadPhotoList(); })
+          .catch(function () { toast('复制失败'); });
+      } else if (opt === 'up' || opt === 'down') {
+        photoMove(ctx.ph.id, opt === 'up' ? -1 : 1); // 只有主动移动才改顺序
+      } else if (opt === 'del') {
+        if (!confirm('确定删除这张照片吗？')) return;
+        api('photos?id=eq.' + ctx.ph.id, { method: 'DELETE' })
+          .then(function (r) { if (!r.ok) throw new Error(); toast('已删除'); loadPhotoList(); })
+          .catch(function () { toast('删除失败'); });
+      }
+      return;
+    }
+    if (ctx.type === 'bjd' || ctx.type === 'bjd-e') {
+      if (opt === 'edit') { CARDS_EDIT = -1; BJDS_EDIT = ctx.i; EDIT_TYPE = 'bjd'; renderBjds(); return; }
+      if (opt === 'up' && ctx.i > 0) { var u = BJDS[ctx.i - 1]; BJDS[ctx.i - 1] = BJDS[ctx.i]; BJDS[ctx.i] = u; if (BJDS_EDIT === ctx.i) BJDS_EDIT = ctx.i - 1; else if (BJDS_EDIT === ctx.i - 1) BJDS_EDIT = ctx.i; }
+      if (opt === 'down' && ctx.i < BJDS.length - 1) { var dn = BJDS[ctx.i + 1]; BJDS[ctx.i + 1] = BJDS[ctx.i]; BJDS[ctx.i] = dn; if (BJDS_EDIT === ctx.i) BJDS_EDIT = ctx.i + 1; else if (BJDS_EDIT === ctx.i + 1) BJDS_EDIT = ctx.i; }
+      if (opt === 'del') {
+        if (!confirm('确定删除这个娃娃档案吗？')) return;
+        BJDS.splice(ctx.i, 1);
+        if (BJDS_EDIT === ctx.i) BJDS_EDIT = -1; else if (BJDS_EDIT > ctx.i) BJDS_EDIT -= 1;
+      }
+      if (opt === 'collapse') BJDS_EDIT = -1;
+      saveBjdsQuiet();
+      renderBjds();
+      return;
+    }
+    if (ctx.type === 'area') {
+      if (opt === 'edit') { AREA_EDIT = ctx.i; renderAreaList(); return; }
+      if (opt === 'up' && ctx.i > 0) { var au = AREAS[ctx.i - 1]; AREAS[ctx.i - 1] = AREAS[ctx.i]; AREAS[ctx.i] = au; if (AREA_EDIT === ctx.i) AREA_EDIT = ctx.i - 1; else if (AREA_EDIT === ctx.i - 1) AREA_EDIT = ctx.i; }
+      if (opt === 'down' && ctx.i < AREAS.length - 1) { var ad = AREAS[ctx.i + 1]; AREAS[ctx.i + 1] = AREAS[ctx.i]; AREAS[ctx.i] = ad; if (AREA_EDIT === ctx.i) AREA_EDIT = ctx.i + 1; else if (AREA_EDIT === ctx.i + 1) AREA_EDIT = ctx.i; }
+      if (opt === 'copy') {
+        var ac = JSON.parse(JSON.stringify(AREAS[ctx.i]));
+        ac.key = 'area-' + Date.now(); // 副本一律是新 key：固定区块复制成可编辑的文字区块，自定义区块拿到独立身份
+        ac.visible = true;
+        AREAS.splice(ctx.i + 1, 0, ac);
+        if (AREA_EDIT > ctx.i) AREA_EDIT += 1;
+        toast('已复制，改完记得点「保存」');
+      }
+      if (opt === 'del') {
+        if (!confirm('确定删除这个区块吗？')) return;
+        AREAS.splice(ctx.i, 1);
+        if (AREA_EDIT === ctx.i) AREA_EDIT = -1; else if (AREA_EDIT > ctx.i) AREA_EDIT -= 1;
+      }
+      renderAreaList(); // 区域 ⋮ 只改内存，点「保存」才落库
+      return;
+    }
+    if (opt === 'up' || opt === 'down' || opt === 'del' || opt === 'copy') pushHist(); // ⋮ 操作可撤销
+    var c = normCard(CARDS[ctx.i]);
+    if (ctx.type === 'row') {
+      var a = normArtist(c.artists[ctx.ai]);
+      if (opt === 'up' && ctx.ri > 0) { var t1 = a.rows[ctx.ri - 1]; a.rows[ctx.ri - 1] = a.rows[ctx.ri]; a.rows[ctx.ri] = t1; }
+      if (opt === 'down' && ctx.ri < a.rows.length - 1) { var t2 = a.rows[ctx.ri + 1]; a.rows[ctx.ri + 1] = a.rows[ctx.ri]; a.rows[ctx.ri] = t2; }
+      if (opt === 'del') { a.rows.splice(ctx.ri, 1); if (!a.rows.length) a.rows.push({ label: '', price: '', qty: 1 }); }
+      if (opt === 'copy') { a.rows.splice(ctx.ri + 1, 0, JSON.parse(JSON.stringify(a.rows[ctx.ri]))); toast('已复制，可继续修改'); }
+    } else if (ctx.type === 'artist') {
+      if (opt === 'up' && ctx.ai > 0) { var t3 = c.artists[ctx.ai - 1]; c.artists[ctx.ai - 1] = c.artists[ctx.ai]; c.artists[ctx.ai] = t3; }
+      if (opt === 'down' && ctx.ai < c.artists.length - 1) { var t4 = c.artists[ctx.ai + 1]; c.artists[ctx.ai + 1] = c.artists[ctx.ai]; c.artists[ctx.ai] = t4; }
+      if (opt === 'del') { c.artists.splice(ctx.ai, 1); if (!c.artists.length) c.artists.push({ name: '', rows: [{ label: '', price: '', qty: 1 }] }); }
+      if (opt === 'copy') { c.artists.splice(ctx.ai + 1, 0, JSON.parse(JSON.stringify(c.artists[ctx.ai]))); toast('已复制画师，可继续修改'); }
+    } else {
+      if (opt === 'up' && ctx.i > 0) {
+        var t5 = CARDS[ctx.i - 1]; CARDS[ctx.i - 1] = CARDS[ctx.i]; CARDS[ctx.i] = t5;
+        if (CARDS_EDIT === ctx.i) CARDS_EDIT = ctx.i - 1; else if (CARDS_EDIT === ctx.i - 1) CARDS_EDIT = ctx.i;
+      }
+      if (opt === 'down' && ctx.i < CARDS.length - 1) {
+        var t6 = CARDS[ctx.i + 1]; CARDS[ctx.i + 1] = CARDS[ctx.i]; CARDS[ctx.i] = t6;
+        if (CARDS_EDIT === ctx.i) CARDS_EDIT = ctx.i + 1; else if (CARDS_EDIT === ctx.i + 1) CARDS_EDIT = ctx.i;
+      }
+      if (opt === 'del') {
+        if (!confirm('确定删除这张色卡吗？')) return;
+        CARDS.splice(ctx.i, 1);
+        if (CARDS_EDIT === ctx.i) CARDS_EDIT = -1; else if (CARDS_EDIT > ctx.i) CARDS_EDIT -= 1;
+      }
+      if (opt === 'copy') {
+        var cc = JSON.parse(JSON.stringify(c));
+        cc.id = newCardId(); // 副本拿新 id：主页「编辑卡」按 id 精准跳转，两卡互不影响
+        CARDS.splice(ctx.i + 1, 0, cc);
+        if (CARDS_EDIT > ctx.i) CARDS_EDIT += 1;
+        toast('已复制为新色卡，可继续修改');
+      }
+      if (opt === 'collapse') CARDS_EDIT = -1;
+      if (opt === 'edit') { BJDS_EDIT = -1; CARDS_EDIT = ctx.i; EDIT_TYPE = 'card'; renderCards(); return; } // 进入编辑：不动数据、不保存
+    }
+    renderCards(); // ⋮ 操作只改内存，点「保存」才正式落库（5 分钟无操作也会自动保存）
+  }
+
+  document.getElementById('sc-artist-list').addEventListener('click', function (e) {
+    var card = e.target.closest('.sc-artist');
+    if (!card) return;
+    var i = parseInt(card.getAttribute('data-i'), 10);
+    if (e.target.closest('#btn-sc-save-tb')) { toolbarSave(); return; } // 保存跟在编辑区里（动态渲染，走委托）
+    if (e.target.closest('#btn-sc-undo')) { doUndo(); return; }
+    if (e.target.closest('#btn-sc-redo')) { doRedo(); return; }
+    var kebab = e.target.closest('.sc-kebab, .sc-artist-menu, .sc-row-menu');
+    if (kebab) {
+      if (SC_POP && POP_BTN === kebab) { popClose(); return; } // 再点同一个 ⋮ → 关闭
+      var blk = e.target.closest('.sc-artist-block');
+      var rowEl = e.target.closest('.sc-row');
+      if (rowEl) popOpen('row', i, parseInt(blk.getAttribute('data-ai'), 10), parseInt(rowEl.getAttribute('data-ri'), 10), kebab);
+      else if (blk) popOpen('artist', i, parseInt(blk.getAttribute('data-ai'), 10), -1, kebab);
+      else popOpen(i === CARDS_EDIT ? 'card-e' : 'card', i, -1, -1, kebab);
+      return;
+    }
+    if (SC_POP) { popClose(); return; } // 菜单开着时点其他地方：只关菜单
+    var c = normCard(CARDS[i]);
+    if (i !== CARDS_EDIT && e.target.closest('.sc-name')) {
+      BJDS_EDIT = -1; CARDS_EDIT = i; EDIT_TYPE = 'card'; renderCards(); return; // 点色卡名称 → 直接打开这张卡的详情/编辑
+    }
+    if (i === CARDS_EDIT) {
+      var blk2 = e.target.closest('.sc-artist-block');
+      if (blk2) {
+        if (e.target.classList.contains('sc-add-row')) {
+          pushHist();
+          normArtist(c.artists[parseInt(blk2.getAttribute('data-ai'), 10)]).rows.push({ label: '', price: '', qty: 1 });
+          renderCards();
+        }
+        return;
+      }
+      if (e.target.classList.contains('sc-add-artist')) {
+        pushHist();
+        c.artists.push({ name: '', rows: [{ label: '', price: '', qty: 1 }] });
+        renderCards();
+      }
+      return;
+    }
+    // 紧凑卡：点卡身不做任何事，编辑只能通过 ⋮ → 编辑色卡
+  });
+  // 点击菜单外空白自动关闭；菜单里的选项交给 popAct
+  document.addEventListener('click', function (e) {
+    if (!SC_POP) return;
+    var pop = document.getElementById('sc-pop');
+    if (pop.contains(e.target)) {
+      var b = e.target.closest('.sc-opt');
+      if (b && !b.disabled) popAct(b.getAttribute('data-opt'));
+      return;
+    }
+    if (e.target.closest('.sc-kebab, .sc-artist-menu, .sc-row-menu, .bjd-kebab, .bjd-ph-menu, .ph-kebab, .area-kebab')) return; // ⋮ 由列表处理器切换
+    popClose();
+  });
+
+  var pendingSnap = null; // 聚焦编辑框时的快照：一次聚焦里的连续改动只记一步撤销
+  document.getElementById('sc-artist-list').addEventListener('focusin', function (e) {
+    var t = e.target;
+    var fc = t.closest('.sc-artist');
+    var fb = t.closest('.sc-artist-block');
+    if (t.classList.contains('a-name') && fc && fb) {
+      aNameSnap[fc.getAttribute('data-i') + '-' + fb.getAttribute('data-ai')] = t.value.trim(); // 记住聚焦时的画师名
+    }
+    if (t.classList.contains('a-name') || t.classList.contains('r-label') || t.classList.contains('r-price') || t.classList.contains('r-qty') || t.classList.contains('c-name') || t.classList.contains('c-shop') || t.classList.contains('c-bought') || t.classList.contains('c-orig') || t.classList.contains('c-lastrec')) {
+      if (fc) pendingSnap = snap();
+    }
+  });
+  document.getElementById('sc-artist-list').addEventListener('input', function (e) {
+    if (pendingSnap) { HIST.push(pendingSnap); if (HIST.length > 50) HIST.shift(); RIST = []; pendingSnap = null; }
+    var card = e.target.closest('.sc-artist');
+    if (!card) return;
+    var i = parseInt(card.getAttribute('data-i'), 10);
+    var c = normCard(CARDS[i]);
+    if (e.target.classList.contains('c-name')) c.name = e.target.value;
+    if (e.target.classList.contains('c-shop')) c.shop = e.target.value;
+    if (e.target.classList.contains('c-bought')) c.bought = e.target.value; // 购入日期：只手动改，不自动变
+    if (e.target.classList.contains('c-lastrec')) c.lastRec = e.target.value; // 最后记录：保存时自动更新，也可手动选
+    if (e.target.classList.contains('c-orig')) c.origPrice = e.target.value; // 收卡价格（原「原本价格」）：只手动改，不随画师价格/张数变动
+    if (e.target.classList.contains('c-home-show')) {
+      if (e.target.checked) {
+        var n2 = CARDS.filter(function (x) { var o = normCard(x); return o !== c && o.homeShow !== false; }).length;
+        if (n2 >= 4) { toast('主页展示最多 4 个，先取消一个吧'); e.target.checked = false; return; }
+      }
+      c.homeShow = e.target.checked;
+    }
+    var blkIn = e.target.closest('.sc-artist-block');
+    if (blkIn && e.target.classList.contains('a-name')) {
+      normArtist(c.artists[parseInt(blkIn.getAttribute('data-ai'), 10)]).name = e.target.value;
+    }
+    var blk = e.target.closest('.sc-artist-block');
+    if (blk) {
+      var ai = parseInt(blk.getAttribute('data-ai'), 10);
+      var a = normArtist(c.artists[ai]);
+      var rowEl = e.target.closest('.sc-row');
+      if (rowEl) {
+        var r = a.rows[parseInt(rowEl.getAttribute('data-ri'), 10)];
+        if (r) {
+          if (e.target.classList.contains('r-label')) r.label = e.target.value;
+          if (e.target.classList.contains('r-price')) r.price = e.target.value;
+          if (e.target.classList.contains('r-qty')) r.qty = e.target.value;
+          rowEl.querySelector('.r-total').textContent = '¥' + fmtMoney(rowTotal(r));
+        }
+      }
+      blk.querySelector('.a-stats').innerHTML = '张数统计（自动）：' + labelAgg(a) + ' · 共 ' + artistCount(a) + ' 张';
+      blk.querySelector('.a-sub-v').textContent = '¥' + fmtMoney(artistSub(a));
+    }
+    card.querySelector('.sc-card-total').textContent = '¥' + fmtMoney(cardFinal(c));
+    card.querySelector('.sc-card-count').textContent = cardCount(c);
+    updateTotal();
+  });
+  document.getElementById('sc-artist-list').addEventListener('change', function (e) {
+    if (e.target.classList.contains('a-name')) {
+      // 画师价格档案：选已有画师自动带出项目和价格（张数归 0）；改成新画师则清空，从空白开始；档案只含已正式保存的数据
+      var cardEl = e.target.closest('.sc-artist');
+      var blkEl = e.target.closest('.sc-artist-block');
+      if (!cardEl || !blkEl) return;
+      var key = cardEl.getAttribute('data-i') + '-' + blkEl.getAttribute('data-ai');
+      var nowName = e.target.value.trim();
+      var prevName = aNameSnap[key] || '';
+      var arch = artistArchive()[nowName];
+      var prevArch = artistArchive()[prevName];
+      var cA = normCard(CARDS[parseInt(cardEl.getAttribute('data-i'), 10)]);
+      var aA = normArtist(cA.artists[parseInt(blkEl.getAttribute('data-ai'), 10)]);
+      if (arch && arch.length && nowName !== prevName) {
+        var same = JSON.stringify(aA.rows.map(function (r) { return [r.label, String(r.price)]; })) === JSON.stringify(arch.map(function (r) { return [r.label, String(r.price)]; }));
+        if (!same) {
+          pushHist();
+          aA.rows = arch.map(function (r) { return { label: r.label, price: r.price, qty: 0 }; });
+          renderCards();
+          toast('已带出「' + nowName + '」的私调价格');
+        }
+      } else if (!arch && prevArch) {
+        // 原本选了已有画师，后来改成新增画师：清掉带出的旧项目和价格，从空白开始
+        pushHist();
+        aA.rows = [{ label: '', price: '', qty: 0 }];
+        renderCards();
+        toast('已清空带出的价格，从空白添加私调项目');
+      }
+      delete aNameSnap[key];
+      return;
+    }
+    if (!e.target.classList.contains('sc-file')) return;
+    var card = e.target.closest('.sc-artist');
+    var c = normCard(CARDS[parseInt(card.getAttribute('data-i'), 10)]);
+    var f = e.target.files[0];
+    if (!f || !c) return;
+    if (!ACCESS) { toast('请先登录'); return; }
+    toast('上传中…');
+    fetch(SUPABASE_URL + '/storage/v1/object/site/' + Date.now() + '-' + f.name.replace(/[^\w.\-]/g, '_'), {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + ACCESS, 'Content-Type': f.type || 'image/jpeg' },
+      body: f
+    }).then(function (r) { if (!r.ok) throw new Error(); return r.json(); })
+      .then(function (res) {
+        c.image = SUPABASE_URL + '/storage/v1/object/public/site/' + res.Key.split('/').slice(1).join('/');
+        toast('图已上传');
+        renderCards();
+      })
+      .catch(function () { toast('上传失败'); });
+  });
+
+  // ===== BJD 管理：一个 BJD = 一个完整的娃娃档案（交互与色卡完全一致）=====
+  function bjdUpload(file, done) {
+    if (!ACCESS) { toast('请先登录'); return; }
+    toast('上传中…');
+    fetch(SUPABASE_URL + '/storage/v1/object/site/' + Date.now() + '-' + (file.name || 'img').replace(/[^\w.\-]/g, '_'), {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + ACCESS, 'Content-Type': file.type || 'image/jpeg' },
+      body: file
+    }).then(function (r) { if (!r.ok) throw new Error(); return r.json(); })
+      .then(function (res) {
+        done(SUPABASE_URL + '/storage/v1/object/public/site/' + res.Key.split('/').slice(1).join('/'));
+      })
+      .catch(function () { toast('上传失败'); });
+  }
+  function bjdShortInfo(b) {
+    return [b.head.size, [b.head.brand, b.head.sculpt].join(' ').trim()].filter(Boolean).join(' · ');
+  }
+  function renderBjds() {
+    var list = document.getElementById('bjd-list');
+    if (!list) return;
+    list.innerHTML = BJDS.map(function (b, i) {
+      b = normBjd(b);
+      if (i !== BJDS_EDIT) {
+        return '<div class="card bjd-item" data-i="' + i + '" style="position:relative;padding:0;overflow:hidden;">' +
+          '<button class="kebab bjd-kebab" title="菜单">⋮</button>' +
+          '<div class="sc-card-img">' +
+          (b.image ? '<img src="' + escAttr(b.image) + '" alt="BJD">' : '<div class="sc-img-empty">暂无图片</div>') +
+          '</div>' +
+          '<div class="sc-info">' +
+          '<b class="sc-name">' + esc(b.name || '未命名娃娃') + '</b>' +
+          '<div class="sc-shop">' + esc(bjdShortInfo(b)) + '</div>' +
+          (b.price.total ? '<div class="sc-price">' + esc(b.price.total) + '</div>' : '') +
+          '</div>' +
+          '</div>';
+      }
+      var sel = function (cls, listOpts, cur) { return '<select class="' + cls + '">' + opts(listOpts, cur) + '</select>'; };
+      bjdParts = b.parts;
+      var chk = function (cls, part, label) {
+        return '<label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px;">' +
+          '<input type="checkbox" class="' + cls + '" data-part="' + part + '"' + (b.parts[part] !== false ? ' checked' : '') + '>' + label + '</label>';
+      };
+      return '<div class="card bjd-item editing" data-i="' + i + '" style="position:relative;">' +
+        '<button class="kebab bjd-kebab" title="菜单">⋮</button>' +
+        '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-right:40px;">' +
+        bjdField('娃娃名', '<input class="b-name" style="width:100%;" value="' + escAttr(b.name) + '" placeholder="娃娃名，如：Sakura">') +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:13px;">' +
+        '<label style="display:flex;align-items:center;gap:5px;cursor:pointer;"><input type="checkbox" class="b-home-show"' + (b.homeShow !== false ? ' checked' : '') + '>主页展示</label>' +
+        '<span style="color:var(--muted);">添加部件：</span>' +
+        chk('b-part', 'head', '娃娃头') + chk('b-part', 'body', '身体') + chk('b-part', 'eyes', '眼睛') + chk('b-part', 'clothes', '衣服') +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap;">' +
+        (b.image ? '<img src="' + escAttr(b.image) + '" style="width:44px;height:44px;object-fit:cover;border-radius:8px;flex-shrink:0;">' : '') +
+        '<label class="btn-mini b-file-btn">上传照片<input type="file" class="b-file" accept="image/*" hidden></label>' +
+        '</div>' +
+        bjdGroup('娃娃头', '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+          bjdField('厂家 / 品牌', '<input class="b-head-brand" style="width:100%;" value="' + escAttr(b.head.brand) + '" placeholder="如：大米自制">') +
+          bjdField('型号 / Sculpt', '<input class="b-head-sculpt" style="width:100%;" value="' + escAttr(b.head.sculpt) + '" placeholder="如：XXX Head">') +
+          bjdField('娃娃头尺寸', '<select class="b-head-size">' + opts(BJD_SIZES, b.head.size) + '</select>') +
+          bjdField('头部备注', '<input class="b-head-note" style="width:100%;" value="' + escAttr(b.head.note) + '" placeholder="自由填写">') +
+          '</div>', 'head') +
+        bjdGroup('身体', '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+          bjdField('厂家 / 品牌', '<input class="b-body-brand" style="width:100%;" value="' + escAttr(b.body.brand) + '" placeholder="如：熊蛋">') +
+          bjdField('Body 型号', '<input class="b-body-model" style="width:100%;" value="' + escAttr(b.body.model) + '" placeholder="如：XXX Body">') +
+          bjdField('身体类型', '<select class="b-body-type">' + opts(BJD_BODY_TYPES, b.body.type) + '</select>') +
+          bjdField('身体备注', '<input class="b-body-note" style="width:100%;" value="' + escAttr(b.body.note) + '" placeholder="自由填写">') +
+          '</div>', 'body') +
+        bjdGroup('眼睛', '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+          bjdField('商家 / 制作者', '<input class="b-eye-maker" style="width:100%;" value="' + escAttr(b.eyes.maker) + '" placeholder="如：XX工作室 / 自制">') +
+          bjdField('来源', '<select class="b-eye-source">' + opts(BJD_EYE_SOURCES, b.eyes.source) + '</select>') +
+          bjdField('眼睛尺寸', '<input class="b-eye-size" style="width:100%;" value="' + escAttr(b.eyes.size) + '" placeholder="如：14mm">') +
+          bjdField('虹膜尺寸', '<input class="b-eye-iris" style="width:100%;" value="' + escAttr(b.eyes.iris) + '" placeholder="如：7mm（可留空）">') +
+          bjdField('眼睛备注', '<input class="b-eye-note" style="width:100%;" value="' + escAttr(b.eyes.note) + '" placeholder="自由填写">') +
+          '</div>', 'eyes') +
+        bjdGroup('衣服', '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+          bjdField('商家 / 制作者', '<input class="b-cl-brand" style="width:100%;" value="' + escAttr(b.clothes.brand) + '" placeholder="选填">') +
+          bjdField('衣服备注', '<input class="b-cl-note" style="width:100%;" value="' + escAttr(b.clothes.note) + '" placeholder="选填">') +
+          '</div>', 'clothes') +
+        bjdGroup('妆面', '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+          bjdField('妆面 / Face-up', '<input class="b-fu-faceup" style="width:100%;" value="' + escAttr(b.faceup.faceup) + '" placeholder="如：手绘妆 / 自制妆 / 无妆">') +
+          bjdField('妆师', '<input class="b-fu-artist" style="width:100%;" value="' + escAttr(b.faceup.artist) + '" placeholder="如：XXX老师">') +
+          bjdField('妆面完成时间', '<input type="text" class="b-fu-date" readonly data-dp="1" placeholder="选择日期" style="width:100%;cursor:pointer;" value="' + escAttr(b.faceup.date) + '">') +
+          '</div>') +
+        bjdGroup('价格', '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+          bjdField('娃娃价格（总价）', '<input class="b-price-total" style="width:100%;" value="' + escAttr(b.price.total) + '" placeholder="如：$500（选填）">') +
+          (b.parts.head !== false ? bjdField('价格：娃娃头', '<input class="b-cost-doll" style="width:100%;" value="' + escAttr(b.price.doll) + '" placeholder="选填">') : '') +
+          (b.parts.body !== false ? bjdField('价格：身体', '<input class="b-cost-body" style="width:100%;" value="' + escAttr(b.price.body) + '" placeholder="选填">') : '') +
+          (b.parts.eyes !== false ? bjdField('价格：眼睛', '<input class="b-cost-eyes" style="width:100%;" value="' + escAttr(b.price.eyes) + '" placeholder="选填">') : '') +
+          (b.parts.clothes ? bjdField('价格：衣服', '<input class="b-cost-clothes" style="width:100%;" value="' + escAttr(b.price.clothes) + '" placeholder="选填">') : '') +
+          bjdField('价格：妆面', '<input class="b-cost-faceup" style="width:100%;" value="' + escAttr(b.price.faceup) + '" placeholder="选填">') +
+          '</div>') +
+        bjdGroup('购买信息（全部选填）', '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+          bjdField('购买日期', '<input type="text" class="b-buy-date" readonly data-dp="1" placeholder="选择日期" style="width:100%;cursor:pointer;" value="' + escAttr(b.purchase.date) + '">') +
+          bjdField('购买渠道 / 商家', '<input class="b-buy-channel" style="width:100%;" value="' + escAttr(b.purchase.channel) + '" placeholder="如：淘宝 / XX店">') +
+          bjdField('购买状态', '<select class="b-buy-status">' + opts(BJD_STATUS, b.purchase.status) + '</select>') +
+          '</div>') +
+        bjdGroup('备注', '<textarea class="b-notes" style="width:100%;box-sizing:border-box;min-height:56px;" placeholder="自由记录：换眼、换身体、入手故事…">' + esc(b.notes) + '</textarea>') +
+        '</div>';
+    }).join('') || '<p class="empty">还没有 BJD 档案，点下面「+ 新增 BJD」</p>';
+    document.getElementById('bjd-total').textContent = BJDS.length ? '共 ' + BJDS.length + ' 个娃娃' : '';
+    if (BJDS_EDIT >= 0) EDIT_TYPE = 'bjd'; else if (EDIT_TYPE === 'bjd') EDIT_TYPE = null;
+    enhanceSelects();
+  }
+  function saveBjdsQuiet(done) {
+    saveSetting('bjds', JSON.parse(JSON.stringify(BJDS))).then(function (r) {
+      if (!r.ok) throw new Error();
+      if (done) done();
+    }).catch(function () { toast('保存失败'); });
+  }
+  var bjdSaveTimer = null;
+  function scheduleBjdSave() {
+    if (bjdSaveTimer) clearTimeout(bjdSaveTimer);
+    bjdSaveTimer = setTimeout(function () { saveBjdsQuiet(function () {}); }, 800);
+  }
+  document.getElementById('btn-bjd-add').addEventListener('click', function () {
+    BJDS.push(normBjd({ createdAt: Date.now() }));
+    BJDS_EDIT = BJDS.length - 1;
+    CARDS_EDIT = -1;
+    popClose();
+    renderBjds();
+  });
+  document.getElementById('bjd-list').addEventListener('click', function (e) {
+    var card = e.target.closest('.bjd-item');
+    if (!card) return;
+    var i = parseInt(card.getAttribute('data-i'), 10);
+    var kebab = e.target.closest('.bjd-kebab');
+    if (kebab) {
+      if (SC_POP && POP_BTN === kebab) { popClose(); return; }
+      popOpen(i === BJDS_EDIT ? 'bjd-e' : 'bjd', i, -1, -1, kebab);
+      return;
+    }
+    if (SC_POP) { popClose(); return; }
+  });
+  document.getElementById('bjd-list').addEventListener('input', function (e) {
+    var card = e.target.closest('.bjd-item');
+    if (!card) return;
+    var b = normBjd(BJDS[parseInt(card.getAttribute('data-i'), 10)]);
+    var map = { 'b-name': ['name'], 'b-head-brand': ['head', 'brand'], 'b-head-sculpt': ['head', 'sculpt'], 'b-head-note': ['head', 'note'],
+      'b-body-brand': ['body', 'brand'], 'b-body-model': ['body', 'model'], 'b-body-note': ['body', 'note'],
+      'b-eye-maker': ['eyes', 'maker'], 'b-eye-size': ['eyes', 'size'], 'b-eye-iris': ['eyes', 'iris'], 'b-eye-note': ['eyes', 'note'],
+      'b-cl-brand': ['clothes', 'brand'], 'b-cl-note': ['clothes', 'note'],
+      'b-fu-faceup': ['faceup', 'faceup'], 'b-fu-artist': ['faceup', 'artist'],
+      'b-price-total': ['price', 'total'], 'b-cost-doll': ['price', 'doll'], 'b-cost-faceup': ['price', 'faceup'], 'b-cost-eyes': ['price', 'eyes'], 'b-cost-body': ['price', 'body'],
+      'b-buy-channel': ['purchase', 'channel'], 'b-notes': ['notes'] };
+    var path = map[e.target.className];
+    if (path) {
+      if (path.length === 1) b[path[0]] = e.target.value; else b[path[0]][path[1]] = e.target.value;
+      scheduleBjdSave();
+    }
+  });
+  document.getElementById('bjd-list').addEventListener('change', function (e) {
+    var card = e.target.closest('.bjd-item');
+    if (!card) return;
+    var b = normBjd(BJDS[parseInt(card.getAttribute('data-i'), 10)]);
+    var cls = e.target.className;
+    if (cls === 'b-head-size') b.head.size = e.target.value;
+    if (e.target.classList.contains('b-part')) {
+      var pt = e.target.getAttribute('data-part');
+      b.parts[pt] = e.target.checked;
+      scheduleBjdSave();
+      renderBjds(); // 未勾选的部件立即隐藏对应表单
+      return;
+    }
+    if (cls === 'b-home-show') {
+      if (e.target.checked) {
+        var n = BJDS.filter(function (x) { var o = normBjd(x); return o !== b && o.homeShow; }).length;
+        if (n >= 4) { toast('主页展示最多 4 个，先取消一个吧'); e.target.checked = false; return; }
+      }
+      b.homeShow = e.target.checked; scheduleBjdSave(); return;
+    }
+    if (cls === 'b-body-type') b.body.type = e.target.value;
+    if (cls === 'b-eye-source') b.eyes.source = e.target.value;
+    if (cls === 'b-fu-date') b.faceup.date = e.target.value;
+    if (cls === 'b-buy-date') b.purchase.date = e.target.value;
+    if (cls === 'b-buy-status') b.purchase.status = e.target.value;
+    if (e.target.tagName === 'SELECT' || e.target.type === 'date') scheduleBjdSave();
+    if (cls === 'b-file') {
+      var f = e.target.files[0];
+      if (f) bjdUpload(f, function (url) { b.image = url; toast('图已上传'); scheduleBjdSave(); renderBjds(); });
+    }
+  });
+
+  document.getElementById('btn-add-link').addEventListener('click', function () {
+    var name = document.getElementById('lk-name').value.trim();
+    if (!name) { toast('名称要填一个'); return; }
+    LINKS.push({
+      icon: document.getElementById('lk-icon').value,
+      name: name,
+      sub: document.getElementById('lk-sub').value.trim(),
+      url: document.getElementById('lk-url').value.trim(),
+      sort: parseInt(document.getElementById('lk-sort').value, 10) || 0
+    });
+    LINKS.sort(function (a, b) { return (a.sort || 0) - (b.sort || 0); });
+    saveSetting('links', LINKS).then(function (r) {
+      if (!r.ok) throw new Error();
+      toast('已添加');
+      document.getElementById('lk-name').value = '';
+      document.getElementById('lk-sub').value = '';
+      document.getElementById('lk-url').value = '';
+      document.getElementById('lk-sort').value = '';
+      renderLinkList();
+    }).catch(function () { toast('保存失败'); LINKS.pop(); });
+  });
+  document.getElementById('link-list').addEventListener('click', function (e) {
+    var card = e.target.closest('.link-item');
+    if (!card) return;
+    var i = parseInt(card.getAttribute('data-i'), 10);
+    var l = LINKS[i];
+    if (e.target.classList.contains('lk-kebab')) {
+      card.innerHTML =
+        '<div class="edit-grid">' +
+        '<select data-f="icon">' +
+        ['gmail','instagram','x','discord','wechat','xhs','netease','link'].map(function (k) {
+          return '<option value="' + k + '"' + (l.icon === k ? ' selected' : '') + '>' + k + '</option>';
+        }).join('') +
+        '</select>' +
+        '<input data-f="sort" type="number" value="' + (l.sort == null ? 0 : l.sort) + '" placeholder="排序">' +
+        '<input data-f="name" value="' + escAttr(l.name) + '" placeholder="名称">' +
+        '<input data-f="sub" value="' + escAttr(l.sub || '') + '" placeholder="小字（可留空）">' +
+        '<input data-f="url" class="e-desc" value="' + escAttr(l.url || '') + '" placeholder="链接（可留空=纯展示）">' +
+        '</div>' +
+        '<div class="actions" style="justify-content:flex-start;">' +
+        '<button class="btn-mini btn-save-link">保存</button>' +
+        '<button class="btn-del btn-del-link">删除</button>' +
+        '<button class="btn-mini btn-cancel-link">取消</button>' +
+        '</div>';
+    }
+    if (e.target.classList.contains('btn-save-link')) {
+      l.icon = card.querySelector('[data-f="icon"]').value;
+      l.name = card.querySelector('[data-f="name"]').value.trim();
+      l.sub = card.querySelector('[data-f="sub"]').value.trim();
+      l.url = card.querySelector('[data-f="url"]').value.trim();
+      l.sort = parseInt(card.querySelector('[data-f="sort"]').value, 10) || 0;
+      if (!l.name) { toast('名称不能为空'); return; }
+      LINKS.sort(function (a, b) { return (a.sort || 0) - (b.sort || 0); });
+      saveSetting('links', LINKS).then(function (r) {
+        if (!r.ok) throw new Error();
+        toast('已保存');
+        renderLinkList();
+      }).catch(function () { toast('保存失败'); });
+    }
+    if (e.target.classList.contains('btn-del-link')) {
+      if (!confirm('确定删除这张卡片吗？')) return;
+      LINKS.splice(i, 1);
+      saveSetting('links', LINKS).then(function (r) {
+        if (!r.ok) throw new Error();
+        toast('已删除');
+        renderLinkList();
+      }).catch(function () { toast('删除失败'); loadHome(); });
+    }
+    if (e.target.classList.contains('btn-cancel-link')) {
+      renderLinkList();
+    }
+  });
+
+  // 汉堡菜单：全站统一组件 site-menu.js 负责渲染与交互
 </script>
+<footer>© 2026 Yuki · Made with Cola</footer>
 </body>
 </html>

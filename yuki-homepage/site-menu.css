@@ -1,0 +1,124 @@
+/* ═══════════ 全站统一汉堡菜单（唯一组件，所有页面共用）═══════════ */
+.burger {
+  width: 42px; height: 42px;
+  border: none;
+  border-radius: 12px;
+  background: var(--card);
+  cursor: pointer;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 5px;
+}
+.burger span {
+  width: 20px; height: 2px;
+  background: var(--text);
+  border-radius: 2px;
+  transition: transform .25s, opacity .25s;
+}
+.burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.burger.open span:nth-child(2) { opacity: 0; }
+.burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+.menu-mask {
+  position: fixed; inset: 0;
+  background: rgba(90,66,76,.25);
+  opacity: 0; visibility: hidden;
+  transition: opacity .25s;
+  z-index: 150;
+}
+.menu-mask.open { opacity: 1; visibility: visible; }
+.menu {
+  position: fixed;
+  top: 60px; right: 0; bottom: 0;
+  width: 250px;
+  background: #fffafc;
+  box-shadow: -4px 0 24px rgba(255,143,171,.18);
+  transform: translateX(100%);
+  transition: transform .25s;
+  z-index: 180;
+  padding: 24px 18px 24px;
+  display: flex; flex-direction: column; gap: 6px;
+  overflow-y: auto;
+}
+.menu.open { transform: translateX(0); }
+.menu a {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  color: var(--text);
+  text-decoration: none;
+  transition: background .2s;
+}
+.menu a:hover, .menu a.active { background: var(--card); }
+
+/* 手风琴菜单：顶层 + / 展开 ⌄ / 子项 - */
+.menu-group { display: flex; flex-direction: column; }
+.menu-toggle {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 16px;
+  border: none;
+  background: none;
+  border-radius: 12px;
+  font-size: 15px;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  transition: background .2s;
+}
+.menu-toggle:hover, .menu-group.open .menu-toggle, .menu-group.active .menu-toggle { background: var(--card); }
+.menu-toggle .plus {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1;
+}
+.menu-toggle .plus::before { content: "+"; }
+.menu-group.open .menu-toggle .plus::before { content: "⌄"; }
+.submenu {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height .3s ease;
+}
+.menu-group.open .submenu { max-height: 70vh; overflow-y: auto; }
+.submenu a { padding-left: 40px; }
+.submenu .dash { color: var(--muted); }
+.menu-link {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 16px;
+  border-radius: 12px;
+  font-size: 15px;
+  color: var(--text);
+  text-decoration: none;
+  transition: background .2s;
+}
+.menu-link:hover { background: var(--card); }
+.menu-owner {
+  margin-top: auto;
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  color: var(--text);
+  text-decoration: none;
+  background: var(--card);
+  transition: background .2s;
+}
+.menu-owner:hover { background: var(--card-hover); }
+
+/* 当前所在页面：轻微高亮（所有页面统一，只标当前，不重排不隐藏） */
+.menu a.current, .menu-link.current { background: var(--card); font-weight: 600; }
+.menu-group.current > .menu-toggle { background: var(--card); font-weight: 600; }
+
+/* 顶栏中间 logo：全站统一组件（只按高度等比缩放，永不拉伸/裁切/压扁） */
+.site-logo {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  height: 48px;
+  display: block;
+}
+.site-logo img { display: block; height: 48px; width: auto; max-width: 42vw; object-fit: contain; }
+@media (max-width: 400px) {
+  .site-logo, .site-logo img { height: 40px; }
+}
