@@ -10,7 +10,7 @@
   function t(zh, en) { return LANG === 'en' ? en : zh; }
 
   // ── 唯一导航数据源 ──
-  // page/hash：跨页用 index.html#xxx；在 index 页内部自动变成 '#xxx' 平滑跳转
+  // 站点部署在域名根：/ = 主页，/shop/ /askbox/ = 子页，/admin.html = 后台；页面内子区用 #hash
   var NAV = [
     { key: 'home', zh: 'Home', en: 'Home', page: 'index', hash: '' },
     { key: 'cal', zh: '日历', en: 'Calendar', page: 'index', hash: 'home-cal', scroll: true },
@@ -29,8 +29,15 @@
     { key: 'links', zh: '找到我', en: 'Find Me', page: 'index', hash: 'links' }
   ];
 
-  var curPage = (location.pathname.split('/').pop() || 'index.html').replace(/\.html.*$/, '');
-  if (['index', 'shop', 'askbox', 'admin'].indexOf(curPage) === -1) curPage = 'index';
+  // 页面 → 根绝对路径（站点部署在域名根，从任何页面都能正确跳转）
+  var PAGE_URL = { index: '/', shop: '/shop/', askbox: '/askbox/', admin: '/admin.html' };
+  var curPage = (function () {
+    var p = location.pathname;
+    if (p.indexOf('/shop/') === 0 || p === '/shop.html' || p.indexOf('/shop.html') === 0) return 'shop';
+    if (p.indexOf('/askbox/') === 0 || p.indexOf('/askbox.html') === 0) return 'askbox';
+    if (p.indexOf('/admin.html') === 0) return 'admin';
+    return 'index';
+  })();
   var curHash = location.hash.replace('#', '');
   function normHash(h) {
     if (!h) return '';
@@ -45,7 +52,7 @@
       if (item.scroll) return '#home';
       return '#' + (item.hash || '');
     }
-    return item.page + '.html' + (item.hash ? '#' + item.hash : '');
+    return PAGE_URL[item.page] + (item.hash ? '#' + item.hash : '');
   }
   function isCurrent(item) {
     if (item.page !== curPage) return false;
@@ -94,11 +101,11 @@
       var g = el('<div class="menu-group" id="menu-owner-group" style="margin-top:auto;"></div>');
       g.appendChild(el('<button class="menu-toggle" type="button">' + span('柚子专属', 'Yuki\'s Personal') + '<span class="plus"></span></button>'));
       var sub = el('<div class="submenu"></div>');
-      sub.appendChild(el('<a class="menu-link" data-key="admin" href="admin.html">' + span('管理后台', 'Admin') + '</a>'));
+      sub.appendChild(el('<a class="menu-link" data-key="admin" href="/admin.html">' + span('管理后台', 'Admin') + '</a>'));
       g.appendChild(sub);
       return g;
     }
-    return el('<a class="menu-owner" id="menu-owner-link" href="admin.html" style="margin-top:auto;">' + span('柚子专属', 'Yuki\'s Personal') + '</a>');
+    return el('<a class="menu-owner" id="menu-owner-link" href="/admin.html" style="margin-top:auto;">' + span('柚子专属', 'Yuki\'s Personal') + '</a>');
   }
 
   function render() {

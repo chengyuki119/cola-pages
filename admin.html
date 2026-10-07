@@ -170,6 +170,10 @@
   .sel-opt { display: block; width: 100%; border: none; background: none; text-align: left; padding: 9px 12px; font-size: 13px; cursor: pointer; border-radius: 8px; color: var(--text); font-family: inherit; line-height: 1.4; }
   .sel-opt:hover { background: var(--card-hover); }
   .sel-opt.active { background: var(--accent-soft); color: #fff; }
+  /* 自定义联想下拉（画师 / 标签）：与 sel-menu / sc-pop 同一套视觉，彻底替代浏览器 datalist */
+  #combo-pop { position: fixed; z-index: 1000; background: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(180,120,150,.18); padding: 6px; min-width: 200px; max-width: 320px; max-height: 240px; overflow-y: auto; display: none; box-sizing: border-box; animation: scPopIn .16s ease; }
+  .combo-opt { display: block; width: 100%; border: none; background: none; text-align: left; padding: 9px 12px; font-size: 13px; cursor: pointer; border-radius: 8px; color: var(--text); font-family: inherit; line-height: 1.4; }
+  .combo-opt:hover { background: var(--card-hover); }
   .dy-chip input { position: absolute; opacity: 0; pointer-events: none; }
   .btn-mini { background: var(--card); color: var(--text); }
   /* 头像 / 主页背景图上传区：两行对齐，隐藏原生 file 控件 */
@@ -269,10 +273,19 @@
   .edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex: 1; min-width: 0; }
   .edit-grid .e-desc, .edit-grid .e-file { grid-column: 1 / -1; }
   /* 照片管理列表：紧凑一行卡（缩略图 72px + 信息） */
-  .photo-item { display: flex; gap: 12px; align-items: flex-start; }
-  .photo-item .thumb { width: 72px; height: 72px; border-radius: 12px; overflow: hidden; background: var(--card); flex-shrink: 0; }
-  .photo-item .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .photo-item .info { flex: 1; min-width: 0; }
+  /* 照片列表卡：与色卡列表卡同一套语言（白卡、图贴边、文字右对齐区、⋮ 同一垂直线） */
+  .photo-item { display: flex; align-items: stretch; padding: 0; overflow: hidden; position: relative; }
+  .photo-item > .kebab { background: #fff; top: 50%; transform: translateY(-50%); right: 10px; }
+  .photo-item .thumb { width: 72px; min-height: 72px; border-radius: 0; overflow: hidden; background: var(--card-hover); flex-shrink: 0; position: relative; }
+  .photo-item .thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+  .photo-item .info { flex: 1; min-width: 0; padding: 10px 46px 10px 12px; display: flex; flex-direction: column; justify-content: center; gap: 3px; }
+  .photo-item .ph-title { font-size: 14px; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .photo-item .ph-meta { font-size: 12px; color: var(--muted); }
+  .photo-item .edit-grid { margin-top: 6px; }
+  .photo-item .actions { margin-top: 8px; }
+  /* 上传新照片：字段行内小标签 + 统一间距 */
+  .fld-inline { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .fld-label { font-size: 12px; color: var(--muted); flex-shrink: 0; }
   /* 小铺商品：缩略图更矮、保持原始比例不裁切 */
   .shop-item .thumb {
     width: auto; min-width: 60px; height: 60px; border-radius: 12px; overflow: hidden;
@@ -318,10 +331,9 @@
   <script src="site-menu.js" defer></script>
 </head>
 <body>
-<datalist id="tag-list"></datalist>
 <header class="topbar">
-  <a class="back-link" href="index.html">← 返回主页</a>
-  <a class="site-logo" href="index.html" aria-label="回主页"><img src="logo.png" alt="logo"></a>
+  <a class="back-link" href="/">← 返回主页</a>
+  <a class="site-logo" href="/" aria-label="回主页"><img src="logo.png" alt="logo"></a>
   <button class="burger" id="burger" aria-label="菜单">
     <span></span><span></span><span></span>
   </button>
@@ -370,7 +382,7 @@
           <input id="p-price" placeholder="价格，如 39.9（可留空）">
           <input id="p-stock" type="number" min="0" placeholder="库存数量（0 = 售尽）">
           <input id="p-cost" type="number" min="0" step="0.01" placeholder="成本，只有你自己能看到">
-          <input id="p-tag" list="tag-list" placeholder="标签，如 手作 / 毛线 / 黏土">
+          <input id="p-tag" placeholder="标签，如 手作 / 毛线 / 黏土（点输入框可选已有标签）">
           <input id="p-file" type="file" accept="image/*">
           <textarea id="p-desc" class="full" style="min-height:56px;" placeholder="商品描述：材料、尺寸、细节…"></textarea>
         </div>
@@ -408,19 +420,19 @@
       <div class="card">
         <h3>上传新照片</h3>
         <div class="form-grid">
-          <select id="ph-category">
+          <div class="fld-inline"><span class="fld-label">分区</span><select id="ph-category">
             <option value="instax">拍立得展示</option>
             <option value="film">胶卷相机照片展示</option>
             <option value="bjd">BJD 展示</option>
-          </select>
+          </select></div>
           <input id="ph-sort" type="number" placeholder="排序数字（小的在前，可留空）">
-          <select id="ph-style">
+          <div class="fld-inline"><span class="fld-label">展示类型</span><select id="ph-style">
             <option value="normal">普通照片</option>
             <option value="instax">拍立得</option>
             <option value="film">胶卷相机</option>
             <option value="vcd">VCD / 录像带</option>
-          </select>
-          <input id="ph-file" class="full" type="file" accept="image/*">
+          </select></div>
+          <div class="full fld-inline"><label class="btn-mini hm-file-btn">选择图片<input id="ph-file" type="file" accept="image/*" hidden></label><span class="hm-file-name" id="ph-file-name">未选择图片</span></div>
           <input id="ph-cap-zh" class="full" placeholder="照片标题（中文，可留空）">
           <input id="ph-cap-en" class="full" placeholder="照片标题（英文，可留空）">
         </div>
@@ -883,7 +895,7 @@
         '<div class="edit-grid">' +
         '<input class="e-name" value="' + escAttr(p.name) + '" placeholder="商品名称">' +
         '<input class="e-price" value="' + escAttr(p.price) + '" placeholder="价格">' +
-        '<input class="e-tag" list="tag-list" value="' + escAttr(p.tag) + '" placeholder="标签">' +
+        '<input class="e-tag" value="' + escAttr(p.tag) + '" placeholder="标签（点输入框可选已有标签）">' +
         '<input class="e-stock" type="number" min="0" value="' + (p.stock == null ? '' : p.stock) + '" placeholder="库存">' +
         '<input class="e-cost" type="number" step="0.01" value="' + (p.cost == null ? '' : p.cost) + '" placeholder="成本（仅自己可见）">' +
         '<input class="e-file" type="file" accept="image/*" style="grid-column:1/-1;">' +
@@ -1157,6 +1169,9 @@
   loadDays();
 
   // ===== 照片管理 =====
+  document.getElementById('ph-file').addEventListener('change', function () {
+    document.getElementById('ph-file-name').textContent = this.files && this.files[0] ? '已选择：' + this.files[0].name : '未选择图片';
+  });
   document.getElementById('btn-add-photo').addEventListener('click', function () {
     var btn = this;
     var cat = document.getElementById('ph-category').value;
@@ -1200,14 +1215,16 @@
   function savedTags() {
     try { var v = JSON.parse(SETTINGS['tags'] || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; }
   }
-  function refreshTagList() {
+  function tagOptions() {
     var all = savedTags().slice();
     Object.keys(PRODUCT_CACHE).forEach(function (id) {
       var t = (PRODUCT_CACHE[id].tag || '').trim();
       if (t && all.indexOf(t) === -1) all.push(t);
     });
-    var dl = document.getElementById('tag-list');
-    if (dl) dl.innerHTML = all.filter(Boolean).map(function (t) { return '<option value="' + escAttr(t) + '">'; }).join('');
+    return all.filter(Boolean);
+  }
+  function refreshTagList() {
+    comboRefresh(); // 标签数据变了：如果联想下拉正开着，刷新选项
   }
   function rememberTag(t) {
     t = (t || '').trim();
@@ -1351,20 +1368,24 @@
           var catOptions = SECTIONS.map(function (s) {
             return '<option value="' + esc(s.key) + '"' + (p.category === s.key ? ' selected' : '') + '>' + esc(s.name_zh) + '</option>';
           }).join('');
-          return '<div class="card photo-item' + (p.pinned ? ' pinned' : '') + '" data-id="' + p.id + '" style="position:relative;">' +
+          var st = photoStyles()[p.id] || 'normal';
+          var stName = (PH_STYLE_OPTS.filter(function (o) { return o[0] === st; })[0] || PH_STYLE_OPTS[0])[1];
+          var badges = (p.pinned ? '<span class="sold-badge" style="background:var(--accent);margin-left:0;">置顶</span>' : '') +
+            (p.home ? '<span class="sold-badge" style="background:#8fb8a0;' + (p.pinned ? '' : 'margin-left:0;') + '">主页展示</span>' : '');
+          return '<div class="card photo-item' + (p.pinned ? ' pinned' : '') + '" data-id="' + p.id + '">' +
             '<button class="kebab ph-kebab" title="菜单">⋮</button>' +
             '<div class="thumb"><img src="' + esc(p.image_url) + '"></div>' +
             '<div class="info">' +
-            '<span class="sold-badge st-on">' + esc(sectionName(p.category)) + '</span>' +
-            (p.pinned ? '<span class="sold-badge st-on" style="background:var(--accent);">置顶</span>' : '') +
-            (p.home ? '<span class="sold-badge st-on" style="background:#8fb8a0;">主页展示</span>' : '') +
+            '<span class="ph-title">' + esc(p.caption_zh || p.caption_en || '未命名照片') + '</span>' +
+            '<span class="ph-meta">' + esc(sectionName(p.category)) + ' · ' + esc(stName) + ' · 排序 ' + (p.sort == null ? 0 : p.sort) + '</span>' +
+            (badges ? '<span class="ph-meta">' + badges + '</span>' : '') +
             '<div class="edit-grid" style="display:none;">' +
             '<input data-f="caption_zh" value="' + escAttr(p.caption_zh) + '" placeholder="标题（中文）">' +
             '<input data-f="caption_en" value="' + escAttr(p.caption_en) + '" placeholder="标题（英文）">' +
             '<input data-f="sort" type="number" value="' + (p.sort == null ? 0 : p.sort) + '" placeholder="排序数字">' +
             '<select data-f="category">' + catOptions + '</select>' +
             '<select data-f="style" style="grid-column:1/-1;">' + PH_STYLE_OPTS.map(function (o) {
-              return '<option value="' + o[0] + '"' + ((photoStyles()[p.id] || 'normal') === o[0] ? ' selected' : '') + '>' + o[1] + '</option>';
+              return '<option value="' + o[0] + '"' + (st === o[0] ? ' selected' : '') + '>' + o[1] + '</option>';
             }).join('') + '</select>' +
             '</div>' +
             '<div class="actions" style="justify-content:flex-start;display:none;">' +
@@ -1894,6 +1915,7 @@
     return map;
   }
   function renderCards() {
+    comboClose(); // 卡片重渲染：联想下拉如开着先收起，避免指向已移除的输入框
     var list = document.getElementById('sc-artist-list');
     list.innerHTML = CARDS.map(function (c, i) {
       c = normCard(c);
@@ -1928,7 +1950,7 @@
           '<button class="kebab sc-artist-menu" title="选项">⋮</button>' +
           '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-right:40px;">' +
           '<span style="font-size:12px;color:var(--muted);flex-shrink:0;">画师 ' + (ai + 1) + '</span>' +
-          '<input class="a-name" list="artist-arch" style="flex:1;min-width:120px;" value="' + escAttr(a.name || '') + '" placeholder="画师名称（可输入或选已有画师）">' +
+          '<input class="a-name" style="flex:1;min-width:120px;" value="' + escAttr(a.name || '') + '" placeholder="画师名称（可输入或点输入框选已有画师）">' +
           '</div>' +
           '<div class="sc-rows" style="margin-top:8px;">' + rowsHtml + '</div>' +
           '<div class="actions" style="justify-content:flex-start;margin-top:4px;">' +
@@ -1969,8 +1991,6 @@
         '</div>' +
         '</div>';
     }).join('') || '<p class="empty">还没有色卡，点下面「+ 新建色卡」</p>';
-    // 画师价格档案下拉数据（datalist：可选已有画师，也可自由输入新画师）
-    list.innerHTML += '<datalist id="artist-arch">' + Object.keys(artistArchive()).map(function (n) { return '<option value="' + escAttr(n) + '">'; }).join('') + '</datalist>';
     updateTotal();
     // 编辑中才显示右下角「保存」
     if (CARDS_EDIT >= 0) EDIT_TYPE = 'card'; else if (EDIT_TYPE === 'card') EDIT_TYPE = null;
@@ -2197,6 +2217,65 @@
   }
   new MutationObserver(scheduleEnhance).observe(document.body, { childList: true, subtree: true });
   enhanceSelects();
+
+  // ===== 自定义联想下拉（画师 / 标签）：与 sel-menu / sc-pop 同一套视觉，彻底替代浏览器 datalist =====
+  var COMBO = { input: null, skip: false };
+  var comboPop = document.createElement('div');
+  comboPop.id = 'combo-pop';
+  document.body.appendChild(comboPop);
+  function comboSource(el) {
+    if (!el || !el.classList) return null;
+    if (el.classList.contains('a-name')) return Object.keys(artistArchive());
+    if (el.id === 'p-tag' || el.classList.contains('e-tag')) return tagOptions();
+    return null;
+  }
+  function comboRefresh() { if (COMBO.input) comboOpen(COMBO.input); else comboClose(); }
+  function comboOpen(el) {
+    var src = comboSource(el);
+    if (!src) { comboClose(); return; }
+    var q = (el.value || '').trim().toLowerCase();
+    var items = q ? src.filter(function (n) { return n.toLowerCase() !== q && n.toLowerCase().indexOf(q) > -1; }) : src.slice();
+    if (!items.length) { comboClose(); return; }
+    comboPop.innerHTML = items.slice(0, 40).map(function (n) {
+      return '<button type="button" class="combo-opt" data-v="' + escAttr(n) + '">' + esc(n) + '</button>';
+    }).join('');
+    var r = el.getBoundingClientRect();
+    comboPop.style.left = Math.max(8, Math.min(r.left, window.innerWidth - 250)) + 'px';
+    comboPop.style.top = Math.min(r.bottom + 4, window.innerHeight - 120) + 'px';
+    comboPop.style.display = 'block';
+    COMBO.input = el;
+  }
+  function comboClose() {
+    if (!comboPop) return;
+    comboPop.style.display = 'none';
+    COMBO.input = null;
+  }
+  document.addEventListener('focusin', function (e) {
+    if (e.target.closest && e.target.closest('#combo-pop')) return;
+    if (comboSource(e.target)) comboOpen(e.target); else comboClose();
+  });
+  document.addEventListener('input', function (e) {
+    if (COMBO.skip) { COMBO.skip = false; return; }
+    if (COMBO.input === e.target) comboOpen(e.target);
+  }, true);
+  comboPop.addEventListener('mousedown', function (e) { e.preventDefault(); }); // 防止输入框失焦
+  comboPop.addEventListener('click', function (e) {
+    var b = e.target.closest('.combo-opt'); if (!b || !COMBO.input) return;
+    var inp = COMBO.input;
+    inp.value = b.getAttribute('data-v');
+    COMBO.skip = true; comboClose();
+    inp.dispatchEvent(new Event('input', { bubbles: true }));
+    inp.dispatchEvent(new Event('change', { bubbles: true })); // 与原 datalist 选中行为一致：触发画师档案带出 / 状态同步
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') comboClose(); });
+  window.addEventListener('scroll', function () {
+    if (!COMBO.input) return;
+    var r = COMBO.input.getBoundingClientRect();
+    if (r.bottom < 0 || r.top > window.innerHeight) { comboClose(); return; } // 输入框滚出视野才收起，否则跟随重新定位
+    comboPop.style.left = Math.max(8, Math.min(r.left, window.innerWidth - 250)) + 'px';
+    comboPop.style.top = Math.min(r.bottom + 4, window.innerHeight - 120) + 'px';
+  }, true);
+  window.addEventListener('resize', comboClose);
 
   function popOpen(type, i, ai, ri, btn, extra) {
     dpClose(); // 打开 ⋮ 菜单时收起日期选择器

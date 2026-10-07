@@ -219,8 +219,8 @@
     .topbar { padding: 0 10px; }
   }
 </style>
-  <link rel="stylesheet" href="site-menu.css">
-  <script src="site-menu.js" defer></script>
+  <link rel="stylesheet" href="/site-menu.css">
+  <script src="/site-menu.js" defer></script>
 </head>
 <body>
 <header class="topbar">
@@ -228,7 +228,7 @@
     <button class="lang-btn" data-lang="zh">简体中文</button>
     <button class="lang-btn" data-lang="en">English</button>
   </div>
-  <a class="site-logo" href="index.html" aria-label="回主页"><img src="logo.png" alt="logo"></a>
+  <a class="site-logo" href="/" aria-label="回主页"><img src="/logo.png" alt="logo"></a>
   <button class="burger" id="burger" aria-label="菜单">
     <span></span><span></span><span></span>
   </button>
@@ -238,7 +238,7 @@
 
 <header class="shop-header">
   <div class="shop-header-inner">
-    <a class="back-link" href="index.html"><span data-zh="← 返回主页" data-en="← Back to Home">← 返回主页</span></a>
+    <a class="back-link" href="/"><span data-zh="← 返回主页" data-en="← Back to Home">← 返回主页</span></a>
     <h1><span data-zh="小柚的小铺" data-en="Yuki's Shop">小柚的小铺</span></h1>
     <p><span data-zh="Yuki's Shop · 手作小物 · 每一件都是亲手做的" data-en="Yuki's Shop · Handmade with love, every piece made by hand">Yuki's Shop · 手作小物 · 每一件都是亲手做的</span></p>
   </div>
@@ -367,6 +367,7 @@
     d.textContent = s == null ? '' : String(s);
     return d.innerHTML;
   }
+  function imgUrl(u) { u = String(u || ''); return /^https?:\/\//.test(u) ? u : '/' + u.replace(/^\/+/, ''); } // 相对图片路径转根绝对（页面在 /shop/ 下）
 
   // 下单：复制微信号
   function toast(msg) {
@@ -401,7 +402,7 @@
   }
   function productCard(p) {
     var img = p.image_url
-      ? '<img src="' + esc(p.image_url) + '" alt="' + esc(p.name) + '">'
+      ? '<img src="' + esc(imgUrl(p.image_url)) + '" alt="' + esc(p.name) + '">'
       : '';
     var st = statusOf(p);
     var stText = st === 'on' ? t('在售','On sale') : st === 'display' ? t('仅展示','Display only') : t('售尽','Sold out');
@@ -513,7 +514,7 @@
         return;
       }
       list.innerHTML = rows.map(function (rv) {
-        var img = rv.image_url ? '<img src="' + esc(rv.image_url) + '" style="width:100%;border-radius:12px;margin-top:10px;">' : '';
+        var img = rv.image_url ? '<img src="' + esc(imgUrl(rv.image_url)) + '" style="width:100%;border-radius:12px;margin-top:10px;">' : '';
         var stars = '<span style="color:#ffb84d;letter-spacing:2px;">' + starText(rv.rating || 5) + '</span> <span style="font-size:12px;">' + (rv.rating || 5) + '/5</span>';
         return '<div style="background:#fff;border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;box-shadow:0 2px 10px rgba(180,120,150,.10);">' +
           '<div style="font-size:13px;color:var(--muted);">' + esc(rv.name || t('小可爱','a lovely buyer')) + ' · ' + fmtDate(rv.created_at) + '</div>' +
