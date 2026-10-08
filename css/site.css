@@ -370,6 +370,20 @@
   #cal-form input[type="text"], #cal-form input[type="date"] { display: block; width: 100%; height: 42px; box-sizing: border-box; border: 1px solid #f6d9e6; border-radius: 12px; background: #fff; padding: 10px 12px; font-family: inherit; font-size: 14px; color: var(--text); outline: none; }
   /* 自定义日期选择器（与后台同一套，替代系统原生） */
   #date-pop { position: fixed; z-index: 1300; background: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(180,120,150,.18); padding: 10px; width: 231px; box-sizing: border-box; display: none; }
+  #date-pop .dp-title { cursor: pointer; }
+  #date-pop .dp-input { width: 100%; box-sizing: border-box; margin-bottom: 6px; padding: 7px 10px; border: 1px solid #f0cfdf; border-radius: 8px; font-size: 13px; font-family: inherit; color: var(--text); background: #fff; outline: none; }
+  #date-pop .dp-input:focus { border-color: var(--accent); }
+  #date-pop .dp-hint { display: none; font-size: 11px; color: #e0722f; margin: -2px 0 6px; }
+  #date-pop .dp-ym { display: none; }
+  #date-pop .dp-years { display: flex; flex-wrap: wrap; gap: 5px; overflow-y: auto; max-height: 96px; padding-right: 2px; margin-bottom: 6px; }
+  #date-pop .dp-year, #date-pop .dp-mon { border: none; background: var(--card); color: var(--text); border-radius: 8px; padding: 4px 7px; font-size: 12px; cursor: pointer; font-family: inherit; line-height: 1.4; }
+  #date-pop .dp-mon { text-align: center; }
+  #date-pop .dp-year.cur, #date-pop .dp-mon.cur { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+  #date-pop .dp-year:hover, #date-pop .dp-mon:hover { background: var(--card-hover); }
+  #date-pop .dp-months { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+  #date-pop .dp-ym-row { margin-bottom: 6px; }
+  #date-pop .dp-year-input { width: 100%; box-sizing: border-box; padding: 6px 10px; border: 1px solid #f0cfdf; border-radius: 8px; font-size: 13px; font-family: inherit; color: var(--text); outline: none; }
+  #date-pop .dp-year-input:focus { border-color: var(--accent); }
   .dp-head { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
   .dp-title { flex: 1; text-align: center; font-size: 13px; font-weight: 700; }
   .dp-nav, .dp-today { border: none; background: var(--card-hover); color: var(--accent); font-size: 12px; border-radius: 999px; cursor: pointer; padding: 5px 10px; line-height: 1; font-family: inherit; }
@@ -390,7 +404,12 @@
   .sel-opt:hover { background: var(--card-hover); }
   .sel-opt.active { background: var(--accent-soft); color: #fff; }
   #cal-form .ev-chips { display: flex; gap: 6px; flex-wrap: wrap; }
-  #cal-form .ev-chip { border: none; background: #fff; color: var(--muted); border-radius: 999px; padding: 5px 12px; font-size: 12px; cursor: pointer; transition: background .2s, color .2s; }
+  #cal-form .ev-chip { border: none; background: #fff; color: var(--muted); border-radius: 999px; padding: 5px 12px; font-size: 12px; cursor: pointer; transition: background .2s, color .2s; white-space: nowrap; flex: none; }
+  #cal-form #ev-cat-list { display: none; background: #fff; border-radius: 10px; box-shadow: 0 6px 20px rgba(180,120,150,.18); margin-top: 6px; max-height: 168px; overflow-y: auto; }
+  #cal-form .cat-opt { display: block; width: 100%; box-sizing: border-box; border: none; background: none; text-align: left; padding: 9px 12px; font-size: 13px; cursor: pointer; border-radius: 8px; color: var(--text); font-family: inherit; line-height: 1.4; }
+  #cal-form .cat-opt:hover { background: var(--card-hover); }
+  #cal-form .cat-opt.active { background: var(--card); color: var(--accent); font-weight: 600; }
+  #cal-form .cat-opt.cat-new { color: var(--accent); font-weight: 600; }
   #cal-form .ev-chip:hover { color: var(--text); }
   #cal-form .ev-chip.active { background: var(--accent-soft); color: #fff; }
   #cal-form input[type="radio"] { position: absolute; opacity: 0; pointer-events: none; }

@@ -157,7 +157,15 @@
   .btn-del:hover { background: #f0c3da; }
   .btn-save:hover { opacity: .85; }
   .dy-chips { display: flex; gap: 6px; flex-wrap: wrap; }
-  .dy-chip { display: inline-flex; align-items: center; border: none; background: var(--card-hover); color: var(--muted); border-radius: 999px; padding: 5px 12px; font-size: 12px; cursor: pointer; transition: background .2s, color .2s; }
+  .dy-chip {
+  .dy-chip { white-space: nowrap; flex: none; }
+  #dy-cat, .de-cat { border: 1px solid #f0cfdf; border-radius: 8px; padding: 6px 10px; font-size: 12px; font-family: inherit; color: var(--text); background: #fff; outline: none; }
+  #dy-cat:focus, .de-cat:focus { border-color: var(--accent); }
+  #dy-cat-list, .dy-cat-list { display: none; position: absolute; z-index: 1399; background: #fff; border-radius: 10px; box-shadow: 0 6px 20px rgba(180,120,150,.18); padding: 4px; min-width: 170px; max-height: 168px; overflow-y: auto; }
+  .day-item.editing .dy-cat-list { position: relative; margin-top: 4px; }
+  #days-form-card .cat-opt, .day-item .cat-opt { display: block; width: 100%; box-sizing: border-box; border: none; background: none; text-align: left; padding: 8px 12px; font-size: 13px; cursor: pointer; border-radius: 8px; color: var(--text); font-family: inherit; line-height: 1.4; }
+  #days-form-card .cat-opt:hover, .day-item .cat-opt:hover { background: var(--card-hover); }
+  #days-form-card .cat-opt.cat-new, .day-item .cat-opt.cat-new { color: var(--accent); font-weight: 600; } display: inline-flex; align-items: center; border: none; background: var(--card-hover); color: var(--muted); border-radius: 999px; padding: 5px 12px; font-size: 12px; cursor: pointer; transition: background .2s, color .2s; }
   .dy-chip:hover { color: var(--text); }
   .dy-chip.active { background: var(--accent-soft); color: #fff; }
   /* 竖排文字防护：所有表单勾选/徽章标签禁止逐字换行 */
@@ -224,7 +232,18 @@
   #sc-pop { position: fixed; z-index: 999; background: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(180,120,150,.18); padding: 6px; width: 168px; box-sizing: border-box; display: none; animation: scPopIn .16s ease; }
   @keyframes scPopIn { from { opacity: 0; transform: scale(.94); } }
   /* 自定义日期选择器（替代系统原生，购入日期/最后记录共用） */
-  #date-pop { position: fixed; z-index: 999; background: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(180,120,150,.18); padding: 10px; width: 231px; box-sizing: border-box; display: none; animation: scPopIn .16s ease; }
+  #date-pop { position: fixed; z-index: 1400; background: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(180,120,150,.18); padding: 10px; width: 231px; box-sizing: border-box; display: none; animation: scPopIn .16s ease; }
+  #date-pop .dp-title { cursor: pointer; }
+  #date-pop .dp-hint { display: none; font-size: 11px; color: #e0722f; margin: -2px 0 6px; }
+  #date-pop .dp-ym { display: none; }
+  #date-pop .dp-years { display: flex; flex-wrap: wrap; gap: 5px; overflow-y: auto; max-height: 96px; padding-right: 2px; margin-bottom: 6px; }
+  #date-pop .dp-year, #date-pop .dp-mon { border: none; background: var(--card); color: var(--text); border-radius: 8px; padding: 4px 7px; font-size: 12px; cursor: pointer; font-family: inherit; line-height: 1.4; }
+  #date-pop .dp-mon { text-align: center; }
+  #date-pop .dp-year.cur, #date-pop .dp-mon.cur { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+  #date-pop .dp-year:hover, #date-pop .dp-mon:hover { background: var(--card-hover); }
+  #date-pop .dp-months { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+  #date-pop .dp-ym-row { margin-bottom: 6px; }
+  #date-pop .dp-year-input { width: 100%; box-sizing: border-box; padding: 6px 10px; border: 1px solid #f0cfdf; border-radius: 8px; font-size: 13px; font-family: inherit; color: var(--text); outline: none; }
   .dp-head { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
   .dp-title { flex: 1; text-align: center; font-size: 13px; font-weight: 700; }
   .dp-nav, .dp-today { border: none; background: var(--card-hover); color: var(--accent); font-size: 12px; border-radius: 999px; cursor: pointer; padding: 5px 10px; line-height: 1; }
@@ -235,8 +254,9 @@
   .dp-day:hover { background: var(--card-hover); }
   .dp-day.today { color: var(--accent); font-weight: 700; }
   .dp-day.sel, .dp-day.sel:hover { background: var(--accent); color: #fff; }
-  .dp-jump { display: flex; gap: 6px; margin-top: 8px; align-items: center; }
-  .dp-input { flex: 1; min-width: 0; border: none; background: var(--card); border-radius: 8px; padding: 6px 10px; font-size: 12px; font-family: inherit; color: var(--text); }
+  #date-pop .dp-input { width: 100%; box-sizing: border-box; margin-bottom: 6px; border: 1px solid #f0cfdf; background: #fff; border-radius: 8px; padding: 7px 10px; font-size: 13px; font-family: inherit; color: var(--text); outline: none; }
+  #date-pop .dp-input:focus { border-color: var(--accent); }
+  #date-pop .dp-year-input:focus { border-color: var(--accent); }
   .dp-empty { visibility: hidden; }
   @media (max-width: 520px) {
     .sc-row { grid-template-columns: 56px 48px 10px 38px 10px 44px auto; gap: 4px; }
@@ -586,18 +606,17 @@
       <div class="card" id="days-form-card" style="margin-bottom:14px;">
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
           <input id="dy-name" placeholder="名称，如：桓桓生日" style="flex:1;min-width:150px;">
-          <input id="dy-day" type="text" class="date-pick" readonly placeholder="选择日期" style="flex:1;min-width:140px;cursor:pointer;">
+          <input id="dy-day" type="text" class="date-pick" data-disp="1" placeholder="YYYY/MM/DD" autocomplete="off" style="flex:1;min-width:140px;">
         </div>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px;font-size:12px;">
-          <span style="color:var(--muted);">类型</span>
-          <label class="dy-chip active"><input type="radio" name="dy-type" value="birthday" checked>生日</label>
-          <label class="dy-chip"><input type="radio" name="dy-type" value="anniversary">纪念日</label>
-          <label class="dy-chip"><input type="radio" name="dy-type" value="event">重要日</label>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px;font-size:12px;position:relative;">
+          <span style="color:var(--muted);">分类</span>
+          <input id="dy-cat" placeholder="输入分类，如：纪念日" autocomplete="off" style="width:170px;">
+          <div id="dy-cat-list"></div>
           <span style="color:var(--muted);margin-left:8px;">重复</span>
-          <label class="dy-chip"><input type="radio" name="dy-repeat" value="none">不重复</label>
-          <label class="dy-chip"><input type="radio" name="dy-repeat" value="daily">每天</label>
-          <label class="dy-chip"><input type="radio" name="dy-repeat" value="weekly">每周</label>
-          <label class="dy-chip"><input type="radio" name="dy-repeat" value="monthly">每月</label>
+          <label class="dy-chip"><input type="radio" name="dy-repeat" value="none" checked>不重复</label>
+          <label class="dy-chip"><input type="radio" name="dy-repeat" value="daily">每天重复</label>
+          <label class="dy-chip"><input type="radio" name="dy-repeat" value="weekly">每周重复</label>
+          <label class="dy-chip"><input type="radio" name="dy-repeat" value="monthly">每月重复</label>
           <label class="dy-chip active"><input type="radio" name="dy-repeat" value="yearly" checked>每年</label>
           <button class="btn-mini btn-save-tb" id="btn-day-save" style="border:none;font-size:13px;padding:7px 16px;border-radius:999px;cursor:pointer;">保存</button>
         </div>
@@ -641,7 +660,7 @@
 
 <div class="toast" id="toast"></div>
           <div id="sc-pop"></div>
-          <div id="date-pop"><div class="dp-head"><button class="dp-nav" id="dp-prev">‹</button><b class="dp-title"></b><button class="dp-nav" id="dp-next">›</button><button class="dp-today" id="dp-today">今天</button></div><div class="dp-grid"></div><div class="dp-jump"><input class="dp-input" placeholder="直接输入，如 2026-10-07"><button class="dp-nav dp-go" type="button">定位</button></div></div>
+          <div id="date-pop"><div class="dp-head"><button class="dp-nav" id="dp-prev">‹</button><b class="dp-title" title="点击快速选择年月"></b><button class="dp-nav" id="dp-next">›</button><button class="dp-today" id="dp-today">今天</button></div><input type="text" class="dp-input" placeholder="YYYY/MM/DD"><div class="dp-hint"></div><div class="dp-ym"></div><div class="dp-grid"></div></div>
 
 <script>
   var SUPABASE_URL = 'https://zajcglvlzsolygvjeumb.supabase.co';
@@ -1141,6 +1160,59 @@
     }).catch(function () {
       document.getElementById('days-list').innerHTML = '<p class="empty">加载失败，请先在 Supabase 跑「重要日子-设置.sql」</p>';
     });
+    api('site_settings?select=key,value&key=eq.day_cats').then(function (r) { return r.json(); }).then(function (rows) {
+      try {
+        var v = rows && rows[0] ? JSON.parse(rows[0].value) : [];
+        if (Array.isArray(v)) DAY_CATS_ADMIN = v.filter(function (x) { return typeof x === 'string'; });
+      } catch (e) {}
+    }).catch(function () {});
+  }
+  // 日期格式工具：数据库内部 YYYY-MM-DD，界面显示 YYYY/MM/DD
+  function toInternalDayAdmin(s) {
+    var m = /^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/.exec((s || '').trim());
+    return m ? m[1] + '-' + String(m[2]).padStart(2, '0') + '-' + String(m[3]).padStart(2, '0') : '';
+  }
+  function toDispDayAdmin(ds) {
+    var p = String(ds || '').split('-');
+    return p.length === 3 ? p[0] + '/' + String(p[1]).padStart(2, '0') + '/' + String(p[2]).padStart(2, '0') : (ds || '');
+  }
+  // 分类：完全由柚子自己创建，持久保存在 site_settings.day_cats，去重不限数量
+  var DAY_CATS_ADMIN = [];
+  function dayCatSourcesAdmin() {
+    var seen = DAY_CATS_ADMIN.slice();
+    DAYS.forEach(function (d) { if (d.type && seen.indexOf(d.type) === -1) seen.push(d.type); });
+    return seen;
+  }
+  function saveDayCatAdmin(cat) {
+    if (!cat || DAY_CATS_ADMIN.indexOf(cat) !== -1) return;
+    DAY_CATS_ADMIN.push(cat);
+    api('site_settings', { method: 'POST', headers: { 'Prefer': 'resolution=merge-duplicates' }, body: JSON.stringify({ key: 'day_cats', value: JSON.stringify(DAY_CATS_ADMIN) }) }).catch(function () {});
+  }
+  function wireCatAutocomplete(inp, list) {
+    if (!inp || !list) return;
+    function render() {
+      var q = inp.value.trim().toLowerCase();
+      var src = dayCatSourcesAdmin();
+      var cats = src.filter(function (c) { return c.toLowerCase().indexOf(q) !== -1; }).slice(0, 6);
+      var exact = src.indexOf(inp.value.trim()) !== -1;
+      var html = cats.map(function (c) {
+        return '<button type="button" class="cat-opt' + (c === inp.value.trim() ? ' active' : '') + '" data-cat="' + escAttr(c) + '">' + esc(c) + '</button>';
+      }).join('');
+      if (inp.value.trim() && !exact) html += '<button type="button" class="cat-opt cat-new" data-cat="' + escAttr(inp.value.trim()) + '">+ 创建「' + esc(inp.value.trim()) + '」</button>';
+      list.innerHTML = html;
+      list.style.display = html ? 'block' : 'none';
+    }
+    inp.addEventListener('focus', render);
+    inp.addEventListener('input', render);
+    inp.addEventListener('click', function (e) { e.stopPropagation(); });
+    list.addEventListener('click', function (e) {
+      var b = e.target.closest('.cat-opt');
+      if (!b) return;
+      inp.value = b.getAttribute('data-cat');
+      list.style.display = 'none';
+      e.stopPropagation();
+    });
+    document.addEventListener('click', function () { list.style.display = 'none'; }); // inp/list 自身的点击已 stopPropagation
   }
   function renderDays() {
     var box = document.getElementById('days-list');
@@ -1149,15 +1221,14 @@
         return '<div class="card day-item editing" data-id="' + d.id + '" style="padding:12px 14px;margin-bottom:10px;">' +
           '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">' +
           '<input class="de-name" style="flex:1;min-width:140px;" value="' + escAttr(d.name) + '">' +
-          '<input type="text" class="de-day date-pick" readonly value="' + escAttr(d.day) + '" style="width:132px;cursor:pointer;flex-shrink:0;">' +
+          '<input type="text" class="de-day date-pick" data-disp="1" value="' + escAttr(toDispDayAdmin(d.day)) + '" style="width:132px;flex-shrink:0;">' +
           '</div>' +
           '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px;font-size:12px;">' +
-          '<span style="color:var(--muted);">类型</span>' +
-          [['birthday','生日'],['anniversary','纪念日'],['event','重要日']].map(function (o) {
-            return '<label class="dy-chip' + (d.type === o[0] ? ' active' : '') + '"><input type="radio" name="de-type" value="' + o[0] + '"' + (d.type === o[0] ? ' checked' : '') + '>' + o[1] + '</label>';
-          }).join('') +
+          '<span style="color:var(--muted);">分类</span>' +
+          '<input class="de-cat" value="' + escAttr(d.type || '') + '" placeholder="输入分类" autocomplete="off" style="width:170px;">' +
+          '<div class="dy-cat-list"></div> +
           '<span style="color:var(--muted);margin-left:8px;">重复</span>' +
-          [['none','不重复'],['daily','每天'],['weekly','每周'],['monthly','每月'],['yearly','每年']].map(function (o) {
+          [['none','不重复'],['daily','每天重复'],['weekly','每周重复'],['monthly','每月重复'],['yearly','每年重复']].map(function (o) {
             return '<label class="dy-chip' + ((d.repeat || 'none') === o[0] ? ' active' : '') + '"><input type="radio" name="de-repeat" value="' + o[0] + '"' + ((d.repeat || 'none') === o[0] ? ' checked' : '') + '>' + o[1] + '</label>';
           }).join('') +
           '<button class="btn-mini de-save" style="margin-left:auto;">保存</button>' +
@@ -1167,25 +1238,27 @@
       return '<div class="card day-item" data-id="' + d.id + '" style="display:flex;align-items:center;gap:10px;padding:12px 14px;margin-bottom:10px;">' +
         '<div style="flex:1;min-width:0;">' +
         '<b style="font-size:14px;">' + esc(d.name) + '</b>' +
-        '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + d.day + ' · ' + (DAY_TYPE_NAMES[d.type] || d.type) + (d.repeat && d.repeat !== 'none' ? ' · ' + ({ daily: '每天', weekly: '每周', monthly: '每月', yearly: '每年' }[d.repeat] || d.repeat) + '重复' : ' · 不重复') + '</div>' +
+        '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + toDispDayAdmin(d.day) + ' · ' + (d.type || '重要日') + (d.repeat && d.repeat !== 'none' ? ' · ' + ({ daily: '每天重复', weekly: '每周重复', monthly: '每月重复', yearly: '每年重复' }[d.repeat] || d.repeat) : ' · 不重复') + '</div>' +
         '</div>' +
         '<button class="btn-mini dy-edit">编辑</button>' +
         '<button class="btn-del dy-del">删除</button>' +
         '</div>';
     }).join('') || '<p class="empty">还没有记录，用上面表单添加一条吧</p>';
+    var editRow = box.querySelector('.day-item.editing');
+    if (editRow) wireCatAutocomplete(editRow.querySelector('.de-cat'), editRow.querySelector('.dy-cat-list'));
   }
   function dayFormValues() {
     return {
       name: document.getElementById('dy-name').value.trim(),
-      day: document.getElementById('dy-day').value,
-      type: (document.querySelector('input[name="dy-type"]:checked') || {}).value || 'event',
+      day: toInternalDayAdmin(document.getElementById('dy-day').value),
+      type: document.getElementById('dy-cat').value.trim() || '重要日',
       repeat: (document.querySelector('input[name="dy-repeat"]:checked') || {}).value || 'none'
     };
   }
   function setDayForm(d) {
     document.getElementById('dy-name').value = d ? d.name : '';
-    document.getElementById('dy-day').value = d ? d.day : '';
-    document.querySelector('input[name="dy-type"][value="' + (d ? d.type : 'birthday') + '"]').checked = true;
+    document.getElementById('dy-day').value = d ? toDispDayAdmin(d.day) : '';
+    document.getElementById('dy-cat').value = d ? (d.type || '') : '';
     document.querySelector('input[name="dy-repeat"][value="' + (d ? (d.repeat || 'none') : 'none') + '"]').checked = true;
     syncDayChips();
   }
@@ -1200,6 +1273,7 @@
   document.getElementById('btn-day-save').addEventListener('click', function () {
     var v = dayFormValues();
     if (!v.name || !v.day) { toast('名称和日期都要填哦'); return; }
+    saveDayCatAdmin(v.type); // 分类永久保存（去重，存 site_settings.day_cats）
     var req = DAYS_EDIT
       ? api('important_days?id=eq.' + DAYS_EDIT, { method: 'PATCH', body: JSON.stringify(v) })
       : api('important_days', { method: 'POST', body: JSON.stringify(v) });
@@ -1226,11 +1300,12 @@
       var row = e.target.closest('.day-item');
       var v2 = {
         name: row.querySelector('.de-name').value.trim(),
-        day: row.querySelector('.de-day').value,
-        type: (row.querySelector('input[name="de-type"]:checked') || {}).value || 'event',
+        day: toInternalDayAdmin(row.querySelector('.de-day').value),
+        type: row.querySelector('.de-cat').value.trim() || '重要日',
         repeat: (row.querySelector('input[name="de-repeat"]:checked') || {}).value || 'none'
       };
-      if (!v2.name || !v2.day) { toast('名称和日期都要填哦'); return; }
+      if (!v2.name || !v2.day) { toast('名称和日期都要填哦（日期格式 YYYY/MM/DD）'); return; }
+      saveDayCatAdmin(v2.type);
       api('important_days?id=eq.' + id, { method: 'PATCH', body: JSON.stringify(v2) })
         .then(function (r2) { if (!r2.ok) throw new Error(); toast('已保存'); DAY_EDIT = null; loadDays(); })
         .catch(function () { toast('保存失败'); });
@@ -1248,6 +1323,7 @@
         .catch(function () { toast('删除失败'); });
     }
   });
+  wireCatAutocomplete(document.getElementById('dy-cat'), document.getElementById('dy-cat-list'));
   loadDays();
 
   // ===== 照片管理 =====
@@ -2324,26 +2400,56 @@
       last;
   }
   // ===== 自定义日期选择器（购入日期 / 最后记录共用，替代系统原生） =====
-  var DP = null; // { input, y, m }
+  var DP = null; // { input, y, m, val, mode } val=内部 yyyy-mm-dd；mode='grid'|'ym'
   var DP_WD = ['一', '二', '三', '四', '五', '六', '日']; // 与主页日历一致：周一起始
+  function dpToInternal(s) { var m = /^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/.exec(s || ''); return m ? m[1] + '-' + String(m[2]).padStart(2, '0') + '-' + String(m[3]).padStart(2, '0') : ''; }
+  function dpToDisp(ds) { var m = /^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/.exec(ds || ''); return m ? m[1] + '/' + String(m[2]).padStart(2, '0') + '/' + String(m[3]).padStart(2, '0') : (ds || ''); }
+  function dpWrite(input, internal) { // data-disp="1" 的输入框显示 YYYY/MM/DD，其余保持内部格式
+    input.value = input.getAttribute('data-disp') === '1' ? dpToDisp(internal) : internal;
+  }
   function dpClose() { DP = null; document.getElementById('date-pop').style.display = 'none'; }
   function dpOpen(input) {
-    var m = /^(\d{4})-(\d{2})/.exec(input.value || '');
+    var cur = dpToInternal(input.value);
     var t = new Date();
-    DP = { input: input, y: m ? parseInt(m[1], 10) : t.getFullYear(), m: m ? parseInt(m[2], 10) - 1 : t.getMonth() };
+    DP = { input: input, y: cur ? parseInt(cur.slice(0, 4), 10) : t.getFullYear(), m: cur ? parseInt(cur.slice(5, 7), 10) - 1 : t.getMonth(), val: cur, mode: 'grid' };
     popClose();
     dpRender();
     var inp = document.querySelector('#date-pop .dp-input');
-    if (inp) inp.value = '';
+    if (inp) inp.value = input.value || '';
     var pop = document.getElementById('date-pop');
     pop.style.display = 'block';
     var r = input.getBoundingClientRect();
-    pop.style.left = Math.max(8, Math.min(r.left, window.innerWidth - 245)) + 'px';
-    pop.style.top = Math.min(r.bottom + 6, window.innerHeight - 290) + 'px';
+    var pw = pop.offsetWidth || 240, ph = pop.offsetHeight || 350;
+    var left = Math.max(8, Math.min(r.left, window.innerWidth - pw - 8));
+    var top = r.bottom + 6;
+    if (top + ph > window.innerHeight - 8 && r.top - ph - 6 > 8) top = r.top - ph - 6; // 下方放不下则向上弹
+    pop.style.left = left + 'px';
+    pop.style.top = Math.max(8, top) + 'px';
   }
   function dpRender() {
     var pop = document.getElementById('date-pop');
+    pop.querySelector('.dp-hint').style.display = 'none';
     pop.querySelector('.dp-title').textContent = DP.y + ' 年 ' + (DP.m + 1) + ' 月';
+    var grid = pop.querySelector('.dp-grid');
+    var ym = pop.querySelector('.dp-ym');
+    if (DP.mode === 'ym') { // 年月快速选择：年份列表可滚动 + 直接输入年份 + 12 月网格
+      grid.style.display = 'none';
+      ym.style.display = 'block';
+      if (!ym.innerHTML) {
+        var y1 = new Date().getFullYear() + 5, years = '';
+        for (var yy = y1; yy >= 2000; yy--) years += '<button type="button" class="dp-year" data-y="' + yy + '">' + yy + '</button>';
+        var ms = '';
+        for (var mm = 0; mm < 12; mm++) ms += '<button type="button" class="dp-mon" data-m="' + mm + '">' + (mm + 1) + ' 月</button>';
+        ym.innerHTML = '<div class="dp-ym-row"><input type="text" inputmode="numeric" class="dp-year-input" placeholder="输入年份"></div><div class="dp-years">' + years + '</div><div class="dp-months">' + ms + '</div>';
+      }
+      ym.querySelectorAll('.dp-year').forEach(function (b) { b.classList.toggle('cur', parseInt(b.getAttribute('data-y'), 10) === DP.y); });
+      ym.querySelectorAll('.dp-mon').forEach(function (b) { b.classList.toggle('cur', parseInt(b.getAttribute('data-m'), 10) === DP.m); });
+      var cur = ym.querySelector('.dp-year.cur');
+      if (cur) ym.querySelector('.dp-years').scrollTop = cur.offsetTop - 50;
+      return;
+    }
+    ym.style.display = 'none';
+    grid.style.display = '';
     var t0 = new Date();
     var offset = (new Date(DP.y, DP.m, 1).getDay() + 6) % 7; // 周一 = 0
     var days = new Date(DP.y, DP.m + 1, 0).getDate();
@@ -2351,13 +2457,14 @@
     for (var i = 0; i < offset; i++) html += '<span class="dp-empty"></span>';
     for (var d = 1; d <= days; d++) {
       var ds = DP.y + '-' + String(DP.m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
-      html += '<button class="dp-day' + (ds === DP.input.value ? ' sel' : '') + (DP.y === t0.getFullYear() && DP.m === t0.getMonth() && d === t0.getDate() ? ' today' : '') + '" data-d="' + ds + '">' + d + '</button>';
+      html += '<button class="dp-day' + (ds === DP.val ? ' sel' : '') + (DP.y === t0.getFullYear() && DP.m === t0.getMonth() && d === t0.getDate() ? ' today' : '') + '" data-d="' + ds + '">' + d + '</button>';
     }
-    pop.querySelector('.dp-grid').innerHTML = html;
+    grid.innerHTML = html;
   }
   function dpPick(ds) {
     if (!DP) return;
-    DP.input.value = ds;
+    DP.val = ds;
+    dpWrite(DP.input, ds);
     DP.input.dispatchEvent(new Event('input', { bubbles: true }));
     DP.input.dispatchEvent(new Event('change', { bubbles: true })); // 走现有赋值逻辑（内存草稿），点「保存」落库
     dpClose();
@@ -2365,21 +2472,37 @@
   document.getElementById('date-pop').addEventListener('click', function (e) {
     e.stopPropagation();
     var t = e.target;
-    if (t.classList.contains('dp-nav')) { if (t.classList.contains('dp-go')) { dpJump(); return; } DP.m += t.id === 'dp-prev' ? -1 : 1; if (DP.m < 0) { DP.m = 11; DP.y--; } if (DP.m > 11) { DP.m = 0; DP.y++; } dpRender(); return; }
+    if (t.classList.contains('dp-nav')) { DP.m += t.id === 'dp-prev' ? -1 : 1; if (DP.m < 0) { DP.m = 11; DP.y--; } if (DP.m > 11) { DP.m = 0; DP.y++; } DP.mode = 'grid'; dpRender(); return; }
     if (t.id === 'dp-today') { var td = new Date(); dpPick(td.getFullYear() + '-' + String(td.getMonth() + 1).padStart(2, '0') + '-' + String(td.getDate()).padStart(2, '0')); return; }
     if (t.classList.contains('dp-day')) { dpPick(t.getAttribute('data-d')); return; }
+    if (t.classList.contains('dp-title')) { DP.mode = DP.mode === 'ym' ? 'grid' : 'ym'; dpRender(); return; }
+    if (t.classList.contains('dp-year')) { DP.y = parseInt(t.getAttribute('data-y'), 10); DP.mode = 'grid'; dpRender(); return; }
+    if (t.classList.contains('dp-mon')) { DP.m = parseInt(t.getAttribute('data-m'), 10); DP.mode = 'grid'; dpRender(); return; }
   });
-  function dpJump() {
-    var inp = document.querySelector('#date-pop .dp-input');
-    var m = /^((\d{4})-(\d{1,2})-(\d{1,2}))$/.exec((inp.value || '').trim());
-    if (!m) { toast('格式：2026-10-07'); return; }
-    var y = parseInt(m[2], 10), mo = parseInt(m[3], 10), da = parseInt(m[4], 10);
-    var dt = new Date(y, mo - 1, da);
-    if (dt.getFullYear() !== y || dt.getMonth() !== mo - 1 || dt.getDate() !== da) { toast('这个日期不存在哦'); return; }
-    dpPick(y + '-' + String(mo).padStart(2, '0') + '-' + String(da).padStart(2, '0')); // 直接选中：不用再翻月份点日期
-  }
+  document.getElementById('date-pop').addEventListener('input', function (e) {
+    if (!DP) return;
+    if (e.target.classList.contains('dp-input')) { // 直接输入 2020/01/20（或 2020-01-20）→ 自动跳转并选中
+      var v = dpToInternal(e.target.value);
+      var hint = document.getElementById('date-pop').querySelector('.dp-hint');
+      var partial = /^\d{4}\/?$|^\d{4}\/\d{1,2}\/?$/.test(e.target.value.trim());
+      if (v) {
+        DP.val = v; DP.y = parseInt(v.slice(0, 4), 10); DP.m = parseInt(v.slice(5, 7), 10) - 1; DP.mode = 'grid';
+        hint.style.display = 'none';
+        dpRender();
+      } else if (e.target.value.trim() && !partial) {
+        hint.style.display = 'block'; hint.textContent = '请输入正确的日期格式：YYYY/MM/DD';
+      } else {
+        hint.style.display = 'none';
+      }
+      return;
+    }
+    if (e.target.classList.contains('dp-year-input')) {
+      var yv = parseInt(e.target.value, 10);
+      if (yv >= 1900 && yv <= 2200) { DP.y = yv; DP.mode = 'grid'; dpRender(); }
+    }
+  });
   document.querySelector('#date-pop .dp-input').addEventListener('keydown', function (e) {
-    if (e.key === 'Enter') { e.stopPropagation(); dpJump(); }
+    if (e.key === 'Enter') { e.stopPropagation(); e.target.dispatchEvent(new Event('input', { bubbles: true })); }
   });
   document.addEventListener('click', function (e) {
     if (DP && !e.target.closest('#date-pop') && !e.target.classList.contains('date-pick')) dpClose(); // 点外面关闭

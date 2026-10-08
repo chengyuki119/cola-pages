@@ -451,25 +451,62 @@ if (document.getElementById('lightbox')) {
 
 // ===== 自定义日期选择器（与后台同一套，替代系统原生；仅主页日历表单使用） =====
 if (document.getElementById('date-pop')) {
-  var DP = null; // { input, y, m }
+  var DP = null; // { input, y, m, val, mode } val=内部 yyyy-mm-dd；mode='grid'|'ym'
   var DP_WD = LANG === 'en' ? ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'] : ['一', '二', '三', '四', '五', '六', '日']; // 周一起始，与主页日历一致
+  var DP_MON_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  function dpToInternal(s) { var m = /^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/.exec(s || ''); return m ? m[1] + '-' + String(m[2]).padStart(2, '0') + '-' + String(m[3]).padStart(2, '0') : ''; }
+  function dpToDisp(ds) { var m = /^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/.exec(ds || ''); return m ? m[1] + '/' + String(m[2]).padStart(2, '0') + '/' + String(m[3]).padStart(2, '0') : (ds || ''); }
+  function dpWrite(input, internal) { // data-disp="1" 的输入框显示 YYYY/MM/DD，其余保持内部格式
+    input.value = input.getAttribute('data-disp') === '1' ? dpToDisp(internal) : internal;
+  }
   function dpClose() { DP = null; document.getElementById('date-pop').style.display = 'none'; }
   function dpOpen(input) {
-    var m = /^(\d{4})-(\d{2})/.exec(input.value || '');
+    var cur = dpToInternal(input.value);
     var t0 = new Date();
-    DP = { input: input, y: m ? parseInt(m[1], 10) : t0.getFullYear(), m: m ? parseInt(m[2], 10) - 1 : t0.getMonth() };
+    var y0 = cur ? parseInt(cur.slice(0, 4), 10) : t0.getFullYear();
+    var m0 = cur ? parseInt(cur.slice(5, 7), 10) - 1 : t0.getMonth();
+    DP = { input: input, y: y0, m: m0, val: cur, mode: 'grid' };
     dpRender();
     var pop = document.getElementById('date-pop');
+    var inp = pop.querySelector('.dp-input');
+    if (inp) inp.value = input.value || ''; // 打开时同步当前值，输入过程中不再覆盖用户正在敲的内容
     pop.style.display = 'block';
     var r = input.getBoundingClientRect();
-    pop.style.left = Math.max(8, Math.min(r.left, window.innerWidth - 245)) + 'px';
-    pop.style.top = Math.min(r.bottom + 6, window.innerHeight - 290) + 'px';
+    var pw = pop.offsetWidth || 240, ph = pop.offsetHeight || 350;
+    var left = Math.max(8, Math.min(r.left, window.innerWidth - pw - 8));
+    var top = r.bottom + 6;
+    if (top + ph > window.innerHeight - 8 && r.top - ph - 6 > 8) top = r.top - ph - 6; // 下方放不下则向上弹
+    pop.style.left = left + 'px';
+    pop.style.top = Math.max(8, top) + 'px';
   }
   function dpRender() {
     var pop = document.getElementById('date-pop');
+    var inp = pop.querySelector('.dp-input');
+    if (inp) inp.value = DP.val ? dpToDisp(DP.val) : '';
+    pop.querySelector('.dp-hint').style.display = 'none';
     pop.querySelector('.dp-title').textContent = LANG === 'en'
-      ? ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][DP.m] + ' ' + DP.y
+      ? DP_MON_EN[DP.m] + ' ' + DP.y
       : DP.y + ' 年 ' + (DP.m + 1) + ' 月';
+    var grid = pop.querySelector('.dp-grid');
+    var ym = pop.querySelector('.dp-ym');
+    if (DP.mode === 'ym') { // 年月快速选择：年份列表可滚动 + 直接输入年份 + 12 月网格
+      grid.style.display = 'none';
+      ym.style.display = 'block';
+      if (!ym.innerHTML) {
+        var y1 = new Date().getFullYear() + 5, years = '';
+        for (var yy = y1; yy >= 2000; yy--) years += '<button type="button" class="dp-year" data-y="' + yy + '">' + yy + '</button>';
+        var ms = '';
+        for (var mm = 0; mm < 12; mm++) ms += '<button type="button" class="dp-mon" data-m="' + mm + '">' + (mm + 1) + (LANG === 'en' ? '' : ' 月') + '</button>';
+        ym.innerHTML = '<div class="dp-ym-row"><input type="text" inputmode="numeric" class="dp-year-input" placeholder="' + (LANG === 'en' ? 'Year' : '输入年份') + '"></div><div class="dp-years">' + years + '</div><div class="dp-months">' + ms + '</div>';
+      }
+      ym.querySelectorAll('.dp-year').forEach(function (b) { b.classList.toggle('cur', parseInt(b.getAttribute('data-y'), 10) === DP.y); });
+      ym.querySelectorAll('.dp-mon').forEach(function (b) { b.classList.toggle('cur', parseInt(b.getAttribute('data-m'), 10) === DP.m); });
+      var cur = ym.querySelector('.dp-year.cur');
+      if (cur) ym.querySelector('.dp-years').scrollTop = cur.offsetTop - 50;
+      return;
+    }
+    ym.style.display = 'none';
+    grid.style.display = '';
     var t0 = new Date();
     var offset = (new Date(DP.y, DP.m, 1).getDay() + 6) % 7;
     var days = new Date(DP.y, DP.m + 1, 0).getDate();
@@ -477,13 +514,14 @@ if (document.getElementById('date-pop')) {
     for (var i = 0; i < offset; i++) html += '<span class="dp-empty"></span>';
     for (var d = 1; d <= days; d++) {
       var ds = DP.y + '-' + String(DP.m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
-      html += '<button class="dp-day' + (ds === DP.input.value ? ' sel' : '') + (DP.y === t0.getFullYear() && DP.m === t0.getMonth() && d === t0.getDate() ? ' today' : '') + '" data-d="' + ds + '">' + d + '</button>';
+      html += '<button class="dp-day' + (ds === DP.val ? ' sel' : '') + (DP.y === t0.getFullYear() && DP.m === t0.getMonth() && d === t0.getDate() ? ' today' : '') + '" data-d="' + ds + '">' + d + '</button>';
     }
-    pop.querySelector('.dp-grid').innerHTML = html;
+    grid.innerHTML = html;
   }
   function dpPick(ds) {
     if (!DP) return;
-    DP.input.value = ds;
+    DP.val = ds;
+    dpWrite(DP.input, ds);
     DP.input.dispatchEvent(new Event('input', { bubbles: true }));
     DP.input.dispatchEvent(new Event('change', { bubbles: true }));
     dpClose();
@@ -491,9 +529,34 @@ if (document.getElementById('date-pop')) {
   document.getElementById('date-pop').addEventListener('click', function (e) {
     e.stopPropagation();
     var t = e.target;
-    if (t.classList.contains('dp-nav')) { DP.m += t.id === 'dp-prev' ? -1 : 1; if (DP.m < 0) { DP.m = 11; DP.y--; } if (DP.m > 11) { DP.m = 0; DP.y++; } dpRender(); return; }
+    if (t.classList.contains('dp-nav')) { DP.m += t.id === 'dp-prev' ? -1 : 1; if (DP.m < 0) { DP.m = 11; DP.y--; } if (DP.m > 11) { DP.m = 0; DP.y++; } DP.mode = 'grid'; dpRender(); return; }
     if (t.id === 'dp-today') { var td = new Date(); dpPick(td.getFullYear() + '-' + String(td.getMonth() + 1).padStart(2, '0') + '-' + String(td.getDate()).padStart(2, '0')); return; }
     if (t.classList.contains('dp-day')) { dpPick(t.getAttribute('data-d')); return; }
+    if (t.classList.contains('dp-title')) { DP.mode = DP.mode === 'ym' ? 'grid' : 'ym'; dpRender(); return; }
+    if (t.classList.contains('dp-year')) { DP.y = parseInt(t.getAttribute('data-y'), 10); DP.mode = 'grid'; dpRender(); return; }
+    if (t.classList.contains('dp-mon')) { DP.m = parseInt(t.getAttribute('data-m'), 10); DP.mode = 'grid'; dpRender(); return; }
+  });
+  document.getElementById('date-pop').addEventListener('input', function (e) {
+    if (!DP) return;
+    if (e.target.classList.contains('dp-input')) { // 直接输入 2020/01/20 → 自动跳转
+      var v = dpToInternal(e.target.value);
+      var hint = document.getElementById('date-pop').querySelector('.dp-hint');
+      var partial = /^\d{4}\/?$|^\d{4}\/\d{1,2}\/?$/.test(e.target.value.trim());
+      if (v) {
+        DP.val = v; DP.y = parseInt(v.slice(0, 4), 10); DP.m = parseInt(v.slice(5, 7), 10) - 1; DP.mode = 'grid';
+        hint.style.display = 'none';
+        dpRender();
+      } else if (e.target.value.trim() && !partial) {
+        hint.style.display = 'block';
+      } else {
+        hint.style.display = 'none';
+      }
+      return;
+    }
+    if (e.target.classList.contains('dp-year-input')) {
+      var yv = parseInt(e.target.value, 10);
+      if (yv >= 1900 && yv <= 2200) { DP.y = yv; DP.mode = 'grid'; dpRender(); }
+    }
   });
   document.addEventListener('click', function (e) {
     if (e.target.classList && e.target.classList.contains('date-pick')) { dpOpen(e.target); return; }

@@ -19,7 +19,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Yuki / 柚子 · 个人主页</title>
+<title>小柚的小世界</title>
+<meta property="og:title" content="小柚的小世界">
+<meta property="og:description" content="欢迎来到小柚的小世界">
+<meta property="og:image" content="https://yukicheng.com/og-image.jpg">
+<meta property="og:url" content="https://yukicheng.com/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="小柚的小世界">
+<meta name="twitter:description" content="欢迎来到小柚的小世界">
+<meta name="twitter:image" content="https://yukicheng.com/og-image.jpg">
 <link rel="stylesheet" href="/css/site.css">
   <link rel="stylesheet" href="/site-menu.css">
     <script src="/site-menu.js" defer></script>
@@ -182,7 +191,7 @@
 </div>
 
 <div class="toast" id="toast"></div>
-  <div id="date-pop"><div class="dp-head"><button class="dp-nav" id="dp-prev">‹</button><b class="dp-title"></b><button class="dp-nav" id="dp-next">›</button><button class="dp-today" id="dp-today" data-zh="今天" data-en="Today">今天</button></div><div class="dp-grid"></div></div>
+  <div id="date-pop"><div class="dp-head"><button class="dp-nav" id="dp-prev">‹</button><b class="dp-title" title="点击快速选择年月"></b><button class="dp-nav" id="dp-next">›</button><button class="dp-today" id="dp-today" data-zh="今天" data-en="Today">今天</button></div><input type="text" class="dp-input" placeholder="YYYY/MM/DD" autocomplete="off"><div class="dp-hint"></div><div class="dp-ym"></div><div class="dp-grid"></div></div>
 <div id="share-pop"></div>
 
 
@@ -500,13 +509,40 @@
     return sy === y && om === m + 1 && od === day;                                    // 不重复
   }
   function repName(r) {
-    return { none: t('不重复', 'Does not repeat'), daily: t('每天', 'Daily'), weekly: t('每周', 'Weekly'), monthly: t('每月', 'Monthly'), yearly: t('每年', 'Yearly') }[r] || r;
+    return { none: t('不重复', 'Does not repeat'), daily: t('每天重复', 'Repeats daily'), weekly: t('每周重复', 'Repeats weekly'), monthly: t('每月重复', 'Repeats monthly'), yearly: t('每年重复', 'Repeats yearly') }[r] || r;
   }
   function typeNameZh(r) {
     return { birthday: '生日', anniversary: '纪念日', event: '重要日' }[r] || r;
   }
+  // 日期格式工具：数据库内部 YYYY-MM-DD，用户看到 YYYY/MM/DD
+  function toInternalDay(s) {
+    var m = /^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/.exec((s || '').trim());
+    if (!m) return '';
+    return m[1] + '-' + String(m[2]).padStart(2, '0') + '-' + String(m[3]).padStart(2, '0');
+  }
+  function toDispDay(ds) {
+    var p = String(ds || '').split('-');
+    return p.length === 3 ? p[0] + '/' + pad2(p[1]) + '/' + pad2(p[2]) : (ds || '');
+  }
+  // 分类：完全由柚子自己创建，持久保存在 site_settings.day_cats，去重不限数量
+  var DAY_CATS = [];
+  function dayCatSources() { // 已存分类列表 + 历史事件里用过的分类，合并去重
+    var seen = DAY_CATS.slice();
+    EVENTS.forEach(function (ev) { if (ev.type && seen.indexOf(ev.type) === -1) seen.push(ev.type); });
+    return seen;
+  }
+  function saveDayCat(cat) {
+    if (!cat || DAY_CATS.indexOf(cat) !== -1) return;
+    DAY_CATS.push(cat);
+    dbSend('site_settings', 'POST', { key: 'day_cats', value: JSON.stringify(DAY_CATS) }).catch(function () {});
+  }
   function typeColor(r) {
-    return { birthday: '#ff6fa5', anniversary: '#b3ace0', event: '#9ecfae' }[r] || '#ff6fa5';
+    var fixed = { birthday: '#ff6fa5', anniversary: '#b3ace0', event: '#9ecfae' }[r];
+    if (fixed) return fixed;
+    var palette = ['#ff6fa5', '#f5a25d', '#9ecfae', '#8fc7e8', '#b3ace0', '#e8a0c8']; // 新分类按名字固定取色
+    var h = 0;
+    for (var i = 0; i < (r || '').length; i++) h = (h * 31 + r.charCodeAt(i)) >>> 0;
+    return palette[h % palette.length];
   }
   function daysBetween(a, b) { // 真实日期差（UTC 计算，闰年自动正确）
     return Math.round((Date.UTC(b[0], b[1] - 1, b[2]) - Date.UTC(a[0], a[1] - 1, a[2])) / 86400000);
@@ -528,6 +564,12 @@
       renderCal();
       renderCalSide();
     }).catch(function () { DB_POST_OK = false; renderCal(); renderCalSide(); });
+    dbFetch('site_settings?select=key,value&key=eq.day_cats').then(function (rows) {
+      try {
+        var v = rows && rows[0] ? JSON.parse(rows[0].value) : [];
+        if (Array.isArray(v)) DAY_CATS = v.filter(function (x) { return typeof x === 'string'; });
+      } catch (e) {}
+    }).catch(function () {});
   }
   // 一次性迁移：之前浏览器里存的生日 → 数据库（每年重复）
   function migrateOldBirthdays() {
@@ -593,16 +635,15 @@
     if (LANG === 'en') {
       document.getElementById('cal-sel-title').textContent = (isToday ? 'Today · ' : '') + CAL_MON[SEL.m] + ' ' + SEL.d + ', ' + SEL.y + ' · ' + CAL_WD.en[(wd.getDay() + 6) % 7];
     } else {
-      document.getElementById('cal-sel-title').textContent = LANG === 'en'
-        ? (isToday ? 'Today · ' : '') + CAL_MON[SEL.m] + ' ' + SEL.d + ', ' + SEL.y + ' · ' + CAL_WD.en[(wd.getDay() + 6) % 7]
-        : (isToday ? '今天 · ' : '') + SEL.y + '年' + (SEL.m + 1) + '月' + SEL.d + '日 · ' + CAL_WD.zh[(wd.getDay() + 6) % 7];
+      var ds = SEL.y + '/' + pad2(SEL.m + 1) + '/' + pad2(SEL.d); // 具体日期统一 YYYY/MM/DD
+      document.getElementById('cal-sel-title').textContent = (isToday ? t('今天 · ', 'Today · ') : '') + ds + ' · ' + CAL_WD[LANG === 'en' ? 'en' : 'zh'][(wd.getDay() + 6) % 7];
     }
     // 选中日期的全部重要日子（类型 + 重复 + 周年）
     var evs = EVENTS.filter(function (ev) { return evOccursOn(ev, SEL.y, SEL.m, SEL.d); });
     tEl.innerHTML = evs.length
       ? evs.map(function (ev) {
           var sub = '<i class="dv-dot" style="background:' + typeColor(ev.type) + '"></i>' +
-            t('类型', 'Type') + '：' + evTypeName(ev) + ' · ' + t('重复', 'Repeat') + '：' + repName(ev.repeat) +
+            t('分类', 'Category') + '：' + evTypeName(ev) + ' · ' + t('重复', 'Repeat') + '：' + repName(ev.repeat) +
             (ev.type === 'anniversary' ? ' · ' + evAnnivText(ev, SEL.y, SEL.m, SEL.d).replace(/<[^>]*>/g, '') : '');
           return '<div class="cal-dayview-item"><b>' + escDb(ev.name) + '</b><div class="dv-sub">' + sub + '</div></div>';
         }).join('')
@@ -624,7 +665,7 @@
     list.sort(function (a, b) { return a.diff - b.diff; });
     var up = document.getElementById('cal-upcoming');
     up.innerHTML = list.length ? list.map(function (x) {
-      return '<div class="cal-ev" data-y="' + x.occ[0] + '" data-m="' + x.occ[1] + '" data-d="' + x.occ[2] + '">' + (LANG === 'en' ? CAL_MON[x.occ[1] - 1] + ' ' + x.occ[2] : x.occ[1] + '月' + x.occ[2] + '日') + ' · ' + escDb(x.ev.name) + '</div>';
+      return '<div class="cal-ev" data-y="' + x.occ[0] + '" data-m="' + x.occ[1] + '" data-d="' + x.occ[2] + '">' + x.occ[0] + '/' + pad2(x.occ[1]) + '/' + pad2(x.occ[2]) + ' · ' + escDb(x.ev.name) + '</div>';
     }).join('') : '<div class="cal-ev-none">' + t('未来 7 天没有重要日子', 'No events in the next 7 days') + '</div>';
   }
   // 添加重要日子：极简表单（只有登录的柚子能看到入口）
@@ -638,20 +679,17 @@
       '<div class="ev-label">' + t('名称', 'Name') + '</div>' +
       '<input type="text" id="ev-name" placeholder="' + t('请输入重要日子名称', 'Day name') + '">' +
       '<div class="ev-label">' + t('日期', 'Date') + '</div>' +
-      '<input type="text" id="ev-day" class="date-pick" readonly placeholder="' + t('选择日期', 'Pick a date') + '">' +
-      '<div class="ev-label">' + t('类型', 'Type') + '</div>' +
-      '<div class="ev-chips">' +
-      chip('ev-type', 'birthday', t('生日', 'Birthday'), true) +
-      chip('ev-type', 'anniversary', t('纪念日', 'Anniversary'), false) +
-      chip('ev-type', 'event', t('重要日', 'Event'), false) +
-      '</div>' +
+      '<input type="text" id="ev-day" class="date-pick" data-disp="1" placeholder="' + (LANG === 'en' ? 'YYYY/MM/DD' : '2020/01/20') + '" autocomplete="off">' +
+      '<div class="ev-label">' + t('分类', 'Category') + '</div>' +
+      '<input type="text" id="ev-cat" placeholder="' + t('输入分类，如：纪念日', 'Category, e.g. Anniversary') + '" autocomplete="off">' +
+      '<div id="ev-cat-list"></div>' +
       '<div class="ev-label">' + t('重复', 'Repeat') + '</div>' +
       '<div class="ev-chips">' +
       chip('ev-repeat', 'none', t('不重复', 'Does not repeat'), true) +
-      chip('ev-repeat', 'daily', t('每天', 'Daily'), false) +
-      chip('ev-repeat', 'weekly', t('每周', 'Weekly'), false) +
-      chip('ev-repeat', 'monthly', t('每月', 'Monthly'), false) +
-      chip('ev-repeat', 'yearly', t('每年', 'Yearly'), false) +
+      chip('ev-repeat', 'daily', t('每天重复', 'Repeats daily'), false) +
+      chip('ev-repeat', 'weekly', t('每周重复', 'Repeats weekly'), false) +
+      chip('ev-repeat', 'monthly', t('每月重复', 'Repeats monthly'), false) +
+      chip('ev-repeat', 'yearly', t('每年重复', 'Repeats yearly'), false) +
       '</div>' +
       '<div class="ev-actions">' +
       '<button class="ev-cancel" id="ev-cancel">' + t('取消', 'Cancel') + '</button>' +
@@ -676,17 +714,47 @@
       }
       if (e.target.id !== 'ev-save') return;
       var name = document.getElementById('ev-name').value.trim();
-      var day = document.getElementById('ev-day').value;
-      if (!name || !day) { toast(t('名称和日期都要填哦', 'Name and date are required')); return; }
+      var dayRaw = document.getElementById('ev-day').value.trim();
+      var day = toInternalDay(dayRaw);
+      if (!name || !day) { toast(t('名称和日期都要填哦（日期格式 YYYY/MM/DD）', 'Name and date are required (YYYY/MM/DD)')); return; }
       if (!DB_POST_OK) { toast(t('请先在 Supabase 跑「重要日子-设置.sql」', 'Run the SQL first')); return; }
-      var type = box.querySelector('input[name="ev-type"]:checked').value;
+      var type = document.getElementById('ev-cat').value.trim() || t('重要日', 'Event');
       var repeat = box.querySelector('input[name="ev-repeat"]:checked').value;
+      saveDayCat(type); // 分类永久保存（去重，存 site_settings.day_cats）
       dbSend('important_days', 'POST', { name: name, day: day, type: type, repeat: repeat }).then(function () {
         toast(t('已添加', 'Added'));
         document.getElementById('cal-modal').classList.remove('open');
         document.getElementById('cal-modal-mask').classList.remove('open');
         loadEvents();
       }).catch(function () { toast(t('保存失败', 'Failed')); });
+    });
+    // 分类自动补全：输入即筛已有分类；没有完全匹配时出现「+ 创建」
+    var catInp = box.querySelector('#ev-cat');
+    var catList = box.querySelector('#ev-cat-list');
+    function renderCatList() {
+      var q = catInp.value.trim().toLowerCase();
+      var src = dayCatSources();
+      var cats = src.filter(function (c) { return c.toLowerCase().indexOf(q) !== -1; }).slice(0, 6);
+      var exact = src.indexOf(catInp.value.trim()) !== -1;
+      var html = cats.map(function (c) {
+        return '<button type="button" class="cat-opt' + (c === catInp.value.trim() ? ' active' : '') + '" data-cat="' + escAttrDb(c) + '">' + escDb(c) + '</button>';
+      }).join('');
+      if (catInp.value.trim() && !exact) html += '<button type="button" class="cat-opt cat-new" data-cat="' + escAttrDb(catInp.value.trim()) + '">+ ' + t('创建「', 'Create "') + escDb(catInp.value.trim()) + t('」', '"') + '</button>';
+      catList.innerHTML = html;
+      catList.style.display = html ? 'block' : 'none';
+    }
+    catInp.addEventListener('focus', renderCatList);
+    catInp.addEventListener('input', renderCatList);
+    catInp.addEventListener('click', function (e) { e.stopPropagation(); });
+    catList.addEventListener('click', function (e) {
+      var b = e.target.closest('.cat-opt');
+      if (!b) return;
+      catInp.value = b.getAttribute('data-cat');
+      catList.style.display = 'none';
+      e.stopPropagation();
+    });
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest('#ev-cat') && !e.target.closest('#ev-cat-list')) catList.style.display = 'none';
     });
   }
   (function () {
