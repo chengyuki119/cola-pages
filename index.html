@@ -505,7 +505,7 @@
     var cur = y * 10000 + (m + 1) * 100 + day;       // 纯数字日期比较，绝不做 UTC 转换
     var start = sy * 10000 + om * 100 + od;
     var dim = new Date(y, m + 1, 0).getDate(); // 当月实际天数
-    if (ev.repeat === 'yearly') return om === m + 1 && od === day && day <= dim;  // 每年：平年 2/29 自然不存在
+    if (ev.repeat === 'yearly') return cur >= start && om === m + 1 && od === day && day <= dim;  // 每年：开始日之前不显示；平年 2/29 自然不存在
     if (ev.repeat === 'monthly') return od === day && day <= dim && cur >= start; // 每月：31号在当月不存在就不显示
     if (ev.repeat === 'weekly') return new Date(y, m, day).getDay() === new Date(sy, om - 1, od).getDay() && cur >= start; // 每周同一天
     if (ev.repeat === 'daily') return cur >= start;                                   // 从开始日起每天
@@ -516,6 +516,33 @@
   }
   function typeNameZh(r) {
     return { birthday: '生日', anniversary: '纪念日', event: '重要日' }[r] || r;
+  }
+  // ===== 周年/年龄自动计算：每年重复的事件在 y 年自动显示「第几年」=====
+  function zhYears(n) { // 1→一 2→两 3→三 … 21→二十一
+    var u = ['零', '一', '两', '三', '四', '五', '六', '七', '八', '九'];
+    if (n < 10) return u[n];
+    if (n === 10) return '十';
+    if (n < 20) return '十' + u[n - 10];
+    if (n < 100) { var t10 = Math.floor(n / 10), o = n % 10; return u[t10] + '十' + (o ? u[o] : ''); }
+    return String(n);
+  }
+  function annivYears(ev, y) { // 该事件在 y 年是第几周年；起始当年/非每年重复返回 0
+    var p = String(ev.day || '').split('-').map(Number);
+    if (p.length < 3 || ev.repeat !== 'yearly') return 0;
+    return Math.max(0, y - p[0]);
+  }
+  // 事件在 y 年的显示名：生日→「21岁生日」；色卡→「色卡A 1岁了」；其他分类→「认识桓桓一周年」（起始当年显示原名）
+  function evDispName(ev, y) {
+    var n = annivYears(ev, y);
+    if (!n) return ev.name || '';
+    var ty = String(ev.type || '');
+    if (LANG === 'en') {
+      if (ty.indexOf('生日') > -1 || ty === 'birthday') return 'Turning ' + n + ' · Birthday';
+      return (ev.name || '') + ' · ' + n + 'y';
+    }
+    if (ty.indexOf('生日') > -1 || ty === 'birthday') return n + '岁生日';
+    if (ty.indexOf('色卡') > -1) return (ev.name || '') + ' ' + n + '岁了';
+    return (ev.name || '') + zhYears(n) + '周年';
   }
   // 日期格式工具：数据库内部 YYYY-MM-DD，用户看到 YYYY/MM/DD
   function toInternalDay(s) {
@@ -647,8 +674,8 @@
       ? evs.map(function (ev) {
           var sub = '<i class="dv-dot" style="background:' + typeColor(ev.type) + '"></i>' +
             t('分类', 'Category') + '：' + evTypeName(ev) + ' · ' + t('重复', 'Repeat') + '：' + repName(ev.repeat) +
-            (ev.type === 'anniversary' ? ' · ' + evAnnivText(ev, SEL.y, SEL.m, SEL.d).replace(/<[^>]*>/g, '') : '');
-          return '<div class="cal-dayview-item"><b>' + escDb(ev.name) + '</b><div class="dv-sub">' + sub + '</div></div>';
+            (ev.repeat === 'yearly' && !(String(ev.type || '').indexOf('生日') > -1 || ev.type === 'birthday') ? ' · ' + evAnnivText(ev, SEL.y, SEL.m, SEL.d).replace(/<[^>]*>/g, '') : '');
+          return '<div class="cal-dayview-item"><b>' + escDb(evDispName(ev, SEL.y)) + '</b><div class="dv-sub">' + sub + '</div></div>';
         }).join('')
       : '<div class="cal-ev-none">' + t(isToday ? '今天没有重要日子' : '暂无重要日子', isToday ? 'Nothing special today' : 'No events on this day') + '</div>';
     // 接下来 7 天（未来 7 天以内，没有也不留白）
@@ -668,7 +695,7 @@
     list.sort(function (a, b) { return a.diff - b.diff; });
     var up = document.getElementById('cal-upcoming');
     up.innerHTML = list.length ? list.map(function (x) {
-      return '<div class="cal-ev" data-y="' + x.occ[0] + '" data-m="' + x.occ[1] + '" data-d="' + x.occ[2] + '">' + x.occ[0] + '/' + pad2(x.occ[1]) + '/' + pad2(x.occ[2]) + ' · ' + escDb(x.ev.name) + '</div>';
+      return '<div class="cal-ev" data-y="' + x.occ[0] + '" data-m="' + x.occ[1] + '" data-d="' + x.occ[2] + '">' + x.occ[0] + '/' + pad2(x.occ[1]) + '/' + pad2(x.occ[2]) + ' · ' + escDb(evDispName(x.ev, x.occ[0])) + '</div>';
     }).join('') : '<div class="cal-ev-none">' + t('未来 7 天没有重要日子', 'No events in the next 7 days') + '</div>';
   }
   // 添加重要日子：极简表单（只有登录的柚子能看到入口）
