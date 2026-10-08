@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>柚子的后台 · 只有自己用</title>
 <link rel="manifest" href="/manifest.json">
-<link rel="apple-touch-icon" sizes="180x180" href="/icon-app-180.png">
-<link rel="icon" type="image/png" sizes="180x180" href="/icon-app-180.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/icon-yuki-180.png">
+<link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki-180.png">
 <meta name="apple-mobile-web-app-title" content="小柚的小世界">
 <style>
   :root {
@@ -20,6 +20,7 @@
     --radius: 16px;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { color-scheme: light; }
   html, body { overflow-x: hidden; overflow-x: clip; }
   body {
     background: var(--bg);
@@ -1230,7 +1231,7 @@
           '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px;font-size:12px;">' +
           '<span style="color:var(--muted);">分类</span>' +
           '<input class="de-cat" value="' + escAttr(d.type || '') + '" placeholder="输入分类" autocomplete="off" style="width:170px;">' +
-          '<div class="dy-cat-list"></div> +
+          '<div class="dy-cat-list"></div>' +
           '<span style="color:var(--muted);margin-left:8px;">重复</span>' +
           [['none','不重复'],['daily','每天重复'],['weekly','每周重复'],['monthly','每月重复'],['yearly','每年重复']].map(function (o) {
             return '<label class="dy-chip' + ((d.repeat || 'none') === o[0] ? ' active' : '') + '"><input type="radio" name="de-repeat" value="' + o[0] + '"' + ((d.repeat || 'none') === o[0] ? ' checked' : '') + '>' + o[1] + '</label>';
