@@ -48,6 +48,21 @@
     <p class="subpage-sub" data-zh="原创圈我的色卡宝宝们" data-en="My color card babies">原创圈我的色卡宝宝们</p>
   </div>
   <div class="page-body album-body" style="padding-top:0;">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;">
+      <span style="font-size:13px;color:var(--muted);" data-zh="筛选与排序" data-en="Filter & Sort">筛选与排序</span>
+      <select id="card-filter"><option value="all">全部</option></select>
+      <select id="card-sort">
+        <option value="manual">默认排序</option>
+        <option value="dateDesc">购入日期 最新 → 最旧</option>
+        <option value="dateAsc">购入日期 最旧 → 最新</option>
+        <option value="priceDesc">价格 高 → 低</option>
+        <option value="priceAsc">价格 低 → 高</option>
+        <option value="countDesc">张数 多 → 少</option>
+        <option value="countAsc">张数 少 → 多</option>
+        <option value="nameAsc">名称 A → Z</option>
+        <option value="nameDesc">名称 Z → A</option>
+      </select>
+    </div>
     <div id="cards-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;"></div>
   </div>
   </div>
@@ -68,6 +83,67 @@
 <script>
   // ===== 色卡：独立子页（列表 + 详情 /color-card/?card=N）=====
   var CURRENT_CARD = -1;
+  var CARD_FILTER = 'all', CARD_SORT = 'manual';
+  // 子页动态下拉：数据就绪后重建 sel 增强（site-common 只在载入时增强一次）
+  function refreshSubSelects() {
+    ['card-filter', 'card-sort'].forEach(function (id) {
+      var sel = document.getElementById(id);
+      if (!sel) return;
+      Array.prototype.slice.call(sel.parentNode.children).forEach(function (el) {
+        if (el !== sel && (el.classList.contains('sel-btn') || el.classList.contains('sel-menu'))) el.parentNode.removeChild(el);
+      });
+      sel.removeAttribute('data-enh');
+      sel.style.display = '';
+    });
+    if (window.enhanceSelects) enhanceSelects();
+  }
+  function renderCardsList() {
+    var cGrid = document.getElementById('cards-grid');
+    if (!cGrid) return;
+    var list = CARDS_CACHE.map(function (c, i) { return { c: c, i: i }; });
+    if (CARD_FILTER !== 'all') list = list.filter(function (x) { return (x.c.artists || []).some(function (a) { return a.name === CARD_FILTER; }); });
+    var boughtOf = function (x) { return x.c.bought || ''; };
+    if (CARD_SORT === 'dateDesc' || CARD_SORT === 'dateAsc') {
+      list.sort(function (a, b) {
+        var av = boughtOf(a), bv = boughtOf(b);
+        if (!av && !bv) return 0; if (!av) return 1; if (!bv) return -1; // 没填日期的排最后
+        return CARD_SORT === 'dateDesc' ? bv.localeCompare(av) : av.localeCompare(bv);
+      });
+    }
+    if (CARD_SORT === 'priceDesc') list.sort(function (a, b) { return cardFinalV(b.c) - cardFinalV(a.c); });
+    if (CARD_SORT === 'priceAsc') list.sort(function (a, b) { return cardFinalV(a.c) - cardFinalV(b.c); });
+    if (CARD_SORT === 'countDesc') list.sort(function (a, b) { return cardCountV(b.c) - cardCountV(a.c); });
+    if (CARD_SORT === 'countAsc') list.sort(function (a, b) { return cardCountV(a.c) - cardCountV(b.c); });
+    if (CARD_SORT === 'nameAsc') list.sort(function (a, b) { return (a.c.name || '').localeCompare(b.c.name || '', 'zh-Hans-CN'); });
+    if (CARD_SORT === 'nameDesc') list.sort(function (a, b) { return (b.c.name || '').localeCompare(a.c.name || '', 'zh-Hans-CN'); });
+    if (!CARDS_CACHE.length) {
+      cGrid.style.display = 'block';
+      cGrid.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px 0;font-size:14px;">还没有色卡，去后台「色卡管理」新建吧</p>';
+      return;
+    }
+    cGrid.style.display = 'grid';
+    cGrid.innerHTML = list.length ? list.map(function (x) {
+      var c = x.c, i = x.i;
+      return '<div class="card sc-product" data-i="' + i + '" style="margin-bottom:0;padding:0;overflow:hidden;cursor:pointer;position:relative;">' +
+        (c.image ? '<div style="width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--card);"><img src="' + escAttrDb(normImg(c.image)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="色卡"></div>' : '') +
+        '<div style="padding:12px 14px;">' +
+        '<div style="display:flex;align-items:center;gap:8px;">' +
+        '<b style="flex:1;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(c.name || '未命名色卡') + '</b>' +
+        shareBtnHtml(i, null, true) +
+        '</div>' +
+        (c.shop ? '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + escDb(c.shop) + '</div>' : '') +
+        '<div style="font-size:12px;color:var(--muted);margin-top:3px;">画师 ' + c.artists.length + ' 位 · 共 ' + cardCountV(c) + ' 张</div>' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-top:4px;">' +
+        '<span style="flex:1;font-size:14px;color:var(--accent);font-weight:600;">总价 ¥' + fmtMoney(cardFinalV(c)) + '</span>' +
+        cardEditBtn(i) +
+        '</div>' +
+        '</div></div>';
+    }).join('') : '<p style="color:var(--muted);text-align:center;padding:40px 0;font-size:14px;">没有符合筛选条件的色卡</p>';
+  }
+  document.addEventListener('change', function (e) {
+    if (e.target && e.target.id === 'card-filter') { CARD_FILTER = e.target.value; renderCardsList(); }
+    if (e.target && e.target.id === 'card-sort') { CARD_SORT = e.target.value; renderCardsList(); }
+  });
   function renderCardView() {
     var body = document.getElementById('card-view-body');
     var c = CARDS_CACHE[CURRENT_CARD];
@@ -123,29 +199,15 @@
     try { cardsRaw = JSON.parse(S['cards'] || 'null'); } catch (e) {}
     var cardsList = Array.isArray(cardsRaw) ? cardsRaw : (cardsRaw && cardsRaw.artists ? cardsRaw.artists : []);
     CARDS_CACHE = cardsList.map(function (c) { return normCardView(c); });
-    var cGrid = document.getElementById('cards-grid');
-    if (!CARDS_CACHE.length) {
-      cGrid.style.display = 'block';
-      cGrid.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px 0;font-size:14px;">还没有色卡，去后台「色卡管理」新建吧</p>';
-    } else {
-      cGrid.style.display = 'grid';
-      cGrid.innerHTML = CARDS_CACHE.map(function (c, i) {
-        return '<div class="card sc-product" data-i="' + i + '" style="margin-bottom:0;padding:0;overflow:hidden;cursor:pointer;position:relative;">' +
-          (c.image ? '<div style="width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--card);"><img src="' + escAttrDb(normImg(c.image)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="色卡"></div>' : '') +
-          '<div style="padding:12px 14px;">' +
-          '<div style="display:flex;align-items:center;gap:8px;">' +
-          '<b style="flex:1;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(c.name || '未命名色卡') + '</b>' +
-          shareBtnHtml(i, null, true) +
-          '</div>' +
-          (c.shop ? '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + escDb(c.shop) + '</div>' : '') +
-          '<div style="font-size:12px;color:var(--muted);margin-top:3px;">画师 ' + c.artists.length + ' 位 · 共 ' + cardCountV(c) + ' 张</div>' +
-          '<div style="display:flex;align-items:center;gap:8px;margin-top:4px;">' +
-          '<span style="flex:1;font-size:14px;color:var(--accent);font-weight:600;">总价 ¥' + fmtMoney(cardFinalV(c)) + '</span>' +
-          cardEditBtn(i) +
-          '</div>' +
-          '</div></div>';
-      }).join('');
-    }
+    // 筛选选项：按画师（现有数据无分类/标签字段，只做全部/按画师）
+    var artistNames = [];
+    CARDS_CACHE.forEach(function (c) { (c.artists || []).forEach(function (a) { if (a.name && artistNames.indexOf(a.name) === -1) artistNames.push(a.name); }); });
+    var fsel = document.getElementById('card-filter');
+    fsel.innerHTML = '<option value="all">全部</option>' + artistNames.map(function (n) {
+      return '<option value="' + escAttrDb(n) + '">画师：' + escDb(n) + '</option>';
+    }).join('');
+    refreshSubSelects();
+    renderCardsList();
     // ?card=N → 直接打开色卡详情
     var card = new URLSearchParams(location.search).get('card');
     if (card != null && !isNaN(parseInt(card, 10))) {
