@@ -452,7 +452,7 @@ if (document.getElementById('lightbox')) {
 // ===== 自定义日期选择器（与后台同一套，替代系统原生；仅主页日历表单使用） =====
 if (document.getElementById('date-pop')) {
   var DP = null; // { input, y, m }
-  var DP_WD = ['一', '二', '三', '四', '五', '六', '日']; // 周一起始，与主页日历一致
+  var DP_WD = LANG === 'en' ? ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'] : ['一', '二', '三', '四', '五', '六', '日']; // 周一起始，与主页日历一致
   function dpClose() { DP = null; document.getElementById('date-pop').style.display = 'none'; }
   function dpOpen(input) {
     var m = /^(\d{4})-(\d{2})/.exec(input.value || '');
@@ -467,7 +467,9 @@ if (document.getElementById('date-pop')) {
   }
   function dpRender() {
     var pop = document.getElementById('date-pop');
-    pop.querySelector('.dp-title').textContent = DP.y + ' 年 ' + (DP.m + 1) + ' 月';
+    pop.querySelector('.dp-title').textContent = LANG === 'en'
+      ? ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][DP.m] + ' ' + DP.y
+      : DP.y + ' 年 ' + (DP.m + 1) + ' 月';
     var t0 = new Date();
     var offset = (new Date(DP.y, DP.m, 1).getDay() + 6) % 7;
     var days = new Date(DP.y, DP.m + 1, 0).getDate();
@@ -502,17 +504,21 @@ if (document.getElementById('date-pop')) {
 // ===== 统一下拉菜单（替代浏览器原生 select 面板） =====
 function closeSelMenus() { document.querySelectorAll('.sel-menu').forEach(function (m) { m.style.display = 'none'; }); }
 function enhanceSelects() {
+  function optLabel(o) {
+    var en = LANG === 'en' ? o.getAttribute('data-en') : null;
+    return en || o.textContent;
+  }
   document.querySelectorAll('select:not([data-enh])').forEach(function (sel) {
     sel.setAttribute('data-enh', '1');
     sel.style.display = 'none';
     var btn = document.createElement('button');
     btn.type = 'button'; btn.className = 'sel-btn';
-    btn.textContent = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].textContent : '';
+    btn.textContent = sel.options[sel.selectedIndex] ? optLabel(sel.options[sel.selectedIndex]) : '';
     sel.parentNode.insertBefore(btn, sel);
     var menu = document.createElement('div');
     menu.className = 'sel-menu';
     menu.innerHTML = Array.prototype.map.call(sel.options, function (o) {
-      return '<button type="button" class="sel-opt' + (o.selected ? ' active' : '') + '" data-v="' + escAttrDb(o.value) + '">' + escDb(o.textContent) + '</button>';
+      return '<button type="button" class="sel-opt' + (o.selected ? ' active' : '') + '" data-v="' + escAttrDb(o.value) + '">' + escDb(optLabel(o)) + '</button>';
     }).join('');
     sel.parentNode.insertBefore(menu, sel);
     btn.addEventListener('click', function (e) {
@@ -531,7 +537,7 @@ function enhanceSelects() {
       var b = e.target.closest('.sel-opt'); if (!b) return;
       sel.value = b.getAttribute('data-v');
       sel.dispatchEvent(new Event('change', { bubbles: true }));
-      btn.textContent = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].textContent : '';
+      btn.textContent = sel.options[sel.selectedIndex] ? (LANG === 'en' && sel.options[sel.selectedIndex].getAttribute('data-en') || sel.options[sel.selectedIndex].textContent) : '';
       Array.prototype.forEach.call(menu.children, function (x) { x.classList.toggle('active', x === b); });
       closeSelMenus();
     });

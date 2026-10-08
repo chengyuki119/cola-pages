@@ -351,6 +351,15 @@
   .cal-day.today.has-ev:hover { background: var(--accent-soft); }
   .cal-add { margin-top: 12px; display: none; width: auto; padding: 6px 14px; border: none; border-radius: 999px; background: var(--card-hover); color: var(--muted); font-weight: 600; font-size: 12px; cursor: pointer; transition: background .2s, color .2s; }
   .cal-add:hover { background: var(--accent-soft); color: #fff; }
+  /* 日历年月快速选择（自定义弹层，点击标题打开） */
+  #cal-ym-pop { position: fixed; z-index: 1200; background: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(180,120,150,.18); padding: 10px; width: 231px; box-sizing: border-box; display: none; animation: scPopIn .16s ease; }
+  #cal-ym-pop .ym-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  #cal-ym-pop .ym-years { display: flex; flex-wrap: wrap; gap: 6px; overflow-y: auto; max-height: 112px; padding-right: 2px; margin-bottom: 2px; }
+  #cal-ym-pop .ym-year, #cal-ym-pop .ym-mon { border: none; background: var(--card); color: var(--text); border-radius: 8px; padding: 5px 8px; font-size: 12px; cursor: pointer; font-family: inherit; line-height: 1.4; }
+  #cal-ym-pop .ym-mon { padding: 6px 0; text-align: center; }
+  #cal-ym-pop .ym-year.cur, #cal-ym-pop .ym-mon.cur { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+  #cal-ym-pop .ym-year:hover, #cal-ym-pop .ym-mon:hover { background: var(--card-hover); }
+  #cal-ym-pop .ym-months { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
   .cal-modal-mask { position: fixed; inset: 0; background: rgba(90,66,76,.3); opacity: 0; visibility: hidden; transition: opacity .2s; z-index: 300; }
   .cal-modal-mask.open { opacity: 1; visibility: visible; }
   .cal-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%) scale(.96); width: min(320px, calc(100vw - 40px)); background: var(--card); border-radius: var(--radius); padding: 18px; z-index: 301; opacity: 0; visibility: hidden; transition: opacity .2s, transform .2s; box-shadow: 0 10px 40px rgba(180,120,150,.25); box-sizing: border-box; }

@@ -50,17 +50,17 @@
   <div class="page-body album-body" style="padding-top:0;">
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;">
       <span style="font-size:13px;color:var(--muted);" data-zh="筛选与排序" data-en="Filter & Sort">筛选与排序</span>
-      <select id="card-filter"><option value="all">全部</option></select>
+      <select id="card-filter"><option value="all" data-en="All">全部</option></select>
       <select id="card-sort">
-        <option value="manual">默认排序</option>
-        <option value="dateDesc">购入日期 最新 → 最旧</option>
-        <option value="dateAsc">购入日期 最旧 → 最新</option>
-        <option value="priceDesc">价格 高 → 低</option>
-        <option value="priceAsc">价格 低 → 高</option>
-        <option value="countDesc">张数 多 → 少</option>
-        <option value="countAsc">张数 少 → 多</option>
-        <option value="nameAsc">名称 A → Z</option>
-        <option value="nameDesc">名称 Z → A</option>
+        <option value="manual" data-en="Manual (default)">默认排序</option>
+        <option value="dateDesc" data-en="Purchase date newest → oldest">购入日期 最新 → 最旧</option>
+        <option value="dateAsc" data-en="Purchase date oldest → newest">购入日期 最旧 → 最新</option>
+        <option value="priceDesc" data-en="Price high → low">价格 高 → 低</option>
+        <option value="priceAsc" data-en="Price low → high">价格 低 → 高</option>
+        <option value="countDesc" data-en="Sheet count high → low">张数 多 → 少</option>
+        <option value="countAsc" data-en="Sheet count low → high">张数 少 → 多</option>
+        <option value="nameAsc" data-en="Name A → Z">名称 A → Z</option>
+        <option value="nameDesc" data-en="Name Z → A">名称 Z → A</option>
       </select>
     </div>
     <style>
@@ -74,7 +74,7 @@
   <div id="card-page-view" style="display:none;">
   <div class="subpage-header">
     <a class="back-link" href="/color-card/"><span data-zh="← 返回色卡列表" data-en="← Back to Color Cards">← 返回色卡列表</span></a>
-    <h1 class="subpage-title" id="card-view-title">色卡详情</h1>
+    <h1 class="subpage-title" id="card-view-title" data-zh="色卡详情" data-en="Color Card Details">色卡详情</h1>
     <p class="subpage-sub" data-zh="原创圈我的色卡宝宝们" data-en="My color card babies">原创圈我的色卡宝宝们</p>
   </div>
   <div class="page-body album-body" style="padding-top:0;">
@@ -123,7 +123,7 @@
     if (CARD_SORT === 'nameDesc') list.sort(function (a, b) { return (b.c.name || '').localeCompare(a.c.name || '', 'zh-Hans-CN'); });
     if (!CARDS_CACHE.length) {
       cGrid.style.display = 'block';
-      cGrid.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px 0;font-size:14px;">还没有色卡，去后台「色卡管理」新建吧</p>';
+      cGrid.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px 0;font-size:14px;">' + t('还没有色卡，去后台「色卡管理」新建吧', 'No color cards yet. Create one in the admin panel.') + '</p>';
       return;
     }
     cGrid.style.display = 'grid';
@@ -133,11 +133,11 @@
         (c.image ? '<div style="width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--card);"><img src="' + escAttrDb(normImg(c.image)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="色卡"></div>' : '') +
         '<div style="padding:12px 14px;">' +
         '<div style="display:flex;align-items:center;gap:8px;">' +
-        '<b style="flex:1;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(c.name || '未命名色卡') + '</b>' +
+        '<b style="flex:1;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(c.name || t('未命名色卡', 'Unnamed card')) + '</b>' +
         shareBtnHtml(i, null, true) +
         '</div>' +
         (c.shop ? '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + escDb(c.shop) + '</div>' : '') +
-        '<div style="font-size:12px;color:var(--muted);margin-top:3px;">画师 ' + c.artists.length + ' 位 · 共 ' + cardCountV(c) + ' 张</div>' +
+        '<div style="font-size:12px;color:var(--muted);margin-top:3px;">' + (LANG === 'en' ? cardCountV(c) + ' cards · ' + c.artists.length + ' artists' : '画师 ' + c.artists.length + ' 位 · 共 ' + cardCountV(c) + ' 张') + '</div>' +
         '<div style="display:flex;align-items:center;gap:8px;margin-top:4px;">' +
         '<span style="flex:1;font-size:14px;color:var(--accent);font-weight:600;">总价 ¥' + fmtMoney(cardFinalV(c)) + '</span>' +
         cardEditBtn(i) +
@@ -153,13 +153,13 @@
     var body = document.getElementById('card-view-body');
     var c = CARDS_CACHE[CURRENT_CARD];
     if (!body) return;
-    if (!c) { body.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px 0;">没有找到这张色卡</p>'; return; }
+    if (!c) { body.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px 0;">' + t('没有找到这张色卡', 'Card not found') + '</p>'; return; }
     var title = document.getElementById('card-view-title');
-    if (title) title.textContent = c.name || '未命名色卡';
+    if (title) title.textContent = c.name || t('未命名色卡', 'Unnamed card');
     var priceLines = c.artists.map(function (a, i) {
       var rows = a.rows.map(function (r) {
         return '<div class="sc-row">' +
-          '<span>' + escDb(r.label || '其他') + '</span>' +
+          '<span>' + escDb(r.label || t('其他', 'Other')) + '</span>' +
           '<span style="text-align:right;">¥' + (r.price == null ? '' : escDb(r.price)) + '</span>' +
           '<span class="r-x">×</span>' +
           '<span style="text-align:right;">' + (parseInt(r.qty, 10) || 0) + '</span>' +
@@ -169,28 +169,28 @@
       }).join('');
       return '<div style="margin-bottom:' + (i === c.artists.length - 1 ? '0' : '16px') + ';">' +
         '<div style="font-size:12px;color:var(--muted);margin-bottom:4px;">画师 ' + (i + 1) + '</div>' +
-        '<b style="font-size:14px;display:block;margin-bottom:8px;">' + escDb(a.name || ('画师 ' + (i + 1))) + '</b>' +
+        '<b style="font-size:14px;display:block;margin-bottom:8px;">' + escDb(a.name || (t('画师 ', 'Artist ') + (i + 1))) + '</b>' +
         rows +
-        '<div style="border-top:1px solid var(--card-hover);margin-top:8px;padding-top:8px;font-size:13px;color:var(--muted);">' + labelAggV(a) + ' · 共 ' + artistCountV(a) + ' 张 · 小计 <b style="color:var(--accent);">¥' + fmtMoney(artistSubV(a)) + '</b></div>' +
+        '<div style="border-top:1px solid var(--card-hover);margin-top:8px;padding-top:8px;font-size:13px;color:var(--muted);">' + labelAggV(a) + ' · ' + (LANG === 'en' ? 'Total ' + artistCountV(a) + ' cards · Subtotal ' : '共 ' + artistCountV(a) + ' 张 · 小计 ') + '<b style="color:var(--accent);">¥' + fmtMoney(artistSubV(a)) + '</b></div>' +
         '</div>';
     }).join('');
     body.innerHTML =
       (c.image ? '<div style="width:100%;max-width:420px;aspect-ratio:1/1;margin:0 auto 18px;overflow:hidden;border-radius:var(--radius);background:var(--card);"><img src="' + escAttrDb(normImg(c.image)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="色卡"></div>' : '') +
       '<div style="text-align:center;margin-bottom:18px;">' +
-      '<span style="font-size:18px;font-weight:700;">' + escDb(c.name || '未命名色卡') + '</span>' +
+      '<span style="font-size:18px;font-weight:700;">' + escDb(c.name || t('未命名色卡', 'Unnamed card')) + '</span>' +
       (c.shop ? '<span style="color:var(--muted);font-size:14px;">　|　' + escDb(c.shop) + '</span>' : '') +
       '</div>' +
-      '<div style="text-align:center;margin-bottom:18px;"><span style="font-size:20px;font-weight:700;color:var(--accent);">色卡最终总金额 ¥' + fmtMoney(cardFinalV(c)) + '</span><span style="color:var(--muted);font-size:14px;margin-left:14px;">色卡总数 ' + cardCountV(c) + ' 张</span></div>' +
+      '<div style="text-align:center;margin-bottom:18px;"><span style="font-size:20px;font-weight:700;color:var(--accent);">' + t('色卡最终总金额', 'Card final total') + ' ¥' + fmtMoney(cardFinalV(c)) + '</span><span style="color:var(--muted);font-size:14px;margin-left:14px;">' + (LANG === 'en' ? 'Total ' + cardCountV(c) + ' cards' : '色卡总数 ' + cardCountV(c) + ' 张') + '</span></div>' +
       '<div class="card" style="padding:18px 20px;margin-bottom:14px;">' +
-      '<h2 style="font-size:16px;">私调明细</h2>' +
+      '<h2 style="font-size:16px;">' + t('私调明细', 'Custom Details') + '</h2>' +
       (c.origPrice != null && c.origPrice !== '' ?
         '<div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--card-hover);padding-bottom:10px;margin-bottom:14px;">' +
-        '<span style="font-size:14px;color:var(--muted);">色卡购入价</span>' +
+        '<span style="font-size:14px;color:var(--muted);">' + t('色卡购入价', 'Card purchase price') + '</span>' +
         '<b style="font-size:15px;">¥' + fmtMoney(c.origPrice) + '</b>' +
         '</div>' : '') +
       priceLines +
       '<div style="border-top:1px solid var(--card-hover);margin-top:12px;padding-top:10px;display:flex;align-items:center;justify-content:space-between;">' +
-      '<span style="font-size:15px;font-weight:700;">色卡最终总金额</span>' +
+      '<span style="font-size:15px;font-weight:700;">' + t('色卡最终总金额', 'Card final total') + '</span>' +
       '<b style="font-size:17px;color:var(--accent);">¥' + fmtMoney(cardFinalV(c)) + '</b>' +
       '</div>' +
       '</div>';
@@ -208,8 +208,8 @@
     var artistNames = [];
     CARDS_CACHE.forEach(function (c) { (c.artists || []).forEach(function (a) { if (a.name && artistNames.indexOf(a.name) === -1) artistNames.push(a.name); }); });
     var fsel = document.getElementById('card-filter');
-    fsel.innerHTML = '<option value="all">全部</option>' + artistNames.map(function (n) {
-      return '<option value="' + escAttrDb(n) + '">画师：' + escDb(n) + '</option>';
+    fsel.innerHTML = '<option value="all" data-en="All">' + t('全部', 'All') + '</option>' + artistNames.map(function (n) {
+      return '<option value="' + escAttrDb(n) + '" data-en="Artist: ' + escAttrDb(n) + '">' + t('画师：', 'Artist: ') + escDb(n) + '</option>';
     }).join('');
     refreshSubSelects();
     renderCardsList();

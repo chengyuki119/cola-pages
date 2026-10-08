@@ -2749,6 +2749,28 @@
     t.setAttribute('aria-pressed', String(c.homeShow !== false));
     saveCardsQuiet(function () { renderCards(); }); // 立即保存并刷新列表角标，后台/首页同步
   });
+  // BJD 编辑态自定义开关（部件 / 主页展示）：点击切换，立即保存；主页展示不限数量
+  document.addEventListener('click', function (e) {
+    var tgl = e.target.closest('.b-part-tgl, .b-home-toggle');
+    if (!tgl) return;
+    var cardEl = tgl.closest('.bjd-item');
+    if (!cardEl) return;
+    var b = normBjd(BJDS[parseInt(cardEl.getAttribute('data-i'), 10)]);
+    if (!b) return;
+    if (tgl.classList.contains('b-part-tgl')) {
+      var pt = tgl.getAttribute('data-part');
+      b.parts[pt] = !(b.parts[pt] !== false); // on → off；off/未设置 → on
+      tgl.classList.toggle('on', b.parts[pt] !== false);
+      tgl.setAttribute('aria-pressed', String(b.parts[pt] !== false));
+      scheduleBjdSave();
+      renderBjds(); // 未勾选的部件立即隐藏对应表单
+      return;
+    }
+    b.homeShow = !(b.homeShow !== false);
+    tgl.classList.toggle('on', b.homeShow !== false);
+    tgl.setAttribute('aria-pressed', String(b.homeShow !== false));
+    scheduleBjdSave();
+  });
   document.getElementById('sc-artist-list').addEventListener('change', function (e) {
     if (e.target.classList.contains('a-name')) {
       // 画师价格档案：选已有画师自动带出项目和价格（张数归 0）；改成新画师则清空，从空白开始；档案只含已正式保存的数据
@@ -2834,14 +2856,14 @@
           '<b class="sc-name">' + esc(b.name || '未命名娃娃') + '</b>' +
           '<div class="sc-shop">' + esc(bjdShortInfo(b)) + '</div>' +
           (b.price.total ? '<div class="sc-price">' + esc(b.price.total) + '</div>' : '') +
+          '<span class="tgl-label" style="margin-top:7px;"><button type="button" class="tgl b-home-toggle' + (b.homeShow !== false ? ' on' : '') + '" aria-pressed="' + (b.homeShow !== false) + '" aria-label="主页展示"><span class="tgl-knob"></span></button>主页展示</span>' +
           '</div>' +
           '</div>';
       }
       var sel = function (cls, listOpts, cur) { return '<select class="' + cls + '">' + opts(listOpts, cur) + '</select>'; };
       bjdParts = b.parts;
       var chk = function (cls, part, label) {
-        return '<label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px;">' +
-          '<input type="checkbox" class="' + cls + '" data-part="' + part + '"' + (b.parts[part] !== false ? ' checked' : '') + '>' + label + '</label>';
+        return '<span class="tgl-label" style="font-size:13px;"><button type="button" class="tgl ' + cls + '-tgl' + (b.parts[part] !== false ? ' on' : '') + '" data-part="' + part + '" aria-pressed="' + (b.parts[part] !== false) + '" aria-label="' + label + '"><span class="tgl-knob"></span></button>' + label + '</span>';
       };
       return '<div class="card bjd-item editing" data-i="' + i + '" style="position:relative;">' +
         '<button class="kebab bjd-kebab" title="菜单">⋮</button>' +
@@ -2849,7 +2871,7 @@
         bjdField('娃娃名', '<input class="b-name" style="width:100%;" value="' + escAttr(b.name) + '" placeholder="娃娃名，如：Sakura">') +
         '</div>' +
         '<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:13px;">' +
-        '<label style="display:flex;align-items:center;gap:5px;cursor:pointer;"><input type="checkbox" class="b-home-show"' + (b.homeShow !== false ? ' checked' : '') + '>主页展示</label>' +
+        '<span class="tgl-label"><button type="button" class="tgl b-home-toggle" aria-pressed="' + (b.homeShow !== false) + '" aria-label="主页展示"><span class="tgl-knob"></span></button>主页展示</span>' +
         '<span style="color:var(--muted);">添加部件：</span>' +
         chk('b-part', 'head', '娃娃头') + chk('b-part', 'body', '身体') + chk('b-part', 'eyes', '眼睛') + chk('b-part', 'clothes', '衣服') +
         '</div>' +
@@ -2958,20 +2980,6 @@
     var b = normBjd(BJDS[parseInt(card.getAttribute('data-i'), 10)]);
     var cls = e.target.className;
     if (cls === 'b-head-size') b.head.size = e.target.value;
-    if (e.target.classList.contains('b-part')) {
-      var pt = e.target.getAttribute('data-part');
-      b.parts[pt] = e.target.checked;
-      scheduleBjdSave();
-      renderBjds(); // 未勾选的部件立即隐藏对应表单
-      return;
-    }
-    if (cls === 'b-home-show') {
-      if (e.target.checked) {
-        var n = BJDS.filter(function (x) { var o = normBjd(x); return o !== b && o.homeShow; }).length;
-        if (n >= 4) { toast('主页展示最多 4 个，先取消一个吧'); e.target.checked = false; return; }
-      }
-      b.homeShow = e.target.checked; scheduleBjdSave(); return;
-    }
     if (cls === 'b-body-type') b.body.type = e.target.value;
     if (cls === 'b-eye-source') b.eyes.source = e.target.value;
     if (cls === 'b-fu-date') b.faceup.date = e.target.value;

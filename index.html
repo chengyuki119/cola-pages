@@ -49,7 +49,7 @@
         <div class="avatar"><img src="avatar.jpg" alt="头像" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"></div>
         <div class="hero-name">
           <h1>Yuki / 柚子</h1>
-          <p>ᜊ ·̩͙ Hello~ Welcome to My Little Word! ·̩͙ ᜊ｜ᜊ ·̩͙ Hello~ 欢迎来到小柚世界の指南 ·̩͙ ᜊ</p>
+          <p><span data-zh="ᜊ ·̩͙ Hello~ 欢迎来到小柚世界の指南 ·̩͙ ᜊ" data-en="ᜊ ·̩͙ Hello~ Welcome to My Little World! ·̩͙ ᜊ">ᜊ ·̩͙ Hello~ 欢迎来到小柚世界の指南 ·̩͙ ᜊ</span><br><span data-zh="°⑅+「全世界最好の小桓宝宝」+⑅°" data-en="°⑅+「The Best HuanHuan in the World」+⑅°">°⑅+「全世界最好の小桓宝宝」+⑅°</span></p>
           <p>°⑅+「全世界最好の小桓宝宝」+⑅°</p>
         </div>
       </div>
@@ -69,6 +69,7 @@
         </div>
         <div class="cal-grid" id="cal-grid"></div>
         <button class="cal-add" id="cal-add" data-zh="+ 添加重要日子" data-en="+ Add a Day">+ 添加重要日子</button>
+        <div id="cal-ym-pop"></div>
       </div>
       <div class="cal-side">
         <div class="cal-date-big" id="cal-sel-title"></div>
@@ -181,7 +182,7 @@
 </div>
 
 <div class="toast" id="toast"></div>
-  <div id="date-pop"><div class="dp-head"><button class="dp-nav" id="dp-prev">‹</button><b class="dp-title"></b><button class="dp-nav" id="dp-next">›</button><button class="dp-today" id="dp-today">今天</button></div><div class="dp-grid"></div></div>
+  <div id="date-pop"><div class="dp-head"><button class="dp-nav" id="dp-prev">‹</button><b class="dp-title"></b><button class="dp-nav" id="dp-next">›</button><button class="dp-today" id="dp-today" data-zh="今天" data-en="Today">今天</button></div><div class="dp-grid"></div></div>
 <div id="share-pop"></div>
 
 
@@ -196,8 +197,8 @@
     var grid = document.getElementById('bjd-home-grid');
     if (!grid) return;
     var all = BJDS_CACHE.map(function (b, i) { return { b: normBjdView(b), i: i }; });
-    var flagged = all.filter(function (x) { return x.b.homeShow; });
-    var show = (flagged.length ? flagged : all).slice(0, 4);
+    var flagged = all.filter(function (x) { return x.b.homeShow !== false; }); // 只显示勾选「主页展示」的娃，不限数量，无勾选则隐藏区块
+    var show = flagged;
     grid.style.display = show.length ? 'grid' : 'none';
     grid.innerHTML = show.map(function (x) {
       var b = x.b, img = b.cover || b.image;
@@ -592,7 +593,9 @@
     if (LANG === 'en') {
       document.getElementById('cal-sel-title').textContent = (isToday ? 'Today · ' : '') + CAL_MON[SEL.m] + ' ' + SEL.d + ', ' + SEL.y + ' · ' + CAL_WD.en[(wd.getDay() + 6) % 7];
     } else {
-      document.getElementById('cal-sel-title').textContent = (isToday ? '今天 · ' : '') + SEL.y + '年' + (SEL.m + 1) + '月' + SEL.d + '日 · ' + CAL_WD.zh[(wd.getDay() + 6) % 7];
+      document.getElementById('cal-sel-title').textContent = LANG === 'en'
+        ? (isToday ? 'Today · ' : '') + CAL_MON[SEL.m] + ' ' + SEL.d + ', ' + SEL.y + ' · ' + CAL_WD.en[(wd.getDay() + 6) % 7]
+        : (isToday ? '今天 · ' : '') + SEL.y + '年' + (SEL.m + 1) + '月' + SEL.d + '日 · ' + CAL_WD.zh[(wd.getDay() + 6) % 7];
     }
     // 选中日期的全部重要日子（类型 + 重复 + 周年）
     var evs = EVENTS.filter(function (ev) { return evOccursOn(ev, SEL.y, SEL.m, SEL.d); });
@@ -621,7 +624,7 @@
     list.sort(function (a, b) { return a.diff - b.diff; });
     var up = document.getElementById('cal-upcoming');
     up.innerHTML = list.length ? list.map(function (x) {
-      return '<div class="cal-ev" data-y="' + x.occ[0] + '" data-m="' + x.occ[1] + '" data-d="' + x.occ[2] + '">' + x.occ[1] + '月' + x.occ[2] + '日 · ' + escDb(x.ev.name) + '</div>';
+      return '<div class="cal-ev" data-y="' + x.occ[0] + '" data-m="' + x.occ[1] + '" data-d="' + x.occ[2] + '">' + (LANG === 'en' ? CAL_MON[x.occ[1] - 1] + ' ' + x.occ[2] : x.occ[1] + '月' + x.occ[2] + '日') + ' · ' + escDb(x.ev.name) + '</div>';
     }).join('') : '<div class="cal-ev-none">' + t('未来 7 天没有重要日子', 'No events in the next 7 days') + '</div>';
   }
   // 添加重要日子：极简表单（只有登录的柚子能看到入口）
@@ -709,6 +712,31 @@
     calMask.addEventListener('click', function () {
       document.getElementById('cal-modal').classList.remove('open');
       calMask.classList.remove('open');
+    });
+    // 点击年月标题：自定义年月快速选择（年份列表可滚动到旧年份，月份直接点选）
+    var ymPop = document.getElementById('cal-ym-pop');
+    document.getElementById('cal-title').addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (ymPop.style.display === 'block') { ymPop.style.display = 'none'; return; }
+      var y1 = new Date().getFullYear() + 1, years = '';
+      for (var y = y1; y >= 2018; y--) years += '<button type="button" class="ym-year' + (y === CAL_VIEW.y ? ' cur' : '') + '" data-y="' + y + '">' + y + '</button>';
+      var ms = '';
+      for (var m = 0; m < 12; m++) ms += '<button type="button" class="ym-mon' + (m === CAL_VIEW.m ? ' cur' : '') + '" data-m="' + m + '">' + (m + 1) + (LANG === 'en' ? '' : ' 月') + '</button>';
+      ymPop.innerHTML = '<div class="ym-label">' + t('选择年份', 'Year') + '</div><div class="ym-years">' + years + '</div><div class="ym-label">' + t('选择月份', 'Month') + '</div><div class="ym-months">' + ms + '</div>';
+      var r = this.getBoundingClientRect();
+      ymPop.style.display = 'block';
+      ymPop.style.left = Math.max(8, Math.min(window.innerWidth - 240, r.left)) + 'px';
+      ymPop.style.top = (r.bottom + 6) + 'px';
+      var cur = ymPop.querySelector('.ym-year.cur');
+      if (cur) ymPop.querySelector('.ym-years').scrollTop = cur.offsetTop - 40; // 滚到当前年
+    });
+    document.addEventListener('click', function (e) {
+      if (!ymPop || ymPop.style.display !== 'block') return;
+      var yr = e.target.closest('.ym-year');
+      if (yr) { CAL_VIEW.y = parseInt(yr.getAttribute('data-y'), 10); renderCal(); renderCalSide(); ymPop.style.display = 'none'; return; }
+      var mo = e.target.closest('.ym-mon');
+      if (mo) { CAL_VIEW.m = parseInt(mo.getAttribute('data-m'), 10); renderCal(); ymPop.style.display = 'none'; return; }
+      if (!e.target.closest('#cal-ym-pop') && !e.target.closest('#cal-title')) ymPop.style.display = 'none';
     });
     // 左边永远显示完整月历；右边显示当前选中日期（默认今天）的详情
     function selectDay(y2, m2, d2) { // m2 0 起始
