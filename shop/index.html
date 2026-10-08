@@ -333,6 +333,7 @@
 
   function applyLang(lang) {
     LANG = lang;
+    document.documentElement.lang = lang === 'en' ? 'en' : 'zh-CN';
     document.body.classList.toggle('lang-en', lang === 'en');
     var dict = lang === 'en' ? I18N_EN : I18N_ZH;
     var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
@@ -359,7 +360,11 @@
     renderProducts();
   }
   document.querySelectorAll('.lang-btn').forEach(function (b) {
-    b.addEventListener('click', function () { applyLang(b.getAttribute('data-lang')); });
+    b.addEventListener('click', function () {
+      var lang = b.getAttribute('data-lang') === 'en' ? 'en' : 'zh';
+      try { localStorage.setItem('yuki-lang', lang); } catch (err) {}
+      location.reload(); // 保存后整页刷新：从已存语言状态重新初始化，URL 保持不变
+    });
   });
 
   function esc(s) {

@@ -397,7 +397,11 @@ function applyLang(lang) {
   try { localStorage.setItem('yuki-lang', lang); } catch (err) {}
 }
 document.querySelectorAll('.lang-btn').forEach(function (b) {
-  b.addEventListener('click', function () { applyLang(b.getAttribute('data-lang')); });
+  b.addEventListener('click', function () {
+    var lang = b.getAttribute('data-lang') === 'en' ? 'en' : 'zh';
+    try { localStorage.setItem('yuki-lang', lang); } catch (err) {}
+    location.reload(); // 保存后整页刷新：从已存语言状态重新初始化，URL 保持不变
+  });
 });
 
 // ===== 灯箱：全屏展示 + 可选下载 =====

@@ -224,6 +224,7 @@
   function t(zh, en) { return LANG === 'en' ? en : zh; }
   function applyLang(lang) {
     LANG = lang;
+    document.documentElement.lang = lang === 'en' ? 'en' : 'zh-CN';
     document.querySelectorAll('[data-zh][data-en]').forEach(function (node) {
       node.textContent = lang === 'en' ? node.getAttribute('data-en') : node.getAttribute('data-zh');
     });
@@ -237,7 +238,11 @@
     loadWall();
   }
   document.querySelectorAll('.lang-btn').forEach(function (b) {
-    b.addEventListener('click', function () { applyLang(b.getAttribute('data-lang')); });
+    b.addEventListener('click', function () {
+      var lang = b.getAttribute('data-lang') === 'en' ? 'en' : 'zh';
+      try { localStorage.setItem('yuki-lang', lang); } catch (err) {}
+      location.reload(); // 保存后整页刷新：从已存语言状态重新初始化，URL 保持不变
+    });
   });
 
   // 汉堡菜单：全站统一组件 site-menu.js 负责渲染与交互
