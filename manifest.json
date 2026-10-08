@@ -8,7 +8,7 @@
   "background_color": "#fffcfd",
   "theme_color": "#ff6fa5",
   "icons": [
-    { "src": "/icon-yuki-180.png", "sizes": "180x180", "type": "image/png" },
-    { "src": "/icon-yuki-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+    { "src": "/icon-yuki2-180.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "/icon-yuki2-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
   ]
 }

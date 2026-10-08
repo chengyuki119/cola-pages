@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>柚子的后台 · 只有自己用</title>
 <link rel="manifest" href="/manifest.json">
-<link rel="apple-touch-icon" sizes="180x180" href="/icon-yuki-180.png">
-<link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki-180.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/icon-yuki2-180.png">
+<link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki2-180.png">
 <meta name="apple-mobile-web-app-title" content="小柚的小世界">
 <style>
   :root {
@@ -1195,13 +1195,18 @@
   }
   function wireCatAutocomplete(inp, list) {
     if (!inp || !list) return;
+    var catLabel = function (c) { return { birthday: '生日', anniversary: '纪念日', event: '重要日' }[c] || c; }; // 旧数据英文类型显示友好名，保存值不变
     function render() {
       var q = inp.value.trim().toLowerCase();
-      var src = dayCatSourcesAdmin();
+      var seenL = {}, src = [];
+      dayCatSourcesAdmin().forEach(function (c) { // 按显示名去重
+        var l = catLabel(c);
+        if (!seenL[l]) { seenL[l] = 1; src.push(c); }
+      });
       var cats = src.filter(function (c) { return c.toLowerCase().indexOf(q) !== -1; }).slice(0, 6);
       var exact = src.indexOf(inp.value.trim()) !== -1;
       var html = cats.map(function (c) {
-        return '<button type="button" class="cat-opt' + (c === inp.value.trim() ? ' active' : '') + '" data-cat="' + escAttr(c) + '">' + esc(c) + '</button>';
+        return '<button type="button" class="cat-opt' + (c === inp.value.trim() ? ' active' : '') + '" data-cat="' + escAttr(c) + '">' + esc(catLabel(c)) + '</button>';
       }).join('');
       if (inp.value.trim() && !exact) html += '<button type="button" class="cat-opt cat-new" data-cat="' + escAttr(inp.value.trim()) + '">+ 创建「' + esc(inp.value.trim()) + '」</button>';
       list.innerHTML = html;
@@ -1469,6 +1474,7 @@
     if (SETTINGS['photos_seeded'] || SEEDING || !ACCESS) return;
     SEEDING = true;
     fetch('/photos/index.html').then(function (r) { return r.text(); }).then(function (html) {
+      if (SETTINGS['photos_seeded']) return null; // loadHome 可能在 meanwhile 已写入标记：再次确认，绝不重复执行
       var doc = new DOMParser().parseFromString(html, 'text/html');
       var rows = [];
       doc.querySelectorAll('section[data-sec]').forEach(function (secEl) {
@@ -1489,17 +1495,22 @@
           });
         });
       });
-      if (!rows.length) { SETTINGS['photos_seeded'] = '1'; return saveSetting('photos_seeded', '1'); }
-      rows.forEach(function (x) { x.id = seedId(x.image_url); }); // 确定性 id + upsert：无论触发几次都只有一行，绝不重复创建
-      return api('photos', { method: 'POST', headers: { 'Prefer': 'resolution=merge-duplicates,return=representation' }, body: JSON.stringify(rows) })
-        .then(function (r) {
-          if (!r.ok) throw new Error();
-          SETTINGS['photos_seeded'] = '1';
-          return saveSetting('photos_seeded', '1');
-        })
-        .then(function () { toast('已把主页现有 ' + rows.length + ' 张照片导入照片管理'); SEEDING = false; loadPhotoList(); })
-        .catch(function () { SEEDING = false; toast('照片导入失败，刷新重试'); });
-    }).catch(function () {});
+      if (!rows.length) { SETTINGS['photos_seeded'] = '1'; SEEDING = false; return saveSetting('photos_seeded', '1'); }
+      // 先查库里已有的 image_url：只导入真正缺的，重复刷新绝不重复创建
+      return api('photos?select=image_url').then(function (r) { return r.json(); }).then(function (existing) {
+        if (SETTINGS['photos_seeded']) return null;
+        var have = {};
+        (existing || []).forEach(function (p) { have[p.image_url] = 1; });
+        var fresh = rows.filter(function (x) { return !have[x.image_url]; });
+        SETTINGS['photos_seeded'] = '1';
+        return saveSetting('photos_seeded', '1').then(function () {
+          if (!fresh.length) return null; // 都已在库里：不弹任何提示
+          fresh.forEach(function (x) { x.id = seedId(x.image_url); });
+          return api('photos', { method: 'POST', headers: { 'Prefer': 'resolution=merge-duplicates,return=representation' }, body: JSON.stringify(fresh) })
+            .then(function (r) { if (!r.ok) throw new Error(); toast('已导入 ' + fresh.length + ' 张照片'); loadPhotoList(); });
+        });
+      });
+    }).catch(function () {}).then(function () { SEEDING = false; });
   }
   // 照片上移/下移：与相邻一张交换 sort，前台按 sort 展示
   function photoMove(id, dir) {
@@ -2231,7 +2242,7 @@
               (bdRows.length ? bdRows.map(function (r) { return '<span>' + esc(r.label || '项目') + ' ¥' + fmtMoney(r.price) + '×' + (parseInt(r.qty, 10) || 0) + ' = ¥' + fmtMoney(rowTotal(r)) + '</span>'; }).join('') : '<span>暂无项目</span>') +
               '<i>小计 ¥' + fmtMoney(artistSub(a)) + '</i></div>';
           }).join('') +
-          '<div class="sc-bd-final">色卡最终总金额 <b>¥' + fmtMoney(cardFinal(c)) + '</b></div>' +
+          '<div class="sc-bd-final">色卡总价 <b>¥' + fmtMoney(cardFinal(c)) + '</b></div>' +
           '</div>' +
           '</div>' +
           '</div>';
@@ -2281,7 +2292,7 @@
         '<span style="color:var(--muted);font-size:12px;">保存时自动更新</span>' +
         '</div>' +
         '<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:14px;">' +
-        '<span>色卡最终总金额 <b class="sc-card-total" style="color:var(--accent);font-size:16px;">¥' + fmtMoney(cardFinal(c)) + '</b></span>' +
+        '<span>色卡总价 <b class="sc-card-total" style="color:var(--accent);font-size:16px;">¥' + fmtMoney(cardFinal(c)) + '</b></span>' +
         '<span style="color:var(--muted);">总张数 <b class="sc-card-count">' + cardCount(c) + '</b> 张</span>' +
         '</div>' +
         '<div class="sc-artists" style="margin-top:4px;">' + blocks + '</div>' +

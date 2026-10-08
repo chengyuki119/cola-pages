@@ -21,8 +21,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Color Cards · Yuki / 柚子</title>
 <link rel="manifest" href="/manifest.json">
-<link rel="apple-touch-icon" sizes="180x180" href="/icon-yuki-180.png">
-<link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki-180.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/icon-yuki2-180.png">
+<link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki2-180.png">
 <meta name="apple-mobile-web-app-title" content="小柚的小世界">
 <link rel="stylesheet" href="/css/site.css">
   <link rel="stylesheet" href="/site-menu.css">
@@ -160,22 +160,10 @@
     if (!c) { body.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px 0;">' + t('没有找到这张色卡', 'Card not found') + '</p>'; return; }
     var title = document.getElementById('card-view-title');
     if (title) title.textContent = c.name || t('未命名色卡', 'Unnamed card');
-    var priceLines = c.artists.map(function (a, i) {
-      var rows = a.rows.map(function (r) {
-        return '<div class="sc-row">' +
-          '<span>' + escDb(r.label || t('其他', 'Other')) + '</span>' +
-          '<span style="text-align:right;">¥' + (r.price == null ? '' : escDb(r.price)) + '</span>' +
-          '<span class="r-x">×</span>' +
-          '<span style="text-align:right;">' + (parseInt(r.qty, 10) || 0) + '</span>' +
-          '<span class="r-eq">=</span>' +
-          '<b class="r-total">¥' + fmtMoney(rowTotalV(r)) + '</b>' +
-          '</div>';
-      }).join('');
-      return '<div style="margin-bottom:' + (i === c.artists.length - 1 ? '0' : '16px') + ';">' +
-        '<div style="font-size:12px;color:var(--muted);margin-bottom:4px;">画师 ' + (i + 1) + '</div>' +
-        '<b style="font-size:14px;display:block;margin-bottom:8px;">' + escDb(a.name || (t('画师 ', 'Artist ') + (i + 1))) + '</b>' +
-        rows +
-        '<div style="border-top:1px solid var(--card-hover);margin-top:8px;padding-top:8px;font-size:13px;color:var(--muted);">' + labelAggV(a) + ' · ' + (LANG === 'en' ? 'Total ' + artistCountV(a) + ' cards · Subtotal ' : '共 ' + artistCountV(a) + ' 张 · 小计 ') + '<b style="color:var(--accent);">¥' + fmtMoney(artistSubV(a)) + '</b></div>' +
+    var artistLines = c.artists.map(function (a, i) {
+      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;' + (i === c.artists.length - 1 ? '' : 'border-bottom:1px solid var(--card-hover);') + '">' +
+        '<b style="font-size:14px;">' + escDb(a.name || (t('画师 ', 'Artist ') + (i + 1))) + '</b>' +
+        '<span style="font-size:13px;color:var(--muted);">' + (LANG === 'en' ? artistCountV(a) + ' cards' : '共 ' + artistCountV(a) + ' 张') + '</span>' +
         '</div>';
     }).join('');
     body.innerHTML =
@@ -184,17 +172,17 @@
       '<span style="font-size:18px;font-weight:700;">' + escDb(c.name || t('未命名色卡', 'Unnamed card')) + '</span>' +
       (c.shop ? '<span style="color:var(--muted);font-size:14px;">　|　' + escDb(c.shop) + '</span>' : '') +
       '</div>' +
-      '<div style="text-align:center;margin-bottom:18px;"><span style="font-size:20px;font-weight:700;color:var(--accent);">' + t('色卡最终总金额', 'Card final total') + ' ¥' + fmtMoney(cardFinalV(c)) + '</span><span style="color:var(--muted);font-size:14px;margin-left:14px;">' + (LANG === 'en' ? 'Total ' + cardCountV(c) + ' cards' : '色卡总数 ' + cardCountV(c) + ' 张') + '</span></div>' +
+      '<div style="text-align:center;margin-bottom:18px;"><span style="font-size:20px;font-weight:700;color:var(--accent);">' + t('色卡总价', 'Total price') + ' ¥' + fmtMoney(cardFinalV(c)) + '</span><span style="color:var(--muted);font-size:14px;margin-left:14px;">' + (LANG === 'en' ? 'Total ' + cardCountV(c) + ' cards' : '共 ' + cardCountV(c) + ' 张') + '</span></div>' +
       '<div class="card" style="padding:18px 20px;margin-bottom:14px;">' +
-      '<h2 style="font-size:16px;">' + t('私调明细', 'Custom Details') + '</h2>' +
+      '<h2 style="font-size:16px;">' + t('色卡信息', 'Card Info') + '</h2>' +
       (c.origPrice != null && c.origPrice !== '' ?
-        '<div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--card-hover);padding-bottom:10px;margin-bottom:14px;">' +
-        '<span style="font-size:14px;color:var(--muted);">' + t('色卡购入价', 'Card purchase price') + '</span>' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--card-hover);padding:10px 0;">' +
+        '<span style="font-size:14px;color:var(--muted);">' + t('收卡价格', 'Purchase price') + '</span>' +
         '<b style="font-size:15px;">¥' + fmtMoney(c.origPrice) + '</b>' +
         '</div>' : '') +
-      priceLines +
+      artistLines +
       '<div style="border-top:1px solid var(--card-hover);margin-top:12px;padding-top:10px;display:flex;align-items:center;justify-content:space-between;">' +
-      '<span style="font-size:15px;font-weight:700;">' + t('色卡最终总金额', 'Card final total') + '</span>' +
+      '<span style="font-size:15px;font-weight:700;">' + t('色卡总价', 'Total price') + '</span>' +
       '<b style="font-size:17px;color:var(--accent);">¥' + fmtMoney(cardFinalV(c)) + '</b>' +
       '</div>' +
       '</div>';

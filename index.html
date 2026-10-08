@@ -21,8 +21,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>小柚的小世界</title>
 <link rel="manifest" href="/manifest.json">
-<link rel="apple-touch-icon" sizes="180x180" href="/icon-yuki-180.png">
-<link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki-180.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/icon-yuki2-180.png">
+<link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki2-180.png">
 <meta name="apple-mobile-web-app-title" content="小柚的小世界">
 <meta property="og:title" content="小柚的小世界">
 <meta property="og:description" content="欢迎来到小柚的小世界">
@@ -374,7 +374,7 @@
             '</div>' +
             '<div style="font-size:12px;color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (c.shop ? escDb(c.shop) : '&nbsp;') + '</div>' +
             '<div style="display:flex;align-items:center;gap:8px;margin-top:4px;">' +
-            '<span style="flex:1;font-size:14px;color:var(--accent);font-weight:600;">总金额 ¥' + fmtMoney(cardFinalV(c)) + '</span>' +
+            '<span style="flex:1;font-size:14px;color:var(--accent);font-weight:600;">总价 ¥' + fmtMoney(cardFinalV(c)) + '</span>' +
             cardEditBtn(i) +
             '</div>' +
             '</div></div>';
@@ -763,11 +763,15 @@
     var catList = box.querySelector('#ev-cat-list');
     function renderCatList() {
       var q = catInp.value.trim().toLowerCase();
-      var src = dayCatSources();
+      var seenL = {}, src = [];
+      dayCatSources().forEach(function (c) { // 按显示名去重：day_cats 与旧英文类型同名的只留一个
+        var l = { birthday: t('生日', 'Birthday'), anniversary: t('纪念日', 'Anniversary'), event: t('重要日', 'Event') }[c] || c;
+        if (!seenL[l]) { seenL[l] = 1; src.push(c); }
+      });
       var cats = src.filter(function (c) { return c.toLowerCase().indexOf(q) !== -1; }).slice(0, 6);
       var exact = src.indexOf(catInp.value.trim()) !== -1;
       var html = cats.map(function (c) {
-        return '<button type="button" class="cat-opt' + (c === catInp.value.trim() ? ' active' : '') + '" data-cat="' + escAttrDb(c) + '">' + escDb(c) + '</button>';
+        return '<button type="button" class="cat-opt' + (c === catInp.value.trim() ? ' active' : '') + '" data-cat="' + escAttrDb(c) + '">' + escDb({ birthday: t('生日', 'Birthday'), anniversary: t('纪念日', 'Anniversary'), event: t('重要日', 'Event') }[c] || c) + '</button>';
       }).join('');
       if (catInp.value.trim() && !exact) html += '<button type="button" class="cat-opt cat-new" data-cat="' + escAttrDb(catInp.value.trim()) + '">+ ' + t('创建「', 'Create "') + escDb(catInp.value.trim()) + t('」', '"') + '</button>';
       catList.innerHTML = html;
