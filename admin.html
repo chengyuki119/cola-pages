@@ -170,6 +170,8 @@
   .sel-opt { display: block; width: 100%; border: none; background: none; text-align: left; padding: 9px 12px; font-size: 13px; cursor: pointer; border-radius: 8px; color: var(--text); font-family: inherit; line-height: 1.4; }
   .sel-opt:hover { background: var(--card-hover); }
   .sel-opt.active { background: var(--accent-soft); color: #fff; }
+  /* 后台筛选/排序：自定义下拉按钮（不用原生 select），与 sel-menu 同一套视觉 */
+  .pick-btn-label { font-size: 13px; color: var(--muted); }
   /* 自定义联想下拉（画师 / 标签）：与 sel-menu / sc-pop 同一套视觉，彻底替代浏览器 datalist */
   #combo-pop { position: fixed; z-index: 1000; background: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(180,120,150,.18); padding: 6px; min-width: 200px; max-width: 320px; max-height: 240px; overflow-y: auto; display: none; box-sizing: border-box; animation: scPopIn .16s ease; }
   .combo-opt { display: block; width: 100%; border: none; background: none; text-align: left; padding: 9px 12px; font-size: 13px; cursor: pointer; border-radius: 8px; color: var(--text); font-family: inherit; line-height: 1.4; }
@@ -605,6 +607,11 @@
     <div id="tab-bjd" style="display:none;">
       <div class="card">
         <h3>BJD 管理</h3>
+        <div id="bjd-toolbar" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;">
+          <span style="font-size:13px;color:var(--muted);">筛选与排序</span>
+          <button type="button" class="sel-btn" id="bjd-filter-btn">尺寸：全部</button>
+          <button type="button" class="sel-btn" id="bjd-sort-btn">排序：默认</button>
+        </div>
         <div id="bjd-list"></div>
         <div class="actions" style="flex-wrap:wrap;">
           <button class="btn-mini" id="btn-bjd-add">+ 新增 BJD</button>
@@ -617,6 +624,11 @@
     <div id="tab-cards" style="display:none;">
       <div class="card">
         <h3>色卡管理</h3>
+        <div id="sc-toolbar" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;">
+          <span style="font-size:13px;color:var(--muted);">筛选与排序</span>
+          <button type="button" class="sel-btn" id="sc-filter-btn">筛选：全部</button>
+          <button type="button" class="sel-btn" id="sc-sort-btn">排序：默认</button>
+        </div>
         <div id="sc-artist-list"></div>
         <div class="actions" style="flex-wrap:wrap;">
           <button class="btn-mini" id="btn-sc-add">+ 新建色卡</button>
@@ -1986,10 +1998,137 @@
     });
     return map;
   }
+  // 色卡/BJD 后台筛选排序：只影响当前显示顺序，不改 CARDS/BJDS 原始数组（默认排序即恢复手动顺序）
+  var SC_FILTER = 'all', SC_SORT = 'manual';
+  var SC_SORTS = [
+    { v: 'manual', label: '默认' },
+    { v: 'dateDesc', label: '购买日期 最新 → 最旧' },
+    { v: 'dateAsc', label: '购买日期 最旧 → 最新' },
+    { v: 'priceDesc', label: '价格 高 → 低' },
+    { v: 'priceAsc', label: '价格 低 → 高' },
+    { v: 'countDesc', label: '张数 多 → 少' },
+    { v: 'countAsc', label: '张数 少 → 多' },
+    { v: 'nameAsc', label: '名称 A → Z' },
+    { v: 'nameDesc', label: '名称 Z → A' }
+  ];
+  var BJD_FILTER = 'all', BJD_SORT2 = 'manual';
+  var BJD_SORTS = [
+    { v: 'manual', label: '默认' },
+    { v: 'buyDesc', label: '购买日期 最新 → 最旧' },
+    { v: 'buyAsc', label: '购买日期 最旧 → 最新' },
+    { v: 'priceDesc', label: '价格 高 → 低' },
+    { v: 'priceAsc', label: '价格 低 → 高' },
+    { v: 'nameAsc', label: '名称 A → Z' },
+    { v: 'nameDesc', label: '名称 Z → A' }
+  ];
+  function pickPop(btn, options, cur, onPick) { // 自定义下拉菜单：与 sel-menu 同一套视觉
+    var menu = document.getElementById('pick-pop');
+    if (!menu) {
+      menu = document.createElement('div');
+      menu.id = 'pick-pop';
+      menu.className = 'sel-menu';
+      document.body.appendChild(menu);
+    }
+    menu.innerHTML = options.map(function (o) {
+      return '<button type="button" class="sel-opt' + (o.v === cur ? ' active' : '') + '" data-v="' + escAttr(o.v) + '">' + esc(o.label) + '</button>';
+    }).join('');
+    var r = btn.getBoundingClientRect();
+    menu.style.left = Math.max(8, Math.min(r.left, window.innerWidth - 210)) + 'px';
+    menu.style.top = Math.min(r.bottom + 4, window.innerHeight - 150) + 'px';
+    menu.style.display = 'block';
+    menu.onclick = function (e) {
+      var b = e.target.closest('.sel-opt');
+      if (!b) return;
+      onPick(b.getAttribute('data-v'));
+      closeSelMenus();
+    };
+  }
+  function scView() {
+    var view = CARDS.map(function (c, i) { return { c: c, i: i }; });
+    if (SC_FILTER !== 'all') view = view.filter(function (x) { return (normCard(x.c).artists || []).some(function (a) { return a.name === SC_FILTER; }); });
+    var boughtOf = function (x) { return x.c.bought || ''; };
+    if (SC_SORT === 'dateDesc' || SC_SORT === 'dateAsc') {
+      view.sort(function (a, b) {
+        var av = boughtOf(a), bv = boughtOf(b);
+        if (!av && !bv) return 0; if (!av) return 1; if (!bv) return -1;
+        return SC_SORT === 'dateDesc' ? bv.localeCompare(av) : av.localeCompare(bv);
+      });
+    }
+    if (SC_SORT === 'priceDesc') view.sort(function (a, b) { return cardFinal(normCard(b.c)) - cardFinal(normCard(a.c)); });
+    if (SC_SORT === 'priceAsc') view.sort(function (a, b) { return cardFinal(normCard(a.c)) - cardFinal(normCard(b.c)); });
+    if (SC_SORT === 'countDesc') view.sort(function (a, b) { return cardCount(normCard(b.c)) - cardCount(normCard(a.c)); });
+    if (SC_SORT === 'countAsc') view.sort(function (a, b) { return cardCount(normCard(a.c)) - cardCount(normCard(b.c)); });
+    if (SC_SORT === 'nameAsc') view.sort(function (a, b) { return (normCard(a.c).name || '').localeCompare(normCard(b.c).name || '', 'zh-Hans-CN'); });
+    if (SC_SORT === 'nameDesc') view.sort(function (a, b) { return (normCard(b.c).name || '').localeCompare(normCard(a.c).name || '', 'zh-Hans-CN'); });
+    return view;
+  }
+  function bjdView() {
+    var view = BJDS.map(function (b, i) { return { b: b, i: i }; });
+    if (BJD_FILTER !== 'all') view = view.filter(function (x) { return normBjd(x.b).head.size === BJD_FILTER; });
+    var buyOf = function (x) { var b = normBjd(x.b); return (b.purchase && b.purchase.date) || ''; };
+    if (BJD_SORT2 === 'buyDesc' || BJD_SORT2 === 'buyAsc') {
+      view.sort(function (a, b) {
+        var av = buyOf(a), bv = buyOf(b);
+        if (!av && !bv) return 0; if (!av) return 1; if (!bv) return -1;
+        return BJD_SORT2 === 'buyDesc' ? bv.localeCompare(av) : av.localeCompare(bv);
+      });
+    }
+    var num = function (v) { var m = String(v || '').replace(/[^\d.]/g, ''); return m === '' ? null : parseFloat(m); };
+    if (BJD_SORT2 === 'priceDesc' || BJD_SORT2 === 'priceAsc') {
+      view.sort(function (a, b) {
+        var av = num(normBjd(a.b).price.total), bv = num(normBjd(b.b).price.total);
+        if (av == null && bv == null) return 0; if (av == null) return 1; if (bv == null) return -1;
+        return BJD_SORT2 === 'priceDesc' ? bv - av : av - bv;
+      });
+    }
+    if (BJD_SORT2 === 'nameAsc') view.sort(function (a, b) { return (normBjd(a.b).name || '').localeCompare(normBjd(b.b).name || '', 'zh-Hans-CN'); });
+    if (BJD_SORT2 === 'nameDesc') view.sort(function (a, b) { return (normBjd(b.b).name || '').localeCompare(normBjd(a.b).name || '', 'zh-Hans-CN'); });
+    return view;
+  }
+  function bindPickBtn(btnId, getLabel, getOptions, getCur, onPick) {
+    var btn = document.getElementById(btnId);
+    if (!btn || btn.dataset.bound) return;
+    btn.dataset.bound = '1';
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var wasOpen = document.getElementById('pick-pop') && document.getElementById('pick-pop').style.display === 'block';
+      closeSelMenus();
+      if (wasOpen) return;
+      pickPop(btn, getOptions(), getCur(), function (v) { onPick(v); btn.textContent = getLabel(); });
+    });
+  }
+  function initToolbars() {
+    bindPickBtn('sc-filter-btn',
+      function () { return '筛选：' + (SC_FILTER === 'all' ? '全部' : SC_FILTER); },
+      function () {
+        var names = [];
+        CARDS.forEach(function (c) { normCard(c).artists.forEach(function (a) { if (a.name && names.indexOf(a.name) === -1) names.push(a.name); }); });
+        return [{ v: 'all', label: '全部' }].concat(names.map(function (n) { return { v: n, label: '画师：' + n }; }));
+      },
+      function () { return SC_FILTER; },
+      function (v) { SC_FILTER = v; renderCards(); });
+    bindPickBtn('sc-sort-btn',
+      function () { return '排序：' + (SC_SORTS.filter(function (o) { return o.v === SC_SORT; })[0] || SC_SORTS[0]).label; },
+      function () { return SC_SORTS; },
+      function () { return SC_SORT; },
+      function (v) { SC_SORT = v; renderCards(); });
+    bindPickBtn('bjd-filter-btn',
+      function () { return '尺寸：' + (BJD_FILTER === 'all' ? '全部' : BJD_FILTER); },
+      function () { return [{ v: 'all', label: '全部' }].concat(BJD_SIZES.map(function (s) { return { v: s, label: s }; })); },
+      function () { return BJD_FILTER; },
+      function (v) { BJD_FILTER = v; renderBjds(); });
+    bindPickBtn('bjd-sort-btn',
+      function () { return '排序：' + (BJD_SORTS.filter(function (o) { return o.v === BJD_SORT2; })[0] || BJD_SORTS[0]).label; },
+      function () { return BJD_SORTS; },
+      function () { return BJD_SORT2; },
+      function (v) { BJD_SORT2 = v; renderBjds(); });
+  }
   function renderCards() {
     comboClose(); // 卡片重渲染：联想下拉如开着先收起，避免指向已移除的输入框
+    initToolbars();
     var list = document.getElementById('sc-artist-list');
-    list.innerHTML = CARDS.map(function (c, i) {
+    list.innerHTML = scView().map(function (x) {
+      var c = x.c, i = x.i;
       c = normCard(c);
       if (i !== CARDS_EDIT) {
         return '<div class="card sc-artist" data-i="' + i + '" style="position:relative;padding:0;overflow:hidden;">' +
@@ -2001,13 +2140,14 @@
           '<b class="sc-name">' + esc(c.name || '未命名色卡') + '</b>' +
           '<div class="sc-shop">' + esc(c.shop || '') + '</div>' +
           '<div class="sc-meta">画师 ' + c.artists.length + ' 位 · 共 ' + cardCount(c) + ' 张</div>' +
+          '<div class="tgl-label" style="margin-top:7px;"><button type="button" class="tgl c-home-toggle' + (c.homeShow !== false ? ' on' : '') + '" aria-pressed="' + (c.homeShow !== false) + '" aria-label="主页展示"><span class="tgl-knob"></span></button>主页展示</div>' +
           (c.origPrice ? '<div class="sc-bd-line">收卡价格 <b>¥' + fmtMoney(c.origPrice) + '</b></div>' : '') +
           '<div class="sc-bd">' +
           c.artists.map(function (a, ai) {
             a = normArtist(a);
             var bdRows = a.rows.filter(function (r) { return r.label || (r.price != null && r.price !== ''); });
             return '<div class="sc-bd-a"><b>' + esc(a.name || ('画师 ' + (ai + 1))) + '</b>' +
-              (bdRows.length ? bdRows.map(function (r) { return '<span>' + esc(r.label || '项目') + ' ¥' + fmtMoney(r.price) + '×' + (parseInt(r.qty, 10) || 0) + '</span>'; }).join('') : '<span>暂无项目</span>') +
+              (bdRows.length ? bdRows.map(function (r) { return '<span>' + esc(r.label || '项目') + ' ¥' + fmtMoney(r.price) + '×' + (parseInt(r.qty, 10) || 0) + ' = ¥' + fmtMoney(rowTotal(r)) + '</span>'; }).join('') : '<span>暂无项目</span>') +
               '<i>小计 ¥' + fmtMoney(artistSub(a)) + '</i></div>';
           }).join('') +
           '<div class="sc-bd-final">色卡最终总金额 <b>¥' + fmtMoney(cardFinal(c)) + '</b></div>' +
@@ -2678,9 +2818,11 @@
     return [b.head.size, [b.head.brand, b.head.sculpt].join(' ').trim()].filter(Boolean).join(' · ');
   }
   function renderBjds() {
+    initToolbars();
     var list = document.getElementById('bjd-list');
     if (!list) return;
-    list.innerHTML = BJDS.map(function (b, i) {
+    list.innerHTML = bjdView().map(function (x) {
+      var b = x.b, i = x.i;
       b = normBjd(b);
       if (i !== BJDS_EDIT) {
         return '<div class="card bjd-item" data-i="' + i + '" style="position:relative;padding:0;overflow:hidden;">' +

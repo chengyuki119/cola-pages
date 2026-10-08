@@ -63,7 +63,12 @@
         <option value="nameDesc">名称 Z → A</option>
       </select>
     </div>
-    <div id="cards-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;"></div>
+    <style>
+      /* 手机端与 BJD 页卡片完全同套尺寸逻辑（bjd-size-grid：minmax(170px,1fr) + gap 10px）；桌面保持 200px */
+      #cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; }
+      @media (max-width:640px) { #cards-grid { grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:10px; } }
+    </style>
+    <div id="cards-grid"></div>
   </div>
   </div>
   <div id="card-page-view" style="display:none;">
