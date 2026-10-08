@@ -1,0 +1,14 @@
+{
+  "name": "小柚的小世界",
+  "short_name": "小柚的小世界",
+  "description": "欢迎来到小柚的小世界",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fffcfd",
+  "theme_color": "#ff6fa5",
+  "icons": [
+    { "src": "/icon-app-180.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "/icon-app-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
