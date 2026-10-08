@@ -68,9 +68,8 @@
     height: 72vh;
     min-height: 480px;
     background:
-      linear-gradient(180deg, rgba(255,244,248,.30) 0%, rgba(255,238,246,.45) 42%, #fffcfd 94%), /* 粉色柔光渐变罩在封面上：柔和有层次，底部变实保文字清晰 */
-      url("/cover.jpg"), /*  封面背景图：可在后台「主页管理」更换 */
-      linear-gradient(180deg, rgba(255,252,253,0) 45%, #fffcfd 100%);
+      linear-gradient(180deg, rgba(255,252,253,0) 82%, rgba(255,252,253,.8) 96%, #fffcfd 100%), /* 仅照片最底部一小段轻微过渡，避免大面积泛白 */
+      url("/cover.jpg"); /*  封面背景图：可在后台「主页管理」更换，图片本身颜色内容不动 */
     background-color: var(--bg);
     background-size: cover;
     background-position: center;
@@ -118,13 +117,9 @@
     padding: 80px 24px 64px;
   }
 
-  /* ===== 主页柔和渐变背景（仅首页生效：粉色光晕 + 纯色过渡，不压文字）===== */
+  /* ===== 主页背景（仅首页生效）：几乎纯色，只留极淡的上下过渡，无粉色雾化/光晕 ===== */
   body.home {
-    background:
-      radial-gradient(900px 420px at 12% -4%, rgba(255,200,214,.38), rgba(255,200,214,0) 70%),
-      radial-gradient(800px 380px at 88% 6%, rgba(255,228,240,.45), rgba(255,228,240,0) 72%),
-      radial-gradient(720px 420px at 50% 115%, rgba(255,214,229,.32), rgba(255,214,229,0) 70%),
-      linear-gradient(180deg, #fff4f8 0%, #fffcfd 48%, #fff6fa 100%);
+    background: linear-gradient(180deg, #fffcfd 0%, #fffafc 100%);
   }
 
   section { margin-bottom: 56px; }
