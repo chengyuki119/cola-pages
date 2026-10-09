@@ -216,7 +216,25 @@
     margin-top: 8px;
   }
   .img-preview img { width: 100%; height: 100%; object-fit: cover; }
-  .logout { color: var(--muted); font-size: 13px; background: none; border: none; cursor: pointer; float: right; }
+  .logout {
+    background: var(--card);
+    border: 1px solid var(--card-hover);
+    color: #8d99b5;
+    font-size: 13px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    float: right;
+    font-family: inherit;
+    transition: background .15s, color .15s;
+  }
+  .logout:hover { background: var(--card-hover); color: var(--text); }
+  /* 退出登录确认小弹窗 */
+  .lo-mask { position: fixed; inset: 0; background: rgba(90,66,76,.25); z-index: 2000; display: none; align-items: center; justify-content: center; }
+  .lo-mask.open { display: flex; }
+  .lo-box { background: #fff; border-radius: var(--radius); box-shadow: 0 10px 30px rgba(120,80,100,.2); padding: 22px 24px 18px; width: min(320px, calc(100vw - 48px)); }
+  .lo-box p { margin: 0 0 16px; font-size: 14px; color: var(--text); }
+  .lo-actions { display: flex; gap: 8px; justify-content: flex-end; }
 
   .shop-item { display: flex; gap: 12px; position: relative; }
   .kebab {
@@ -419,12 +437,99 @@
         <button class="tab-btn" data-tab="cards">色卡管理</button>
         <button class="tab-btn" data-tab="shop">小铺上架</button>
         <button class="tab-btn" data-tab="messages">匿名留言</button>
+        <button class="tab-btn" data-tab="ai">AI 对话</button>
       </div>
     </div>
 
     <!-- 留言管理 -->
     <div id="tab-messages" style="display:none;">
       <div id="qa-list"><p class="empty">加载中…</p></div>
+    </div>
+
+    <!-- AI 对话（测试版：模拟数据 + 主页本地记录 + 知识库，未接数据库） -->
+    <div id="tab-ai" style="display:none;">
+      <style>
+        .aix-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
+        .aix-stat { background: #fff; border-radius: var(--radius); padding: 10px 14px; box-shadow: 0 2px 10px rgba(180,120,150,.12); }
+        .aix-stat b { display: block; font-size: 19px; color: var(--accent); line-height: 1.3; }
+        .aix-stat span { font-size: 11px; color: var(--muted); }
+        .aix-toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+        .aix-searchbox { flex: 1; min-width: 200px; display: flex; align-items: center; gap: 6px; border: 1px solid var(--card-hover); border-radius: 999px; background: #fff; padding: 2px 8px 2px 16px; }
+        .aix-searchbox:focus-within { border-color: var(--accent-soft); }
+        .aix-searchbox input { flex: 1; min-width: 0; border: none; background: transparent; padding: 8px 0; font-size: 13px; font-family: inherit; color: var(--text); outline: none; }
+        .aix-searchbox .clear { width: 24px; height: 24px; border: none; border-radius: 50%; background: var(--card-hover); color: var(--text); font-size: 13px; line-height: 1; cursor: pointer; flex-shrink: 0; display: none; font-family: inherit; }
+        .aix-searchbox .clear.show { display: block; }
+        .aix-filters { display: flex; gap: 6px; flex-wrap: wrap; }
+        .aix-filters button { border: none; border-radius: 999px; background: var(--card); color: var(--muted); font-size: 12px; padding: 7px 13px; cursor: pointer; font-family: inherit; transition: background .15s, color .15s; }
+        .aix-filters button.active { background: var(--accent-soft); color: #fff; }
+        .aix-filters .fclear { display: none; color: var(--accent); background: #fff; border: 1px solid var(--card-hover); }
+        .aix-filters .fclear.show { display: inline-block; }
+        .aix-list { display: flex; flex-direction: column; gap: 10px; }
+        .aix-session { background: #fff; border-radius: var(--radius); padding: 14px 16px; cursor: pointer; border: 2px solid transparent; box-shadow: 0 2px 10px rgba(180,120,150,.12); transition: border-color .15s, background .15s; }
+        .aix-session:hover { background: var(--card-hover); }
+        .aix-session.active { border-color: var(--accent-soft); background: #fff; }
+        .aix-s-top { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; flex-wrap: wrap; }
+        .aix-s-time { font-size: 11px; color: var(--muted); flex-shrink: 0; }
+        .aix-s-q { flex: 1; min-width: 0; font-size: 13px; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .aix-s-a { font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .aix-badge { font-size: 10px; background: var(--accent-soft); color: #fff; border-radius: 999px; padding: 1px 8px; flex-shrink: 0; white-space: nowrap; }
+        .aix-badge.warn { background: #f3b96d; }
+        .aix-chat { display: flex; flex-direction: column; gap: 10px; background: var(--bg); border-radius: 12px; padding: 12px; margin-top: 10px; max-height: 50vh; overflow-y: auto; }
+        .aix-msg { display: flex; flex-direction: column; max-width: 85%; }
+        .aix-msg.user { align-self: flex-end; align-items: flex-end; }
+        .aix-msg .bubble { border-radius: 14px; padding: 8px 12px; font-size: 13px; line-height: 1.55; word-break: break-word; }
+        .aix-msg.user .bubble { background: var(--accent-soft); color: #fff; border-bottom-right-radius: 4px; }
+        .aix-msg.ai .bubble { background: var(--card); color: var(--text); border-bottom-left-radius: 4px; }
+        .aix-msg .who { font-size: 10px; color: var(--muted); margin: 0 4px 2px; }
+        .aix-msg .t { font-size: 10px; color: var(--muted); margin: 2px 4px 0; }
+        .aix-answer { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 4px 4px 0; background: #fff; border: 1px dashed var(--accent-soft); border-radius: 10px; padding: 7px 10px; font-size: 12px; color: var(--text); max-width: 100%; }
+        .aix-answer em { font-style: normal; color: var(--muted); font-size: 11px; }
+        .aix-answer .spacer { flex: 1; }
+        .aix-add { margin: 4px 4px 0; border: none; border-radius: 999px; background: #f3b96d; color: #fff; font-size: 11px; padding: 4px 12px; cursor: pointer; font-family: inherit; }
+        .aix-add:hover { background: #eda94e; }
+        .aix-form { margin: 10px 4px 2px; background: #fff; border: 1px solid var(--card-hover); border-radius: 12px; padding: 12px; }
+        .aix-form b { display: block; font-size: 13px; margin-bottom: 8px; }
+        .aix-form input, .aix-form textarea { width: 100%; box-sizing: border-box; border: 1px solid var(--card-hover); border-radius: 10px; background: var(--bg); padding: 8px 12px; font-size: 13px; font-family: inherit; color: var(--text); outline: none; margin-bottom: 8px; }
+        .aix-form textarea { min-height: 64px; resize: vertical; }
+        .aix-form input:focus, .aix-form textarea:focus { border-color: var(--accent-soft); }
+        .aix-form .row { display: flex; gap: 8px; }
+        .aix-form .row button { font-family: inherit; cursor: pointer; }
+        .aix-confirm { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 4px 4px 0; font-size: 12px; color: var(--text); }
+        .aix-pager { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; justify-content: center; margin: 14px 0 4px; }
+        .aix-pager button { min-width: 30px; height: 30px; border: none; border-radius: 999px; background: var(--card); color: var(--muted); font-size: 12px; padding: 0 10px; cursor: pointer; font-family: inherit; }
+        .aix-pager button.cur { background: var(--accent); color: #fff; }
+        .aix-pager .dots { color: var(--muted); font-size: 12px; }
+        .aix-kb { margin-bottom: 10px; }
+        .aix-kb .k-q { font-size: 14px; font-weight: 600; margin-bottom: 2px; word-break: break-word; }
+        .aix-kb .k-a { font-size: 13px; color: var(--text); margin-bottom: 4px; word-break: break-word; }
+        .aix-kb .k-meta { font-size: 12px; color: var(--muted); }
+        .aix-kb .k-actions { margin-top: 8px; display: flex; gap: 8px; }
+        .aix-empty { color: var(--muted); text-align: center; padding: 24px 0; font-size: 13px; }
+      </style>
+      <div class="aix-hint">AI 回不上来的问题会标「待补充答案」——点开对话就能添加标准回复，以后访客问类似的问题 AI 会直接用它。测试版：模拟数据 + 主页本地记录，未接数据库。</div>
+      <div class="aix-stats" id="ai-stats"></div>
+      <div class="aix-toolbar">
+        <div class="aix-searchbox">
+          <input id="ai-search" type="text" placeholder="搜索用户问题、AI 回复或标准回复" autocomplete="off">
+          <button class="clear" id="ai-search-clear" title="清除搜索" type="button">×</button>
+        </div>
+      </div>
+      <div class="aix-toolbar">
+        <div class="aix-filters" id="ai-filters">
+          <button data-f="all" class="active">全部</button>
+          <button data-f="today">今天</button>
+          <button data-f="7d">最近 7 天</button>
+          <button data-f="30d">最近 30 天</button>
+          <button data-f="pending">只看待补充</button>
+          <button class="fclear" id="ai-filter-clear" type="button">清除筛选</button>
+        </div>
+      </div>
+      <h3 class="outside">知识库 · 我添加的标准回复</h3>
+      <div class="aix-list" id="ai-kb-list"></div>
+      <div class="aix-pager" id="ai-kb-pager"></div>
+      <h3 class="outside">AI 对话数据</h3>
+      <div class="aix-list" id="ai-list"></div>
+      <div class="aix-pager" id="ai-pager"></div>
     </div>
 
     <!-- 小铺管理 -->
@@ -749,9 +854,18 @@
       .catch(function () { toast('登录失败，检查邮箱密码'); });
   });
   document.getElementById('btn-logout').addEventListener('click', function () {
-    ACCESS = REFRESH = null;
-    try { localStorage.removeItem('yuki-admin-session'); } catch (e) {}
-    location.reload();
+    document.getElementById('lo-mask').classList.add('open');
+  });
+  // 弹窗标记在主脚本之后，等 DOM 就绪再绑事件
+  document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('lo-cancel').addEventListener('click', function () {
+      document.getElementById('lo-mask').classList.remove('open');
+    });
+    document.getElementById('lo-yes').addEventListener('click', function () {
+      ACCESS = REFRESH = null;
+      try { localStorage.removeItem('yuki-admin-session'); } catch (e) {}
+      location.reload();
+    });
   });
   (function () {
     var saved = null;
@@ -779,7 +893,7 @@
       b.classList.add('active');
       document.getElementById('pp-cur').textContent = b.textContent;
       ppClose();
-      ['messages', 'shop', 'photos', 'home', 'cards', 'bjd', 'days'].forEach(function (name) {
+      ['messages', 'shop', 'photos', 'home', 'cards', 'bjd', 'days', 'ai'].forEach(function (name) {
         var panel = document.getElementById('tab-' + name);
         if (panel) panel.style.display = b.dataset.tab === name ? '' : 'none';
       });
@@ -3206,6 +3320,441 @@
 
   // 汉堡菜单：全站统一组件 site-menu.js 负责渲染与交互
 </script>
+
+<script>
+/* ═══ AI 对话（测试版：模拟数据 + 主页本地记录 + 知识库，未接数据库）═══ */
+(function () {
+  var DAY = 86400000;
+  var FALLBACK = '我现在还是测试版本，暂时只回答少量网站相关问题。';
+  var PAGE_SIZE = 10, KB_PAGE_SIZE = 5;
+  var ST_KEY = 'yuki-ai-admin-state';
+
+  // ── 模拟会话（待补充 = AI 回了兜底文案的提问）──
+  var now = Date.now();
+  var MOCK = [
+    { id: 'm1', time: now - 2 * 3600000, msgs: [
+      { role: 'user', text: '你好', time: now - 2 * 3600000 },
+      { role: 'ai', text: '你好呀～我是小柚助手（测试版）。可以问我「网站怎么用」「色卡」「小铺」。', time: now - 2 * 3600000 + 5000 },
+      { role: 'user', text: '色卡在哪里看？', time: now - 2 * 3600000 + 20000 },
+      { role: 'ai', text: '色卡页面在导航的「色卡」，里面有每张色卡的主图、画师和张数，还有收卡价格和色卡总价。点任意一张卡片可以进入详情查看。', time: now - 2 * 3600000 + 25000 }
+    ]},
+    { id: 'm2', time: now - 5 * 3600000, msgs: [
+      { role: 'user', text: '你们什么时候上新？', time: now - 5 * 3600000 },
+      { role: 'ai', text: FALLBACK, time: now - 5 * 3600000 + 4000 }
+    ]},
+    { id: 'm3', time: now - 26 * 3600000, msgs: [
+      { role: 'user', text: '这个网站是做什么的呀', time: now - 26 * 3600000 },
+      { role: 'ai', text: '这是柚子的个人小世界：有照片墙、BJD 档案、色卡展示、小铺和匿名提问箱，欢迎随便逛逛。', time: now - 26 * 3600000 + 4000 },
+      { role: 'user', text: '色卡可以定制吗', time: now - 26 * 3600000 + 30000 },
+      { role: 'ai', text: FALLBACK, time: now - 26 * 3600000 + 34000 }
+    ]},
+    { id: 'm4', time: now - 3 * DAY, msgs: [
+      { role: 'user', text: '网站怎么用', time: now - 3 * DAY },
+      { role: 'ai', text: '很简单：顶部导航可以跳转「照片」「BJD」「色卡」「小铺」「提问箱」；主页往下滑能看到色卡展示、照片墙和重要日子。', time: now - 3 * DAY + 5000 }
+    ]},
+    { id: 'm5', time: now - 6 * DAY, msgs: [
+      { role: 'user', text: 'BJD 是什么', time: now - 6 * DAY },
+      { role: 'ai', text: 'BJD 是球型关节人偶。导航的「BJD」里是柚子的娃娃档案，有娃娃头、身体、眼睛这些部件信息。', time: now - 6 * DAY + 6000 },
+      { role: 'user', text: '你好呀', time: now - 6 * DAY + 60000 },
+      { role: 'ai', text: '你好呀～我是小柚助手（测试版）。可以问我「网站怎么用」「色卡」「小铺」。', time: now - 6 * DAY + 64000 }
+    ]},
+    { id: 'm6', time: now - 12 * DAY, msgs: [
+      { role: 'user', text: '有没有头像可以保存', time: now - 12 * DAY },
+      { role: 'ai', text: FALLBACK, time: now - 12 * DAY + 4000 }
+    ]},
+    { id: 'm7', time: now - 20 * DAY, msgs: [
+      { role: 'user', text: '网站功能有哪些', time: now - 20 * DAY },
+      { role: 'ai', text: '现在网站有这些功能：主页（含日历和重要日子）、照片墙、BJD 档案、色卡展示、小铺、匿名提问箱，还有中英文切换。', time: now - 20 * DAY + 5000 }
+    ]},
+    { id: 'm8', time: now - 45 * DAY, msgs: [
+      { role: 'user', text: '你好', time: now - 45 * DAY },
+      { role: 'ai', text: '你好呀～我是小柚助手（测试版）。', time: now - 45 * DAY + 4000 }
+    ]}
+  ];
+
+  // ── 主页真实会话（localStorage，含标准回复命中记录）──
+  var LIVE = [];
+  try {
+    LIVE = (JSON.parse(localStorage.getItem('yuki-ai-log') || '[]') || [])
+      .filter(function (s) { return s && s.msgs && s.msgs.length; })
+      .map(function (s, i) {
+        return { id: 'live-' + i + '-' + s.start, time: s.start, live: true, msgs: s.msgs.map(function (m) {
+          return { role: m.role === 'me' ? 'user' : 'ai', text: m.text, time: m.time };
+        }) };
+      });
+  } catch (e) {}
+
+  var SESSIONS = LIVE.concat(MOCK).sort(function (a, b) { return b.time - a.time; });
+
+  // ── 知识库 ──
+  function kbAll() {
+    try { return JSON.parse(localStorage.getItem('yuki-ai-kb') || '[]') || []; } catch (e) { return []; }
+  }
+  function kbSave(kb) {
+    try { localStorage.setItem('yuki-ai-kb', JSON.stringify(kb)); } catch (e) {}
+  }
+  function kbAdd(q, a) {
+    var kb = kbAll();
+    kb.push({ id: 'kb-' + Date.now(), q: q, a: a, uses: 0, createdAt: Date.now() });
+    kbSave(kb);
+  }
+  function kbUpdate(id, q, a) {
+    var kb = kbAll();
+    kb.forEach(function (k) { if (k.id === id) { k.q = q; k.a = a; k.updatedAt = Date.now(); } });
+    kbSave(kb);
+  }
+  function kbDel(id) {
+    kbSave(kbAll().filter(function (k) { return k.id !== id; }));
+  }
+  function normQ(s) { return String(s || '').toLowerCase().replace(/[\s，。？！?!,.'\"“”‘’、~～·：:;；]/g, ''); }
+  function similar(a, b) {
+    a = normQ(a); b = normQ(b);
+    if (!a || !b) return 0;
+    if (a.indexOf(b) > -1 || b.indexOf(a) > -1) return 1;
+    var A = [], B = [], i;
+    for (i = 0; i < a.length - 1; i++) A.push(a.substr(i, 2));
+    for (i = 0; i < b.length - 1; i++) B.push(b.substr(i, 2));
+    if (!A.length || !B.length) return a === b ? 1 : 0;
+    var set = {}; A.forEach(function (x) { set[x] = 1; });
+    var hit = 0; B.forEach(function (x) { if (set[x]) hit++; });
+    return hit / Math.min(A.length, B.length);
+  }
+  function kbFind(q) { // 找能覆盖这个问题的知识库回复
+    var nq = normQ(q); if (!nq) return null;
+    var best = null, score = 0;
+    kbAll().forEach(function (k) {
+      var s = similar(nq, normQ(k.q));
+      if (s > score) { score = s; best = k; }
+    });
+    return (best && score >= 0.4) ? best : null;
+  }
+
+  // ── 状态（刷新后保留搜索/筛选/页码）──
+  function stLoad() {
+    try { return JSON.parse(sessionStorage.getItem(ST_KEY) || '{}') || {}; } catch (e) { return {}; }
+  }
+  function stSave() {
+    try { sessionStorage.setItem(ST_KEY, JSON.stringify({ kw: keyword, filter: filter, page: page, kbpage: kbPage })); } catch (e) {}
+  }
+  var st0 = stLoad();
+  var filter = st0.filter || 'all';
+  var keyword = st0.kw || '';
+  var page = st0.page || 1;
+  var kbPage = st0.kbpage || 1;
+  var activeId = null;  // 当前展开的对话
+  var formQ = null;      // 详情里正在添加回复的问题
+  var kbEditId = null;   // 正在编辑的知识库条目
+  var kbDelArm = null;   // 待确认删除的知识库条目
+
+  function esc(s) {
+    var d = document.createElement('div');
+    d.textContent = s == null ? '' : String(s);
+    return d.innerHTML;
+  }
+  function escAttr(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+  }
+  function fmtTime(t) {
+    var d = new Date(t);
+    function p(n) { return (n < 10 ? '0' : '') + n; }
+    return d.getFullYear() + '/' + p(d.getMonth() + 1) + '/' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+  }
+  function firstUser(s) {
+    for (var i = 0; i < s.msgs.length; i++) if (s.msgs[i].role === 'user') return s.msgs[i].text;
+    return '（无提问）';
+  }
+  function lastAi(s) {
+    for (var i = s.msgs.length - 1; i >= 0; i--) if (s.msgs[i].role === 'ai') return s.msgs[i].text;
+    return '';
+  }
+  function pendingList(s) { // 待补充的问题（AI 只回了兜底文案，且知识库还没覆盖）
+    var out = [];
+    for (var i = 0; i < s.msgs.length; i++) {
+      if (s.msgs[i].role === 'user' && s.msgs[i + 1] && s.msgs[i + 1].role === 'ai' && s.msgs[i + 1].text === FALLBACK) {
+        if (!kbFind(s.msgs[i].text)) out.push(s.msgs[i].text);
+      }
+    }
+    return out;
+  }
+
+  // ── 统计 ──
+  function renderStats() {
+    var today = new Date(); today.setHours(0, 0, 0, 0);
+    var t0 = today.getTime(), nowT = Date.now();
+    var c = { today: 0, d7: 0, d30: 0, all: 0 };
+    SESSIONS.forEach(function (s) {
+      var q = s.msgs.filter(function (m) { return m.role === 'user'; }).length;
+      c.all += q;
+      if (s.time >= t0) c.today += q;
+      if (s.time >= nowT - 7 * DAY) c.d7 += q;
+      if (s.time >= nowT - 30 * DAY) c.d30 += q;
+    });
+    document.getElementById('ai-stats').innerHTML =
+      '<div class="aix-stat"><b>' + c.today + '</b><span>今日提问</span></div>' +
+      '<div class="aix-stat"><b>' + c.d7 + '</b><span>最近 7 天</span></div>' +
+      '<div class="aix-stat"><b>' + c.d30 + '</b><span>最近 30 天</span></div>' +
+      '<div class="aix-stat"><b>' + SESSIONS.length + '</b><span>全部会话</span></div>';
+  }
+
+  // ── 分页 ──
+  function pageList(pc, cur) {
+    if (pc <= 7) { var a = []; for (var i = 1; i <= pc; i++) a.push(i); return a; }
+    var s = Math.max(1, Math.min(cur - 2, pc - 4));
+    var e = Math.min(pc, s + 4);
+    var out = [];
+    if (s > 1) { out.push(1); if (s > 2) out.push('…'); }
+    for (var j = s; j <= e; j++) out.push(j);
+    if (e < pc) { if (e < pc - 1) out.push('…'); out.push(pc); }
+    return out;
+  }
+  function renderPager(boxId, pc, cur) {
+    var box = document.getElementById(boxId);
+    if (pc <= 1) { box.innerHTML = ''; return; }
+    var html = pageList(pc, cur).map(function (p) {
+      return p === '…' ? '<span class="dots">…</span>'
+        : '<button type="button" class="' + (p === cur ? 'cur' : '') + '" data-p="' + p + '">' + p + '</button>';
+    }).join('');
+    if (cur < pc) html += '<button type="button" data-p="' + (cur + 1) + '">下一页</button>';
+    box.innerHTML = html;
+  }
+
+  // ── 对话列表（每页 10 条，点击展开完整记录）──
+  function filteredSessions() {
+    var nowT = Date.now();
+    return SESSIONS.filter(function (s) {
+      if (filter === 'pending') { if (!pendingList(s).length) return false; }
+      else if (filter === 'today') { var d = new Date(); d.setHours(0, 0, 0, 0); if (s.time < d.getTime()) return false; }
+      else if (filter === '7d' && s.time < nowT - 7 * DAY) return false;
+      else if (filter === '30d' && s.time < nowT - 30 * DAY) return false;
+      if (keyword) {
+        var hit = s.msgs.some(function (m) { return m.text.toLowerCase().indexOf(keyword) > -1; });
+        if (!hit) return false;
+      }
+      return true;
+    });
+  }
+  function answerBlock(q) { // 详情里某个待补充问题对应的知识库操作区
+    var k = kbFind(q);
+    if (!k) {
+      if (formQ === q) {
+        return '<div class="aix-form" data-mode="new" data-q="' + escAttr(q) + '"><b>添加标准回复</b>' +
+          '<input class="fx-q" value="' + escAttr(q) + '">' +
+          '<textarea class="fx-a" placeholder="写下标准回复，例如：我们一般会在每个月月底更新新品～"></textarea>' +
+          '<div class="row"><button class="btn-save fx-save" type="button">保存</button><button class="btn-mini fx-cancel" type="button">取消</button></div></div>';
+      }
+      return '<button class="aix-add" data-q="' + escAttr(q) + '" type="button">添加标准回复</button>';
+    }
+    if (kbEditId === k.id) {
+      return '<div class="aix-form" data-mode="edit" data-id="' + k.id + '"><b>编辑标准回复（已保留原内容）</b>' +
+        '<input class="fx-q" value="' + escAttr(k.q) + '">' +
+        '<textarea class="fx-a">' + esc(k.a) + '</textarea>' +
+        '<div class="row"><button class="btn-save fx-save" type="button">保存</button><button class="btn-mini fx-cancel" type="button">取消</button></div></div>';
+    }
+    if (kbDelArm === k.id) {
+      return '<div class="aix-confirm">确定删除「' + esc(k.q) + '」这条标准回复？' +
+        '<button class="btn-del fx-del-yes" data-id="' + k.id + '" type="button">确定删除</button>' +
+        '<button class="btn-mini fx-del-no" type="button">取消</button></div>';
+    }
+    return '<div class="aix-answer"><span>标准回复：' + esc(k.a) + '</span><em>被使用 ' + (k.uses || 0) + ' 次</em>' +
+      '<span class="spacer"></span>' +
+      '<button class="btn-mini ke-edit" data-id="' + k.id + '" type="button">编辑</button>' +
+      '<button class="btn-mini ke-del" data-id="' + k.id + '" type="button">删除</button></div>';
+  }
+  function renderList() {
+    var list = document.getElementById('ai-list');
+    var rows = filteredSessions();
+    var pc = Math.ceil(rows.length / PAGE_SIZE);
+    if (page > pc) page = pc;
+    var cur = rows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+    if (!rows.length) {
+      list.innerHTML = '<div class="aix-empty">没有符合条件的对话</div>';
+      renderPager('ai-pager', 0, 1);
+      return;
+    }
+    list.innerHTML = cur.map(function (s) {
+      var pend = pendingList(s);
+      return '<div class="aix-session' + (activeId === s.id ? ' active' : '') + '" data-id="' + s.id + '">' +
+        '<div class="aix-s-top">' +
+        (pend.length ? '<span class="aix-badge warn">待补充答案 ×' + pend.length + '</span>' : '') +
+        (s.live ? '<span class="aix-badge">主页实时</span>' : '') +
+        '<span class="aix-s-time">' + fmtTime(s.time) + '</span>' +
+        '<span class="aix-s-q">' + esc(firstUser(s)) + '</span>' +
+        '</div>' +
+        '<div class="aix-s-a">AI：' + esc(lastAi(s)) + '</div>' +
+        (activeId === s.id ? detailHtml(s, pend) : '') +
+        '</div>';
+    }).join('');
+    renderPager('ai-pager', pc, page);
+  }
+  function detailHtml(s, pend) {
+    var html = '<div class="aix-chat">' + s.msgs.map(function (m, i) {
+      var extra = '';
+      if (m.role === 'user' && s.msgs[i + 1] && s.msgs[i + 1].role === 'ai' && s.msgs[i + 1].text === FALLBACK) {
+        extra = answerBlock(m.text);
+      }
+      return '<div class="aix-msg ' + (m.role === 'user' ? 'user' : 'ai') + '">' +
+        '<span class="who">' + (m.role === 'user' ? '访客' : '小柚助手') + '</span>' +
+        '<div class="bubble">' + esc(m.text) + '</div>' +
+        '<span class="t">' + fmtTime(m.time) + '</span>' + extra +
+        '</div>';
+    }).join('') + '</div>';
+    return html;
+  }
+
+  // ── 知识库（每页 5 条，受同一搜索词影响）──
+  function filteredKb() {
+    var kb = kbAll().slice().sort(function (a, b) { // 最新添加的排在最上面
+      return (b.createdAt || 0) - (a.createdAt || 0);
+    });
+    if (!keyword) return kb;
+    return kb.filter(function (k) {
+      return k.q.toLowerCase().indexOf(keyword) > -1 || k.a.toLowerCase().indexOf(keyword) > -1;
+    });
+  }
+  function renderKb() {
+    var box = document.getElementById('ai-kb-list');
+    var rows = filteredKb();
+    var pc = Math.ceil(rows.length / KB_PAGE_SIZE);
+    if (kbPage > pc) kbPage = pc;
+    var cur = rows.slice((kbPage - 1) * KB_PAGE_SIZE, kbPage * KB_PAGE_SIZE);
+    if (!rows.length) {
+      box.innerHTML = '<div class="aix-empty">' + (keyword ? '知识库里没有匹配的标准回复' : '还没有添加过标准回复') + '</div>';
+      renderPager('ai-kb-pager', 0, 1);
+      return;
+    }
+    box.innerHTML = cur.map(function (k) {
+      if (kbEditId === k.id) {
+        return '<div class="card aix-kb" data-id="' + k.id + '"><div class="aix-form" data-mode="edit" data-id="' + k.id + '" style="margin:0;border:none;background:var(--bg);"><b>编辑标准回复（已保留原内容）</b>' +
+          '<input class="fx-q" value="' + escAttr(k.q) + '">' +
+          '<textarea class="fx-a">' + esc(k.a) + '</textarea>' +
+          '<div class="row"><button class="btn-save fx-save" type="button">保存</button><button class="btn-mini fx-cancel" type="button">取消</button></div></div></div>';
+      }
+      if (kbDelArm === k.id) {
+        return '<div class="card aix-kb" data-id="' + k.id + '"><div class="k-q">' + esc(k.q) + '</div><div class="k-a">' + esc(k.a) + '</div>' +
+          '<div class="aix-confirm">确定删除这条标准回复？' +
+          '<button class="btn-del fx-del-yes" data-id="' + k.id + '" type="button">确定删除</button>' +
+          '<button class="btn-mini fx-del-no" type="button">取消</button></div></div>';
+      }
+      return '<div class="card aix-kb" data-id="' + k.id + '">' +
+        '<div class="k-q">' + esc(k.q) + '</div>' +
+        '<div class="k-a">' + esc(k.a) + '</div>' +
+        '<div class="k-meta">我添加的 · 被使用 ' + (k.uses || 0) + ' 次</div>' +
+        '<div class="k-actions"><button class="btn-mini ke-edit" data-id="' + k.id + '" type="button">编辑</button><button class="btn-del ke-del" data-id="' + k.id + '" type="button">删除</button></div>' +
+        '</div>';
+    }).join('');
+    renderPager('ai-kb-pager', pc, kbPage);
+  }
+
+  function render() {
+    renderStats();
+    renderList();
+    renderKb();
+    var fbtn = document.getElementById('ai-filter-clear');
+    if (fbtn) fbtn.classList.toggle('show', filter !== 'all');
+    var cbtn = document.getElementById('ai-search-clear');
+    if (cbtn) cbtn.classList.toggle('show', !!keyword);
+  }
+
+  // ── 交互 ──
+  var root = document.getElementById('tab-ai');
+  root.addEventListener('click', function (e) {
+    var t = e.target;
+    if (t.classList && t.classList.contains('clear')) { // 清除搜索
+      keyword = ''; page = 1; kbPage = 1;
+      document.getElementById('ai-search').value = '';
+      stSave(); render(); return;
+    }
+    if (t.id === 'ai-filter-clear') { // 清除筛选
+      filter = 'all'; page = 1; activeId = null; formQ = null;
+      stSave(); render(); return;
+    }
+    var pg = t.closest('.aix-pager');
+    if (pg && t.dataset && t.dataset.p) {
+      if (pg.id === 'ai-pager') page = parseInt(t.dataset.p, 10);
+      else kbPage = parseInt(t.dataset.p, 10);
+      stSave(); render(); return;
+    }
+    if (t.classList.contains('fx-save')) {
+      var form = t.closest('.aix-form');
+      var q = form.querySelector('.fx-q').value.trim();
+      var a = form.querySelector('.fx-a').value.trim();
+      if (!q || !a) { toast('问题和回复都要填'); return; }
+      if (form.dataset.mode === 'edit') { kbUpdate(form.dataset.id, q, a); toast('已保存'); }
+      else { kbAdd(q, a); toast('已保存，以后遇到类似问题 AI 会用这条回复'); }
+      formQ = null; kbEditId = null;
+      stSave(); render(); return;
+    }
+    if (t.classList.contains('fx-cancel')) { formQ = null; kbEditId = null; render(); return; }
+    if (t.classList.contains('fx-del-yes')) { kbDel(t.dataset.id); kbDelArm = null; toast('已删除这条标准回复'); stSave(); render(); return; }
+    if (t.classList.contains('fx-del-no')) { kbDelArm = null; render(); return; }
+    if (t.classList.contains('aix-add')) { formQ = t.dataset.q; render(); return; }
+    if (t.classList.contains('ke-edit')) { kbEditId = t.dataset.id; kbDelArm = null; render(); return; }
+    if (t.classList.contains('ke-del')) { kbDelArm = t.dataset.id; kbEditId = null; render(); return; }
+    var card = t.closest('.aix-session');
+    if (card && !t.closest('.aix-form') && !t.closest('.aix-answer') && !t.closest('.aix-confirm')) { // 点击对话直接进入详情（再点收起）
+      activeId = activeId === card.getAttribute('data-id') ? null : card.getAttribute('data-id');
+      formQ = null;
+      stSave(); render();
+    }
+  });
+  document.getElementById('ai-search').addEventListener('input', function () {
+    keyword = this.value.trim().toLowerCase();
+    page = 1; kbPage = 1;
+    stSave(); render();
+  });
+  document.getElementById('ai-filters').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-f]');
+    if (!b) return;
+    filter = b.getAttribute('data-f');
+    page = 1; activeId = null; formQ = null;
+    Array.prototype.forEach.call(document.querySelectorAll('#ai-filters button[data-f]'), function (x) {
+      x.classList.toggle('active', x === b);
+    });
+    stSave(); render();
+  });
+
+  // 恢复搜索框 / 筛选按钮的显示状态
+  var si = document.getElementById('ai-search');
+  if (si && keyword) si.value = keyword;
+  Array.prototype.forEach.call(document.querySelectorAll('#ai-filters button[data-f]'), function (x) {
+    x.classList.toggle('active', x.getAttribute('data-f') === filter);
+  });
+
+  render();
+})();
+</script>
+
+<!-- 退出登录确认小弹窗 -->
+<div class="lo-mask" id="lo-mask">
+  <div class="lo-box">
+    <p>确定要退出登录吗？</p>
+    <div class="lo-actions">
+      <button class="btn-mini" id="lo-cancel" type="button">取消</button>
+      <button class="btn-del" id="lo-yes" type="button">退出登录</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══ 后台安全：1 小时无操作自动退出 ═══ */
+(function () {
+  // ── 1 小时无操作自动退出 ──
+  var IDLE_MS = 3600000;
+  var last = Date.now();
+  ['click', 'keydown', 'input', 'touchstart', 'mousemove', 'scroll'].forEach(function (ev) {
+    document.addEventListener(ev, function () { last = Date.now(); }, { capture: true, passive: true });
+  });
+  setInterval(function () {
+    var body = document.getElementById('admin-body');
+    if (body && body.style.display !== 'none' && Date.now() - last > IDLE_MS) {
+      try { localStorage.removeItem('yuki-admin-session'); } catch (e) {}
+      location.reload();
+    }
+  }, 20000);
+})();
+</script>
+
+
 <footer>© 2026 Yuki · Made with Cola</footer>
 </body>
 </html>

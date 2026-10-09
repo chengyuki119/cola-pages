@@ -100,7 +100,7 @@
     </div>
 
     <section id="sec-gallery">
-      <h2>Photo Gallery</h2>
+      <h2 data-zh="照片墙" data-en="Photo Gallery">照片墙</h2>
       <div class="preview-grid">
         <div class="tile" data-sec="instax"><a class="photo" href="/photos/?sec=instax" data-img="photos/vct1.jpg"><span>photos/vct1.jpg</span></a><span class="tile-label" data-zh="拍立得展示" data-en="Instax Display">拍立得展示</span></div>
         <div class="tile" data-sec="film"><a class="photo" href="/photos/?sec=film" data-img="photos/film1.jpg"><span>photos/film1.jpg</span></a><span class="tile-label" data-zh="胶卷相机照片展示" data-en="Film Camera Pictures">胶卷相机照片展示</span></div>
@@ -199,6 +199,332 @@
 
 
 <script src="/js/site-common.js"></script>
+
+<!-- ═══════════ 小柚助手（AI 入口 · 第一阶段测试：模拟回复 + 后台知识库匹配，未接真 AI）═══════════ -->
+<style>
+  .ai-fab {
+    position: fixed;
+    right: max(16px, env(safe-area-inset-right)); bottom: max(18px, env(safe-area-inset-bottom));
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    border: 1px solid var(--card-hover);
+    background: var(--card);
+    color: #8d99b5;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
+    box-shadow: inset 0 2px 3px rgba(255,255,255,.9), inset 0 -2px 4px rgba(220,170,190,.28), 0 4px 10px rgba(180,120,150,.16);
+    cursor: pointer;
+    z-index: 1150;
+    transition: transform .28s ease, box-shadow .18s ease;
+    font-family: inherit;
+  }
+  .ai-fab .l1 { font-size: 11px; font-weight: 600; line-height: 1.25; color: #8d99b5; }
+  .ai-fab .l2 { font-size: 10px; font-weight: 600; line-height: 1.25; color: #e0a9c1; }
+  .ai-fab:not(.docked):hover { transform: translateY(-2px); box-shadow: inset 0 2px 3px rgba(255,255,255,.9), inset 0 -2px 4px rgba(220,170,190,.28), 0 7px 14px rgba(180,120,150,.20); }
+  .ai-fab:not(.docked):active { transform: scale(.95); }
+
+  .ai-win {
+    position: fixed;
+    right: max(16px, env(safe-area-inset-right)); bottom: max(78px, env(safe-area-inset-bottom));
+    width: 340px; max-width: calc(100vw - 32px);
+    height: 500px; max-height: calc(100vh - 150px);
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 12px 40px rgba(120,80,100,.22);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 1151;
+    animation: aiPop .22s ease;
+  }
+  .ai-win.open { display: flex; }
+  @keyframes aiPop { from { opacity: 0; transform: translateY(14px) scale(.97); } to { opacity: 1; transform: none; } }
+
+  .ai-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 14px;
+    background: var(--card);
+    border-bottom: 1px solid var(--card-hover);
+    flex-shrink: 0;
+  }
+  .ai-head .avatar { width: 38px; height: 38px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: var(--accent-soft); border: 2px solid #fff; box-shadow: 0 1px 4px rgba(90,66,76,.18); }
+  .ai-head .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .ai-head .who { flex: 1; min-width: 0; }
+  .ai-head .who b { display: block; font-size: 14px; color: var(--text); line-height: 1.3; }
+  .ai-head .who .st { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #7cc49a; }
+  .ai-head .who .st i { width: 7px; height: 7px; border-radius: 50%; background: #7cc49a; display: inline-block; }
+  .ai-close {
+    width: 30px; height: 30px; flex-shrink: 0;
+    border: none; border-radius: 50%;
+    background: var(--card-hover); color: var(--text);
+    font-size: 15px; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .15s;
+    cursor: pointer;
+  }
+  .ai-close:hover { background: var(--accent-soft); color: #fff; }
+
+  .ai-msgs { flex: 1; overflow-y: auto; padding: 14px 12px; display: flex; flex-direction: column; gap: 10px; background: var(--bg); }
+  .ai-msgs .msg { display: flex; gap: 8px; max-width: 88%; }
+  .ai-msgs .msg.me { align-self: flex-end; flex-direction: row-reverse; }
+  .ai-msgs .m-avatar { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; overflow: hidden; background: var(--accent-soft); margin-top: 2px; }
+  .ai-msgs .m-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .ai-msgs .bubble { background: var(--card); color: var(--text); border-radius: 14px; padding: 8px 12px; font-size: 13px; line-height: 1.55; word-break: break-word; }
+  .ai-msgs .msg.me .bubble { background: var(--accent-soft); color: #fff; border-bottom-right-radius: 4px; }
+  .ai-msgs .msg.ai .bubble { border-bottom-left-radius: 4px; }
+  .ai-msgs .time { display: block; font-size: 10px; color: var(--muted); margin-top: 3px; }
+  .ai-msgs .msg.me .time { text-align: right; }
+  .ai-msgs .typing { display: inline-flex; gap: 4px; padding: 4px 2px; }
+  .ai-msgs .typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-soft); animation: aiTp 1s infinite; }
+  .ai-msgs .typing i:nth-child(2) { animation-delay: .15s; }
+  .ai-msgs .typing i:nth-child(3) { animation-delay: .3s; }
+  @keyframes aiTp { 0%, 100% { opacity: .35; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-3px); } }
+
+  .ai-quick { display: flex; gap: 6px; flex-wrap: wrap; padding: 8px 12px; border-top: 1px solid var(--card-hover); background: #fff; flex-shrink: 0; }
+  .ai-quick button { border: none; border-radius: 999px; background: var(--card); color: var(--text); font-size: 12px; padding: 5px 12px; transition: background .15s; cursor: pointer; font-family: inherit; }
+  .ai-quick button:hover { background: var(--card-hover); }
+
+  .ai-input { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: #fff; border-top: 1px solid var(--card-hover); flex-shrink: 0; padding-bottom: max(10px, env(safe-area-inset-bottom)); }
+  .ai-input input { flex: 1; border: 1px solid var(--card-hover); border-radius: 999px; background: var(--bg); padding: 9px 14px; font-size: 13px; font-family: inherit; color: var(--text); outline: none; min-width: 0; }
+  .ai-input input:focus { border-color: var(--accent-soft); }
+  .ai-input .send { width: 36px; height: 36px; flex-shrink: 0; border: none; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; transition: transform .12s; cursor: pointer; }
+  .ai-input .send:active { transform: scale(.92); }
+  .ai-input .send svg { width: 16px; height: 16px; fill: #fff; }
+
+  @media (max-width: 640px) {
+    .ai-win {
+      top: auto; right: 10px; left: 10px; bottom: 0;
+      width: auto; max-width: none;
+      height: 76vh; max-height: none;
+      border-radius: 20px 20px 0 0;
+      animation: aiUp .24s ease;
+    }
+    @keyframes aiUp { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+  }
+</style>
+
+<button class="ai-fab" id="aiFab" aria-label="打开小助手ovo"><span class="l1" data-zh="小助手" data-en="Assistant">小助手</span><span class="l2">ovo</span></button>
+
+<div class="ai-win" id="aiWin" role="dialog" aria-label="小柚助手">
+  <div class="ai-head">
+    <div class="avatar"><img src="/avatar.jpg" alt="小柚助手头像"></div>
+    <div class="who">
+      <b data-zh="小柚助手" data-en="Yuki's Assistant">小柚助手</b>
+      <span class="st"><i></i><span data-zh="在线" data-en="Online">在线</span></span>
+    </div>
+    <button class="ai-close" id="aiClose" aria-label="关闭聊天">×</button>
+  </div>
+  <div class="ai-msgs" id="aiMsgs"></div>
+  <div class="ai-quick" id="aiQuick"></div>
+  <div class="ai-input">
+    <input type="text" id="aiText" placeholder="输入问题，回车发送" autocomplete="off">
+    <button class="send" id="aiSend" aria-label="发送">
+      <svg viewBox="0 0 24 24"><path d="M3.4 20.4l17.5-7.5c.8-.4.8-1.5 0-1.8L3.4 3.6c-.7-.3-1.4.3-1.3 1l1.2 6.1c.1.5.5.9 1 .9l9.7 1.3-9.7 1.3c-.5.1-.9.5-1 .9l-1.2 6.1c-.1.8.6 1.4 1.3 1.1z"/></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+(function () {
+  var win = document.getElementById('aiWin');
+  var fab = document.getElementById('aiFab');
+  var msgs = document.getElementById('aiMsgs');
+  var text = document.getElementById('aiText');
+  var quick = document.getElementById('aiQuick');
+
+  // 中英文跟随网站语言（切换语言会整页刷新，这里只在载入时读一次）
+  var AI_LANG = (function () {
+    try { return localStorage.getItem('yuki-lang') === 'en' ? 'en' : 'zh'; } catch (e) { return 'zh'; }
+  })();
+  function T(zh, en) { return AI_LANG === 'en' ? en : zh; }
+
+  fab.setAttribute('aria-label', T('打开小助手ovo', 'Open Assistant ovo'));
+  win.setAttribute('aria-label', T('小柚助手', "Yuki's Assistant"));
+  document.getElementById('aiClose').setAttribute('aria-label', T('关闭聊天', 'Close chat'));
+  document.getElementById('aiSend').setAttribute('aria-label', T('发送', 'Send'));
+  text.placeholder = T('输入问题，回车发送', 'Type a question and press Enter');
+
+  var QUICK = T(
+    ['网站怎么用', '色卡', '小铺', '网站功能'],
+    ['How to use the site', 'Color Cards', 'My Shop', 'Site features']
+  );
+  var FALLBACK = T('我现在还是测试版本，暂时只回答少量网站相关问题。', "I'm still a test version, so I can only answer a few questions about the site for now.");
+
+  // ── 知识库（后台添加的标准回复，优先使用）──
+  function kbAll() {
+    try { return JSON.parse(localStorage.getItem('yuki-ai-kb') || '[]') || []; } catch (e) { return []; }
+  }
+  function kbSaveUse(id) {
+    var kb = kbAll();
+    kb.forEach(function (k) { if (k.id === id) k.uses = (k.uses || 0) + 1; });
+    try { localStorage.setItem('yuki-ai-kb', JSON.stringify(kb)); } catch (e) {}
+  }
+  function normQ(s) { return String(s || '').toLowerCase().replace(/[\s，。？！?!,.'\"“”‘’、~～·：:;；]/g, ''); }
+  function bigrams(s) { var r = []; for (var i = 0; i < s.length - 1; i++) r.push(s.substr(i, 2)); return r; }
+  function similar(a, b) {
+    if (!a || !b) return 0;
+    if (a.indexOf(b) > -1 || b.indexOf(a) > -1) return 1;
+    var A = bigrams(a), B = bigrams(b);
+    if (!A.length || !B.length) return a === b ? 1 : 0;
+    var set = {}; A.forEach(function (x) { set[x] = 1; });
+    var hit = 0; B.forEach(function (x) { if (set[x]) hit++; });
+    return hit / Math.min(A.length, B.length);
+  }
+  function kbMatch(q) {
+    var nq = normQ(q); if (!nq) return null;
+    var best = null, score = 0;
+    kbAll().forEach(function (k) {
+      var s = similar(nq, normQ(k.q));
+      if (s > score) { score = s; best = k; }
+    });
+    return (best && score >= 0.4) ? best : null;
+  }
+
+  // ── 模拟回复（第一阶段；知识库优先 → 内置回复 → 兑底；中英文跟随网站语言）──
+  function replyFor(q) {
+    var k = kbMatch(q);
+    if (k) { kbSaveUse(k.id); return { text: k.a, kbId: k.id }; }
+    var nq = (q || '').toLowerCase();
+    if (/你好|您好|hi|hello|嗨|哈喽/.test(nq)) return { text: T('你好呀～我是小柚助手（测试版）。可以点下面的快捷问题，或直接问我「网站怎么用」「色卡」「小铺」。', "Hi there~ I'm Yuki's Assistant (test version). Tap a quick question below, or ask me 'How to use the site', 'Color Cards' or 'My Shop'."), kbId: null };
+    if (/色卡|价目|价格表|color ?card|price/.test(nq)) return { text: T('色卡页面在导航的「色卡」，里面有每张色卡的主图、画师和张数，还有收卡价格和色卡总价。点任意一张卡片可以进入详情查看更多信息。', 'The Color Cards page is in the menu under "Color Cards". Each card shows its cover, artists and count, plus the base price and the card total. Tap any card to see the full details.'), kbId: null };
+    if (/小铺|商品|购买|下单|宝贝|shop|buy/.test(nq)) return { text: T('小铺在导航的「小铺」，上架的宝贝按分类展示，点进卡片可以看到介绍和价格，也可以看大家的评价。', 'My Shop is in the menu under "My Shop". Items are grouped by category — open a card for the description and price, and you can read customer reviews there too.'), kbId: null };
+    if (/网站怎么用|怎么用|使用|怎么玩|how to use|how does this work/.test(nq)) return { text: T('很简单：顶部导航可以跳转「照片」「BJD」「色卡」「小铺」「提问箱」；主页往下滑能看到色卡展示、照片墙和重要日子。右上角的菜单在手机上也能用。', "It's easy: use the menu at the top right to jump to Photos, BJD, Color Cards, My Shop and the Ask Box. Scroll down the home page to see color cards, the photo gallery and important days. The menu works on phones too."), kbId: null };
+    if (/网站|功能|有什么|都有什么|site|feature|what can/.test(nq)) return { text: T('现在网站有这些功能：主页（含日历和重要日子）、照片墙、BJD 档案、色卡展示、小铺、匿名提问箱，还有中英文切换。', 'The site currently has: a home page (with a calendar and important days), a photo gallery, BJD profiles, color cards, my little shop, an anonymous ask box, and Chinese/English switching.'), kbId: null };
+    return { text: FALLBACK, kbId: null, fb: true };
+  }
+
+  function nowTime() {
+    var d = new Date();
+    function p(n) { return (n < 10 ? '0' : '') + n; }
+    return p(d.getHours()) + ':' + p(d.getMinutes());
+  }
+
+  function addMsg(role, txt, time) {
+    var div = document.createElement('div');
+    div.className = 'msg ' + (role === 'me' ? 'me' : 'ai');
+    var avatar = role === 'me' ? '' : '<div class="m-avatar"><img src="/avatar.jpg" alt=""></div>';
+    div.innerHTML = avatar +
+      '<div class="bubble">' + txt.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '<span class="time">' + (time || nowTime()) + '</span></div>';
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function typing(on) {
+    var old = document.getElementById('typingMsg');
+    if (on && !old) {
+      var div = document.createElement('div');
+      div.className = 'msg ai'; div.id = 'typingMsg';
+      div.innerHTML = '<div class="m-avatar"><img src="/avatar.jpg" alt=""></div>' +
+        '<div class="bubble"><span class="typing"><i></i><i></i><i></i></span></div>';
+      msgs.appendChild(div);
+      msgs.scrollTop = msgs.scrollHeight;
+    } else if (!on && old) old.remove();
+  }
+
+  // ── 会话记录：写入 localStorage，后台「AI 对话」可看 ──
+  function loadLog() {
+    try { return JSON.parse(localStorage.getItem('yuki-ai-log') || '[]') || []; } catch (e) { return []; }
+  }
+  var curSession = null;
+  (function restore() {
+    var logs = loadLog();
+    if (logs.length && logs[0] && logs[0].msgs && logs[0].msgs.length && Date.now() - logs[0].start < 86400000) {
+      curSession = logs[0];
+      curSession.msgs.forEach(function (m) { addMsg(m.role === 'me' ? 'me' : 'ai', m.text, m.time); });
+    }
+  })();
+  function logSession(role, txt, meta) {
+    if (!curSession) curSession = { start: Date.now(), msgs: [] };
+    var m = { role: role, text: txt, time: Date.now() };
+    if (meta) { m.kbId = meta.kbId; m.fb = !!meta.fb; }
+    curSession.msgs.push(m);
+    try { localStorage.setItem('yuki-ai-log', JSON.stringify([curSession])); } catch (e) {}
+  }
+
+  function send(q) {
+    q = (q || '').trim();
+    if (!q) return;
+    addMsg('me', q);
+    logSession('me', q);
+    text.value = '';
+    typing(true);
+    setTimeout(function () {
+      typing(false);
+      var r = replyFor(q);
+      addMsg('ai', r.text);
+      logSession('ai', r.text, r);
+    }, 700 + Math.random() * 500);
+  }
+
+  // ── 开关（× 关闭不刷新，重开保留记录）──
+  function openWin() {
+    win.classList.add('open');
+    setTimeout(function () { text.focus(); }, 260);
+  }
+  function closeWin() {
+    win.classList.remove('open');
+  }
+  // ── 汉堡菜单联动：默认在视口右下角；点开 index 菜单时，按钮跟随菜单展开的节奏平滑滑到
+  // 菜单面板左边（固定间距 10px、贴面板顶部对齐），不会瞬移；关菜单时平滑滑回右下角。
+  // 全程圆形不变 ──
+  var menuEl = document.getElementById('menu');
+  var docked = false;
+  function dockToMenu() {
+    if (!menuEl) return;
+    var prev = fab.style.transform;
+    fab.style.transition = 'none';
+    fab.style.transform = 'none';
+    var fr = fab.getBoundingClientRect(); // 默认（视口右下角）位置
+    fab.style.transform = prev;
+    void fab.offsetWidth;
+    fab.style.transition = '';
+    // 菜单展开后的左边缘 = 视口宽 - 菜单面板宽（transform 不影响 offsetWidth，拿到的是最终位置）
+    // 只横向移动：垂直位置不变，和右下角默认位保持同一条水平线
+    var finalLeft = window.innerWidth - menuEl.offsetWidth;
+    var dx = (finalLeft - 10 - fr.width) - fr.left;
+    fab.classList.add('docked');
+    fab.style.transform = 'translate(' + dx.toFixed(1) + 'px, 0)';
+    docked = true;
+  }
+  function undock() {
+    docked = false;
+    fab.classList.remove('docked');
+    fab.style.transform = '';
+  }
+  if (menuEl && 'MutationObserver' in window) {
+    new MutationObserver(function () {
+      if (menuEl.classList.contains('open')) {
+        if (win.classList.contains('open')) closeWin(); // 聊天窗收起，不挡菜单
+        dockToMenu();
+      } else {
+        undock();
+      }
+    }).observe(menuEl, { attributes: true, attributeFilter: ['class'] });
+  }
+  window.addEventListener('resize', function () { if (docked) dockToMenu(); });
+
+  fab.addEventListener('click', function () {
+    if (menuEl && menuEl.classList.contains('open')) { // 菜单开着时点小助手：先收菜单（按钮同步滑回右下角）再开聊天窗
+      var b = document.getElementById('burger');
+      if (b) b.click();
+      openWin();
+      return;
+    }
+    if (win.classList.contains('open')) closeWin(); else openWin();
+  });
+  document.getElementById('aiClose').addEventListener('click', closeWin);
+  document.getElementById('aiSend').addEventListener('click', function () { send(text.value); });
+  text.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); send(text.value); } });
+
+  QUICK.forEach(function (q) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.textContent = q;
+    b.addEventListener('click', function () { send(q); });
+    quick.appendChild(b);
+  });
+
+  if (!curSession) addMsg('ai', T('你好，我是小柚助手～现在还是测试版，可以先点下面的快捷问题试试。', "Hi, I'm Yuki's Assistant~ I'm still a test version — try a quick question below."), nowTime());
+})();
+</script>
 <script>
   // ===== 主页：预览区 / 设置同步 / 旧链接兼容（子页已拆分为 /photos/ /bjd/ /color-card/）=====
   var BJD_PHOTOS = []; // BJD 照片分区（作主页预览图来源）
@@ -264,7 +590,8 @@
         if (lb) {
           lb.setAttribute('data-zh', sec.name_zh);
           lb.setAttribute('data-en', sec.name_en);
-          lb.textContent = sec.name_zh;
+          // 动态渲染晚于 applyLang，这里按当前语言直接给对文字
+          lb.textContent = (document.documentElement.lang === 'en' && sec.name_en) ? sec.name_en : sec.name_zh;
         }
         tileGrid.appendChild(mt); // 同步排序
       }
@@ -274,7 +601,7 @@
         tile.className = 'tile';
         tile.setAttribute('data-sec', sec.key);
         tile.innerHTML = '<a class="photo" href="/photos/?sec=' + encodeURIComponent(sec.key) + '" data-img="' + escAttrDb(list[0].image_url) + '"></a>' +
-          '<span class="tile-label" data-zh="' + escAttrDb(sec.name_zh) + '" data-en="' + escAttrDb(sec.name_en) + '">' + escDb(sec.name_zh) + '</span>';
+          '<span class="tile-label" data-zh="' + escAttrDb(sec.name_zh) + '" data-en="' + escAttrDb(sec.name_en) + '">' + escDb((document.documentElement.lang === 'en' && sec.name_en) ? sec.name_en : sec.name_zh) + '</span>';
         tileGrid.appendChild(tile);
         loadDbImg(tile.querySelector('.photo'), list[0].image_url);
       }
