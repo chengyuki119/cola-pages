@@ -866,7 +866,23 @@
       try { localStorage.removeItem('yuki-admin-session'); } catch (e) {}
       location.reload();
     });
+    // 通用删除确认小弹窗（统一替代原生 confirm，视觉与退出登录弹窗一致）
+    document.getElementById('cf-cancel').addEventListener('click', function () {
+      document.getElementById('cf-mask').classList.remove('open');
+      CF_CB = null;
+    });
+    document.getElementById('cf-ok').addEventListener('click', function () {
+      document.getElementById('cf-mask').classList.remove('open');
+      var cb = CF_CB; CF_CB = null;
+      if (cb) cb();
+    });
   });
+  var CF_CB = null;
+  function uiConfirm(msg, cb) {
+    CF_CB = cb;
+    document.getElementById('cf-msg').textContent = msg;
+    document.getElementById('cf-mask').classList.add('open');
+  }
   (function () {
     var saved = null;
     try { saved = JSON.parse(localStorage.getItem('yuki-admin-session') || 'null'); } catch (e) {}
@@ -946,10 +962,11 @@
         .finally(function () { e.target.disabled = false; });
     }
     if (e.target.classList.contains('btn-del')) {
-      if (!confirm('确定删除这条留言吗？')) return;
-      api('questions?id=eq.' + id, { method: 'DELETE' })
-        .then(function (r) { if (!r.ok) throw new Error(); toast('已删除'); loadMessages(); })
-        .catch(function () { toast('删除失败'); });
+      uiConfirm('确定删除这条留言吗？', function () {
+        api('questions?id=eq.' + id, { method: 'DELETE' })
+          .then(function (r) { if (!r.ok) throw new Error(); toast('已删除'); loadMessages(); })
+          .catch(function () { toast('删除失败'); });
+      });
     }
   });
 
@@ -1126,10 +1143,11 @@
       } else { doPatch(); }
     }
     if (e.target.classList.contains('btn-del')) {
-      if (!confirm('确定下架删除这个商品吗？')) return;
-      api('products?id=eq.' + id, { method: 'DELETE' })
-        .then(function (r) { if (!r.ok) throw new Error(); toast('已下架'); loadProducts(); })
-        .catch(function () { toast('删除失败'); });
+      uiConfirm('确定下架删除这个商品吗？', function () {
+        api('products?id=eq.' + id, { method: 'DELETE' })
+          .then(function (r) { if (!r.ok) throw new Error(); toast('已下架'); loadProducts(); })
+          .catch(function () { toast('删除失败'); });
+      });
     }
   });
 
@@ -1256,11 +1274,12 @@
         .catch(function () { toast('保存失败'); });
     }
     if (e.target.classList.contains('btn-del-section')) {
-      if (!confirm('确定删除这个分区吗？分区里的照片不会删，但不会再显示。')) return;
-      photoGridSave(sec.key, null);
-      api('photo_sections?id=eq.' + id, { method: 'DELETE' })
-        .then(function (r) { if (!r.ok) throw new Error(); toast('已删除'); loadSections(); })
-        .catch(function () { toast('删除失败'); });
+      uiConfirm('确定删除这个分区吗？分区里的照片不会删，但不会再显示。', function () {
+        photoGridSave(sec.key, null);
+        api('photo_sections?id=eq.' + id, { method: 'DELETE' })
+          .then(function (r) { if (!r.ok) throw new Error(); toast('已删除'); loadSections(); })
+          .catch(function () { toast('删除失败'); });
+      });
     }
     if (e.target.classList.contains('btn-cancel-section')) {
       loadSections();
@@ -1441,10 +1460,11 @@
       return;
     }
     if (e.target.classList.contains('dy-del')) {
-      if (!confirm('确定删除「' + d.name + '」吗？')) return;
-      api('important_days?id=eq.' + id, { method: 'DELETE' })
-        .then(function (r) { if (!r.ok) throw new Error(); toast('已删除'); if (DAYS_EDIT === id) { DAYS_EDIT = null; setDayForm(null); } loadDays(); })
-        .catch(function () { toast('删除失败'); });
+      uiConfirm('确定删除「' + d.name + '」吗？', function () {
+        api('important_days?id=eq.' + id, { method: 'DELETE' })
+          .then(function (r) { if (!r.ok) throw new Error(); toast('已删除'); if (DAYS_EDIT === id) { DAYS_EDIT = null; setDayForm(null); } loadDays(); })
+          .catch(function () { toast('删除失败'); });
+      });
     }
   });
   wireCatAutocomplete(document.getElementById('dy-cat'), document.getElementById('dy-cat-list'));
@@ -1713,10 +1733,11 @@
         .catch(function () { toast('保存失败'); });
     }
     if (e.target.classList.contains('btn-del-photo')) {
-      if (!confirm('确定删除这张照片吗？')) return;
-      api('photos?id=eq.' + id, { method: 'DELETE' })
-        .then(function (r) { if (!r.ok) throw new Error(); toast('已删除'); loadPhotoList(); })
-        .catch(function () { toast('删除失败'); });
+      uiConfirm('确定删除这张照片吗？', function () {
+        api('photos?id=eq.' + id, { method: 'DELETE' })
+          .then(function (r) { if (!r.ok) throw new Error(); toast('已删除'); loadPhotoList(); })
+          .catch(function () { toast('删除失败'); });
+      });
     }
   });
   loadSections(function () { loadPhotoList(); renderGalleryCopy(); });
@@ -2806,10 +2827,11 @@
       } else if (opt === 'up' || opt === 'down') {
         photoMove(ctx.ph.id, opt === 'up' ? -1 : 1); // 只有主动移动才改顺序
       } else if (opt === 'del') {
-        if (!confirm('确定删除这张照片吗？')) return;
-        api('photos?id=eq.' + ctx.ph.id, { method: 'DELETE' })
-          .then(function (r) { if (!r.ok) throw new Error(); toast('已删除'); loadPhotoList(); })
-          .catch(function () { toast('删除失败'); });
+        uiConfirm('确定删除这张照片吗？', function () {
+          api('photos?id=eq.' + ctx.ph.id, { method: 'DELETE' })
+            .then(function (r) { if (!r.ok) throw new Error(); toast('已删除'); loadPhotoList(); })
+            .catch(function () { toast('删除失败'); });
+        });
       }
       return;
     }
@@ -2818,9 +2840,12 @@
       if (opt === 'up' && ctx.i > 0) { var u = BJDS[ctx.i - 1]; BJDS[ctx.i - 1] = BJDS[ctx.i]; BJDS[ctx.i] = u; if (BJDS_EDIT === ctx.i) BJDS_EDIT = ctx.i - 1; else if (BJDS_EDIT === ctx.i - 1) BJDS_EDIT = ctx.i; }
       if (opt === 'down' && ctx.i < BJDS.length - 1) { var dn = BJDS[ctx.i + 1]; BJDS[ctx.i + 1] = BJDS[ctx.i]; BJDS[ctx.i] = dn; if (BJDS_EDIT === ctx.i) BJDS_EDIT = ctx.i + 1; else if (BJDS_EDIT === ctx.i + 1) BJDS_EDIT = ctx.i; }
       if (opt === 'del') {
-        if (!confirm('确定删除这个娃娃档案吗？')) return;
-        BJDS.splice(ctx.i, 1);
-        if (BJDS_EDIT === ctx.i) BJDS_EDIT = -1; else if (BJDS_EDIT > ctx.i) BJDS_EDIT -= 1;
+        uiConfirm('确定删除这个娃娃档案吗？', function () {
+          BJDS.splice(ctx.i, 1);
+          if (BJDS_EDIT === ctx.i) BJDS_EDIT = -1; else if (BJDS_EDIT > ctx.i) BJDS_EDIT -= 1;
+          saveBjdsQuiet();
+          renderBjds();
+        });
       }
       if (opt === 'collapse') BJDS_EDIT = -1;
       saveBjdsQuiet();
@@ -2840,9 +2865,11 @@
         toast('已复制，改完记得点「保存」');
       }
       if (opt === 'del') {
-        if (!confirm('确定删除这个区块吗？')) return;
-        AREAS.splice(ctx.i, 1);
-        if (AREA_EDIT === ctx.i) AREA_EDIT = -1; else if (AREA_EDIT > ctx.i) AREA_EDIT -= 1;
+        uiConfirm('确定删除这个区块吗？', function () {
+          AREAS.splice(ctx.i, 1);
+          if (AREA_EDIT === ctx.i) AREA_EDIT = -1; else if (AREA_EDIT > ctx.i) AREA_EDIT -= 1;
+          renderAreaList(); // 区域 ⋮ 只改内存，点「保存」才落库
+        });
       }
       renderAreaList(); // 区域 ⋮ 只改内存，点「保存」才落库
       return;
@@ -2870,9 +2897,11 @@
         if (CARDS_EDIT === ctx.i) CARDS_EDIT = ctx.i + 1; else if (CARDS_EDIT === ctx.i + 1) CARDS_EDIT = ctx.i;
       }
       if (opt === 'del') {
-        if (!confirm('确定删除这张色卡吗？')) return;
-        CARDS.splice(ctx.i, 1);
-        if (CARDS_EDIT === ctx.i) CARDS_EDIT = -1; else if (CARDS_EDIT > ctx.i) CARDS_EDIT -= 1;
+        uiConfirm('确定删除这张色卡吗？', function () {
+          CARDS.splice(ctx.i, 1);
+          if (CARDS_EDIT === ctx.i) CARDS_EDIT = -1; else if (CARDS_EDIT > ctx.i) CARDS_EDIT -= 1;
+          renderCards(); // ⋮ 操作只改内存，点「保存」才正式落库
+        });
       }
       if (opt === 'copy') {
         var cc = JSON.parse(JSON.stringify(c));
@@ -3305,13 +3334,14 @@
       }).catch(function () { toast('保存失败'); });
     }
     if (e.target.classList.contains('btn-del-link')) {
-      if (!confirm('确定删除这张卡片吗？')) return;
-      LINKS.splice(i, 1);
-      saveSetting('links', LINKS).then(function (r) {
-        if (!r.ok) throw new Error();
-        toast('已删除');
-        renderLinkList();
-      }).catch(function () { toast('删除失败'); loadHome(); });
+      uiConfirm('确定删除这张卡片吗？', function () {
+        LINKS.splice(i, 1);
+        saveSetting('links', LINKS).then(function (r) {
+          if (!r.ok) throw new Error();
+          toast('已删除');
+          renderLinkList();
+        }).catch(function () { toast('删除失败'); loadHome(); });
+      });
     }
     if (e.target.classList.contains('btn-cancel-link')) {
       renderLinkList();
@@ -3731,6 +3761,17 @@
     <div class="lo-actions">
       <button class="btn-mini" id="lo-cancel" type="button">取消</button>
       <button class="btn-del" id="lo-yes" type="button">退出登录</button>
+    </div>
+  </div>
+</div>
+
+<!-- 通用删除确认小弹窗（替代原生 confirm，样式同退出登录弹窗） -->
+<div class="lo-mask" id="cf-mask">
+  <div class="lo-box">
+    <p id="cf-msg"></p>
+    <div class="lo-actions">
+      <button class="btn-mini" id="cf-cancel" type="button">取消</button>
+      <button class="btn-del" id="cf-ok" type="button">删除</button>
     </div>
   </div>
 </div>
