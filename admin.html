@@ -1874,11 +1874,11 @@
           if (CARDS.some(function (x) { return !x.id; })) saveCardsQuiet(function () {});
         }
         var b = parseSetting('bjds', null);
-        if (b) BJDS = b.map(normBjd);
+        if (b) { BJDS = b.map(normBjd); BJDS_SAVED = JSON.parse(JSON.stringify(BJDS)); }
         var bsz = parseSetting('bjd_sizes', null); // 自定义娃娃尺寸 / 种类（像色卡画师一样可增删）
         if (Array.isArray(bsz) && bsz.length) BJD_SIZES = bsz.map(function (s) { return String(s).trim(); }).filter(Boolean);
         var wk = parseSetting('works', null); // 稿件展示（和桓桓宝宝的稿件展示 /works/）
-        if (wk) WORKS = wk.map(normWork);
+        if (wk) { WORKS = wk.map(normWork); WORKS_SAVED = JSON.parse(JSON.stringify(WORKS)); }
         var wm = parseSetting('work_meta', null); // 稿件种类 / 画师独立管理
         if (wm) {
           WORK_META.cats = Array.isArray(wm.cats) ? wm.cats.slice() : [];
@@ -2111,6 +2111,7 @@
   var CARDS = [];
   var CARDS_SAVED = []; // 最近一次「正式保存」的快照：画师价格档案只从这里读取，草稿/自动保存不进档
   var BJDS = [];
+  var BJDS_SAVED = []; // 最近一次保存的快照：取消编辑时从这里还原
   var BJDS_EDIT = -1;
   var EDIT_TYPE = null; // 当前编辑对象：'card' | 'bjd'
   var BJD_SIZES = ['三分头', '四分头', '四分', '肉四', '小六', '矮胖六', '正常六分', '八分', '十二分']; // 娃娃头尺寸（固定九种）
@@ -2568,6 +2569,7 @@
         '<button class="btn-mini" id="btn-sc-undo">上一步</button>' +
         '<button class="btn-mini" id="btn-sc-redo">下一步</button>' +
         '<button class="btn-mini btn-save-tb" id="btn-sc-save-tb">保存</button>' +
+        '<button type="button" class="btn-mini btn-cancel btn-sc-cancel-tb">取消</button>' +
         '</div>' +
         '</div>';
     }).join('') || '<p class="empty">还没有色卡，点下面「+ 新建色卡」</p>';
@@ -2575,6 +2577,7 @@
     // 编辑中才显示右下角「保存」
     if (CARDS_EDIT >= 0) EDIT_TYPE = 'card'; else if (EDIT_TYPE === 'card') EDIT_TYPE = null;
     enhanceSelects();
+    syncToolbarSaveLabel();
   }
   function updateTotal() {
     var sum = 0;
@@ -3121,6 +3124,12 @@
     if (!card) return;
     var i = parseInt(card.getAttribute('data-i'), 10);
     if (e.target.closest('#btn-sc-save-tb')) { toolbarSave(); return; } // 保存跟在编辑区里（动态渲染，走委托）
+    if (e.target.closest('.btn-sc-cancel-tb')) { // 取消：从最近保存的快照还原并退出编辑
+      CARDS = JSON.parse(JSON.stringify(CARDS_SAVED));
+      CARDS_EDIT = -1; EDIT_TYPE = null;
+      renderCards();
+      return;
+    }
     if (e.target.closest('#btn-sc-undo')) { doUndo(); return; }
     if (e.target.closest('#btn-sc-redo')) { doRedo(); return; }
     var cph = e.target.closest('.c-photo-kebab');
@@ -3430,16 +3439,22 @@
           bjdField('购买状态', '<select class="b-buy-status">' + opts(BJD_STATUS, b.purchase.status) + '</select>') +
           '</div>') +
         bjdGroup('备注', '<textarea class="b-notes" style="width:100%;box-sizing:border-box;min-height:56px;" placeholder="自由记录：换眼、换身体、入手故事…">' + esc(b.notes) + '</textarea>') +
+        '<div class="actions" style="margin-top:12px;">' +
+        '<button type="button" class="btn-save btn-bjd-save-tb">保存 BJD</button>' +
+        '<button type="button" class="btn-cancel btn-bjd-cancel-tb">取消</button>' +
+        '</div>' +
         '</div>';
     }).join('') || '<p class="empty">还没有 BJD 档案，点下面「+ 新增 BJD」</p>';
     document.getElementById('bjd-total').textContent = BJDS.length ? '共 ' + BJDS.length + ' 个娃娃' : '';
     renderBjdSizes();
     if (BJDS_EDIT >= 0) EDIT_TYPE = 'bjd'; else if (EDIT_TYPE === 'bjd') EDIT_TYPE = null;
     enhanceSelects();
+    syncToolbarSaveLabel();
   }
   function saveBjdsQuiet(done) {
     saveSetting('bjds', JSON.parse(JSON.stringify(BJDS))).then(function (r) {
       if (!r.ok) throw new Error();
+      BJDS_SAVED = JSON.parse(JSON.stringify(BJDS));
       if (done) done();
     }).catch(function () { toast('保存失败'); });
   }
@@ -3492,6 +3507,7 @@
   var WORKS = [];
   var WORK_META = { cats: [], artists: [] }; // 种类 / 画师独立管理（site_settings.work_meta）
   var WORKS_EDIT = -1;
+  var WORKS_SAVED = []; // 最近一次保存的快照：取消编辑时从这里还原
   function saveWorkMeta(done) {
     return saveSetting('work_meta', JSON.parse(JSON.stringify(WORK_META))).then(function (r) {
       if (!r.ok) throw new Error();
@@ -3569,6 +3585,7 @@
   function saveWorksQuiet(done) {
     return saveSetting('works', JSON.parse(JSON.stringify(WORKS))).then(function (r) {
       if (!r.ok) throw new Error();
+      WORKS_SAVED = JSON.parse(JSON.stringify(WORKS));
       if (done) done();
     }).catch(function () { toast('保存失败'); });
   }
@@ -3612,11 +3629,20 @@
         '</div>' +
         '<div style="margin-top:10px;">' + bjdField('描述（中文）', '<textarea class="wk-czh" style="width:100%;box-sizing:border-box;min-height:56px;" placeholder="稿件描述（中文）">' + esc(w.desc_zh) + '</textarea>') + '</div>' +
         '<div style="margin-top:10px;">' + bjdField('描述（英文，可留空同中文）', '<textarea class="wk-cen" style="width:100%;box-sizing:border-box;min-height:56px;" placeholder="Description (English)">' + esc(w.desc_en) + '</textarea>') + '</div>' +
+        '<div class="actions" style="margin-top:12px;">' +
+        '<button type="button" class="btn-save btn-work-save">保存稿件</button>' +
+        '<button type="button" class="btn-cancel btn-work-cancel">取消</button>' +
+        '</div>' +
         '</div>';
     }).join('') || '<p class="empty">还没有稿件，点下面「+ 新增稿件」</p>';
     document.getElementById('works-total').textContent = WORKS.length ? '共 ' + WORKS.length + ' 篇稿件' : '';
     if (WORKS_EDIT >= 0) EDIT_TYPE = 'work'; else if (EDIT_TYPE === 'work') EDIT_TYPE = null;
     enhanceSelects();
+  }
+  // 工具栏保存按钮文案跟随编辑对象（BJD / 色卡同一颗按钮）
+  function syncToolbarSaveLabel() {
+    var tb = document.getElementById('btn-bjd-save');
+    if (tb) tb.textContent = EDIT_TYPE === 'card' ? '保存色卡改动' : '保存 BJD 改动';
   }
   document.getElementById('btn-work-add').addEventListener('click', function () {
     WORKS.push(normWork({ createdAt: Date.now() }));
@@ -3631,6 +3657,20 @@
     var card = e.target.closest('.work-item');
     if (!card) return;
     var i = parseInt(card.getAttribute('data-i'), 10);
+    if (e.target.classList.contains('btn-work-save')) { // 方框内的保存：存这个稿件并退出编辑
+      saveWorksQuiet(function () {
+        WORKS_EDIT = -1; EDIT_TYPE = null;
+        renderWorks();
+        toast('已保存');
+      });
+      return;
+    }
+    if (e.target.classList.contains('btn-work-cancel')) { // 取消：从最近保存的快照还原
+      WORKS = JSON.parse(JSON.stringify(WORKS_SAVED));
+      WORKS_EDIT = -1; EDIT_TYPE = null;
+      renderWorks();
+      return;
+    }
     var wpk = e.target.closest('.w-photo-kebab');
     if (wpk) {
       if (SC_POP && POP_BTN === wpk) { popClose(); return; }
@@ -3691,6 +3731,13 @@
     var card = e.target.closest('.bjd-item');
     if (!card) return;
     var i = parseInt(card.getAttribute('data-i'), 10);
+    if (e.target.closest('.btn-bjd-save-tb')) { toolbarSave(); return; } // 编辑区里的保存
+    if (e.target.closest('.btn-bjd-cancel-tb')) { // 取消：从最近保存的快照还原并退出编辑
+      BJDS = JSON.parse(JSON.stringify(BJDS_SAVED));
+      BJDS_EDIT = -1; EDIT_TYPE = null;
+      renderBjds();
+      return;
+    }
     var bpk = e.target.closest('.b-photo-kebab');
     if (bpk) {
       if (SC_POP && POP_BTN === bpk) { popClose(); return; }
