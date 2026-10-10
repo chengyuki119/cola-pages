@@ -53,7 +53,7 @@
   }
   .back-link:hover { background: var(--card-hover); }
 
-  .wrap { max-width: 900px; margin: 0 auto; padding: 40px 24px 64px; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 40px 24px 64px; }
   a { color: inherit; text-decoration: none; }
   h1 { font-size: 26px; margin: 20px 0 6px; }
   .sub { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
@@ -296,7 +296,7 @@
   #sc-pop .sc-opt-del { background: #f6d9e6; color: var(--text); }
   #sc-pop .sc-opt-del:hover { background: #f3c9dd; }
   /* 色卡 / BJD 列表：同一个卡片尺寸规范（同一网格、同一间距、同一卡片结构）*/
-  #sc-artist-list, #bjd-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
+  #sc-artist-list, #bjd-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
   #sc-artist-list .sc-artist, #bjd-list .bjd-item { margin-bottom: 0; }
   #sc-artist-list .sc-artist.editing, #bjd-list .bjd-item.editing { grid-column: 1 / -1; }
   /* 色卡列表卡价格明细：与详情/前台同一套计算（labelAgg/artistSub/cardFinal），只补展示 */
@@ -685,15 +685,21 @@
         </div>
         <p style="font-size:12px;color:var(--muted);margin:8px 0 0;">改完保存，主页头像、背景图、ID 和 Bio 全部同步更新</p>
         <div id="hm-hero-view" style="margin-top:10px;font-size:13px;line-height:1.9;">
-          <div>ID：<span data-v="hm-name"></span></div>
+          <div>名字 / ID：<span data-v="hm-name"></span></div>
           <div>Bio 第一行：<span data-v="hm-line1"></span></div>
           <div>Bio 第二行：<span data-v="hm-line2"></span></div>
+          <div>英文名字：<span data-v="hm-name-en"></span></div>
+          <div>英文 Bio 第一行：<span data-v="hm-line1-en"></span></div>
+          <div>英文 Bio 第二行：<span data-v="hm-line2-en"></span></div>
         </div>
         <div id="hm-hero-edit" style="display:none;">
           <div class="form-grid" style="margin-top:10px;">
-            <input id="hm-name" class="full" placeholder="ID，如：Yuki / 柚子">
-            <input id="hm-line1" class="full" placeholder="Bio 第一行（可留空不改）">
-            <input id="hm-line2" class="full" placeholder="Bio 第二行（可留空不改）">
+            <input id="hm-name" class="full" placeholder="名字 / ID（中文），如：柚子/Yuki">
+            <input id="hm-line1" class="full" placeholder="Bio 第一行（中文）">
+            <input id="hm-line2" class="full" placeholder="Bio 第二行（中文）">
+            <input id="hm-name-en" class="full" placeholder="Name (English)，可留空同中文">
+            <input id="hm-line1-en" class="full" placeholder="Bio line 1 (English)，可留空同中文">
+            <input id="hm-line2-en" class="full" placeholder="Bio line 2 (English)，可留空同中文">
           </div>
           <div class="actions">
             <button class="btn-save" id="btn-save-hero">保存 Profile</button>
@@ -703,12 +709,14 @@
       <div class="card">
         <h3>头像 / 背景图</h3>
         <div class="hm-upload-row">
+          <img id="hm-avatar-preview" src="avatar.jpg" alt="当前头像" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0;background:var(--card);">
           <span class="hm-upload-name">头像</span>
           <label class="btn-mini hm-file-btn">选择图片<input id="hm-avatar-file" type="file" accept="image/*" hidden></label>
           <span class="hm-file-name" id="hm-avatar-name"></span>
           <button class="btn-save" id="btn-avatar">上传头像</button>
         </div>
         <div class="hm-upload-row">
+          <img id="hm-cover-preview" src="cover.jpg" alt="当前背景图" style="width:72px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0;background:var(--card);">
           <span class="hm-upload-name">主页背景图</span>
           <label class="btn-mini hm-file-btn">选择图片<input id="hm-cover-file" type="file" accept="image/*" hidden></label>
           <span class="hm-file-name" id="hm-cover-name"></span>
@@ -721,6 +729,18 @@
       <div class="card">
         <h3>稿件管理</h3>
         <p class="sub" style="margin:-6px 0 12px;">和桓桓宝宝的稿件展示（/works/），后台改完前台同步；点「显示中」切换显隐</p>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+          <span style="font-size:13px;color:var(--muted);flex-shrink:0;">种类管理</span>
+          <div id="work-cat-chips" style="display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:160px;"></div>
+          <input id="work-cat-new" placeholder="新种类名" style="border:none;border-radius:10px;background:var(--card);padding:8px 12px;font-size:13px;width:120px;outline:none;color:var(--text);">
+          <button class="btn-mini" id="btn-work-cat-add">+ 添加</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+          <span style="font-size:13px;color:var(--muted);flex-shrink:0;">画师管理</span>
+          <div id="work-artist-chips" style="display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:160px;"></div>
+          <input id="work-artist-new" placeholder="新画师名" style="border:none;border-radius:10px;background:var(--card);padding:8px 12px;font-size:13px;width:120px;outline:none;color:var(--text);">
+          <button class="btn-mini" id="btn-work-artist-add">+ 添加</button>
+        </div>
         <div id="works-list"></div>
         <div class="actions" style="flex-wrap:wrap;">
           <button class="btn-mini" id="btn-work-add">+ 新增稿件</button>
@@ -754,22 +774,23 @@
     <div id="tab-bjd" style="display:none;">
       <div class="card">
         <h3>BJD 管理</h3>
-        <div id="bjd-toolbar" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;">
+        <div id="bjd-toolbar" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;">
           <span style="font-size:13px;color:var(--muted);">筛选与排序</span>
           <button type="button" class="sel-btn" id="bjd-filter-btn">尺寸：全部</button>
           <button type="button" class="sel-btn" id="bjd-sort-btn">排序：默认</button>
+          <span style="flex:1;"></span>
+          <button class="btn-mini" id="btn-bjd-add">+ 新增 BJD</button>
+          <span id="bjd-total" style="font-size:14px;font-weight:600;color:var(--accent);"></span>
         </div>
-        <div id="bjd-list"></div>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
-          <span style="font-size:13px;color:var(--muted);flex-shrink:0;">娃娃尺寸 / 种类</span>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+          <span style="font-size:13px;color:var(--muted);flex-shrink:0;">尺寸 / 种类管理</span>
           <div id="bjd-size-chips" style="display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:180px;"></div>
           <input id="bjd-size-new" placeholder="新尺寸名" style="border:none;border-radius:10px;background:var(--card);padding:8px 12px;font-size:13px;width:120px;outline:none;color:var(--text);">
           <button class="btn-mini" id="btn-bjd-size-add">+ 添加</button>
         </div>
+        <div id="bjd-list"></div>
         <div class="actions" style="flex-wrap:wrap;">
-          <button class="btn-mini" id="btn-bjd-add">+ 新增 BJD</button>
-          <span id="bjd-total" style="font-size:14px;font-weight:600;color:var(--accent);align-self:center;"></span>
-          <button class="btn-mini btn-save-tb" id="btn-bjd-save">保存</button>
+          <button class="btn-mini btn-save-tb" id="btn-bjd-save">保存 BJD 改动</button>
         </div>
       </div>
     </div>
@@ -777,16 +798,15 @@
     <div id="tab-cards" style="display:none;">
       <div class="card">
         <h3>色卡管理</h3>
-        <div id="sc-toolbar" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;">
+        <div id="sc-toolbar" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;">
           <span style="font-size:13px;color:var(--muted);">筛选与排序</span>
           <button type="button" class="sel-btn" id="sc-filter-btn">筛选：全部</button>
           <button type="button" class="sel-btn" id="sc-sort-btn">排序：默认</button>
+          <span style="flex:1;"></span>
+          <button class="btn-mini" id="btn-sc-add">+ 新建色卡</button>
+          <span id="sc-total" style="font-size:14px;font-weight:600;color:var(--accent);"></span>
         </div>
         <div id="sc-artist-list"></div>
-        <div class="actions" style="flex-wrap:wrap;">
-          <button class="btn-mini" id="btn-sc-add">+ 新建色卡</button>
-          <span id="sc-total" style="font-size:14px;font-weight:600;color:var(--accent);align-self:center;"></span>
-        </div>
       </div>
     </div>
   </div>
@@ -1808,9 +1828,14 @@
         SETTINGS = {};
         (rows || []).forEach(function (r) { SETTINGS[r.key] = r.value; });
         var hero = parseSetting('hero', {});
-        if (hero.name) document.getElementById('hm-name').value = hero.name;
-        if (hero.line1) document.getElementById('hm-line1').value = hero.line1;
-        if (hero.line2) document.getElementById('hm-line2').value = hero.line2;
+        ['name', 'line1', 'line2', 'name_en', 'line1_en', 'line2_en'].forEach(function (k) { // 永远回填全部六项（空也回填，避免残留旧值）
+          var el = document.getElementById('hm-' + k.replace('_', '-'));
+          if (el) el.value = hero[k] || '';
+        });
+        var av = parseSetting('avatar', null), cv = parseSetting('cover', null); // 后台展示当前已保存的头像/背景图
+        var avp = document.getElementById('hm-avatar-preview'), cvp = document.getElementById('hm-cover-preview');
+        if (avp) avp.src = (av && av.url) ? av.url : 'avatar.jpg';
+        if (cvp) cvp.src = (cv && cv.url) ? cv.url : 'cover.jpg';
         var en = parseSetting('entries', {});
         ['shop_h', 'shop_p', 'anon_h', 'anon_p'].forEach(function (k) { // 回填入口卡片输入框
           var el2 = document.getElementById('hm-' + k.replace('_', '-'));
@@ -1851,6 +1876,12 @@
         if (Array.isArray(bsz) && bsz.length) BJD_SIZES = bsz.map(function (s) { return String(s).trim(); }).filter(Boolean);
         var wk = parseSetting('works', null); // 稿件展示（和桓桓宝宝的稿件展示 /works/）
         if (wk) WORKS = wk.map(normWork);
+        var wm = parseSetting('work_meta', null); // 稿件种类 / 画师独立管理
+        if (wm) {
+          WORK_META.cats = Array.isArray(wm.cats) ? wm.cats.slice() : [];
+          WORK_META.artists = Array.isArray(wm.artists) ? wm.artists.slice() : [];
+        }
+        renderWorkMeta();
         // 主页「编辑卡」直达：按 card_id 精准匹配，自动打开对应色卡的编辑状态
         try {
           var ec = sessionStorage.getItem('admin-edit-card');
@@ -1869,14 +1900,15 @@
       .catch(function () { toast('主页数据加载失败，刷新试试'); });
   }
   document.getElementById('btn-save-hero').addEventListener('click', function () {
+    var g = function (id) { return document.getElementById(id).value.trim(); };
     var body = {
-      name: document.getElementById('hm-name').value.trim(),
-      line1: document.getElementById('hm-line1').value.trim(),
-      line2: document.getElementById('hm-line2').value.trim()
+      name: g('hm-name'), line1: g('hm-line1'), line2: g('hm-line2'),
+      name_en: g('hm-name-en'), line1_en: g('hm-line1-en'), line2_en: g('hm-line2-en')
     };
     if (!body.name) { toast('名字要填一个'); return; }
     saveSetting('hero', body).then(function (r) {
       if (!r.ok) throw new Error();
+      refreshHmViews();
       toast('已保存，主页刷新生效');
     }).catch(function () { toast('保存失败'); });
   });
@@ -1915,8 +1947,16 @@
   }
   document.getElementById('btn-avatar').addEventListener('click', function () { uploadSite('hm-avatar-file', 'avatar'); });
   document.getElementById('btn-cover').addEventListener('click', function () { uploadSite('hm-cover-file', 'cover'); });
-  document.getElementById('hm-avatar-file').addEventListener('change', function () { document.getElementById('hm-avatar-name').textContent = this.files[0] ? this.files[0].name : ''; });
-  document.getElementById('hm-cover-file').addEventListener('change', function () { document.getElementById('hm-cover-name').textContent = this.files[0] ? this.files[0].name : ''; });
+  document.getElementById('hm-avatar-file').addEventListener('change', function () {
+    var f = this.files[0];
+    document.getElementById('hm-avatar-name').textContent = f ? f.name : '';
+    if (f) { var r = new FileReader(); r.onload = function (e) { document.getElementById('hm-avatar-preview').src = e.target.result; }; r.readAsDataURL(f); } // 选图后立即预览
+  });
+  document.getElementById('hm-cover-file').addEventListener('change', function () {
+    var f = this.files[0];
+    document.getElementById('hm-cover-name').textContent = f ? f.name : '';
+    if (f) { var r2 = new FileReader(); r2.onload = function (e) { document.getElementById('hm-cover-preview').src = e.target.result; }; r2.readAsDataURL(f); }
+  });
   function renderLinkList() {
     var list = document.getElementById('link-list');
     if (!list) return;
@@ -2020,7 +2060,7 @@
   })();
   // 主页文案 / 入口卡片：平时只显示内容，点 ⋮ 才展开编辑
   function refreshHmViews() {
-    ['hm-name', 'hm-line1', 'hm-line2', 'hm-shop-h', 'hm-shop-p', 'hm-anon-h', 'hm-anon-p', 'gl-title-zh', 'gl-title-en', 'gl-sub-zh', 'gl-sub-en'].forEach(function (id) {
+    ['hm-name', 'hm-line1', 'hm-line2', 'hm-name-en', 'hm-line1-en', 'hm-line2-en', 'hm-shop-h', 'hm-shop-p', 'hm-anon-h', 'hm-anon-p', 'gl-title-zh', 'gl-title-en', 'gl-sub-zh', 'gl-sub-en'].forEach(function (id) {
       var el = document.querySelector('[data-v="' + id + '"]');
       var src = document.getElementById(id);
       if (el && src) el.textContent = src.value || '（未设置）';
@@ -2799,6 +2839,8 @@
     if (!el || !el.classList) return null;
     if (el.classList.contains('a-name')) return Object.keys(artistArchive());
     if (el.id === 'p-tag' || el.classList.contains('e-tag')) return tagOptions();
+    if (el.classList.contains('wk-artist')) return WORK_META.artists.slice(); // 稿件画师联想
+    if (el.classList.contains('wk-cat')) return WORK_META.cats.slice(); // 稿件种类联想
     return null;
   }
   function comboRefresh() { if (COMBO.input) comboOpen(COMBO.input); else comboClose(); }
@@ -3417,12 +3459,77 @@
 
   // ===== 稿件管理（和桓桓宝宝的稿件展示 /works/）：site_settings.works，单一数据源 =====
   var WORKS = [];
+  var WORK_META = { cats: [], artists: [] }; // 种类 / 画师独立管理（site_settings.work_meta）
   var WORKS_EDIT = -1;
+  function saveWorkMeta(done) {
+    return saveSetting('work_meta', JSON.parse(JSON.stringify(WORK_META))).then(function (r) {
+      if (!r.ok) throw new Error();
+      if (done) done();
+    }).catch(function () { toast('保存失败'); });
+  }
+  function renderWorkMeta() {
+    var mk = function (boxId, arr, cls) {
+      var box = document.getElementById(boxId);
+      if (!box) return;
+      box.innerHTML = arr.length ? arr.map(function (v, vi) {
+        return '<span style="display:inline-flex;align-items:center;gap:2px;background:var(--card);border-radius:999px;padding:5px 6px 5px 12px;font-size:13px;">' + esc(v) +
+          '<button type="button" class="kebab ' + cls + '" data-vi="' + vi + '" title="菜单" style="width:22px;height:22px;font-size:12px;">⋮</button></span>';
+      }).join('') : '<span style="font-size:12px;color:var(--muted);">还没有，可在下面添加</span>';
+    };
+    mk('work-cat-chips', WORK_META.cats, 'work-cat-kebab');
+    mk('work-artist-chips', WORK_META.artists, 'work-artist-kebab');
+  }
+  function bindWorkMeta(boxId, cls, arrName, label) {
+    var box = document.getElementById(boxId);
+    if (!box) return;
+    box.addEventListener('click', function (e) {
+      var kb = e.target.closest('.' + cls);
+      if (!kb) return;
+      var vi = parseInt(kb.getAttribute('data-vi'), 10);
+      var arr = WORK_META[arrName];
+      if (!arr || !arr[vi]) return;
+      uiConfirm('确定删除' + label + '「' + arr[vi] + '」吗？已有稿件里填的值不会被改动。', function () {
+        var old = arr[vi];
+        arr.splice(vi, 1);
+        saveSetting('work_meta', JSON.parse(JSON.stringify(WORK_META))).then(function (r) {
+          if (!r.ok) throw new Error();
+          renderWorkMeta();
+          toast('已删除');
+        }).catch(function () {
+          arr.splice(vi, 0, old); // 保存失败回滚
+          renderWorkMeta();
+          toast('保存失败');
+        });
+      });
+    });
+  }
+  function bindWorkMetaAdd(inpId, btnId, arrName, label, renderFn) {
+    var btn = document.getElementById(btnId);
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      var inp = document.getElementById(inpId);
+      var v = inp.value.trim();
+      var arr = WORK_META[arrName];
+      if (!v) { toast('先填' + label + '名'); return; }
+      if (arr.indexOf(v) !== -1) { toast('已经有这个' + label + '了'); return; }
+      arr.push(v);
+      saveSetting('work_meta', JSON.parse(JSON.stringify(WORK_META))).then(function (r) {
+        if (!r.ok) throw new Error();
+        toast('已添加');
+        inp.value = '';
+        renderFn();
+      }).catch(function () {
+        toast('保存失败');
+        arr.pop();
+      });
+    });
+  }
   function normWork(x) {
     x = x || {};
     x.id = x.id || 'w-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
     x.name = x.name || ''; x.desc_zh = x.desc_zh || ''; x.desc_en = x.desc_en || '';
     x.date = x.date || ''; x.image = x.image || '';
+    x.artist = x.artist || ''; x.cat = x.cat || ''; // 画师 / 种类（选填，可从下方管理列表联想选择）
     x.price = x.price == null ? '' : String(x.price); // 稿件价格（选填）
     x.photos = Array.isArray(x.photos) ? x.photos : [];
     x.visible = x.visible !== false;
@@ -3447,6 +3554,7 @@
           '</div>' +
           '<div class="sc-info">' +
           '<b class="sc-name">' + esc(w.name || '未命名稿件') + '</b>' +
+          '<div class="sc-shop">' + [w.cat, w.artist].filter(Boolean).map(esc).join(' · ') + '</div>' +
           '<div class="sc-shop">' + esc(w.date || '') + (parseFloat(w.price) ? ' · ¥' + fmtMoney(w.price) : '') + '</div>' +
           '<span class="tgl-label" style="margin-top:7px;"><button type="button" class="tgl w-vis-toggle' + (w.visible !== false ? ' on' : '') + '" aria-pressed="' + (w.visible !== false) + '" aria-label="展示中"><span class="tgl-knob"></span></button>展示中</span>' +
           '</div>' +
@@ -3456,6 +3564,10 @@
         '<button class="kebab work-kebab" title="菜单">⋮</button>' +
         '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-right:40px;">' +
         bjdField('标题', '<input class="wk-name" style="width:100%;" value="' + escAttr(w.name) + '" placeholder="稿件标题">') +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap;">' +
+        bjdField('画师', '<input class="wk-artist" style="width:100%;" value="' + escAttr(w.artist) + '" placeholder="画师（选填，可联想已有）">') +
+        bjdField('种类', '<input class="wk-cat" style="width:100%;" value="' + escAttr(w.cat) + '" placeholder="种类（选填，可联想已有）">') +
         '</div>' +
         '<div style="display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap;">' +
         (w.image ? '<img src="' + escAttr(w.image) + '" style="width:44px;height:44px;object-fit:cover;border-radius:8px;flex-shrink:0;">' : '') +
@@ -3480,6 +3592,10 @@
     WORKS_EDIT = WORKS.length - 1;
     renderWorks();
   });
+  bindWorkMeta('work-cat-chips', 'work-cat-kebab', 'cats', '种类');
+  bindWorkMeta('work-artist-chips', 'work-artist-kebab', 'artists', '画师');
+  bindWorkMetaAdd('work-cat-new', 'btn-work-cat-add', 'cats', '种类', renderWorkMeta);
+  bindWorkMetaAdd('work-artist-new', 'btn-work-artist-add', 'artists', '画师', renderWorkMeta);
   document.getElementById('works-list').addEventListener('click', function (e) {
     var card = e.target.closest('.work-item');
     if (!card) return;
@@ -3511,7 +3627,7 @@
     var card = e.target.closest('.work-item');
     if (!card) return;
     var w = normWork(WORKS[parseInt(card.getAttribute('data-i'), 10)]);
-    var wmap = { 'wk-name': ['name'], 'wk-czh': ['desc_zh'], 'wk-cen': ['desc_en'], 'wk-price': ['price'] };
+    var wmap = { 'wk-name': ['name'], 'wk-czh': ['desc_zh'], 'wk-cen': ['desc_en'], 'wk-price': ['price'], 'wk-artist': ['artist'], 'wk-cat': ['cat'] };
     var wpath = wmap[e.target.className];
     if (wpath) { w[wpath[0]] = e.target.value; saveWorksQuiet(); }
   });

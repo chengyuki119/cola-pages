@@ -635,10 +635,23 @@
     // 顶部文案
     var hero = parseSetting('hero', {});
     var heroName = document.querySelector('.hero-name h1');
-    var heroP = document.querySelectorAll('.hero-name p');
-    if (hero.name && heroName) heroName.textContent = hero.name;
-    if (hero.line1 && heroP[0]) heroP[0].textContent = hero.line1;
-    if (hero.line2 && heroP[1]) heroP[1].textContent = hero.line2;
+    // Bio 两行在同一个 <p> 里的两个 <span>，必须逐个 span 填，不能整段 textContent（会把第二句连 <br> 一起抹掉）
+    var heroSpans = document.querySelectorAll('.hero-name p > span');
+    var hFallback = ['ᜊ ·͙ Hello~ 欢迎来到小柚世界の指南 ·͙ ᜊ', '°⑅+「全世界最好の小桓宝宝」+⑅°'];
+    [['line1', 'line1_en', 0], ['line2', 'line2_en', 1]].forEach(function (it) {
+      var sp = heroSpans[it[2]];
+      if (!sp) return;
+      var zh = hero[it[0]] || sp.textContent.trim() || hFallback[it[2]];
+      var en2 = hero[it[1]] || zh;
+      sp.textContent = zh;
+      sp.setAttribute('data-zh', zh);
+      sp.setAttribute('data-en', en2);
+    });
+    if (hero.name && heroName) {
+      heroName.textContent = hero.name;
+      heroName.setAttribute('data-zh', hero.name);
+      heroName.setAttribute('data-en', hero.name_en || hero.name);
+    }
     // 头像
     var av = parseSetting('avatar', null);
     if (av && av.url) {

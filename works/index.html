@@ -35,6 +35,22 @@
       <p class="subpage-sub" data-zh="和桓桓宝宝一起完成的稿件 · 点开看大图" data-en="Pieces made together with Huanhuan · tap to view">和桓桓宝宝一起完成的稿件 · 点开看大图</p>
     </div>
     <div class="page-body" style="padding-top:0;">
+      <div id="works-filter" style="display:none;margin-bottom:16px;">
+        <div id="wf-artist-row" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+          <span style="font-size:13px;color:var(--muted);flex-shrink:0;" data-zh="画师" data-en="Artist">画师</span>
+          <div id="wf-artist" class="bjd-chips" style="flex:1;"></div>
+        </div>
+        <div id="wf-cat-row" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+          <span style="font-size:13px;color:var(--muted);flex-shrink:0;" data-zh="种类" data-en="Type">种类</span>
+          <div id="wf-cat" class="bjd-chips" style="flex:1;"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+          <span style="font-size:13px;color:var(--muted);flex-shrink:0;" data-zh="排序" data-en="Sort">排序</span>
+          <div id="wf-sort" class="bjd-chips"></div>
+          <span style="flex:1;"></span>
+          <button type="button" class="bjd-chip" id="wf-reset" data-zh="重置筛选" data-en="Reset">重置筛选</button>
+        </div>
+      </div>
       <div id="works-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;"></div>
       <p id="works-empty" style="display:none;color:var(--muted);text-align:center;padding:30px 0;font-size:14px;"><span data-zh="还没有稿件，去后台「稿件管理」上传吧" data-en="No works yet. Upload in the admin Works tab.">还没有稿件，去后台「稿件管理」上传吧</span></p>
     </div>
@@ -58,12 +74,14 @@
   // 数据：site_settings.works（与后台「稿件管理」同一份，单一数据源）
   var WORKS_CACHE = [];
   var CURRENT_WORK = -1;
+  var WF = { artist: 'all', cat: 'all', sort: 'new' }; // 筛选排序状态（画师/种类/最新最早）
 
   function normWorkView(w) {
     w = w || {};
     return {
       id: w.id || '', name: w.name || '', desc_zh: w.desc_zh || '', desc_en: w.desc_en || '',
       date: w.date || '', image: w.image || '',
+      artist: w.artist || '', cat: w.cat || '',
       price: w.price == null ? '' : String(w.price),
       photos: Array.isArray(w.photos) ? w.photos : [],
       visible: w.visible !== false
@@ -78,10 +96,49 @@
     var p = String(ds || '').split('-');
     return p.length === 3 ? p[0] + '/' + pad2(p[1]) + '/' + pad2(p[2]) : (ds || '');
   }
+  function worksFiltered() {
+    var list = WORKS_CACHE.map(function (w, i) { return { w: w, i: i }; });
+    list = list.filter(function (x) {
+      if (WF.artist !== 'all' && x.w.artist !== WF.artist) return false;
+      if (WF.cat !== 'all' && x.w.cat !== WF.cat) return false;
+      return true;
+    });
+    var ts = function (w) { var p = String(w.date || '').split('-'); return p.length === 3 ? new Date(p[0], p[1] - 1, p[2]).getTime() : NaN; };
+    list.sort(function (a, b) { // 按实际日期排序；没填日期的永远排最后
+      var ta = ts(a.w), tb = ts(b.w);
+      if (isNaN(ta) && isNaN(tb)) return 0;
+      if (isNaN(ta)) return 1;
+      if (isNaN(tb)) return -1;
+      return WF.sort === 'new' ? tb - ta : ta - tb;
+    });
+    return list;
+  }
+  function renderWorksFilter() {
+    var box = document.getElementById('works-filter');
+    if (!box) return;
+    var artists = [], cats = [];
+    WORKS_CACHE.forEach(function (w) {
+      if (w.artist && artists.indexOf(w.artist) === -1) artists.push(w.artist);
+      if (w.cat && cats.indexOf(w.cat) === -1) cats.push(w.cat);
+    });
+    if (!WORKS_CACHE.length || (!artists.length && !cats.length)) { box.style.display = 'none'; return; }
+    box.style.display = '';
+    var ar = document.getElementById('wf-artist-row'), cr = document.getElementById('wf-cat-row');
+    if (ar) ar.style.display = artists.length ? '' : 'none';
+    if (cr) cr.style.display = cats.length ? '' : 'none';
+    var chip = function (v, label, active) {
+      return '<button type="button" class="bjd-chip' + (active ? ' active' : '') + '" data-v="' + escAttrDb(v) + '">' + label + '</button>';
+    };
+    document.getElementById('wf-artist').innerHTML = artists.length ? chip('all', t('全部', 'All'), WF.artist === 'all') + artists.map(function (a) { return chip(a, escDb(a), WF.artist === a); }).join('') : '';
+    document.getElementById('wf-cat').innerHTML = cats.length ? chip('all', t('全部', 'All'), WF.cat === 'all') + cats.map(function (c) { return chip(c, escDb(c), WF.cat === c); }).join('') : '';
+    document.getElementById('wf-sort').innerHTML =
+      chip('new', t('最新优先', 'Newest first'), WF.sort === 'new') + chip('old', t('最早优先', 'Oldest first'), WF.sort === 'old');
+  }
   function renderWorksWall() {
+    renderWorksFilter();
     var grid = document.getElementById('works-grid');
     if (!grid) return;
-    var list = WORKS_CACHE.map(function (w, i) { return { w: w, i: i }; });
+    var list = worksFiltered();
     grid.innerHTML = list.map(function (x) {
       var w = x.w;
       return '<div class="card work-card" data-i="' + x.i + '" style="margin-bottom:0;padding:0;overflow:hidden;cursor:pointer;">' +
@@ -93,6 +150,7 @@
         shareBtnHtml(x.i, 'work', true) +
         '</div>' +
         (w.date ? '<div style="font-size:12px;color:var(--muted);margin-top:3px;">' + escDb(fmtWorkDate(w.date)) + '</div>' : '') +
+        (w.cat || w.artist ? '<div style="font-size:12px;color:var(--muted);margin-top:3px;">' + escDb([w.cat, w.artist].filter(Boolean).join(' · ')) + '</div>' : '') +
         (parseFloat(w.price) ? '<div style="font-size:14px;color:var(--accent);font-weight:600;margin-top:4px;">¥' + fmtMoney(w.price) + '</div>' : '') +
         (workDesc(w) ? '<div style="font-size:13px;color:var(--text);margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">' + escDb(workDesc(w)) + '</div>' : '') +
         '</div></div>';
@@ -114,6 +172,7 @@
       '<div style="text-align:center;margin-bottom:18px;">' +
       '<span style="font-size:18px;font-weight:700;">' + escDb(w.name || t('未命名稿件', 'Untitled work')) + '</span>' +
       (w.date ? '<span style="color:var(--muted);font-size:14px;">　|　' + escDb(fmtWorkDate(w.date)) + '</span>' : '') +
+      (w.cat || w.artist ? '<span style="color:var(--muted);font-size:14px;">　|　' + escDb([w.cat, w.artist].filter(Boolean).join(' · ')) + '</span>' : '') +
       (parseFloat(w.price) ? '<span style="color:var(--accent);font-size:15px;font-weight:700;">　|　¥' + fmtMoney(w.price) + '</span>' : '') +
       '</div>' +
       (workDesc(w) ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;font-size:14px;line-height:1.9;white-space:pre-wrap;word-break:break-word;">' + escDb(workDesc(w)) + '</div>' : '');
@@ -136,6 +195,23 @@
   }).catch(function () {
     renderWorksWall();
     routeWorks();
+  });
+  ['wf-artist', 'wf-cat', 'wf-sort'].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('click', function (e) {
+      var chipEl = e.target.closest('.bjd-chip');
+      if (!chipEl || !chipEl.getAttribute('data-v')) return;
+      if (id === 'wf-artist') WF.artist = chipEl.getAttribute('data-v');
+      else if (id === 'wf-cat') WF.cat = chipEl.getAttribute('data-v');
+      else WF.sort = chipEl.getAttribute('data-v');
+      renderWorksWall();
+    });
+  });
+  var resetBtn = document.getElementById('wf-reset');
+  if (resetBtn) resetBtn.addEventListener('click', function () {
+    WF = { artist: 'all', cat: 'all', sort: 'new' };
+    renderWorksWall();
   });
   document.getElementById('works-grid').addEventListener('click', function (e) {
     if (e.target.closest('.share-btn')) return; // 分享按钮自己处理
