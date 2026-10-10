@@ -549,13 +549,13 @@
       var b = x.b, img = b.cover || b.image;
       return '<div class="card bjd-card" data-i="' + x.i + '" style="margin-bottom:0;padding:0;overflow:hidden;cursor:pointer;position:relative;">' +
         (img ? '<div style="width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--card);"><img src="' + escAttrDb(normImg(img)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="BJD" loading="lazy"></div>'
-             : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--card);color:var(--muted);font-size:12px;">暂无图片</div>') +
+             : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--card);color:var(--muted);font-size:12px;">' + (LANG === 'en' ? 'No photo' : '暂无图片') + '</div>') +
         '<div style="padding:10px 12px;">' +
         '<div style="display:flex;align-items:center;gap:8px;">' +
-        '<b style="flex:1;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(b.name || '未命名娃娃') + '</b>' +
+        '<b style="flex:1;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(b.name || (LANG === 'en' ? 'Unnamed doll' : '未命名娃娃')) + '</b>' +
         shareBtnHtml(x.i, 'bjd', true) +
         '</div>' +
-        (b.head.size ? '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + escDb(b.head.size) + '</div>' : '') +
+        (b.head.size ? '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + escDb(LANG === 'en' ? sizeEn(b.head.size) : b.head.size) + '</div>' : '') +
         '</div></div>';
     }).join('');
   }
@@ -713,7 +713,7 @@
           var c = x.c, i = x.i;
           return '<div class="card sc-product" data-i="' + i + '" style="margin-bottom:0;padding:0;overflow:hidden;cursor:pointer;position:relative;">' +
             (c.image ? '<div style="width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--card);"><img src="' + escAttrDb(normImg(c.image)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="色卡" loading="lazy"></div>'
-                     : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--card);color:var(--muted);font-size:12px;">暂无图片</div>') +
+                     : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--card);color:var(--muted);font-size:12px;">' + (LANG === 'en' ? 'No photo' : '暂无图片') + '</div>') +
             '<div style="padding:12px 14px;">' +
             '<div style="display:flex;align-items:center;gap:8px;">' +
             '<b style="flex:1;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(c.name || '未命名色卡') + '</b>' +
@@ -755,7 +755,7 @@
         wkGrid.innerHTML = worksList.map(function (w, i) {
           return '<div class="card work-card" data-i="' + i + '" style="margin-bottom:0;padding:0;overflow:hidden;cursor:pointer;position:relative;">' +
             (w.image ? '<div style="width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--card);"><img src="' + escAttrDb(normImg(w.image)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="稿件" loading="lazy"></div>'
-                     : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--card);color:var(--muted);font-size:12px;">暂无图片</div>') +
+                     : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--card);color:var(--muted);font-size:12px;">' + (LANG === 'en' ? 'No photo' : '暂无图片') + '</div>') +
             '<div style="padding:12px 14px;">' +
             '<div style="display:flex;align-items:center;gap:8px;">' +
             '<b style="flex:1;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(w.name || '未命名稿件') + '</b>' +

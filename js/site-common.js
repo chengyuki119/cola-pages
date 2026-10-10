@@ -134,9 +134,21 @@ function normBjdView(b) {
     parts: b.parts || {}, homeShow: b.homeShow !== false
   };
 }
+var SIZE_EN = { '三分头': '1/3', '四分头': '1/4', '六分头': '1/6', '三分': '1/3', '四分': '1/4', '六分': '1/6', '八分': '1/8', '十二分': '1/12', '肉四': 'Chubby 1/4', '小六': 'Small 1/6', '矮胖六': 'Short & Chubby 1/6', '正常六分': 'Normal 1/6' };
+function sizeEn(s) {
+  if (s == null) return s;
+  s = String(s);
+  if (SIZE_EN[s]) return SIZE_EN[s];
+  return s.replace(/(十二|三|四|五|六|七|八|九|十)分(头)?/g, function (_, n) {
+    var f = { '三': '1/3', '四': '1/4', '五': '1/5', '六': '1/6', '七': '1/7', '八': '1/8', '九': '1/9', '十': '1/10', '十二': '1/12' }[n];
+    return f || _;
+  });
+}
 function bjdMeta(b) {
   if (b.head && b.head.size == null) b.head.size = b.size || ''; // 旧数据迁移
-  return [(b.head && b.head.size) || '', [b.head.brand || '', b.head.sculpt || ''].join(' ').trim()].filter(Boolean).join(' · ');
+  var sz = (b.head && b.head.size) || '';
+  if (sz && LANG === 'en') sz = sizeEn(sz);
+  return [sz, [b.head.brand || '', b.head.sculpt || ''].join(' ').trim()].filter(Boolean).join(' · ');
 }
 function bjdRow(label, val) {
   if (val == null || String(val).trim() === '') return '';
