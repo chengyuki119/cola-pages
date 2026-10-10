@@ -829,7 +829,7 @@
   (function () {
     var h = location.hash.replace('#', '');
     if (h === 'records') h = 'cards'; // 兼容旧链接 admin.html#records
-    if (['messages', 'shop', 'photos', 'home', 'profile', 'works', 'cards', 'days', 'bjd'].indexOf(h) !== -1) PENDING_TAB = h;
+    if (['messages', 'shop', 'photos', 'home', 'profile', 'works', 'cards', 'days', 'bjd', 'ai'].indexOf(h) !== -1) PENDING_TAB = h;
   })();
 
   function toast(msg) {
@@ -962,6 +962,7 @@
         if (panel) panel.style.display = b.dataset.tab === name ? '' : 'none';
       });
       if (b.dataset.tab === 'works') renderWorks();
+      try { history.replaceState(null, '', '#' + b.dataset.tab); } catch (e) {} // 把当前 tab 写进地址：刷新后停留在原页
     });
   });
 
