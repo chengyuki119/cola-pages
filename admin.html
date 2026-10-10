@@ -684,7 +684,7 @@
           <button type="button" class="hm-kebab" data-edit="hm-hero-edit" data-view="hm-hero-view" title="编辑">⋮</button>
         </div>
         <p style="font-size:12px;color:var(--muted);margin:8px 0 0;">改完保存，主页头像、背景图、ID 和 Bio 全部同步更新</p>
-        <div id="hm-hero-view" style="margin-top:10px;font-size:13px;line-height:1.9;">
+        <div id="hm-hero-view" style="margin-top:10px;font-size:13px;line-height:1.9;display:none;">
           <div>名字 / ID：<span data-v="hm-name"></span></div>
           <div>Bio 第一行：<span data-v="hm-line1"></span></div>
           <div>Bio 第二行：<span data-v="hm-line2"></span></div>
@@ -692,7 +692,7 @@
           <div>英文 Bio 第一行：<span data-v="hm-line1-en"></span></div>
           <div>英文 Bio 第二行：<span data-v="hm-line2-en"></span></div>
         </div>
-        <div id="hm-hero-edit" style="display:none;">
+        <div id="hm-hero-edit">
           <div class="form-grid" style="margin-top:10px;">
             <input id="hm-name" class="full" placeholder="名字 / ID（中文），如：柚子/Yuki">
             <input id="hm-line1" class="full" placeholder="Bio 第一行（中文）">
