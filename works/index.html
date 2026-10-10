@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>稿件展示 · Yuki / 柚子</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" sizes="180x180" href="/icon-yuki2-180.png">
+<link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki2-180.png">
+<meta name="apple-mobile-web-app-title" content="小柚的小世界">
+<link rel="stylesheet" href="/css/site.css">
+<link rel="stylesheet" href="/site-menu.css">
+<script src="/site-menu.js" defer></script>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="lang-switch">
+    <button class="lang-btn" data-lang="zh">简体中文</button>
+    <button class="lang-btn" data-lang="en">English</button>
+  </div>
+  <a class="site-logo" href="/" aria-label="回主页"><img src="/logo.png" alt="logo"></a>
+  <button class="burger" id="burger" aria-label="菜单">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+<div class="menu-mask" id="menu-mask"></div>
+<nav class="menu" id="menu"></nav>
+
+<div class="page active" id="page-works-page">
+  <div id="works-list-page">
+    <div class="subpage-header">
+      <a class="back-link" href="/"><span data-zh="← 返回主页" data-en="← Back to Home">← 返回主页</span></a>
+      <h1 class="subpage-title" data-zh="和桓桓宝宝的稿件展示" data-en="Our Works">和桓桓宝宝的稿件展示</h1>
+      <p class="subpage-sub" data-zh="和桓桓宝宝一起完成的稿件 · 点开看大图" data-en="Pieces made together with Huanhuan · tap to view">和桓桓宝宝一起完成的稿件 · 点开看大图</p>
+    </div>
+    <div class="page-body" style="padding-top:0;">
+      <div id="works-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;"></div>
+      <p id="works-empty" style="display:none;color:var(--muted);text-align:center;padding:30px 0;font-size:14px;"><span data-zh="还没有稿件，去后台「稿件管理」上传吧" data-en="No works yet. Upload in the admin Works tab.">还没有稿件，去后台「稿件管理」上传吧</span></p>
+    </div>
+  </div>
+
+  <div id="works-view-page" style="display:none;">
+    <div class="subpage-header">
+      <a class="back-link" href="/works/"><span data-zh="← 返回稿件列表" data-en="← Back to Works">← 返回稿件列表</span></a>
+      <h1 class="subpage-title" id="works-view-title"></h1>
+    </div>
+    <div class="page-body" style="padding-top:0;" id="works-view-body"></div>
+  </div>
+</div>
+
+<div id="share-pop"></div>
+<div class="toast" id="toast"></div>
+
+<script src="/js/site-common.js"></script>
+<script>
+  // ===== 稿件展示：独立子页（稿件墙 + 稿件详情 /works/?id=N）=====
+  // 数据：site_settings.works（与后台「稿件管理」同一份，单一数据源）
+  var WORKS_CACHE = [];
+  var CURRENT_WORK = -1;
+
+  function normWorkView(w) {
+    w = w || {};
+    return {
+      id: w.id || '', name: w.name || '', desc_zh: w.desc_zh || '', desc_en: w.desc_en || '',
+      date: w.date || '', image: w.image || '',
+      photos: Array.isArray(w.photos) ? w.photos : [],
+      visible: w.visible !== false
+    };
+  }
+  function workDesc(w) {
+    var d = LANG === 'en' ? (w.desc_en || w.desc_zh) : (w.desc_zh || w.desc_en);
+    return d || '';
+  }
+  function pad2(n) { n = parseInt(n, 10); return (n < 10 ? '0' : '') + n; }
+  function fmtWorkDate(ds) { // 2025-01-20 → 2025/01/20
+    var p = String(ds || '').split('-');
+    return p.length === 3 ? p[0] + '/' + pad2(p[1]) + '/' + pad2(p[2]) : (ds || '');
+  }
+  function renderWorksWall() {
+    var grid = document.getElementById('works-grid');
+    if (!grid) return;
+    var list = WORKS_CACHE.map(function (w, i) { return { w: w, i: i }; });
+    grid.innerHTML = list.map(function (x) {
+      var w = x.w;
+      return '<div class="card work-card" data-i="' + x.i + '" style="margin-bottom:0;padding:0;overflow:hidden;cursor:pointer;">' +
+        (w.image ? '<div style="width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--card);"><img src="' + escAttrDb(normImg(w.image)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + escAttrDb(w.name) + '" loading="lazy"></div>'
+                 : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--card);color:var(--muted);font-size:12px;">' + t('暂无图片', 'No image') + '</div>') +
+        '<div style="padding:12px 14px;">' +
+        '<div style="display:flex;align-items:center;gap:8px;">' +
+        '<b style="flex:1;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(w.name || t('未命名稿件', 'Untitled work')) + '</b>' +
+        shareBtnHtml(x.i, 'work', true) +
+        '</div>' +
+        (w.date ? '<div style="font-size:12px;color:var(--muted);margin-top:3px;">' + escDb(fmtWorkDate(w.date)) + '</div>' : '') +
+        (workDesc(w) ? '<div style="font-size:13px;color:var(--text);margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">' + escDb(workDesc(w)) + '</div>' : '') +
+        '</div></div>';
+    }).join('');
+    document.getElementById('works-empty').style.display = list.length ? 'none' : '';
+  }
+  function renderWorkView() {
+    var body = document.getElementById('works-view-body');
+    if (!body) return;
+    var w = WORKS_CACHE[CURRENT_WORK] ? normWorkView(WORKS_CACHE[CURRENT_WORK]) : null;
+    if (!w) { body.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px 0;">' + t('没有找到这篇稿件', 'Work not found') + '</p>'; return; }
+    var title = document.getElementById('works-view-title');
+    if (title) title.textContent = w.name || t('未命名稿件', 'Untitled work');
+    body.innerHTML =
+      (w.image ? '<div style="width:100%;max-width:420px;aspect-ratio:1/1;margin:0 auto 18px;overflow:hidden;border-radius:var(--radius);background:var(--card);"><img src="' + escAttrDb(normImg(w.image)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + escAttrDb(w.name) + '"></div>' : '') +
+      ((w.photos && w.photos.length) ? '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:420px;margin:0 auto 18px;">' + w.photos.map(function (u) {
+        return '<div class="album-img" style="width:100%;aspect-ratio:1/1;overflow:hidden;border-radius:12px;background:var(--card);"><img src="' + escAttrDb(normImg(u)) + '" style="width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in;" alt="' + escAttrDb(w.name) + '" loading="lazy"></div>';
+      }).join('') + '</div>' : '') +
+      '<div style="text-align:center;margin-bottom:18px;">' +
+      '<span style="font-size:18px;font-weight:700;">' + escDb(w.name || t('未命名稿件', 'Untitled work')) + '</span>' +
+      (w.date ? '<span style="color:var(--muted);font-size:14px;">　|　' + escDb(fmtWorkDate(w.date)) + '</span>' : '') +
+      '</div>' +
+      (workDesc(w) ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;font-size:14px;line-height:1.9;white-space:pre-wrap;word-break:break-word;">' + escDb(workDesc(w)) + '</div>' : '');
+  }
+  function routeWorks() {
+    var id = new URLSearchParams(location.search).get('id');
+    if (id != null && !isNaN(parseInt(id, 10))) {
+      CURRENT_WORK = parseInt(id, 10);
+      document.getElementById('works-list-page').style.display = 'none';
+      document.getElementById('works-view-page').style.display = '';
+      renderWorkView();
+    }
+  }
+  dbFetch('site_settings?select=key,value&key=eq.works').then(function (rows) {
+    var raw = null;
+    try { raw = rows && rows[0] ? JSON.parse(rows[0].value) : null; } catch (e) {}
+    WORKS_CACHE = (Array.isArray(raw) ? raw : []).map(normWorkView).filter(function (w) { return w.visible !== false; });
+    renderWorksWall();
+    routeWorks();
+  }).catch(function () {
+    renderWorksWall();
+    routeWorks();
+  });
+  document.getElementById('works-grid').addEventListener('click', function (e) {
+    if (e.target.closest('.share-btn')) return; // 分享按钮自己处理
+    var dc = e.target.closest('.work-card');
+    if (dc) location.href = '/works/?id=' + dc.getAttribute('data-i');
+  });
+  if (window.SiteMenu) SiteMenu.notify('works');
+  applyLang(LANG);
+</script>
+
+</body>
+</html>

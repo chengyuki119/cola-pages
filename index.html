@@ -915,11 +915,40 @@
     if (total > 0) return '<div class="ev-sub">' + t('已经' + total + '天', total + ' days') + '</div>';
     return '<div class="ev-sub">' + t('从今天开始', 'starts today') + '</div>';
   }
+  // ===== 自动纪念日：BJD / 色卡出生日期 → 特殊天数（100/200/300/500/1000/2000/3000/4000/5000天）+ 每年生日 =====
+  // 每次载入由原始记录一致地生成（不落库），改日期/删记录自动跟随，永不重复；手动创建的日历事件不受影响
+  function genAutoEvents(bjds, cards) {
+    var out = [];
+    var valid = function (d) { return /^\d{4}-\d{2}-\d{2}$/.test(String(d || '')); };
+    var iso = function (d) { return d.getUTCFullYear() + '-' + pad2(d.getUTCMonth() + 1) + '-' + pad2(d.getUTCDate()); };
+    function pushAll(name, birth) {
+      var p = birth.split('-').map(Number);
+      [100, 200, 300, 500, 1000, 2000, 3000, 4000, 5000].forEach(function (n) {
+        var d = new Date(Date.UTC(p[0], p[1] - 1, p[2] + (n - 1))); // 出生当天算第 1 天
+        out.push({ name: name + (LANG === 'en' ? ' · Day ' + n : '出生第' + n + '天'), day: iso(d), type: '纪念', repeat: 'none', auto: true });
+      });
+      var nowY = new Date().getFullYear();
+      var maxY = Math.min(80, nowY - p[0] + 2);
+      for (var y = 1; y <= maxY; y++) {
+        var d2 = new Date(Date.UTC(p[0] + y, p[1] - 1, p[2])); // 实际日历日期 +y 年（闰年 2/29 自动顺延到 3/1）
+        out.push({ name: name + (LANG === 'en' ? ' · ' + y + 'y' : zhYears(y) + '岁'), day: iso(d2), type: '纪念', repeat: 'none', auto: true });
+      }
+    }
+    (bjds || []).forEach(function (b) { if (b && b.name && valid(b.birth)) pushAll(b.name, b.birth); });
+    (cards || []).forEach(function (c) { if (c && c.name && valid(c.birth)) pushAll(c.name, c.birth); });
+    return out;
+  }
   function loadEvents() {
-    dbFetch('important_days?select=*&order=day.asc&limit=200').then(function (rows) {
+    Promise.all([
+      dbFetch('important_days?select=*&order=day.asc&limit=200'),
+      dbFetch('site_settings?select=key,value&key=in.(bjds,cards)')
+    ]).then(function (res) {
+      var rows = res[0];
       if (!Array.isArray(rows)) { DB_POST_OK = false; rows = []; }
-      EVENTS = rows;
       migrateOldBirthdays();
+      var S = {};
+      (res[1] || []).forEach(function (r) { try { S[r.key] = JSON.parse(r.value); } catch (e) {} });
+      EVENTS = rows.concat(genAutoEvents(S.bjds || [], S.cards || []));
       renderCal();
       renderCalSide();
     }).catch(function () { DB_POST_OK = false; renderCal(); renderCalSide(); });

@@ -106,6 +106,7 @@ function normCardView(c) {
 }
 var CARDS_CACHE = [];  // 页面脚本按需填充
 var BJDS_CACHE = [];   // 页面脚本按需填充
+var WORKS_CACHE = [];  // 页面脚本按需填充（稿件展示）
 
 // ===== BJD 总价（与色卡总价同一套展示口径）：已启用部件的价格自动求和 =====
 function bjdTotalV(b) {
@@ -128,7 +129,7 @@ function normBjdView(b) {
   return {
     name: b.name || '', image: b.image || '', cover: b.cover || '',
     head: b.head || {}, body: b.body || {}, eyes: b.eyes || {}, clothes: b.clothes || {},
-    faceup: b.faceup || {}, price: b.price || {}, purchase: b.purchase || {},
+    birth: b.birth || '', faceup: b.faceup || {}, price: b.price || {}, purchase: b.purchase || {},
     photos: Array.isArray(b.photos) ? b.photos : [], notes: b.notes || '',
     parts: b.parts || {}, homeShow: b.homeShow !== false
   };
@@ -244,7 +245,7 @@ function shareBtnHtml(i, type, inline) {
   return '<button class="share-btn' + (inline ? ' share-inline' : '') + '" data-share="' + i + '" data-share-type="' + (type || 'card') + '" title="' + t('分享', 'Share') + '" aria-label="' + t('分享', 'Share') + '">' + SHARE_ICON + '</button>';
 }
 function shareLink(i, type) {
-  return location.origin + (type === 'bjd' ? '/bjd/?id=' : '/color-card/?card=') + i;
+  return location.origin + (type === 'bjd' ? '/bjd/?id=' : type === 'work' ? '/works/?id=' : '/color-card/?card=') + i;
 }
 function sharePopItems() {
   return [['wx', '微信'], ['qq', 'QQ'], ['wb', '微博'], ['xhs', '小红书'], ['fb', 'Facebook'], ['x', 'X / Twitter'], ['wa', 'WhatsApp'], ['ms', 'Messenger'], ['mail', t('邮件分享', 'Email')], ['copy', t('复制链接', 'Copy Link')]]
@@ -292,11 +293,13 @@ function copyText(txt, msg) {
   } else fallbackCopy(txt, done);
 }
 function doShare(opt, i, type) {
-  var isBjd = (type || 'card') === 'bjd';
-  var c = isBjd ? BJDS_CACHE[i] : CARDS_CACHE[i];
-  var link = shareLink(i, type || 'card');
-  var title = (isBjd ? t('来看看这个娃娃：', 'Check out this doll: ') : t('来看看这张色卡：', 'Check out this color card: ')) +
-    ((c && c.name) || (isBjd ? t('未命名娃娃', 'Unnamed doll') : t('未命名色卡', 'Unnamed card')));
+  var kind = type || 'card';
+  var isBjd = kind === 'bjd';
+  var isWork = kind === 'work';
+  var c = isBjd ? BJDS_CACHE[i] : isWork ? WORKS_CACHE[i] : CARDS_CACHE[i];
+  var link = shareLink(i, kind);
+  var title = (isBjd ? t('来看看这个娃娃：', 'Check out this doll: ') : isWork ? t('来看看这篇稿件：', 'Check out this work: ') : t('来看看这张色卡：', 'Check out this color card: ')) +
+    ((c && c.name) || (isBjd ? t('未命名娃娃', 'Unnamed doll') : isWork ? t('未命名稿件', 'Untitled work') : t('未命名色卡', 'Unnamed card')));
   var enc = encodeURIComponent;
   if (opt === 'copy') { copyText(link); return; }
   if (opt === 'wx') { copyText(link, t('链接已复制，去微信粘贴发送', 'Link copied, paste it in WeChat')); return; }

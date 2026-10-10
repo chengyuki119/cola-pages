@@ -22,6 +22,7 @@
     ]},
     { key: 'bjd', zh: 'BJD', en: 'BJD', page: 'bjd', url: '/bjd/' },
     { key: 'cards', zh: '色卡', en: 'Color Cards', page: 'cards', url: '/color-card/' },
+    { key: 'works', zh: '稿件展示', en: 'Works', page: 'works', url: '/works/' },
     { key: 'shop', group: true, nav: 'shop', zh: '我的小铺', en: 'My Shop', items: [
       { key: 'shop', zh: '逛小铺', en: 'Shop', page: 'shop', url: '/shop/' },
       { key: 'reviews', zh: '评价返图', en: 'Review', page: 'shop', url: '/shop/?sec=reviews', sec: 'reviews' },
@@ -38,6 +39,7 @@
     if (p.indexOf('/photos/') === 0) return 'photos';
     if (p.indexOf('/bjd/') === 0) return 'bjd';
     if (p.indexOf('/color-card/') === 0) return 'cards';
+    if (p.indexOf('/works/') === 0) return 'works';
     if (p.indexOf('/shop/') === 0 || p.indexOf('/shop.html') === 0) return 'shop';
     if (p.indexOf('/askbox/') === 0) return 'askbox';
     if (p.indexOf('/admin.html') === 0) return 'admin';

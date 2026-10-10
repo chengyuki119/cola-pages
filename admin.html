@@ -431,8 +431,10 @@
       <button class="pp-btn" id="pp-btn" type="button">当前页面：<span id="pp-cur">主页管理</span> <span class="pp-arrow">▼</span></button>
       <div class="pp-menu" id="pp-menu">
         <button class="tab-btn active" data-tab="home">主页管理</button>
+        <button class="tab-btn" data-tab="profile">Profile 编辑</button>
         <button class="tab-btn" data-tab="days">重要日子</button>
         <button class="tab-btn" data-tab="photos">照片管理</button>
+        <button class="tab-btn" data-tab="works">稿件管理</button>
         <button class="tab-btn" data-tab="bjd">BJD管理</button>
         <button class="tab-btn" data-tab="cards">色卡管理</button>
         <button class="tab-btn" data-tab="shop">小铺上架</button>
@@ -619,32 +621,35 @@
 
     <div id="tab-home">
       <div class="card">
-        <h3>主页区域</h3>
-        <p style="font-size:12px;color:var(--muted);margin:-4px 0 12px;">点「⋮」编辑、排序、复制、删除；点「显示中」切换显隐；改完点「保存」，主页刷新后同步</p>
+        <h3>主页展示模板</h3>
+        <p style="font-size:12px;color:var(--muted);margin:-4px 0 12px;">只保留两种模板入口：小铺展示模板、照片展示模板。点标题直接改，点「显示中」切换显隐（隐藏不清数据，随时可恢复），改完点「保存」主页同步</p>
         <div id="area-list"></div>
-        <div class="actions" style="justify-content:space-between;">
-          <button class="btn-mini" id="btn-area-add">＋ 添加新区域</button>
+        <div class="actions" style="justify-content:flex-end;">
           <button class="btn-save" id="btn-save-areas">保存</button>
         </div>
       </div>
+    </div>
+
+    <div id="tab-profile" style="display:none;">
       <div class="card">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
-          <h3 style="margin:0;">主页文案</h3>
+          <h3 style="margin:0;">Profile 编辑</h3>
           <button type="button" class="hm-kebab" data-edit="hm-hero-edit" data-view="hm-hero-view" title="编辑">⋮</button>
         </div>
+        <p style="font-size:12px;color:var(--muted);margin:8px 0 0;">改完保存，主页头像、背景图、ID 和 Bio 全部同步更新</p>
         <div id="hm-hero-view" style="margin-top:10px;font-size:13px;line-height:1.9;">
-          <div>名字：<span data-v="hm-name"></span></div>
-          <div>第一行小字：<span data-v="hm-line1"></span></div>
-          <div>第二行小字：<span data-v="hm-line2"></span></div>
+          <div>ID：<span data-v="hm-name"></span></div>
+          <div>Bio 第一行：<span data-v="hm-line1"></span></div>
+          <div>Bio 第二行：<span data-v="hm-line2"></span></div>
         </div>
         <div id="hm-hero-edit" style="display:none;">
           <div class="form-grid" style="margin-top:10px;">
-            <input id="hm-name" class="full" placeholder="名字，如：Yuki / 柚子">
-            <input id="hm-line1" class="full" placeholder="第一行小字（可留空不改）">
-            <input id="hm-line2" class="full" placeholder="第二行小字（可留空不改）">
+            <input id="hm-name" class="full" placeholder="ID，如：Yuki / 柚子">
+            <input id="hm-line1" class="full" placeholder="Bio 第一行（可留空不改）">
+            <input id="hm-line2" class="full" placeholder="Bio 第二行（可留空不改）">
           </div>
           <div class="actions">
-            <button class="btn-save" id="btn-save-hero">保存文案</button>
+            <button class="btn-save" id="btn-save-hero">保存 Profile</button>
           </div>
         </div>
       </div>
@@ -663,52 +668,18 @@
           <button class="btn-save" id="btn-cover">上传背景图</button>
         </div>
       </div>
+    </div>
+
+    <div id="tab-works" style="display:none;">
       <div class="card">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
-          <h3 style="margin:0;">入口卡片</h3>
-          <button type="button" class="hm-kebab" data-edit="hm-entries-edit" data-view="hm-entries-view" title="编辑">⋮</button>
-        </div>
-        <div id="hm-entries-view" style="margin-top:10px;font-size:13px;line-height:1.9;">
-          <div>小铺卡片标题：<span data-v="hm-shop-h"></span></div>
-          <div>小铺卡片小字：<span data-v="hm-shop-p"></span></div>
-          <div>提问箱卡片标题：<span data-v="hm-anon-h"></span></div>
-          <div>提问箱卡片小字：<span data-v="hm-anon-p"></span></div>
-        </div>
-        <div id="hm-entries-edit" style="display:none;">
-          <div class="form-grid" style="margin-top:10px;">
-            <input id="hm-shop-h" placeholder="小铺卡片标题（可留空不改）">
-            <input id="hm-shop-p" placeholder="小铺卡片小字（可留空不改）">
-            <input id="hm-anon-h" placeholder="提问箱卡片标题（可留空不改）">
-            <input id="hm-anon-p" placeholder="提问箱卡片小字（可留空不改）">
-          </div>
-          <div class="actions">
-            <button class="btn-save" id="btn-save-entries">保存卡片文案</button>
-          </div>
+        <h3>稿件管理</h3>
+        <p class="sub" style="margin:-6px 0 12px;">和桓桓宝宝的稿件展示（/works/），后台改完前台同步；点「显示中」切换显隐</p>
+        <div id="works-list"></div>
+        <div class="actions" style="flex-wrap:wrap;">
+          <button class="btn-mini" id="btn-work-add">+ 新增稿件</button>
+          <span id="works-total" style="font-size:14px;font-weight:600;color:var(--accent);align-self:center;"></span>
         </div>
       </div>
-      <h3 class="outside">找到我 · 卡片管理</h3>
-      <div class="card">
-        <div class="form-grid">
-          <select id="lk-icon">
-            <option value="gmail">Gmail 图标</option>
-            <option value="instagram">Instagram 图标</option>
-            <option value="x">X / Twitter 图标</option>
-            <option value="discord">Discord 图标</option>
-            <option value="wechat">微信图标</option>
-            <option value="xhs">小红书图标</option>
-            <option value="netease">网易云图标</option>
-            <option value="link">通用链接图标</option>
-          </select>
-          <input id="lk-sort" type="number" placeholder="排序数字（小的在前，可留空）">
-          <input id="lk-name" placeholder="名称，如：Instagram">
-          <input id="lk-sub" placeholder="小字，如：zyc.0119（可留空）">
-          <input id="lk-url" class="full" placeholder="链接，如：https://...（微信纯展示可留空）">
-        </div>
-        <div class="actions">
-          <button class="btn-save" id="btn-add-link">添加卡片</button>
-        </div>
-      </div>
-      <div id="link-list" style="margin-top:12px;"><p class="empty">加载中…</p></div>
     </div>
 
     <div id="tab-days" style="display:none;">
@@ -787,7 +758,7 @@
   (function () {
     var h = location.hash.replace('#', '');
     if (h === 'records') h = 'cards'; // 兼容旧链接 admin.html#records
-    if (['messages', 'shop', 'photos', 'home', 'cards', 'days', 'bjd'].indexOf(h) !== -1) PENDING_TAB = h;
+    if (['messages', 'shop', 'photos', 'home', 'profile', 'works', 'cards', 'days', 'bjd'].indexOf(h) !== -1) PENDING_TAB = h;
   })();
 
   function toast(msg) {
@@ -915,10 +886,11 @@
       b.classList.add('active');
       document.getElementById('pp-cur').textContent = b.textContent;
       ppClose();
-      ['messages', 'shop', 'photos', 'home', 'cards', 'bjd', 'days', 'ai'].forEach(function (name) {
+      ['messages', 'shop', 'photos', 'home', 'profile', 'works', 'cards', 'bjd', 'days', 'ai'].forEach(function (name) {
         var panel = document.getElementById('tab-' + name);
         if (panel) panel.style.display = b.dataset.tab === name ? '' : 'none';
       });
+      if (b.dataset.tab === 'works') renderWorks();
     });
   });
 
@@ -1791,10 +1763,10 @@
         if (hero.line1) document.getElementById('hm-line1').value = hero.line1;
         if (hero.line2) document.getElementById('hm-line2').value = hero.line2;
         var en = parseSetting('entries', {});
-        if (en.shop_h) document.getElementById('hm-shop-h').value = en.shop_h;
-        if (en.shop_p) document.getElementById('hm-shop-p').value = en.shop_p;
-        if (en.anon_h) document.getElementById('hm-anon-h').value = en.anon_h;
-        if (en.anon_p) document.getElementById('hm-anon-p').value = en.anon_p;
+        ['shop_h', 'shop_p', 'anon_h', 'anon_p'].forEach(function (k) { // 入口卡片管理已从后台移除，仅回填存在的输入框（保留数据）
+          var el2 = document.getElementById('hm-' + k.replace('_', '-'));
+          if (el2 && en[k]) el2.value = en[k];
+        });
         LINKS = parseSetting('links', []);
         renderLinkList();
         if (typeof loadSections === 'function') loadSections(); // SETTINGS 就绪后重渲染分区列表（每行显示值）
@@ -1824,6 +1796,8 @@
         if (b) BJDS = b.map(normBjd);
         var bsz = parseSetting('bjd_sizes', null); // 自定义娃娃尺寸 / 种类（像色卡画师一样可增删）
         if (Array.isArray(bsz) && bsz.length) BJD_SIZES = bsz.map(function (s) { return String(s).trim(); }).filter(Boolean);
+        var wk = parseSetting('works', null); // 稿件展示（和桓桓宝宝的稿件展示 /works/）
+        if (wk) WORKS = wk.map(normWork);
         // 主页「编辑卡」直达：按 card_id 精准匹配，自动打开对应色卡的编辑状态
         try {
           var ec = sessionStorage.getItem('admin-edit-card');
@@ -1837,8 +1811,9 @@
         } catch (e) {}
         renderCards();
         renderBjds();
+        renderWorks();
       })
-      .catch(function () { document.getElementById('link-list').innerHTML = '<p class="empty">加载失败，刷新试试</p>'; });
+      .catch(function () { toast('主页数据加载失败，刷新试试'); });
   }
   document.getElementById('btn-save-hero').addEventListener('click', function () {
     var body = {
@@ -1852,7 +1827,10 @@
       toast('已保存，主页刷新生效');
     }).catch(function () { toast('保存失败'); });
   });
-  document.getElementById('btn-save-entries').addEventListener('click', function () {
+  (function () { // 入口卡片管理已从后台移除，输入框不存在时跳过绑定
+    var btnEntries = document.getElementById('btn-save-entries');
+    if (!btnEntries) return;
+    btnEntries.addEventListener('click', function () {
     var body = {
       shop_h: document.getElementById('hm-shop-h').value.trim(),
       shop_p: document.getElementById('hm-shop-p').value.trim(),
@@ -1864,6 +1842,7 @@
       toast('已保存，主页刷新生效');
     }).catch(function () { toast('保存失败'); });
   });
+  })();
   function uploadSite(inputId, key) {
     var f = document.getElementById(inputId).files[0];
     if (!f) { toast('先选一张图'); return; }
@@ -1887,6 +1866,7 @@
   document.getElementById('hm-cover-file').addEventListener('change', function () { document.getElementById('hm-cover-name').textContent = this.files[0] ? this.files[0].name : ''; });
   function renderLinkList() {
     var list = document.getElementById('link-list');
+    if (!list) return; // 找到我卡片管理已从后台移除，数据保留、不再从后台维护
     list.innerHTML = LINKS.length
       ? LINKS.map(function (l, i) {
           return '<div class="card link-item" data-i="' + i + '">' +
@@ -1904,7 +1884,9 @@
   }
   function renderAreaList() {
     var list = document.getElementById('area-list');
+    if (!list) return;
     list.innerHTML = AREAS.map(function (a, i) {
+      if (a.key !== 'gallery' && a.key !== 'shop') return ''; // 主页管理只保留两种模板入口（照片展示/我的小铺），其他区块数据保留、不再从后台维护
       var custom = String(a.key).indexOf('area-') === 0;
       if (i !== AREA_EDIT) {
         return '<div class="card area-item" data-i="' + i + '" style="margin-bottom:10px;">' +
@@ -1973,16 +1955,21 @@
       renderAreaList();
     }
   });
-  document.getElementById('btn-area-add').addEventListener('click', function () {
+  (function () { // 「添加新区域」入口已移除（模板固定两种），保留函数避免残留引用报错
+    var btnAreaAdd = document.getElementById('btn-area-add');
+    if (!btnAreaAdd) return;
+    btnAreaAdd.addEventListener('click', function () {
     AREAS.push({ key: 'area-' + Date.now(), title_zh: '', title_en: '', content_zh: '', content_en: '', visible: true });
     AREA_EDIT = AREAS.length - 1; // 新区域直接进编辑态，填完点「保存」
     renderAreaList();
   });
+  })();
   // 主页文案 / 入口卡片：平时只显示内容，点 ⋮ 才展开编辑
   function refreshHmViews() {
     ['hm-name', 'hm-line1', 'hm-line2', 'hm-shop-h', 'hm-shop-p', 'hm-anon-h', 'hm-anon-p', 'gl-title-zh', 'gl-title-en', 'gl-sub-zh', 'gl-sub-en'].forEach(function (id) {
       var el = document.querySelector('[data-v="' + id + '"]');
-      if (el) el.textContent = document.getElementById(id).value || '（未设置）';
+      var src = document.getElementById(id);
+      if (el && src) el.textContent = src.value || '（未设置）';
     });
   }
   document.querySelectorAll('.hm-kebab').forEach(function (b) {
@@ -2027,6 +2014,7 @@
     b.price.faceup = b.price.faceup || ''; b.price.eyes = b.price.eyes || ''; b.price.body = b.price.body || '';
     b.price.clothes = b.price.clothes || '';
     b.purchase = b.purchase || {};
+    b.birth = b.birth || ''; // 出生日期（自动纪念日）
     b.purchase.date = b.purchase.date || ''; b.purchase.channel = b.purchase.channel || ''; b.purchase.status = b.purchase.status || '';
     b.photos = Array.isArray(b.photos) ? b.photos : [];
     b.notes = b.notes || '';
@@ -2160,6 +2148,7 @@
     }
     if (!c.artists.length) c.artists.push({ name: '', rows: [{ label: '单人', price: '', qty: 1 }] });
     c.artists.forEach(normArtist);
+    c.birth = c.birth || ''; // 出生日期（自动纪念日）
     c.homeShow = c.homeShow !== false; // 主页展示
     if (!Array.isArray(c.photos)) c.photos = []; // 追加相册（主图 image 保留）
     return c;
@@ -2439,6 +2428,7 @@
         photoStrip(c.photos, 'c-photo-kebab') +
         '<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:13px;">' +
         '<label style="display:flex;align-items:center;gap:6px;flex-shrink:0;">购入日期<input type="text" class="c-bought date-pick" readonly value="' + escAttr(c.bought || '') + '" placeholder="选择日期" style="width:100px;padding:7px 10px;font-size:13px;cursor:pointer;"></label>' +
+        '<label style="display:flex;align-items:center;gap:6px;flex-shrink:0;">出生日期<input type="text" class="c-birth date-pick" readonly value="' + escAttr(c.birth || '') + '" placeholder="自动纪念日" style="width:100px;padding:7px 10px;font-size:13px;cursor:pointer;"></label>' +
         '<label style="display:flex;align-items:center;gap:6px;flex-shrink:0;">收卡价格<input type="number" class="c-orig" min="0" value="' + escAttr(c.origPrice == null ? '' : c.origPrice) + '" placeholder="¥" style="width:90px;padding:7px 10px;font-size:13px;"></label>' +
         '<label style="display:flex;align-items:center;gap:6px;flex-shrink:0;">最后记录<input type="text" class="c-lastrec date-pick" readonly value="' + escAttr(c.lastRec || '') + '" placeholder="自动更新" style="width:100px;padding:7px 10px;font-size:13px;cursor:pointer;"></label>' +
         '<span style="color:var(--muted);font-size:12px;">保存时自动更新</span>' +
@@ -2536,6 +2526,14 @@
         '<button class="sc-opt" data-opt="up"' + (SC_POP.ai === 0 ? ' disabled' : '') + '>↑ 往上移动</button>' +
         '<button class="sc-opt" data-opt="down"' + (SC_POP.ai === c1.artists.length - 1 ? ' disabled' : '') + '>↓ 往下移动</button>' +
         '<button class="sc-opt" data-opt="cancel">✕ 取消</button>';
+    }
+    if (SC_POP.type === 'work' || SC_POP.type === 'work-e') {
+      return (SC_POP.type === 'work' ? '<button class="sc-opt" data-opt="edit">编辑</button>' : '') +
+        '<button class="sc-opt sc-opt-del" data-opt="del">删除</button>' +
+        '<button class="sc-opt" data-opt="up"' + (SC_POP.i === 0 ? ' disabled' : '') + '>↑ 往上移动</button>' +
+        '<button class="sc-opt" data-opt="down"' + (SC_POP.i === WORKS.length - 1 ? ' disabled' : '') + '>↓ 往下移动</button>' +
+        (SC_POP.type === 'work' ? '<button class="sc-opt" data-opt="cancel">✕ 取消</button>'
+                               : '<button class="sc-opt" data-opt="collapse">收起编辑</button>');
     }
     if (SC_POP.type === 'bjd' || SC_POP.type === 'bjd-e') {
       return (SC_POP.type === 'bjd' ? '<button class="sc-opt" data-opt="edit">编辑</button>' : '') +
@@ -2860,13 +2858,13 @@
       }
       return;
     }
-    if (ctx.type === 'bjd-ph' || ctx.type === 'card-ph') {
+    if (ctx.type === 'bjd-ph' || ctx.type === 'card-ph' || ctx.type === 'work-ph') {
       if (opt === 'del') {
         uiConfirm('确定删除这张照片吗？', function () {
-          var arr = ctx.type === 'bjd-ph' ? BJDS[ctx.i].photos : CARDS[ctx.i].photos;
+          var arr = ctx.type === 'bjd-ph' ? BJDS[ctx.i].photos : ctx.type === 'card-ph' ? CARDS[ctx.i].photos : WORKS[ctx.i].photos;
           if (arr) {
             arr.splice(ctx.ph.pi, 1);
-            if (ctx.type === 'bjd-ph') { saveBjdsQuiet(); renderBjds(); } else { renderCards(); }
+            if (ctx.type === 'bjd-ph') { saveBjdsQuiet(); renderBjds(); } else if (ctx.type === 'card-ph') { renderCards(); } else { saveWorksQuiet(); renderWorks(); }
           }
         });
       }
@@ -2908,6 +2906,23 @@
       if (opt === 'collapse') BJDS_EDIT = -1;
       saveBjdsQuiet();
       renderBjds();
+      return;
+    }
+    if (ctx.type === 'work' || ctx.type === 'work-e') {
+      if (opt === 'edit') { CARDS_EDIT = -1; WORKS_EDIT = ctx.i; EDIT_TYPE = 'work'; renderWorks(); return; }
+      if (opt === 'up' && ctx.i > 0) { var wu = WORKS[ctx.i - 1]; WORKS[ctx.i - 1] = WORKS[ctx.i]; WORKS[ctx.i] = wu; if (WORKS_EDIT === ctx.i) WORKS_EDIT = ctx.i - 1; else if (WORKS_EDIT === ctx.i - 1) WORKS_EDIT = ctx.i; }
+      if (opt === 'down' && ctx.i < WORKS.length - 1) { var wd = WORKS[ctx.i + 1]; WORKS[ctx.i + 1] = WORKS[ctx.i]; WORKS[ctx.i] = wd; if (WORKS_EDIT === ctx.i) WORKS_EDIT = ctx.i + 1; else if (WORKS_EDIT === ctx.i + 1) WORKS_EDIT = ctx.i; }
+      if (opt === 'del') {
+        uiConfirm('确定删除这篇稿件吗？', function () {
+          WORKS.splice(ctx.i, 1);
+          if (WORKS_EDIT === ctx.i) WORKS_EDIT = -1; else if (WORKS_EDIT > ctx.i) WORKS_EDIT -= 1;
+          saveWorksQuiet();
+          renderWorks();
+        });
+      }
+      if (opt === 'collapse') WORKS_EDIT = -1;
+      saveWorksQuiet();
+      renderWorks();
       return;
     }
     if (ctx.type === 'area') {
@@ -3030,7 +3045,7 @@
       if (b && !b.disabled) popAct(b.getAttribute('data-opt'));
       return;
     }
-    if (e.target.closest('.sc-kebab, .sc-artist-menu, .sc-row-menu, .bjd-kebab, .bjd-ph-menu, .ph-kebab, .area-kebab, .c-photo-kebab, .b-photo-kebab, .bjd-size-kebab')) return; // ⋮ 由列表处理器切换
+    if (e.target.closest('.sc-kebab, .sc-artist-menu, .sc-row-menu, .bjd-kebab, .bjd-ph-menu, .ph-kebab, .area-kebab, .c-photo-kebab, .b-photo-kebab, .bjd-size-kebab, .work-kebab, .w-photo-kebab')) return; // ⋮ 由列表处理器切换
     popClose();
   });
 
@@ -3055,6 +3070,7 @@
     if (e.target.classList.contains('c-name')) c.name = e.target.value;
     if (e.target.classList.contains('c-shop')) c.shop = e.target.value;
     if (e.target.classList.contains('c-bought')) c.bought = e.target.value; // 购入日期：只手动改，不自动变
+    if (e.target.classList.contains('c-birth')) c.birth = e.target.value; // 出生日期 → 自动纪念日（前台日历）
     if (e.target.classList.contains('c-lastrec')) c.lastRec = e.target.value; // 最后记录：保存时自动更新，也可手动选
     if (e.target.classList.contains('c-orig')) c.origPrice = e.target.value; // 收卡价格（原「原本价格」）：只手动改，不随画师价格/张数变动
     var blkIn = e.target.closest('.sc-artist-block');
@@ -3282,6 +3298,7 @@
           '</div>') +
         bjdGroup('购买信息（全部选填）', '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
           bjdField('购买日期', '<input type="text" class="b-buy-date" readonly data-dp="1" placeholder="选择日期" style="width:100%;cursor:pointer;" value="' + escAttr(b.purchase.date) + '">') +
+          bjdField('出生日期（自动纪念日）', '<input type="text" class="b-birth date-pick" readonly data-dp="1" placeholder="选择日期，自动生成100天/1000天/每岁纪念日" style="width:100%;cursor:pointer;" value="' + escAttr(b.birth || '') + '">') +
           bjdField('购买渠道 / 商家', '<input class="b-buy-channel" style="width:100%;" value="' + escAttr(b.purchase.channel) + '" placeholder="如：淘宝 / XX店">') +
           bjdField('购买状态', '<select class="b-buy-status">' + opts(BJD_STATUS, b.purchase.status) + '</select>') +
           '</div>') +
@@ -3343,6 +3360,130 @@
       BJD_SIZES.pop();
     });
   });
+
+  // ===== 稿件管理（和桓桓宝宝的稿件展示 /works/）：site_settings.works，单一数据源 =====
+  var WORKS = [];
+  var WORKS_EDIT = -1;
+  function normWork(x) {
+    x = x || {};
+    x.id = x.id || 'w-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+    x.name = x.name || ''; x.desc_zh = x.desc_zh || ''; x.desc_en = x.desc_en || '';
+    x.date = x.date || ''; x.image = x.image || '';
+    x.photos = Array.isArray(x.photos) ? x.photos : [];
+    x.visible = x.visible !== false;
+    return x;
+  }
+  function saveWorksQuiet(done) {
+    return saveSetting('works', JSON.parse(JSON.stringify(WORKS))).then(function (r) {
+      if (!r.ok) throw new Error();
+      if (done) done();
+    }).catch(function () { toast('保存失败'); });
+  }
+  function renderWorks() {
+    initToolbars();
+    var list = document.getElementById('works-list');
+    if (!list) return;
+    list.innerHTML = WORKS.map(function (w, i) {
+      if (i !== WORKS_EDIT) {
+        return '<div class="card work-item" data-i="' + i + '" style="position:relative;padding:0;overflow:hidden;">' +
+          '<button class="kebab work-kebab" title="菜单">⋮</button>' +
+          '<div class="sc-card-img">' +
+          (w.image ? '<img src="' + escAttr(w.image) + '" alt="稿件">' : '<div class="sc-img-empty">暂无图片</div>') +
+          '</div>' +
+          '<div class="sc-info">' +
+          '<b class="sc-name">' + esc(w.name || '未命名稿件') + '</b>' +
+          '<div class="sc-shop">' + esc(w.date || '') + '</div>' +
+          '<span class="tgl-label" style="margin-top:7px;"><button type="button" class="tgl w-vis-toggle' + (w.visible !== false ? ' on' : '') + '" aria-pressed="' + (w.visible !== false) + '" aria-label="展示中"><span class="tgl-knob"></span></button>展示中</span>' +
+          '</div>' +
+          '</div>';
+      }
+      return '<div class="card work-item editing" data-i="' + i + '" style="position:relative;">' +
+        '<button class="kebab work-kebab" title="菜单">⋮</button>' +
+        '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-right:40px;">' +
+        bjdField('标题', '<input class="wk-name" style="width:100%;" value="' + escAttr(w.name) + '" placeholder="稿件标题">') +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap;">' +
+        (w.image ? '<img src="' + escAttr(w.image) + '" style="width:44px;height:44px;object-fit:cover;border-radius:8px;flex-shrink:0;">' : '') +
+        '<label class="btn-mini">上传图片<input type="file" class="w-file" accept="image/*" hidden></label>' +
+        '<label class="btn-mini">添加照片<input type="file" class="w-photos" accept="image/*" multiple hidden></label>' +
+        '</div>' +
+        photoStrip(w.photos, 'w-photo-kebab') +
+        '<div style="display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap;">' +
+        bjdField('日期', '<input type="text" class="wk-date date-pick" readonly data-dp="1" placeholder="选择日期" style="width:100%;cursor:pointer;" value="' + escAttr(w.date) + '">') +
+        '</div>' +
+        '<div style="margin-top:10px;">' + bjdField('描述（中文）', '<textarea class="wk-czh" style="width:100%;box-sizing:border-box;min-height:56px;" placeholder="稿件描述（中文）">' + esc(w.desc_zh) + '</textarea>') + '</div>' +
+        '<div style="margin-top:10px;">' + bjdField('描述（英文，可留空同中文）', '<textarea class="wk-cen" style="width:100%;box-sizing:border-box;min-height:56px;" placeholder="Description (English)">' + esc(w.desc_en) + '</textarea>') + '</div>' +
+        '</div>';
+    }).join('') || '<p class="empty">还没有稿件，点下面「+ 新增稿件」</p>';
+    document.getElementById('works-total').textContent = WORKS.length ? '共 ' + WORKS.length + ' 篇稿件' : '';
+    if (WORKS_EDIT >= 0) EDIT_TYPE = 'work'; else if (EDIT_TYPE === 'work') EDIT_TYPE = null;
+    enhanceSelects();
+  }
+  document.getElementById('btn-work-add').addEventListener('click', function () {
+    WORKS.push(normWork({ createdAt: Date.now() }));
+    WORKS_EDIT = WORKS.length - 1;
+    renderWorks();
+  });
+  document.getElementById('works-list').addEventListener('click', function (e) {
+    var card = e.target.closest('.work-item');
+    if (!card) return;
+    var i = parseInt(card.getAttribute('data-i'), 10);
+    var wpk = e.target.closest('.w-photo-kebab');
+    if (wpk) {
+      if (SC_POP && POP_BTN === wpk) { popClose(); return; }
+      popOpen('work-ph', i, -1, -1, wpk, { pi: parseInt(wpk.getAttribute('data-pi'), 10) });
+      return;
+    }
+    var kebab = e.target.closest('.work-kebab');
+    if (kebab) {
+      if (SC_POP && POP_BTN === kebab) { popClose(); return; }
+      popOpen(i === WORKS_EDIT ? 'work-e' : 'work', i, -1, -1, kebab);
+      return;
+    }
+    var tgl = e.target.closest('.w-vis-toggle');
+    if (tgl) {
+      var wv = normWork(WORKS[i]);
+      wv.visible = !(wv.visible !== false);
+      tgl.classList.toggle('on', wv.visible !== false);
+      tgl.setAttribute('aria-pressed', String(wv.visible !== false));
+      saveWorksQuiet();
+      return;
+    }
+    if (SC_POP) { popClose(); return; }
+  });
+  document.getElementById('works-list').addEventListener('input', function (e) {
+    var card = e.target.closest('.work-item');
+    if (!card) return;
+    var w = normWork(WORKS[parseInt(card.getAttribute('data-i'), 10)]);
+    var wmap = { 'wk-name': ['name'], 'wk-czh': ['desc_zh'], 'wk-cen': ['desc_en'] };
+    var wpath = wmap[e.target.className];
+    if (wpath) { w[wpath[0]] = e.target.value; saveWorksQuiet(); }
+  });
+  document.getElementById('works-list').addEventListener('change', function (e) {
+    var card = e.target.closest('.work-item');
+    if (!card) return;
+    var w = normWork(WORKS[parseInt(card.getAttribute('data-i'), 10)]);
+    if (e.target.classList.contains('wk-date')) { w.date = e.target.value; saveWorksQuiet(); return; }
+    if (e.target.classList.contains('w-file')) {
+      var f0 = e.target.files[0];
+      if (f0) bjdUpload(f0, function (url) { w.image = url; toast('图已上传'); saveWorksQuiet(); renderWorks(); });
+      return;
+    }
+    if (e.target.classList.contains('w-photos')) {
+      var fsW = Array.prototype.slice.call(e.target.files);
+      if (!fsW.length) return;
+      toast('上传中…');
+      fsW.forEach(function (fW) {
+        bjdUpload(fW, function (url) {
+          w.photos.push(url);
+          saveWorksQuiet();
+          renderWorks();
+          toast('已添加');
+        });
+      });
+      return;
+    }
+  });
   document.getElementById('bjd-list').addEventListener('click', function (e) {
     var card = e.target.closest('.bjd-item');
     if (!card) return;
@@ -3389,6 +3530,7 @@
     if (cls === 'b-fu-date') b.faceup.date = e.target.value;
     if (cls === 'b-buy-date') b.purchase.date = e.target.value;
     if (cls === 'b-buy-status') b.purchase.status = e.target.value;
+    if (e.target.classList.contains('b-birth')) { b.birth = e.target.value; scheduleBjdSave(); } // 出生日期 → 自动纪念日（前台日历）
     if (e.target.tagName === 'SELECT' || e.target.type === 'date') scheduleBjdSave();
     if (cls === 'b-file') {
       var f = e.target.files[0];
@@ -3412,7 +3554,10 @@
     }
   });
 
-  document.getElementById('btn-add-link').addEventListener('click', function () {
+  (function () { // 找到我卡片管理已从后台移除，表单不存在时跳过绑定（数据保留）
+    var btnAddLink = document.getElementById('btn-add-link');
+    if (!btnAddLink) return;
+    btnAddLink.addEventListener('click', function () {
     var name = document.getElementById('lk-name').value.trim();
     if (!name) { toast('名称要填一个'); return; }
     LINKS.push({
@@ -3433,7 +3578,11 @@
       renderLinkList();
     }).catch(function () { toast('保存失败'); LINKS.pop(); });
   });
-  document.getElementById('link-list').addEventListener('click', function (e) {
+  })();
+  (function () { // 找到我卡片管理已从后台移除，容器不存在时跳过绑定（数据保留）
+    var linkListEl = document.getElementById('link-list');
+    if (!linkListEl) return;
+    linkListEl.addEventListener('click', function (e) {
     var card = e.target.closest('.link-item');
     if (!card) return;
     var i = parseInt(card.getAttribute('data-i'), 10);
@@ -3485,6 +3634,7 @@
       renderLinkList();
     }
   });
+  })();
 
   // 汉堡菜单：全站统一组件 site-menu.js 负责渲染与交互
 </script>

@@ -202,8 +202,8 @@
       ((b.price.total || priceRows || totalV) ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:16px;">' + t('价格', 'Price') + '</h2>' +
       (totalV > 0 ? '<div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--card-hover);padding:10px 0;margin-bottom:10px;"><span style="font-size:15px;font-weight:700;">' + t('娃娃总价', 'Total price') + '</span><b style="font-size:17px;color:var(--accent);">¥' + fmtMoney(totalV) + '</b></div>' : '') +
       (bjdRow(t('娃娃价格', 'Total price'), b.price.total) + priceRows) + '</div>' : '') +
-      ((b.purchase.date || b.purchase.channel || b.purchase.status) ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:16px;">' + t('购买信息', 'Purchase Info') + '</h2>' +
-      (bjdRow(t('购买日期', 'Purchase date'), b.purchase.date) + bjdRow(t('渠道 / 商家', 'Channel / Seller'), b.purchase.channel) + bjdRow(t('状态', 'Status'), b.purchase.status)) + '</div>' : '') +
+      ((b.purchase.date || b.purchase.channel || b.purchase.status || b.birth) ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:16px;">' + t('购买信息', 'Purchase Info') + '</h2>' +
+      (bjdRow(t('购买日期', 'Purchase date'), b.purchase.date) + bjdRow(t('出生日期', 'Birth date'), b.birth) + bjdRow(t('渠道 / 商家', 'Channel / Seller'), b.purchase.channel) + bjdRow(t('状态', 'Status'), b.purchase.status)) + '</div>' : '') +
       (b.notes ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:16px;">' + t('备注', 'Notes') + '</h2><p style="font-size:13px;line-height:1.8;white-space:pre-wrap;">' + escDb(b.notes) + '</p></div>' : '') +
       (b.photos.length ? '<div class="card" style="padding:18px 20px;"><h2 style="font-size:16px;">' + t('更多照片', 'More Photos') + '</h2><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px;">' +
         b.photos.map(function (u) { return '<div class="photo" data-img="' + escAttrDb(u) + '"></div>'; }).join('') +
