@@ -428,10 +428,10 @@
   <!-- 登录后 -->
   <div id="admin-body" style="display:none;">
     <div class="pp-wrap" id="pp-wrap">
-      <button class="pp-btn" id="pp-btn" type="button">当前页面：<span id="pp-cur">主页管理</span> <span class="pp-arrow">▼</span></button>
+      <button class="pp-btn" id="pp-btn" type="button">当前页面：<span id="pp-cur">Profile 编辑</span> <span class="pp-arrow">▼</span></button>
       <div class="pp-menu" id="pp-menu">
-        <button class="tab-btn active" data-tab="home">主页管理</button>
-        <button class="tab-btn" data-tab="profile">Profile 编辑</button>
+        <button class="tab-btn active" data-tab="profile">Profile 编辑</button>
+        <button class="tab-btn" data-tab="home">主页管理</button>
         <button class="tab-btn" data-tab="days">重要日子</button>
         <button class="tab-btn" data-tab="photos">照片管理</button>
         <button class="tab-btn" data-tab="works">稿件管理</button>
@@ -619,18 +619,65 @@
       <div id="photo-list"><p class="empty">加载中…</p></div>
     </div>
 
-    <div id="tab-home">
+    <div id="tab-home" style="display:none;">
       <div class="card">
-        <h3>主页展示模板</h3>
-        <p style="font-size:12px;color:var(--muted);margin:-4px 0 12px;">只保留两种模板入口：小铺展示模板、照片展示模板。点标题直接改，点「显示中」切换显隐（隐藏不清数据，随时可恢复），改完点「保存」主页同步</p>
+        <h3>主页区域</h3>
+        <p style="font-size:12px;color:var(--muted);margin:-4px 0 12px;">跟主页一模一样的区块都在这里（照片展示、我的小铺是两种模板）：点「⋮」编辑、排序、复制、删除；点「显示中」切换显隐；改完点「保存」，主页刷新后同步</p>
         <div id="area-list"></div>
-        <div class="actions" style="justify-content:flex-end;">
+        <div class="actions" style="justify-content:space-between;">
+          <button class="btn-mini" id="btn-area-add">＋ 添加新区域</button>
           <button class="btn-save" id="btn-save-areas">保存</button>
         </div>
       </div>
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+          <h3 style="margin:0;">入口卡片</h3>
+          <button type="button" class="hm-kebab" data-edit="hm-entries-edit" data-view="hm-entries-view" title="编辑">⋮</button>
+        </div>
+        <div id="hm-entries-view" style="margin-top:10px;font-size:13px;line-height:1.9;">
+          <div>小铺卡片标题：<span data-v="hm-shop-h"></span></div>
+          <div>小铺卡片小字：<span data-v="hm-shop-p"></span></div>
+          <div>提问箱卡片标题：<span data-v="hm-anon-h"></span></div>
+          <div>提问箱卡片小字：<span data-v="hm-anon-p"></span></div>
+        </div>
+        <div id="hm-entries-edit" style="display:none;">
+          <div class="form-grid" style="margin-top:10px;">
+            <input id="hm-shop-h" placeholder="小铺卡片标题（可留空不改）">
+            <input id="hm-shop-p" placeholder="小铺卡片小字（可留空不改）">
+            <input id="hm-anon-h" placeholder="提问箱卡片标题（可留空不改）">
+            <input id="hm-anon-p" placeholder="提问箱卡片小字（可留空不改）">
+          </div>
+          <div class="actions">
+            <button class="btn-save" id="btn-save-entries">保存卡片文案</button>
+          </div>
+        </div>
+      </div>
+      <h3 class="outside">找到我 · 卡片管理</h3>
+      <div class="card">
+        <div class="form-grid">
+          <select id="lk-icon">
+            <option value="gmail">Gmail 图标</option>
+            <option value="instagram">Instagram 图标</option>
+            <option value="x">X / Twitter 图标</option>
+            <option value="discord">Discord 图标</option>
+            <option value="wechat">微信图标</option>
+            <option value="xhs">小红书图标</option>
+            <option value="netease">网易云图标</option>
+            <option value="link">通用链接图标</option>
+          </select>
+          <input id="lk-sort" type="number" placeholder="排序数字（小的在前，可留空）">
+          <input id="lk-name" placeholder="名称，如：Instagram">
+          <input id="lk-sub" placeholder="小字，如：zyc.0119（可留空）">
+          <input id="lk-url" class="full" placeholder="链接，如：https://...（微信纯展示可留空）">
+        </div>
+        <div class="actions">
+          <button class="btn-save" id="btn-add-link">添加卡片</button>
+        </div>
+      </div>
+      <div id="link-list" style="margin-top:12px;"><p class="empty">加载中…</p></div>
     </div>
 
-    <div id="tab-profile" style="display:none;">
+    <div id="tab-profile">
       <div class="card">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
           <h3 style="margin:0;">Profile 编辑</h3>
@@ -1733,13 +1780,15 @@
   };
   var SETTINGS = {};
   var LINKS = [];
-  var FIXED_AREAS = [
-    { key: 'links', title_zh: '找到我', title_en: 'Find Me' },
+  var FIXED_AREAS = [ // 顺序跟主页显示一致：稿件展示在色卡下、小铺上
     { key: 'gallery', title_zh: '照片展示', title_en: 'Photo Gallery' },
+    { key: 'cards', title_zh: '色卡展示', title_en: 'Color Cards' },
+    { key: 'works', title_zh: '稿件展示', title_en: 'Works' },
     { key: 'shop', title_zh: '我的小铺', title_en: 'My Shop' },
     { key: 'anon', title_zh: '匿名提问箱', title_en: 'Ask Box' },
-    { key: 'cards', title_zh: '色卡展示', title_en: 'Color Cards' }
+    { key: 'links', title_zh: '找到我', title_en: 'Find Me' }
   ];
+  var AREA_CANON = { gallery: 0, cards: 1, works: 2, shop: 3, anon: 4, links: 5 };
   var AREAS = [];
   var AREA_EDIT = -1; // 当前编辑中的区域（-1 = 都是展示态）
   function parseSetting(key, fallback) {
@@ -1763,7 +1812,7 @@
         if (hero.line1) document.getElementById('hm-line1').value = hero.line1;
         if (hero.line2) document.getElementById('hm-line2').value = hero.line2;
         var en = parseSetting('entries', {});
-        ['shop_h', 'shop_p', 'anon_h', 'anon_p'].forEach(function (k) { // 入口卡片管理已从后台移除，仅回填存在的输入框（保留数据）
+        ['shop_h', 'shop_p', 'anon_h', 'anon_p'].forEach(function (k) { // 回填入口卡片输入框
           var el2 = document.getElementById('hm-' + k.replace('_', '-'));
           if (el2 && en[k]) el2.value = en[k];
         });
@@ -1781,7 +1830,11 @@
             AREAS.push({ key: fa.key, title_zh: fa.title_zh, title_en: fa.title_en, visible: true, sort: AREAS.length + 1 });
           }
         });
-        AREAS.sort(function (a, b) { return (a.sort || 0) - (b.sort || 0); }); // 载入时按已保存的 sort 排一次，之后顺序由列表数组决定
+        AREAS.sort(function (a, b) { // 载入时排成跟主页一致的顺序（自定义区块排在固定区块后）
+          var ka = a.key in AREA_CANON ? AREA_CANON[a.key] : 100 + (a.sort || 0);
+          var kb = b.key in AREA_CANON ? AREA_CANON[b.key] : 100 + (b.sort || 0);
+          return ka - kb;
+        });
         renderAreaList();
         refreshHmViews();
         renderGalleryCopy(); // SETTINGS 载入完成后重填照片文案表单（分区部分由 loadSections 回调再补）
@@ -1827,7 +1880,7 @@
       toast('已保存，主页刷新生效');
     }).catch(function () { toast('保存失败'); });
   });
-  (function () { // 入口卡片管理已从后台移除，输入框不存在时跳过绑定
+  (function () { // 入口卡片文案保存
     var btnEntries = document.getElementById('btn-save-entries');
     if (!btnEntries) return;
     btnEntries.addEventListener('click', function () {
@@ -1866,7 +1919,7 @@
   document.getElementById('hm-cover-file').addEventListener('change', function () { document.getElementById('hm-cover-name').textContent = this.files[0] ? this.files[0].name : ''; });
   function renderLinkList() {
     var list = document.getElementById('link-list');
-    if (!list) return; // 找到我卡片管理已从后台移除，数据保留、不再从后台维护
+    if (!list) return;
     list.innerHTML = LINKS.length
       ? LINKS.map(function (l, i) {
           return '<div class="card link-item" data-i="' + i + '">' +
@@ -1886,15 +1939,16 @@
     var list = document.getElementById('area-list');
     if (!list) return;
     list.innerHTML = AREAS.map(function (a, i) {
-      if (a.key !== 'gallery' && a.key !== 'shop') return ''; // 主页管理只保留两种模板入口（照片展示/我的小铺），其他区块数据保留、不再从后台维护
       var custom = String(a.key).indexOf('area-') === 0;
+      var isTpl = a.key === 'gallery' || a.key === 'shop'; // 两种模板区块
       if (i !== AREA_EDIT) {
         return '<div class="card area-item" data-i="' + i + '" style="margin-bottom:10px;">' +
           '<div style="display:flex;align-items:center;gap:12px;">' +
           '<button type="button" class="vis-chip' + (a.visible === false ? '' : ' vis-on') + '" title="点击切换显示/隐藏">' + (a.visible === false ? '已隐藏' : '显示中') + '</button>' +
           '<div style="flex:1;min-width:0;">' +
           '<div style="font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(a.title_zh || '未命名区域') +
-          (a.title_en ? ' <span style="color:var(--muted);font-size:12px;">' + esc(a.title_en) + '</span>' : '') + '</div>' +
+          (a.title_en ? ' <span style="color:var(--muted);font-size:12px;">' + esc(a.title_en) + '</span>' : '') +
+          (isTpl ? '<span style="display:inline-block;font-size:11px;color:#fff;background:var(--accent-soft);border-radius:8px;padding:1px 8px;margin-left:6px;vertical-align:1px;">模板</span>' : '') + '</div>' +
           (custom && (a.content_zh || a.content_en) ? '<div style="font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(a.content_zh || a.content_en) + '</div>' : '') +
           '</div>' +
           '<button type="button" class="area-kebab" title="菜单">⋮</button>' +
@@ -1955,7 +2009,7 @@
       renderAreaList();
     }
   });
-  (function () { // 「添加新区域」入口已移除（模板固定两种），保留函数避免残留引用报错
+  (function () { // 「添加新区域」
     var btnAreaAdd = document.getElementById('btn-area-add');
     if (!btnAreaAdd) return;
     btnAreaAdd.addEventListener('click', function () {
@@ -3369,6 +3423,7 @@
     x.id = x.id || 'w-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
     x.name = x.name || ''; x.desc_zh = x.desc_zh || ''; x.desc_en = x.desc_en || '';
     x.date = x.date || ''; x.image = x.image || '';
+    x.price = x.price == null ? '' : String(x.price); // 稿件价格（选填）
     x.photos = Array.isArray(x.photos) ? x.photos : [];
     x.visible = x.visible !== false;
     return x;
@@ -3392,7 +3447,7 @@
           '</div>' +
           '<div class="sc-info">' +
           '<b class="sc-name">' + esc(w.name || '未命名稿件') + '</b>' +
-          '<div class="sc-shop">' + esc(w.date || '') + '</div>' +
+          '<div class="sc-shop">' + esc(w.date || '') + (parseFloat(w.price) ? ' · ¥' + fmtMoney(w.price) : '') + '</div>' +
           '<span class="tgl-label" style="margin-top:7px;"><button type="button" class="tgl w-vis-toggle' + (w.visible !== false ? ' on' : '') + '" aria-pressed="' + (w.visible !== false) + '" aria-label="展示中"><span class="tgl-knob"></span></button>展示中</span>' +
           '</div>' +
           '</div>';
@@ -3410,6 +3465,7 @@
         photoStrip(w.photos, 'w-photo-kebab') +
         '<div style="display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap;">' +
         bjdField('日期', '<input type="text" class="wk-date date-pick" readonly data-dp="1" placeholder="选择日期" style="width:100%;cursor:pointer;" value="' + escAttr(w.date) + '">') +
+        bjdField('价格（选填）', '<input type="text" class="wk-price" inputmode="decimal" placeholder="如 66" style="width:100%;" value="' + escAttr(w.price || '') + '">') +
         '</div>' +
         '<div style="margin-top:10px;">' + bjdField('描述（中文）', '<textarea class="wk-czh" style="width:100%;box-sizing:border-box;min-height:56px;" placeholder="稿件描述（中文）">' + esc(w.desc_zh) + '</textarea>') + '</div>' +
         '<div style="margin-top:10px;">' + bjdField('描述（英文，可留空同中文）', '<textarea class="wk-cen" style="width:100%;box-sizing:border-box;min-height:56px;" placeholder="Description (English)">' + esc(w.desc_en) + '</textarea>') + '</div>' +
@@ -3455,7 +3511,7 @@
     var card = e.target.closest('.work-item');
     if (!card) return;
     var w = normWork(WORKS[parseInt(card.getAttribute('data-i'), 10)]);
-    var wmap = { 'wk-name': ['name'], 'wk-czh': ['desc_zh'], 'wk-cen': ['desc_en'] };
+    var wmap = { 'wk-name': ['name'], 'wk-czh': ['desc_zh'], 'wk-cen': ['desc_en'], 'wk-price': ['price'] };
     var wpath = wmap[e.target.className];
     if (wpath) { w[wpath[0]] = e.target.value; saveWorksQuiet(); }
   });

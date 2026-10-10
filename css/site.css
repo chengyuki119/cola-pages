@@ -298,6 +298,7 @@
   .cg-item { position: relative; aspect-ratio: 1/1; overflow: hidden; border-radius: 12px; background: var(--card); cursor: pointer; display: block; }
   .cg-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
   #cards-home-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
+  #works-home-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
   .bjd-size-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
   .bjd-size-h { font-size: 15px; margin: 20px 0 10px; }
   .bjd-size-h:first-child { margin-top: 0; }
@@ -305,13 +306,13 @@
   .home-long-btn:hover { filter: brightness(1.05); }
   #bjd-home-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
   /* 卡片视觉与 Photo Gallery 统一：圆角 + hover 平滑放大 */
-  #bjd-home-grid .bjd-card, #cards-home-grid .sc-product, #cards-grid .sc-product, #bjd-grid .bjd-card {
+  #bjd-home-grid .bjd-card, #cards-home-grid .sc-product, #works-home-grid .work-card, #cards-grid .sc-product, #bjd-grid .bjd-card {
     min-width: 0;
     border-radius: var(--radius); overflow: hidden; transition: transform .2s;
   }
-  #bjd-home-grid .bjd-card:hover, #cards-home-grid .sc-product:hover, #cards-grid .sc-product:hover, #bjd-grid .bjd-card:hover { transform: scale(1.03); }
-  #bjd-home-grid .bjd-card img, #cards-home-grid .sc-product img, #cards-grid .sc-product img, #bjd-grid .bjd-card img { transition: transform .25s; }
-  #bjd-home-grid .bjd-card:hover img, #cards-home-grid .sc-product:hover img, #cards-grid .sc-product:hover img, #bjd-grid .bjd-card:hover img { transform: scale(1.05); }
+  #bjd-home-grid .bjd-card:hover, #cards-home-grid .sc-product:hover, #works-home-grid .work-card:hover, #cards-grid .sc-product:hover, #bjd-grid .bjd-card:hover { transform: scale(1.03); }
+  #bjd-home-grid .bjd-card img, #cards-home-grid .sc-product img, #works-home-grid .work-card img, #cards-grid .sc-product img, #bjd-grid .bjd-card img { transition: transform .25s; }
+  #bjd-home-grid .bjd-card:hover img, #cards-home-grid .sc-product:hover img, #works-home-grid .work-card:hover img, #cards-grid .sc-product:hover img, #bjd-grid .bjd-card:hover img { transform: scale(1.05); }
   .share-btn.share-inline { position: static; width: 30px; height: 30px; flex-shrink: 0; }
   .card-edit-btn { border: none; background: var(--card-hover); color: var(--accent); font-size: 11px; cursor: pointer; padding: 3px 10px; border-radius: 999px; flex-shrink: 0; transition: background .2s, color .2s; }
   .card-edit-btn:hover { background: var(--accent-soft); color: #fff; }

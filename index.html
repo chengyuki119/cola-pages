@@ -121,6 +121,13 @@
       <a class="home-long-btn" href="/color-card/"><span data-zh="进入色卡小屋" data-en="Enter Color Card Studio">进入色卡小屋</span></a>
     </section>
 
+    <!-- 稿件展示 -->
+    <section id="sec-works">
+      <h2 data-zh="稿件展示" data-en="Works">稿件展示</h2>
+      <div id="works-home-grid"></div>
+      <a class="home-long-btn" href="/works/"><span data-zh="查看全部稿件" data-en="View All Works">查看全部稿件</span></a>
+    </section>
+
     <!-- 自制小铺 -->
     <section id="shop">
       <h2>我的小铺</h2>
@@ -722,17 +729,51 @@
         });
       }
     }
+    // 稿件展示：主页预览（跟 /works/ 同一份数据，点卡片进稿件详情）
+    var wkGrid = document.getElementById('works-home-grid');
+    if (wkGrid) {
+      var worksRaw = parseSetting('works', []);
+      var worksList = (Array.isArray(worksRaw) ? worksRaw : []).filter(function (w) { return w && w.visible !== false; }); // 与 /works/ 同样过滤，序号一致
+      if (!worksList.length) {
+        wkGrid.style.display = 'block';
+        wkGrid.innerHTML = '<p style="color:var(--muted);text-align:center;padding:30px 0;font-size:14px;">还没有稿件，去后台「稿件管理」上传吧</p>';
+      } else {
+        wkGrid.style.display = 'grid';
+        wkGrid.innerHTML = worksList.map(function (w, i) {
+          return '<div class="card work-card" data-i="' + i + '" style="margin-bottom:0;padding:0;overflow:hidden;cursor:pointer;position:relative;">' +
+            (w.image ? '<div style="width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--card);"><img src="' + escAttrDb(normImg(w.image)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="稿件" loading="lazy"></div>'
+                     : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--card);color:var(--muted);font-size:12px;">暂无图片</div>') +
+            '<div style="padding:12px 14px;">' +
+            '<div style="display:flex;align-items:center;gap:8px;">' +
+            '<b style="flex:1;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(w.name || '未命名稿件') + '</b>' +
+            shareBtnHtml(i, 'work', true) +
+            '</div>' +
+            (w.date ? '<div style="font-size:12px;color:var(--muted);margin-top:3px;">' + escDb(String(w.date).replace(/-/g, '/')) + '</div>' : '') +
+            (parseFloat(w.price) ? '<div style="font-size:14px;color:var(--accent);font-weight:600;margin-top:4px;">¥' + fmtMoney(w.price) + '</div>' : '') +
+            '</div></div>';
+        }).join('');
+      }
+      if (!wkGrid.dataset.bound) {
+        wkGrid.dataset.bound = '1';
+        wkGrid.addEventListener('click', function (e) {
+          if (e.target.closest('.share-btn')) return; // 分享按钮自己处理
+          var wc = e.target.closest('.work-card');
+          if (wc) location.href = '/works/?id=' + wc.getAttribute('data-i');
+        });
+      }
+    }
     // 区域管理：显示/隐藏、标题、顺序、自定义文字区块
-    var FIXED_AREA_SEL = { links: '#links', gallery: '#sec-gallery', shop: '#shop', anon: '#anon', cards: '#sec-cards' };
+    var FIXED_AREA_SEL = { links: '#links', gallery: '#sec-gallery', works: '#sec-works', shop: '#shop', anon: '#anon', cards: '#sec-cards' };
     var areas = parseSetting('areas', []);
     areas.forEach(function (a) {
       if (a.key === 'cards' && a.title_zh === '色卡展示') a.title_zh = '色卡'; // 旧默认名按新版规范显示
     });
+    if (!areas.some(function (a) { return a.key === 'works'; })) areas.push({ key: 'works', title_zh: '稿件展示', title_en: 'Works', visible: true }); // 旧数据没有稿件展示条目时用默认值参与排序
     AREAS_CACHE = areas;
     if (areas.length) {
       var homeBody = document.querySelector('#page-home .page-body');
       var homeFooter = homeBody ? homeBody.querySelector('footer') : null;
-      var CANON = { gallery: 0, cards: 1, shop: 2, anon: 3, links: 4 }; // 主页固定顺序；BJD 独立区块插在色卡前
+      var CANON = { gallery: 0, cards: 1, works: 2, shop: 3, anon: 4, links: 5 }; // 主页固定顺序；BJD 独立区块插在色卡前，稿件展示在色卡下、小铺上
       areas.slice().sort(function (a, b) {
         var ka = a.key in CANON ? CANON[a.key] : 100 + (a.sort || 0);
         var kb = b.key in CANON ? CANON[b.key] : 100 + (b.sort || 0);
@@ -769,7 +810,7 @@
       });
       applyLang(LANG);
     }
-    // 主页区块顺序：Photo Gallery → BJD → 色卡 → 我的小铺 → 匿名提问箱 → 找到我
+    // 主页区块顺序：Photo Gallery → BJD → 色卡 → 稿件展示 → 我的小铺 → 匿名提问箱 → 找到我
     var scSec = document.getElementById('sec-cards');
     var bjdSec = document.getElementById('sec-bjd');
     if (bjdSec && scSec && scSec.parentNode) scSec.parentNode.insertBefore(bjdSec, scSec); // BJD 在色卡之前
