@@ -137,7 +137,7 @@
     background: var(--card); padding: 10px 12px;
     font-family: inherit; font-size: 14px;
     color: var(--text); line-height: 1.6;
-    resize: vertical; outline: none;
+    resize: none; outline: none;
   }
   input, select {
     border: 1px solid #f6d9e6; border-radius: 12px;
@@ -151,9 +151,10 @@
     border-radius: 999px; cursor: pointer;
   }
   .btn-save { background: var(--accent-soft); color: #fff; }
+  .btn-cancel { background: var(--card-hover); color: var(--text); }
   .btn-del { background: #f6d9e6; color: var(--text); }
   /* 按钮组件统一：不管在不在 .actions 里，都是同一套圆角小按钮（不再有浏览器默认样式）*/
-  .btn-mini, .btn-del, .btn-save {
+  .btn-mini, .btn-del, .btn-save, .btn-cancel {
     border: none; font-family: inherit; font-size: 13px;
     padding: 7px 16px; border-radius: 999px; cursor: pointer;
     transition: background .2s, opacity .2s;
@@ -492,7 +493,7 @@
         .aix-form { margin: 10px 4px 2px; background: #fff; border: 1px solid var(--card-hover); border-radius: 12px; padding: 12px; }
         .aix-form b { display: block; font-size: 13px; margin-bottom: 8px; }
         .aix-form input, .aix-form textarea { width: 100%; box-sizing: border-box; border: 1px solid var(--card-hover); border-radius: 10px; background: var(--bg); padding: 8px 12px; font-size: 13px; font-family: inherit; color: var(--text); outline: none; margin-bottom: 8px; }
-        .aix-form textarea { min-height: 64px; resize: vertical; }
+        .aix-form textarea { min-height: 64px; resize: none; }
         .aix-form input:focus, .aix-form textarea:focus { border-color: var(--accent-soft); }
         .aix-form .row { display: flex; gap: 8px; }
         .aix-form .row button { font-family: inherit; cursor: pointer; }
@@ -575,7 +576,7 @@
             <input id="gl-sub-en" class="full" placeholder="说明小字（英文）">
           </div>
           <div id="gl-sec-edit" style="margin-top:8px;"></div>
-          <div class="actions"><button class="btn-save" id="btn-save-gallery">保存照片文案</button></div>
+          <div class="actions"><button class="btn-save" id="btn-save-gallery">保存照片文案</button><button type="button" class="btn-cancel btn-cancel-hm" data-revert="gallery">取消</button></div>
         </div>
       </div>
       <div class="card">
@@ -649,6 +650,7 @@
           </div>
           <div class="actions">
             <button class="btn-save" id="btn-save-entries">保存卡片文案</button>
+            <button type="button" class="btn-cancel btn-cancel-hm" data-revert="entries">取消</button>
           </div>
         </div>
       </div>
@@ -703,6 +705,7 @@
           </div>
           <div class="actions">
             <button class="btn-save" id="btn-save-hero">保存 Profile</button>
+            <button type="button" class="btn-cancel btn-cancel-hm" data-revert="hero">取消</button>
           </div>
         </div>
       </div>
@@ -2074,6 +2077,34 @@
       if (opening) refreshHmViews();
       ed.style.display = opening ? '' : 'none';
       vw.style.display = opening ? 'none' : '';
+    });
+  });
+  // ⋮ 编辑块的「取消」：还原因存数据 + 收回编辑框（与保存按钮同排，UI 一致）
+  var HM_REVERTS = {
+    hero: function () {
+      var hero = parseSetting('hero', {});
+      ['name', 'line1', 'line2', 'name_en', 'line1_en', 'line2_en'].forEach(function (k) {
+        var el = document.getElementById('hm-' + k.replace('_', '-'));
+        if (el) el.value = hero[k] || '';
+      });
+    },
+    entries: function () {
+      var en = parseSetting('entries', {});
+      ['shop_h', 'shop_p', 'anon_h', 'anon_p'].forEach(function (k) {
+        var el = document.getElementById('hm-' + k.replace('_', '-'));
+        if (el) el.value = en[k] || '';
+      });
+    },
+    gallery: function () { renderGalleryCopy(); }
+  };
+  document.querySelectorAll('.btn-cancel-hm').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var rv = HM_REVERTS[b.getAttribute('data-revert')];
+      if (rv) rv();
+      var card = b.closest('.card');
+      var kebab = card ? card.querySelector('.hm-kebab') : null;
+      if (kebab) kebab.click();
+      refreshHmViews();
     });
   });
   // ===== 色卡管理（一张色卡 · 多名画师）=====
