@@ -144,10 +144,15 @@ function sizeEn(s) {
     return f || _;
   });
 }
+function sizeEnKeep(s) {
+  if (s == null) return s;
+  var en = sizeEn(s);
+  return (en === String(s)) ? s : en + ' (' + s + ')';
+}
 function bjdMeta(b) {
   if (b.head && b.head.size == null) b.head.size = b.size || ''; // 旧数据迁移
   var sz = (b.head && b.head.size) || '';
-  if (sz && LANG === 'en') sz = sizeEn(sz);
+  if (sz && LANG === 'en') sz = sizeEnKeep(sz);
   return [sz, [b.head.brand || '', b.head.sculpt || ''].join(' ').trim()].filter(Boolean).join(' · ');
 }
 function bjdRow(label, val) {

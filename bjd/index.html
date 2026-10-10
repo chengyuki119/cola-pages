@@ -154,7 +154,7 @@
       var items = list.filter(function (x) { return x.b.head.size === sz; });
       if (!items.length) return;
       any = true;
-      html += '<h3 class="bjd-size-h">' + escDb(LANG === 'en' ? sizeEn(sz) : sz) + '</h3><div class="bjd-size-grid">' + items.map(bjdCardHtml).join('') + '</div>';
+      html += '<h3 class="bjd-size-h">' + escDb(LANG === 'en' ? sizeEnKeep(sz) : sz) + '</h3><div class="bjd-size-grid">' + items.map(bjdCardHtml).join('') + '</div>';
     });
     var others = list.filter(function (x) { return BJD_SIZES.indexOf(x.b.head.size) === -1; });
     if (others.length) { any = true; html += '<h3 class="bjd-size-h">' + t('其他', 'Other') + '</h3><div class="bjd-size-grid">' + others.map(bjdCardHtml).join('') + '</div>'; }
@@ -164,7 +164,7 @@
     var chips = document.getElementById('bjd-size-chips');
     if (!chips) return;
     chips.innerHTML = ['全部'].concat(BJD_SIZES).map(function (sz) {
-      return '<button class="bjd-chip' + (BJD_FILTER === sz ? ' active' : '') + '" data-size="' + sz + '">' + (sz === '全部' ? t('全部', 'All') : (LANG === 'en' ? sizeEn(sz) : sz)) + '</button>';
+      return '<button class="bjd-chip' + (BJD_FILTER === sz ? ' active' : '') + '" data-size="' + sz + '">' + (sz === '全部' ? t('全部', 'All') : (LANG === 'en' ? sizeEnKeep(sz) : sz)) + '</button>';
     }).join('');
   }
   function renderBjdView() {
@@ -187,10 +187,10 @@
       }).join('') + '</div>' : '') +
       '<div style="text-align:center;margin-bottom:18px;">' +
       '<span style="font-size:18px;font-weight:700;">' + escDb(b.name || t('未命名娃娃', 'Unnamed doll')) + '</span>' +
-      (b.head.size ? '<span style="color:var(--muted);font-size:14px;">　|　' + escDb(LANG === 'en' ? sizeEn(b.head.size) : b.head.size) + '</span>' : '') +
+      (b.head.size ? '<span style="color:var(--muted);font-size:14px;">　|　' + escDb(LANG === 'en' ? sizeEnKeep(b.head.size) : b.head.size) + '</span>' : '') +
       '</div>' +
       (b.parts.head !== false ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:16px;">' + t('娃娃头', 'Head') + '</h2>' +
-      (bjdRow(t('厂家 / 品牌', 'Maker / Brand'), b.head.brand) + bjdRow(t('型号 / Sculpt', 'Sculpt'), b.head.sculpt) + bjdRow(t('娃娃头尺寸', 'Head size'), LANG === 'en' ? sizeEn(b.head.size) : b.head.size) + bjdRow(t('备注', 'Notes'), b.head.note) || '<p style="color:var(--muted);font-size:13px;">' + t('暂无记录', 'No records yet') + '</p>') + '</div>' : '') +
+      (bjdRow(t('厂家 / 品牌', 'Maker / Brand'), b.head.brand) + bjdRow(t('型号 / Sculpt', 'Sculpt'), b.head.sculpt) + bjdRow(t('娃娃头尺寸', 'Head size'), LANG === 'en' ? sizeEnKeep(b.head.size) : b.head.size) + bjdRow(t('备注', 'Notes'), b.head.note) || '<p style="color:var(--muted);font-size:13px;">' + t('暂无记录', 'No records yet') + '</p>') + '</div>' : '') +
       (b.parts.body !== false ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:16px;">' + t('身体', 'Body') + '</h2>' +
       (bjdRow(t('厂家 / 品牌', 'Maker / Brand'), b.body.brand) + bjdRow(t('Body 型号', 'Body model'), b.body.model) + bjdRow(t('类型', 'Type'), b.body.type) + bjdRow(t('备注', 'Notes'), b.body.note) || '<p style="color:var(--muted);font-size:13px;">' + t('暂无记录', 'No records yet') + '</p>') + '</div>' : '') +
       (b.parts.eyes !== false ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:16px;">' + t('眼珠', 'Eyes') + '</h2>' +

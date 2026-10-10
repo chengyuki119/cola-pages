@@ -555,7 +555,7 @@
         '<b style="flex:1;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(b.name || (LANG === 'en' ? 'Unnamed doll' : '未命名娃娃')) + '</b>' +
         shareBtnHtml(x.i, 'bjd', true) +
         '</div>' +
-        (b.head.size ? '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + escDb(LANG === 'en' ? sizeEn(b.head.size) : b.head.size) + '</div>' : '') +
+        (b.head.size ? '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + escDb(LANG === 'en' ? sizeEnKeep(b.head.size) : b.head.size) + '</div>' : '') +
         '</div></div>';
     }).join('');
   }
