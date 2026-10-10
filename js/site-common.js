@@ -350,6 +350,7 @@ if (document.getElementById('share-pop')) {
 
 // ===== 中英双语切换 =====
 var LANG = 'zh';
+try { history.scrollRestoration = 'manual'; } catch (err) {} // 刷新/切语言/logo 回主页都从页面顶部开始，不恢复上次滚动位置
 try { LANG = localStorage.getItem('yuki-lang') || 'zh'; } catch (err) {}
 var I18N_EN = {
   '找到我': 'Find Me',
