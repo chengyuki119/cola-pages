@@ -80,7 +80,7 @@
           <button class="cal-btn wide" id="cal-today" data-zh="今天" data-en="Today">今天</button>
         </div>
         <div class="cal-grid" id="cal-grid"></div>
-        <button class="cal-add" id="cal-add" data-zh="+ 添加重要日子" data-en="+ Add a Day">+ 添加重要日子</button>
+        <button class="cal-add" id="cal-add" style="display:none" data-zh="+ 添加重要日子" data-en="+ Add a Day">+ 添加重要日子</button>
         <div id="cal-ym-pop"></div>
       </div>
       <div class="cal-side">
@@ -1131,9 +1131,19 @@
       renderCalSide();
     });
     var addBtn = document.getElementById('cal-add');
-    addBtn.style.display = 'inline-block'; // 主页日历的添加入口，小而安静
     var calMask = document.getElementById('cal-modal-mask');
+    function hasAdminSession() { // 登录柚子专属后台（admin.html）后才有添加入口
+      var s = null;
+      try { s = JSON.parse(localStorage.getItem('yuki-admin-session') || 'null'); } catch (e) {}
+      return !!(s && s.r);
+    }
+    function syncAddBtn() { addBtn.style.display = hasAdminSession() ? 'inline-block' : 'none'; }
+    syncAddBtn();
+    window.addEventListener('storage', function (e) { // 后台登录/退出时，已打开的主页标签页实时跟随
+      if (e.key === 'yuki-admin-session') syncAddBtn();
+    });
     addBtn.addEventListener('click', function () {
+      if (!hasAdminSession()) { toast(t('请先登录柚子专属后台', 'Sign in to the admin first')); return; }
       buildCalForm();
       document.getElementById('cal-modal').classList.add('open');
       calMask.classList.add('open');
