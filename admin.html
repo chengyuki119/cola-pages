@@ -742,6 +742,12 @@
           <button type="button" class="sel-btn" id="bjd-sort-btn">排序：默认</button>
         </div>
         <div id="bjd-list"></div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+          <span style="font-size:13px;color:var(--muted);flex-shrink:0;">娃娃尺寸 / 种类</span>
+          <div id="bjd-size-chips" style="display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:180px;"></div>
+          <input id="bjd-size-new" placeholder="新尺寸名" style="border:none;border-radius:10px;background:var(--card);padding:8px 12px;font-size:13px;width:120px;outline:none;color:var(--text);">
+          <button class="btn-mini" id="btn-bjd-size-add">+ 添加</button>
+        </div>
         <div class="actions" style="flex-wrap:wrap;">
           <button class="btn-mini" id="btn-bjd-add">+ 新增 BJD</button>
           <span id="bjd-total" style="font-size:14px;font-weight:600;color:var(--accent);align-self:center;"></span>
@@ -1816,6 +1822,8 @@
         }
         var b = parseSetting('bjds', null);
         if (b) BJDS = b.map(normBjd);
+        var bsz = parseSetting('bjd_sizes', null); // 自定义娃娃尺寸 / 种类（像色卡画师一样可增删）
+        if (Array.isArray(bsz) && bsz.length) BJD_SIZES = bsz.map(function (s) { return String(s).trim(); }).filter(Boolean);
         // 主页「编辑卡」直达：按 card_id 精准匹配，自动打开对应色卡的编辑状态
         try {
           var ec = sessionStorage.getItem('admin-edit-card');
@@ -2153,7 +2161,14 @@
     if (!c.artists.length) c.artists.push({ name: '', rows: [{ label: '单人', price: '', qty: 1 }] });
     c.artists.forEach(normArtist);
     c.homeShow = c.homeShow !== false; // 主页展示
+    if (!Array.isArray(c.photos)) c.photos = []; // 追加相册（主图 image 保留）
     return c;
+  }
+  function photoStrip(photos, cls) { // 多图缩略条：主图外追加的相册，每张 ⋮ 可删
+    if (!photos || !photos.length) return '';
+    return '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">' + photos.map(function (u, pi) {
+      return '<div style="width:64px;height:64px;border-radius:10px;overflow:hidden;position:relative;background:var(--card);flex-shrink:0;"><img src="' + escAttr(u) + '" style="width:100%;height:100%;object-fit:cover;display:block;"><button type="button" class="kebab ' + cls + '" data-pi="' + pi + '" title="菜单" style="position:absolute;top:3px;right:3px;width:20px;height:20px;font-size:11px;">⋮</button></div>';
+    }).join('') + '</div>';
   }
   function normCardsRaw(v) {
     var arr = Array.isArray(v) ? v : (v && v.artists ? v.artists : []);
@@ -2419,7 +2434,9 @@
         '<div style="display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap;">' +
         (c.image ? '<img src="' + escAttr(c.image) + '" style="width:44px;height:44px;object-fit:cover;border-radius:8px;flex-shrink:0;">' : '') +
         '<label class="btn-mini sc-file-btn">上传图片<input type="file" class="sc-file" accept="image/*" hidden></label>' +
+        '<label class="btn-mini">添加照片<input type="file" class="sc-photos" accept="image/*" multiple hidden></label>' +
         '</div>' +
+        photoStrip(c.photos, 'c-photo-kebab') +
         '<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:13px;">' +
         '<label style="display:flex;align-items:center;gap:6px;flex-shrink:0;">购入日期<input type="text" class="c-bought date-pick" readonly value="' + escAttr(c.bought || '') + '" placeholder="选择日期" style="width:100px;padding:7px 10px;font-size:13px;cursor:pointer;"></label>' +
         '<label style="display:flex;align-items:center;gap:6px;flex-shrink:0;">收卡价格<input type="number" class="c-orig" min="0" value="' + escAttr(c.origPrice == null ? '' : c.origPrice) + '" placeholder="¥" style="width:90px;padding:7px 10px;font-size:13px;"></label>' +
@@ -2495,6 +2512,14 @@
   // ===== 悬浮菜单（Popover）：固定定位，不推挤内容，⋮ 坐标永远不变 =====
   function popItems() {
     if (!SC_POP) return '';
+    if (SC_POP.type === 'bjd-ph' || SC_POP.type === 'card-ph') {
+      return '<button class="sc-opt sc-opt-del" data-opt="del">删除照片</button>' +
+        '<button class="sc-opt" data-opt="cancel">✕ 取消</button>';
+    }
+    if (SC_POP.type === 'bjd-size') {
+      return '<button class="sc-opt sc-opt-del" data-opt="del">删除尺寸</button>' +
+        '<button class="sc-opt" data-opt="cancel">✕ 取消</button>';
+    }
     if (SC_POP.type === 'row') {
       var c0 = normCard(CARDS[SC_POP.i]);
       var a0 = normArtist(c0.artists[SC_POP.ai]);
@@ -2835,6 +2860,39 @@
       }
       return;
     }
+    if (ctx.type === 'bjd-ph' || ctx.type === 'card-ph') {
+      if (opt === 'del') {
+        uiConfirm('确定删除这张照片吗？', function () {
+          var arr = ctx.type === 'bjd-ph' ? BJDS[ctx.i].photos : CARDS[ctx.i].photos;
+          if (arr) {
+            arr.splice(ctx.ph.pi, 1);
+            if (ctx.type === 'bjd-ph') { saveBjdsQuiet(); renderBjds(); } else { renderCards(); }
+          }
+        });
+      }
+      return;
+    }
+    if (ctx.type === 'bjd-size') {
+      if (opt === 'del') {
+        var sName = BJD_SIZES[ctx.i];
+        uiConfirm('确定删除尺寸「' + sName + '」吗？已用它标注的娃娃不受影响。', function () {
+          var oldSizes = BJD_SIZES.slice();
+          BJD_SIZES.splice(ctx.i, 1);
+          saveSetting('bjd_sizes', BJD_SIZES.slice()).then(function (r) {
+            if (!r.ok) throw new Error();
+            toast('已删除');
+            renderBjdSizes();
+            renderBjds();
+          }).catch(function () {
+            toast('保存失败');
+            BJD_SIZES = oldSizes;
+            renderBjdSizes();
+            renderBjds();
+          });
+        });
+      }
+      return;
+    }
     if (ctx.type === 'bjd' || ctx.type === 'bjd-e') {
       if (opt === 'edit') { CARDS_EDIT = -1; BJDS_EDIT = ctx.i; EDIT_TYPE = 'bjd'; renderBjds(); return; }
       if (opt === 'up' && ctx.i > 0) { var u = BJDS[ctx.i - 1]; BJDS[ctx.i - 1] = BJDS[ctx.i]; BJDS[ctx.i] = u; if (BJDS_EDIT === ctx.i) BJDS_EDIT = ctx.i - 1; else if (BJDS_EDIT === ctx.i - 1) BJDS_EDIT = ctx.i; }
@@ -2923,6 +2981,12 @@
     if (e.target.closest('#btn-sc-save-tb')) { toolbarSave(); return; } // 保存跟在编辑区里（动态渲染，走委托）
     if (e.target.closest('#btn-sc-undo')) { doUndo(); return; }
     if (e.target.closest('#btn-sc-redo')) { doRedo(); return; }
+    var cph = e.target.closest('.c-photo-kebab');
+    if (cph) {
+      if (SC_POP && POP_BTN === cph) { popClose(); return; }
+      popOpen('card-ph', i, -1, -1, cph, { pi: parseInt(cph.getAttribute('data-pi'), 10) });
+      return;
+    }
     var kebab = e.target.closest('.sc-kebab, .sc-artist-menu, .sc-row-menu');
     if (kebab) {
       if (SC_POP && POP_BTN === kebab) { popClose(); return; } // 再点同一个 ⋮ → 关闭
@@ -2966,7 +3030,7 @@
       if (b && !b.disabled) popAct(b.getAttribute('data-opt'));
       return;
     }
-    if (e.target.closest('.sc-kebab, .sc-artist-menu, .sc-row-menu, .bjd-kebab, .bjd-ph-menu, .ph-kebab, .area-kebab')) return; // ⋮ 由列表处理器切换
+    if (e.target.closest('.sc-kebab, .sc-artist-menu, .sc-row-menu, .bjd-kebab, .bjd-ph-menu, .ph-kebab, .area-kebab, .c-photo-kebab, .b-photo-kebab, .bjd-size-kebab')) return; // ⋮ 由列表处理器切换
     popClose();
   });
 
@@ -3102,7 +3166,24 @@
         renderCards();
       })
       .catch(function () { toast('上传失败'); });
-  });
+  if (e.target.classList.contains('sc-photos')) {
+    var cardPh = e.target.closest('.sc-artist');
+    var cPh = normCard(CARDS[parseInt(cardPh.getAttribute('data-i'), 10)]);
+    var fsPh = Array.prototype.slice.call(e.target.files);
+    if (!fsPh.length || !cPh) return;
+    if (!ACCESS) { toast('请先登录'); return; }
+    toast('上传中…');
+    fsPh.forEach(function (fPh) {
+      bjdUpload(fPh, function (url) {
+        cPh.photos = Array.isArray(cPh.photos) ? cPh.photos : [];
+        cPh.photos.push(url);
+        toast('已添加');
+        renderCards();
+      });
+    });
+    return;
+  }
+});
 
   // ===== BJD 管理：一个 BJD = 一个完整的娃娃档案（交互与色卡完全一致）=====
   function bjdUpload(file, done) {
@@ -3160,7 +3241,9 @@
         '<div style="display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap;">' +
         (b.image ? '<img src="' + escAttr(b.image) + '" style="width:44px;height:44px;object-fit:cover;border-radius:8px;flex-shrink:0;">' : '') +
         '<label class="btn-mini b-file-btn">上传照片<input type="file" class="b-file" accept="image/*" hidden></label>' +
+        '<label class="btn-mini">添加照片<input type="file" class="b-photos" accept="image/*" multiple hidden></label>' +
         '</div>' +
+        photoStrip(b.photos, 'b-photo-kebab') +
         bjdGroup('娃娃头', '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
           bjdField('厂家 / 品牌', '<input class="b-head-brand" style="width:100%;" value="' + escAttr(b.head.brand) + '" placeholder="如：大米自制">') +
           bjdField('型号 / Sculpt', '<input class="b-head-sculpt" style="width:100%;" value="' + escAttr(b.head.sculpt) + '" placeholder="如：XXX Head">') +
@@ -3206,6 +3289,7 @@
         '</div>';
     }).join('') || '<p class="empty">还没有 BJD 档案，点下面「+ 新增 BJD」</p>';
     document.getElementById('bjd-total').textContent = BJDS.length ? '共 ' + BJDS.length + ' 个娃娃' : '';
+    renderBjdSizes();
     if (BJDS_EDIT >= 0) EDIT_TYPE = 'bjd'; else if (EDIT_TYPE === 'bjd') EDIT_TYPE = null;
     enhanceSelects();
   }
@@ -3227,10 +3311,48 @@
     popClose();
     renderBjds();
   });
+  // ===== 娃娃尺寸 / 种类管理：像色卡画师一样可自由增删（存 site_settings.bjd_sizes）=====
+  function renderBjdSizes() {
+    var box = document.getElementById('bjd-size-chips');
+    if (!box) return;
+    box.innerHTML = BJD_SIZES.map(function (s, si) {
+      return '<span style="display:inline-flex;align-items:center;gap:2px;background:var(--card);border-radius:999px;padding:5px 6px 5px 12px;font-size:13px;">' + esc(s) +
+        '<button type="button" class="kebab bjd-size-kebab" data-si="' + si + '" title="菜单" style="width:22px;height:22px;font-size:12px;">⋮</button></span>';
+    }).join('');
+  }
+  document.getElementById('bjd-size-chips').addEventListener('click', function (e) {
+    var kb = e.target.closest('.bjd-size-kebab');
+    if (!kb) return;
+    if (SC_POP && POP_BTN === kb) { popClose(); return; }
+    popOpen('bjd-size', parseInt(kb.getAttribute('data-si'), 10), -1, -1, kb);
+  });
+  document.getElementById('btn-bjd-size-add').addEventListener('click', function () {
+    var inp = document.getElementById('bjd-size-new');
+    var v = inp.value.trim();
+    if (!v) { toast('先填尺寸名'); return; }
+    if (BJD_SIZES.indexOf(v) !== -1) { toast('已经有这个尺寸了'); return; }
+    BJD_SIZES.push(v);
+    saveSetting('bjd_sizes', BJD_SIZES.slice()).then(function (r) {
+      if (!r.ok) throw new Error();
+      toast('已添加');
+      inp.value = '';
+      renderBjdSizes();
+      renderBjds();
+    }).catch(function () {
+      toast('保存失败');
+      BJD_SIZES.pop();
+    });
+  });
   document.getElementById('bjd-list').addEventListener('click', function (e) {
     var card = e.target.closest('.bjd-item');
     if (!card) return;
     var i = parseInt(card.getAttribute('data-i'), 10);
+    var bpk = e.target.closest('.b-photo-kebab');
+    if (bpk) {
+      if (SC_POP && POP_BTN === bpk) { popClose(); return; }
+      popOpen('bjd-ph', i, -1, -1, bpk, { pi: parseInt(bpk.getAttribute('data-pi'), 10) });
+      return;
+    }
     var kebab = e.target.closest('.bjd-kebab');
     if (kebab) {
       if (SC_POP && POP_BTN === kebab) { popClose(); return; }
@@ -3271,6 +3393,22 @@
     if (cls === 'b-file') {
       var f = e.target.files[0];
       if (f) bjdUpload(f, function (url) { b.image = url; toast('图已上传'); scheduleBjdSave(); renderBjds(); });
+      return;
+    }
+    if (cls === 'b-photos') {
+      var fsB = Array.prototype.slice.call(e.target.files);
+      if (!fsB.length) return;
+      toast('上传中…');
+      fsB.forEach(function (fB) {
+        bjdUpload(fB, function (url) {
+          b.photos = Array.isArray(b.photos) ? b.photos : [];
+          b.photos.push(url);
+          scheduleBjdSave();
+          renderBjds();
+          toast('已添加');
+        });
+      });
+      return;
     }
   });
 

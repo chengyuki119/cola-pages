@@ -107,6 +107,21 @@ function normCardView(c) {
 var CARDS_CACHE = [];  // 页面脚本按需填充
 var BJDS_CACHE = [];   // 页面脚本按需填充
 
+// ===== BJD 总价（与色卡总价同一套展示口径）：已启用部件的价格自动求和 =====
+function bjdTotalV(b) {
+  var p = (b && b.price) || {}, parts = (b && b.parts) || {};
+  var sum = 0;
+  var add = function (v) {
+    var m = String(v == null ? '' : v).replace(/[^\d.]/g, '');
+    if (m !== '' && !isNaN(parseFloat(m))) sum += parseFloat(m);
+  };
+  if (parts.head !== false) { add(p.doll); add(p.faceup); } // 娃头选中时妆面才计价
+  if (parts.body !== false) add(p.body);
+  if (parts.eyes !== false) add(p.eyes);
+  if (parts.clothes === true) add(p.clothes);
+  return sum;
+}
+
 // ===== BJD 数据（前台展示版） =====
 function normBjdView(b) {
   b = b || {};

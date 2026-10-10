@@ -858,16 +858,18 @@
     if (p.length < 3 || ev.repeat !== 'yearly') return 0;
     return Math.max(0, y - p[0]);
   }
-  // 事件在 y 年的显示名：生日→「21岁生日」；色卡→「色卡A 1岁了」；其他分类→「认识桓桓一周年」（起始当年显示原名）
+  // 事件在 y 年的显示名：生日→「小柚 21岁生日」（名字去掉「生日」尾缀后拼接）；色卡→「色卡A 1岁了」；其他分类→「认识桓桓一周年」（起始当年显示原名）
   function evDispName(ev, y) {
     var n = annivYears(ev, y);
     if (!n) return ev.name || '';
     var ty = String(ev.type || '');
+    var isBd = ty.indexOf('生日') > -1 || ty === 'birthday';
+    var bn = (ev.name || '').replace(/的?生日\s*$/, ''); // 「小柚的生日」→「小柚」
     if (LANG === 'en') {
-      if (ty.indexOf('生日') > -1 || ty === 'birthday') return 'Turning ' + n + ' · Birthday';
+      if (isBd) return (bn ? bn + ' · Turning ' + n : 'Turning ' + n + ' · Birthday');
       return (ev.name || '') + ' · ' + n + 'y';
     }
-    if (ty.indexOf('生日') > -1 || ty === 'birthday') return n + '岁生日';
+    if (isBd) return bn ? bn + ' ' + n + '岁生日' : n + '岁生日';
     if (ty.indexOf('色卡') > -1) return (ev.name || '') + ' ' + n + '岁了';
     return (ev.name || '') + zhYears(n) + '周年';
   }

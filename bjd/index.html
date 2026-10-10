@@ -110,7 +110,7 @@
       shareBtnHtml(x.i, 'bjd', true) +
       '</div>' +
       (bjdMeta(b) ? '<div style="font-size:12px;color:var(--muted);margin-top:3px;">' + escDb(bjdMeta(b)) + '</div>' : '') +
-      (b.price.total ? '<div style="font-size:13px;color:var(--accent);font-weight:600;margin-top:4px;">' + escDb(b.price.total) + '</div>' : '') +
+      (function () { var tv = bjdTotalV(b); var tt = b.price.total || (tv > 0 ? '¥' + fmtMoney(tv) : ''); return tt ? '<div style="font-size:13px;color:var(--accent);font-weight:600;margin-top:4px;">' + escDb(tt) + '</div>' : ''; })() +
       '</div></div>';
   }
   function renderBjdWall() {
@@ -179,8 +179,12 @@
       (b.parts.eyes !== false ? bjdRow(t('眼珠', 'Eyes'), b.price.eyes) : '') +
       (b.parts.body !== false ? bjdRow(t('身体', 'Body'), b.price.body) : '') +
       (b.parts.clothes ? bjdRow(t('衣服', 'Outfit'), b.price.clothes) : '');
+    var totalV = bjdTotalV(b);
     body.innerHTML =
       (b.image ? '<div style="width:100%;max-width:420px;aspect-ratio:1/1;margin:0 auto 18px;overflow:hidden;border-radius:var(--radius);background:var(--card);"><img src="' + escAttrDb(normImg(b.image)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="BJD"></div>' : '') +
+      ((b.photos && b.photos.length) ? '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:420px;margin:0 auto 18px;">' + b.photos.map(function (u) {
+        return '<div class="album-img" style="width:100%;aspect-ratio:1/1;overflow:hidden;border-radius:12px;background:var(--card);"><img src="' + escAttrDb(normImg(u)) + '" style="width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in;" alt="BJD" loading="lazy"></div>';
+      }).join('') + '</div>' : '') +
       '<div style="text-align:center;margin-bottom:18px;">' +
       '<span style="font-size:18px;font-weight:700;">' + escDb(b.name || t('未命名娃娃', 'Unnamed doll')) + '</span>' +
       (b.head.size ? '<span style="color:var(--muted);font-size:14px;">　|　' + escDb(b.head.size) + '</span>' : '') +
@@ -195,7 +199,8 @@
       (bjdRow(t('商家 / 制作者', 'Seller / Maker'), b.clothes.brand) + bjdRow(t('备注', 'Notes'), b.clothes.note) || '<p style="color:var(--muted);font-size:13px;">' + t('暂无记录', 'No records yet') + '</p>') + '</div>' : '') +
       (b.parts.head !== false ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:16px;">' + t('妆面', 'Face-up') + '</h2>' +
       (bjdRow(t('妆面 / Face-up', 'Face-up'), b.faceup.faceup) + bjdRow(t('妆师', 'Face-up artist'), b.faceup.artist) + bjdRow(t('完成时间', 'Completed'), b.faceup.date) || '<p style="color:var(--muted);font-size:13px;">' + t('暂无记录', 'No records yet') + '</p>') + '</div>' : '') +
-      ((b.price.total || priceRows) ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:16px;">' + t('价格', 'Price') + '</h2>' +
+      ((b.price.total || priceRows || totalV) ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:16px;">' + t('价格', 'Price') + '</h2>' +
+      (totalV > 0 ? '<div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--card-hover);padding:10px 0;margin-bottom:10px;"><span style="font-size:15px;font-weight:700;">' + t('娃娃总价', 'Total price') + '</span><b style="font-size:17px;color:var(--accent);">¥' + fmtMoney(totalV) + '</b></div>' : '') +
       (bjdRow(t('娃娃价格', 'Total price'), b.price.total) + priceRows) + '</div>' : '') +
       ((b.purchase.date || b.purchase.channel || b.purchase.status) ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:16px;">' + t('购买信息', 'Purchase Info') + '</h2>' +
       (bjdRow(t('购买日期', 'Purchase date'), b.purchase.date) + bjdRow(t('渠道 / 商家', 'Channel / Seller'), b.purchase.channel) + bjdRow(t('状态', 'Status'), b.purchase.status)) + '</div>' : '') +
@@ -213,6 +218,9 @@
     var bjdsRaw = null;
     try { bjdsRaw = JSON.parse(S['bjds'] || 'null'); } catch (e) {}
     BJDS_CACHE = (Array.isArray(bjdsRaw) ? bjdsRaw : []).map(function (b) { return normBjdView(b); });
+    var bsz = null; // 自定义娃娃尺寸 / 种类（与后台同一份 site_settings.bjd_sizes）
+    try { bsz = JSON.parse(S['bjd_sizes'] || 'null'); } catch (e) {}
+    if (Array.isArray(bsz) && bsz.length) BJD_SIZES = bsz.map(function (s) { return String(s).trim(); }).filter(Boolean);
     renderBjdToolbar();
     renderBjdWall();
     // ?id=N → 直接打开娃娃详情
