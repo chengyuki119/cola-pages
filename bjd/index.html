@@ -59,7 +59,7 @@
           <option value="全部" data-zh="全部分类" data-en="All Parts">全部分类</option>
           <option value="娃娃头" data-zh="娃娃头" data-en="Head">娃娃头</option>
           <option value="娃娃身体" data-zh="娃娃身体" data-en="Body">娃娃身体</option>
-          <option value="眼睛" data-zh="眼睛" data-en="Eyes">眼睛</option>
+          <option value="眼睛" data-zh="眼珠" data-en="Eyes">眼珠</option>
         </select>
         <select id="bjd-sort">
           <option value="manual" data-en="Manual (default)">默认排序</option>
@@ -174,8 +174,9 @@
     if (!BJDS_CACHE[CURRENT_BJD]) { body.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px 0;">' + t('没有找到这个娃娃', 'Doll not found') + '</p>'; return; }
     var title = document.getElementById('bjd-view-title');
     if (title) title.textContent = b.name || t('未命名娃娃', 'Unnamed doll');
-    var priceRows = (b.parts.head !== false ? bjdRow(t('娃娃头', 'Head'), b.price.doll) : '') + bjdRow(t('妆面', 'Face-up'), b.price.faceup) +
-      (b.parts.eyes !== false ? bjdRow(t('眼睛', 'Eyes'), b.price.eyes) : '') +
+    var priceRows = (b.parts.head !== false ? bjdRow(t('娃娃头', 'Head'), b.price.doll) : '') +
+      (b.parts.head !== false ? bjdRow(t('妆面', 'Face-up'), b.price.faceup) : '') +
+      (b.parts.eyes !== false ? bjdRow(t('眼珠', 'Eyes'), b.price.eyes) : '') +
       (b.parts.body !== false ? bjdRow(t('身体', 'Body'), b.price.body) : '') +
       (b.parts.clothes ? bjdRow(t('衣服', 'Outfit'), b.price.clothes) : '');
     body.innerHTML =
@@ -188,12 +189,12 @@
       (bjdRow(t('厂家 / 品牌', 'Maker / Brand'), b.head.brand) + bjdRow(t('型号 / Sculpt', 'Sculpt'), b.head.sculpt) + bjdRow(t('娃娃头尺寸', 'Head size'), b.head.size) + bjdRow(t('备注', 'Notes'), b.head.note) || '<p style="color:var(--muted);font-size:13px;">' + t('暂无记录', 'No records yet') + '</p>') + '</div>' : '') +
       (b.parts.body !== false ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:16px;">' + t('身体', 'Body') + '</h2>' +
       (bjdRow(t('厂家 / 品牌', 'Maker / Brand'), b.body.brand) + bjdRow(t('Body 型号', 'Body model'), b.body.model) + bjdRow(t('类型', 'Type'), b.body.type) + bjdRow(t('备注', 'Notes'), b.body.note) || '<p style="color:var(--muted);font-size:13px;">' + t('暂无记录', 'No records yet') + '</p>') + '</div>' : '') +
-      (b.parts.eyes !== false ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:16px;">' + t('眼睛', 'Eyes') + '</h2>' +
-      (bjdRow(t('商家 / 制作者', 'Seller / Maker'), b.eyes.maker) + bjdRow(t('来源', 'Source'), b.eyes.source) + bjdRow(t('眼睛尺寸', 'Eye size'), b.eyes.size) + bjdRow(t('虹膜尺寸', 'Iris size'), b.eyes.iris) + bjdRow(t('备注', 'Notes'), b.eyes.note) || '<p style="color:var(--muted);font-size:13px;">' + t('暂无记录', 'No records yet') + '</p>') + '</div>' : '') +
+      (b.parts.eyes !== false ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:16px;">' + t('眼珠', 'Eyes') + '</h2>' +
+      (bjdRow(t('商家 / 制作者', 'Seller / Maker'), b.eyes.maker) + bjdRow(t('来源', 'Source'), b.eyes.source) + bjdRow(t('眼珠尺寸', 'Eye size'), b.eyes.size) + bjdRow(t('虹膜尺寸', 'Iris size'), b.eyes.iris) + bjdRow(t('备注', 'Notes'), b.eyes.note) || '<p style="color:var(--muted);font-size:13px;">' + t('暂无记录', 'No records yet') + '</p>') + '</div>' : '') +
       (b.parts.clothes ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:16px;">' + t('衣服', 'Outfit') + '</h2>' +
       (bjdRow(t('商家 / 制作者', 'Seller / Maker'), b.clothes.brand) + bjdRow(t('备注', 'Notes'), b.clothes.note) || '<p style="color:var(--muted);font-size:13px;">' + t('暂无记录', 'No records yet') + '</p>') + '</div>' : '') +
-      '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:16px;">' + t('妆面', 'Face-up') + '</h2>' +
-      (bjdRow(t('妆面 / Face-up', 'Face-up'), b.faceup.faceup) + bjdRow(t('妆师', 'Face-up artist'), b.faceup.artist) + bjdRow(t('完成时间', 'Completed'), b.faceup.date) || '<p style="color:var(--muted);font-size:13px;">' + t('暂无记录', 'No records yet') + '</p>') + '</div>' +
+      (b.parts.head !== false ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:16px;">' + t('妆面', 'Face-up') + '</h2>' +
+      (bjdRow(t('妆面 / Face-up', 'Face-up'), b.faceup.faceup) + bjdRow(t('妆师', 'Face-up artist'), b.faceup.artist) + bjdRow(t('完成时间', 'Completed'), b.faceup.date) || '<p style="color:var(--muted);font-size:13px;">' + t('暂无记录', 'No records yet') + '</p>') + '</div>' : '') +
       ((b.price.total || priceRows) ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:16px;">' + t('价格', 'Price') + '</h2>' +
       (bjdRow(t('娃娃价格', 'Total price'), b.price.total) + priceRows) + '</div>' : '') +
       ((b.purchase.date || b.purchase.channel || b.purchase.status) ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:16px;">' + t('购买信息', 'Purchase Info') + '</h2>' +

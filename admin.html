@@ -3155,7 +3155,7 @@
         '<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:13px;">' +
         '<span class="tgl-label"><button type="button" class="tgl b-home-toggle" aria-pressed="' + (b.homeShow !== false) + '" aria-label="主页展示"><span class="tgl-knob"></span></button>主页展示</span>' +
         '<span style="color:var(--muted);">添加部件：</span>' +
-        chk('b-part', 'head', '娃娃头') + chk('b-part', 'body', '身体') + chk('b-part', 'eyes', '眼睛') + chk('b-part', 'clothes', '衣服') +
+        chk('b-part', 'head', '娃娃头') + chk('b-part', 'body', '身体') + chk('b-part', 'eyes', '眼珠') + chk('b-part', 'clothes', '衣服') +
         '</div>' +
         '<div style="display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap;">' +
         (b.image ? '<img src="' + escAttr(b.image) + '" style="width:44px;height:44px;object-fit:cover;border-radius:8px;flex-shrink:0;">' : '') +
@@ -3173,12 +3173,12 @@
           bjdField('身体类型', '<select class="b-body-type">' + opts(BJD_BODY_TYPES, b.body.type) + '</select>') +
           bjdField('身体备注', '<input class="b-body-note" style="width:100%;" value="' + escAttr(b.body.note) + '" placeholder="自由填写">') +
           '</div>', 'body') +
-        bjdGroup('眼睛', '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+        bjdGroup('眼珠', '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
           bjdField('商家 / 制作者', '<input class="b-eye-maker" style="width:100%;" value="' + escAttr(b.eyes.maker) + '" placeholder="如：XX工作室 / 自制">') +
           bjdField('来源', '<select class="b-eye-source">' + opts(BJD_EYE_SOURCES, b.eyes.source) + '</select>') +
-          bjdField('眼睛尺寸', '<input class="b-eye-size" style="width:100%;" value="' + escAttr(b.eyes.size) + '" placeholder="如：14mm">') +
+          bjdField('眼珠尺寸', '<input class="b-eye-size" style="width:100%;" value="' + escAttr(b.eyes.size) + '" placeholder="如：14mm">') +
           bjdField('虹膜尺寸', '<input class="b-eye-iris" style="width:100%;" value="' + escAttr(b.eyes.iris) + '" placeholder="如：7mm（可留空）">') +
-          bjdField('眼睛备注', '<input class="b-eye-note" style="width:100%;" value="' + escAttr(b.eyes.note) + '" placeholder="自由填写">') +
+          bjdField('眼珠备注', '<input class="b-eye-note" style="width:100%;" value="' + escAttr(b.eyes.note) + '" placeholder="自由填写">') +
           '</div>', 'eyes') +
         bjdGroup('衣服', '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
           bjdField('商家 / 制作者', '<input class="b-cl-brand" style="width:100%;" value="' + escAttr(b.clothes.brand) + '" placeholder="选填">') +
@@ -3188,14 +3188,14 @@
           bjdField('妆面 / Face-up', '<input class="b-fu-faceup" style="width:100%;" value="' + escAttr(b.faceup.faceup) + '" placeholder="如：手绘妆 / 自制妆 / 无妆">') +
           bjdField('妆师', '<input class="b-fu-artist" style="width:100%;" value="' + escAttr(b.faceup.artist) + '" placeholder="如：XXX老师">') +
           bjdField('妆面完成时间', '<input type="text" class="b-fu-date" readonly data-dp="1" placeholder="选择日期" style="width:100%;cursor:pointer;" value="' + escAttr(b.faceup.date) + '">') +
-          '</div>') +
+          '</div>', 'head') +
         bjdGroup('价格', '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
           bjdField('娃娃价格（总价）', '<input class="b-price-total" style="width:100%;" value="' + escAttr(b.price.total) + '" placeholder="如：$500（选填）">') +
           (b.parts.head !== false ? bjdField('价格：娃娃头', '<input class="b-cost-doll" style="width:100%;" value="' + escAttr(b.price.doll) + '" placeholder="选填">') : '') +
           (b.parts.body !== false ? bjdField('价格：身体', '<input class="b-cost-body" style="width:100%;" value="' + escAttr(b.price.body) + '" placeholder="选填">') : '') +
-          (b.parts.eyes !== false ? bjdField('价格：眼睛', '<input class="b-cost-eyes" style="width:100%;" value="' + escAttr(b.price.eyes) + '" placeholder="选填">') : '') +
+          (b.parts.eyes !== false ? bjdField('价格：眼珠', '<input class="b-cost-eyes" style="width:100%;" value="' + escAttr(b.price.eyes) + '" placeholder="选填">') : '') +
           (b.parts.clothes ? bjdField('价格：衣服', '<input class="b-cost-clothes" style="width:100%;" value="' + escAttr(b.price.clothes) + '" placeholder="选填">') : '') +
-          bjdField('价格：妆面', '<input class="b-cost-faceup" style="width:100%;" value="' + escAttr(b.price.faceup) + '" placeholder="选填">') +
+          (b.parts.head !== false ? bjdField('价格：妆面', '<input class="b-cost-faceup" style="width:100%;" value="' + escAttr(b.price.faceup) + '" placeholder="选填">') : '') +
           '</div>') +
         bjdGroup('购买信息（全部选填）', '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
           bjdField('购买日期', '<input type="text" class="b-buy-date" readonly data-dp="1" placeholder="选择日期" style="width:100%;cursor:pointer;" value="' + escAttr(b.purchase.date) + '">') +
@@ -3221,7 +3221,7 @@
     bjdSaveTimer = setTimeout(function () { saveBjdsQuiet(function () {}); }, 800);
   }
   document.getElementById('btn-bjd-add').addEventListener('click', function () {
-    BJDS.push(normBjd({ createdAt: Date.now() }));
+    BJDS.push(normBjd({ createdAt: Date.now(), parts: { head: false, body: false, eyes: false, clothes: false } })); // 新娃娃默认四部件全不选，按需开启
     BJDS_EDIT = BJDS.length - 1;
     CARDS_EDIT = -1;
     popClose();
@@ -3384,7 +3384,7 @@
     ]},
     { id: 'm5', time: now - 6 * DAY, msgs: [
       { role: 'user', text: 'BJD 是什么', time: now - 6 * DAY },
-      { role: 'ai', text: 'BJD 是球型关节人偶。导航的「BJD」里是柚子的娃娃档案，有娃娃头、身体、眼睛这些部件信息。', time: now - 6 * DAY + 6000 },
+      { role: 'ai', text: 'BJD 是球型关节人偶。导航的「BJD」里是柚子的娃娃档案，有娃娃头、身体、眼珠这些部件信息。', time: now - 6 * DAY + 6000 },
       { role: 'user', text: '你好呀', time: now - 6 * DAY + 60000 },
       { role: 'ai', text: '你好呀～我是小柚助手（测试版）。可以问我「网站怎么用」「色卡」「小铺」。', time: now - 6 * DAY + 64000 }
     ]},
