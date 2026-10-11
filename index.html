@@ -1109,7 +1109,7 @@
             (ev.repeat === 'yearly' && !(String(ev.type || '').indexOf('生日') > -1 || ev.type === 'birthday') ? ' · ' + evAnnivText(ev, SEL.y, SEL.m, SEL.d).replace(/<[^>]*>/g, '') : '');
           return '<div class="cal-dayview-item"><b>' + escDb(evDispName(ev, SEL.y)) + '</b><div class="dv-sub">' + sub + '</div></div>';
         }).join('')
-      : '<div class="cal-ev-none">' + t(isToday ? '今天没有重要日子' : '暂无重要日子', isToday ? 'Nothing special today' : 'No events on this day') + '</div>';
+      : '<div class="cal-ev-none">' + t(isToday ? '今天没有重要日子～♡' : '这天没有重要日子～♡', isToday ? 'Nothing special today ♡' : 'No events on this day ♡') + '</div>';
     // 接下来 7 天（未来 7 天以内，没有也不留白）
     var list = [];
     EVENTS.forEach(function (ev) {
@@ -1128,7 +1128,7 @@
     var up = document.getElementById('cal-upcoming');
     up.innerHTML = list.length ? list.map(function (x) {
       return '<div class="cal-ev" data-y="' + x.occ[0] + '" data-m="' + x.occ[1] + '" data-d="' + x.occ[2] + '">' + x.occ[0] + '/' + pad2(x.occ[1]) + '/' + pad2(x.occ[2]) + ' · ' + escDb(evDispName(x.ev, x.occ[0])) + '</div>';
-    }).join('') : '<div class="cal-ev-none">' + t('未来 7 天没有重要日子', 'No events in the next 7 days') + '</div>';
+    }).join('') : '<div class="cal-ev-none">' + t('未来 7 天没有重要日子～☆', 'No events in the next 7 days ☆') + '</div>';
   }
   // 添加重要日子：极简表单（只有登录的柚子能看到入口）
   function buildCalForm() {
