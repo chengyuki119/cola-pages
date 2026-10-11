@@ -2644,7 +2644,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     // 新建只负责新建：加一张空卡（张数默认 0），不自动进入编辑
     BJDS_EDIT = -1;
     pushHist();
-    CARDS.unshift({ name: '', shop: '', image: '', homeShow: true, artists: [{ name: '', rows: [{ label: '', qty: 0 }] }] }); // 最新排最上面
+    CARDS.unshift({ name: '', shop: '', image: '', homeShow: false, artists: [{ name: '', rows: [{ label: '', qty: 0 }] }] }); // 最新排最上面；主页展示默认关
     popClose();
     renderCards();
     var el = document.querySelector('#sc-artist-list .sc-artist');
@@ -3520,7 +3520,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     bjdSaveTimer = setTimeout(function () { saveBjdsQuiet(function () {}); }, 800);
   }
   document.getElementById('btn-bjd-add').addEventListener('click', function () {
-    BJDS.push(normBjd({ createdAt: Date.now(), parts: { head: false, body: false, eyes: false, clothes: false } })); // 新娃娃默认四部件全不选，按需开启
+    BJDS.push(normBjd({ createdAt: Date.now(), homeShow: false, parts: { head: false, body: false, eyes: false, clothes: false } })); // 新娃娃默认四部件全不选，按需开启；主页展示默认关
     BJDS_EDIT = BJDS.length - 1;
     CARDS_EDIT = -1;
     popClose();
