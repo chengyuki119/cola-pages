@@ -525,20 +525,39 @@ if (document.getElementById('date-pop')) {
       : DP.y + ' 年 ' + (DP.m + 1) + ' 月';
     var grid = pop.querySelector('.dp-grid');
     var ym = pop.querySelector('.dp-ym');
-    if (DP.mode === 'ym') { // 年月快速选择：年份列表可滚动 + 直接输入年份 + 12 月网格
+    if (DP.mode === 'ym') { // 年月快速选择：苹果式双滚轮（年 | 月）
       grid.style.display = 'none';
       ym.style.display = 'block';
-      if (!ym.innerHTML) {
-        var y1 = new Date().getFullYear() + 5, years = '';
-        for (var yy = y1; yy >= 2000; yy--) years += '<button type="button" class="dp-year" data-y="' + yy + '">' + yy + '</button>';
-        var ms = '';
-        for (var mm = 0; mm < 12; mm++) ms += '<button type="button" class="dp-mon" data-m="' + mm + '">' + (mm + 1) + (LANG === 'en' ? '' : ' 月') + '</button>';
-        ym.innerHTML = '<div class="dp-ym-row"><input type="text" inputmode="numeric" class="dp-year-input" placeholder="' + (LANG === 'en' ? 'Year' : '输入年份') + '"></div><div class="dp-years">' + years + '</div><div class="dp-months">' + ms + '</div>';
-      }
-      ym.querySelectorAll('.dp-year').forEach(function (b) { b.classList.toggle('cur', parseInt(b.getAttribute('data-y'), 10) === DP.y); });
-      ym.querySelectorAll('.dp-mon').forEach(function (b) { b.classList.toggle('cur', parseInt(b.getAttribute('data-m'), 10) === DP.m); });
-      var cur = ym.querySelector('.dp-year.cur');
-      if (cur) ym.querySelector('.dp-years').scrollTop = cur.offsetTop - 50;
+      var y1 = new Date().getFullYear() + 5, years = [];
+      for (var yy = y1; yy >= 2000; yy--) years.push(yy);
+      var months = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+      var yl = years.map(function (y) { return '<div class="wheel-item' + (y === DP.y ? ' cur' : '') + '" data-v="' + y + '">' + y + '</div>'; }).join('');
+      var ml = months.map(function (m) { return '<div class="wheel-item' + (m === DP.m ? ' cur' : '') + '" data-v="' + m + '">' + (m + 1) + (LANG === 'en' ? '' : ' 月') + '</div>'; }).join('');
+      ym.innerHTML = '<div class="dp-wheel"><div class="wheel" data-k="y"><div class="wheel-list">' + yl + '</div></div><div class="wheel" data-k="m"><div class="wheel-list">' + ml + '</div></div><div class="wheel-band"></div></div>';
+      ym.querySelectorAll('.wheel').forEach(function (col) {
+        var isY = col.getAttribute('data-k') === 'y';
+        var vals = isY ? years : months;
+        var list = col.querySelector('.wheel-list');
+        var curIdx = isY ? years.indexOf(DP.y) : DP.m;
+        if (curIdx < 0) curIdx = 0;
+        list.scrollTop = curIdx * 36;
+        var wt = null;
+        list.addEventListener('scroll', function () {
+          clearTimeout(wt);
+          wt = setTimeout(function () {
+            var i = Math.max(0, Math.min(vals.length - 1, Math.round(list.scrollTop / 36)));
+            list.querySelectorAll('.wheel-item').forEach(function (c, j) { c.classList.toggle('cur', j === i); });
+            if (isY) DP.y = vals[i]; else DP.m = vals[i];
+            var pop2 = document.getElementById('date-pop');
+            pop2.querySelector('.dp-title').textContent = LANG === 'en' ? DP_MON_EN[DP.m] + ' ' + DP.y : DP.y + ' 年 ' + (DP.m + 1) + ' 月';
+          }, 130);
+        });
+        list.addEventListener('click', function (e) {
+          var it = e.target.closest('.wheel-item'); if (!it) return;
+          var i = Array.prototype.indexOf.call(list.children, it);
+          list.scrollTo({ top: i * 36, behavior: 'smooth' });
+        });
+      });
       return;
     }
     ym.style.display = 'none';

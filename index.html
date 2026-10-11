@@ -35,7 +35,7 @@
 <meta name="twitter:title" content="小柚的小世界">
 <meta name="twitter:description" content="欢迎来到小柚的小世界">
 <meta name="twitter:image" content="https://yukicheng.com/og-image.jpg">
-<link rel="stylesheet" href="/css/site.css?v=20261011a">
+<link rel="stylesheet" href="/css/site.css?v=20261011c">
   <link rel="stylesheet" href="/site-menu.css">
     <script src="/site-menu.js" defer></script>
 </head>
@@ -207,7 +207,7 @@
 <div id="share-pop"></div>
 
 
-<script src="/js/site-common.js?v=20261011a"></script>
+<script src="/js/site-common.js?v=20261011c"></script>
 
 <!-- ═══════════ 小柚助手（AI 入口 · 第一阶段测试：模拟回复 + 后台知识库匹配，未接真 AI）═══════════ -->
 <style>
@@ -992,8 +992,16 @@
         out.push({ name: name + (LANG === 'en' ? ' · ' + y + 'y' : zhYears(y) + '岁'), day: iso(d2), type: '纪念', repeat: 'none', auto: true });
       }
     }
-    (bjds || []).forEach(function (b) { if (b && b.name && valid(b.birth)) pushAll(b.name, b.birth); });
-    (cards || []).forEach(function (c) { if (c && c.name && valid(c.birth)) pushAll(c.name, c.birth); });
+    (bjds || []).forEach(function (b) {
+      if (!b || !b.name) return;
+      var src = valid(b.birth) ? b.birth : (valid(b.purchase && b.purchase.date) ? b.purchase.date : (valid(b.faceup && b.faceup.date) ? b.faceup.date : ''));
+      if (src) pushAll(b.name, src); // 出生日期 → 买入那天 → 弄好那天，取第一个填了的
+    });
+    (cards || []).forEach(function (c) {
+      if (!c || !c.name) return;
+      var src = valid(c.birth) ? c.birth : (valid(c.bought) ? c.bought : '');
+      if (src) pushAll(c.name, src);
+    });
     // 手动添加的重要日子（生日除外）：也按起始日期生成每一百天纪念
     (days || []).forEach(function (ev) {
       if (!ev || !valid(ev.day)) return;
@@ -1254,24 +1262,42 @@
     document.getElementById('cal-title').addEventListener('click', function (e) {
       e.stopPropagation();
       if (ymPop.style.display === 'block') { ymPop.style.display = 'none'; return; }
-      var y1 = new Date().getFullYear() + 1, years = '';
-      for (var y = y1; y >= 2018; y--) years += '<button type="button" class="ym-year' + (y === CAL_VIEW.y ? ' cur' : '') + '" data-y="' + y + '">' + y + '</button>';
-      var ms = '';
-      for (var m = 0; m < 12; m++) ms += '<button type="button" class="ym-mon' + (m === CAL_VIEW.m ? ' cur' : '') + '" data-m="' + m + '">' + (m + 1) + (LANG === 'en' ? '' : ' 月') + '</button>';
-      ymPop.innerHTML = '<div class="ym-label">' + t('选择年份', 'Year') + '</div><div class="ym-years">' + years + '</div><div class="ym-label">' + t('选择月份', 'Month') + '</div><div class="ym-months">' + ms + '</div>';
+      var y1 = new Date().getFullYear() + 1, years = [];
+      for (var y = y1; y >= 2018; y--) years.push(y);
+      var months = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+      var yl = years.map(function (y) { return '<div class="wheel-item' + (y === CAL_VIEW.y ? ' cur' : '') + '" data-v="' + y + '">' + y + '</div>'; }).join('');
+      var ml = months.map(function (m) { return '<div class="wheel-item' + (m === CAL_VIEW.m ? ' cur' : '') + '" data-v="' + m + '">' + (m + 1) + (LANG === 'en' ? '' : ' 月') + '</div>'; }).join('');
+      ymPop.innerHTML = '<div class="dp-wheel"><div class="wheel" data-k="y"><div class="wheel-list">' + yl + '</div></div><div class="wheel" data-k="m"><div class="wheel-list">' + ml + '</div></div><div class="wheel-band"></div></div>';
       var r = this.getBoundingClientRect();
       ymPop.style.display = 'block';
-      ymPop.style.left = Math.max(8, Math.min(window.innerWidth - 240, r.left)) + 'px';
+      ymPop.style.left = Math.max(8, Math.min(window.innerWidth - 268, r.left)) + 'px';
       ymPop.style.top = (r.bottom + 6) + 'px';
-      var cur = ymPop.querySelector('.ym-year.cur');
-      if (cur) ymPop.querySelector('.ym-years').scrollTop = cur.offsetTop - 40; // 滚到当前年
+      ymPop.querySelectorAll('.wheel').forEach(function (col) {
+        var isY = col.getAttribute('data-k') === 'y';
+        var vals = isY ? years : months;
+        var list = col.querySelector('.wheel-list');
+        var curIdx = isY ? years.indexOf(CAL_VIEW.y) : CAL_VIEW.m;
+        if (curIdx < 0) curIdx = 0;
+        list.scrollTop = curIdx * 36;
+        var wt = null;
+        list.addEventListener('scroll', function () {
+          clearTimeout(wt);
+          wt = setTimeout(function () {
+            var i = Math.max(0, Math.min(vals.length - 1, Math.round(list.scrollTop / 36)));
+            list.querySelectorAll('.wheel-item').forEach(function (c, j) { c.classList.toggle('cur', j === i); });
+            if (isY) CAL_VIEW.y = vals[i]; else CAL_VIEW.m = vals[i];
+            renderCal(); renderCalSide(); // 滚轮停在哪就实时切到那个年月
+          }, 130);
+        });
+        list.addEventListener('click', function (e) {
+          var it = e.target.closest('.wheel-item'); if (!it) return;
+          var i = Array.prototype.indexOf.call(list.children, it);
+          list.scrollTo({ top: i * 36, behavior: 'smooth' });
+        });
+      });
     });
     document.addEventListener('click', function (e) {
       if (!ymPop || ymPop.style.display !== 'block') return;
-      var yr = e.target.closest('.ym-year');
-      if (yr) { CAL_VIEW.y = parseInt(yr.getAttribute('data-y'), 10); renderCal(); renderCalSide(); ymPop.style.display = 'none'; return; }
-      var mo = e.target.closest('.ym-mon');
-      if (mo) { CAL_VIEW.m = parseInt(mo.getAttribute('data-m'), 10); renderCal(); ymPop.style.display = 'none'; return; }
       if (!e.target.closest('#cal-ym-pop') && !e.target.closest('#cal-title')) ymPop.style.display = 'none';
     });
     // 左边永远显示完整月历；右边显示当前选中日期（默认今天）的详情

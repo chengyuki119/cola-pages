@@ -372,14 +372,15 @@
   .cal-add { margin-top: 12px; display: none; width: auto; padding: 6px 14px; border: none; border-radius: 999px; background: var(--card-hover); color: var(--muted); font-weight: 600; font-size:16px; cursor: pointer; transition: background .2s, color .2s; }
   .cal-add:hover { background: var(--accent-soft); color: #fff; }
   /* 日历年月快速选择（自定义弹层，点击标题打开） */
-  #cal-ym-pop { position: fixed; z-index: 1200; background: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(180,120,150,.18); padding: 10px; width: 231px; box-sizing: border-box; display: none; animation: scPopIn .16s ease; }
-  #cal-ym-pop .ym-label { font-size:16px; color: var(--muted); margin-bottom: 6px; }
-  #cal-ym-pop .ym-years { display: flex; flex-wrap: wrap; gap: 6px; overflow-y: auto; max-height: 112px; padding-right: 2px; margin-bottom: 2px; }
-  #cal-ym-pop .ym-year, #cal-ym-pop .ym-mon { border: none; background: var(--card); color: var(--text); border-radius: 8px; padding: 5px 8px; font-size:16px; cursor: pointer; font-family: inherit; line-height: 1.4; }
-  #cal-ym-pop .ym-mon { padding: 6px 0; text-align: center; }
-  #cal-ym-pop .ym-year.cur, #cal-ym-pop .ym-mon.cur { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
-  #cal-ym-pop .ym-year:hover, #cal-ym-pop .ym-mon:hover { background: var(--card-hover); }
-  #cal-ym-pop .ym-months { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  /* ===== 苹果式年月滚轮 ===== */
+  .dp-wheel { display: flex; position: relative; height: 180px; background: var(--card); border-radius: 12px; overflow: hidden; }
+  .dp-wheel .wheel { flex: 1; overflow-y: auto; scroll-snap-type: y mandatory; scrollbar-width: none; -webkit-mask-image: linear-gradient(transparent, #000 24%, #000 76%, transparent); mask-image: linear-gradient(transparent, #000 24%, #000 76%, transparent); }
+  .dp-wheel .wheel::-webkit-scrollbar { display: none; }
+  .dp-wheel .wheel-list { padding: 72px 0; }
+  .dp-wheel .wheel-item { height: 36px; line-height: 36px; text-align: center; scroll-snap-align: center; font-size:17px; color: var(--text); cursor: pointer; font-family: inherit; }
+  .dp-wheel .wheel-item.cur { color: var(--accent); font-weight: 700; }
+  .dp-wheel .wheel-band { position: absolute; left: 8px; right: 8px; top: 50%; height: 36px; transform: translateY(-50%); background: var(--accent-soft); border-radius: 10px; opacity: .45; pointer-events: none; }
+  #cal-ym-pop { position: fixed; z-index: 1200; background: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(180,120,150,.18); padding: 10px; width: 260px; box-sizing: border-box; display: none; animation: scPopIn .16s ease; }
   .cal-modal-mask { position: fixed; inset: 0; background: rgba(90,66,76,.3); opacity: 0; visibility: hidden; transition: opacity .2s; z-index: 300; }
   .cal-modal-mask.open { opacity: 1; visibility: visible; }
   .cal-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%) scale(.96); width: min(320px, calc(100vw - 40px)); background: var(--card); border-radius: var(--radius); padding: 18px; z-index: 301; opacity: 0; visibility: hidden; transition: opacity .2s, transform .2s; box-shadow: 0 10px 40px rgba(180,120,150,.25); box-sizing: border-box; }
@@ -395,15 +396,7 @@
   #date-pop .dp-input:focus { border-color: var(--accent); }
   #date-pop .dp-hint { display: none; font-size:15px; color: #e0722f; margin: -2px 0 6px; }
   #date-pop .dp-ym { display: none; }
-  #date-pop .dp-years { display: flex; flex-wrap: wrap; gap: 5px; overflow-y: auto; max-height: 96px; padding-right: 2px; margin-bottom: 6px; }
-  #date-pop .dp-year, #date-pop .dp-mon { border: none; background: var(--card); color: var(--text); border-radius: 8px; padding: 4px 7px; font-size:16px; cursor: pointer; font-family: inherit; line-height: 1.4; }
   #date-pop .dp-mon { text-align: center; }
-  #date-pop .dp-year.cur, #date-pop .dp-mon.cur { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
-  #date-pop .dp-year:hover, #date-pop .dp-mon:hover { background: var(--card-hover); }
-  #date-pop .dp-months { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
-  #date-pop .dp-ym-row { margin-bottom: 6px; }
-  #date-pop .dp-year-input { width: 100%; box-sizing: border-box; padding: 6px 10px; border: 1px solid #f0cfdf; border-radius: 8px; font-size:17px; font-family: inherit; color: var(--text); outline: none; }
-  #date-pop .dp-year-input:focus { border-color: var(--accent); }
   .dp-head { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
   .dp-title { flex: 1; text-align: center; font-size:17px; font-weight: 700; }
   .dp-nav, .dp-today { border: none; background: var(--card-hover); color: var(--accent); font-size:16px; border-radius: 999px; cursor: pointer; padding: 5px 10px; line-height: 1; font-family: inherit; }
