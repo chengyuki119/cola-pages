@@ -817,6 +817,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           <button type="button" class="sel-btn" id="sc-sort-btn">排序：默认</button>
           <span style="flex:1;"></span>
           <button class="btn-mini" id="btn-sc-add">+ 新建色卡</button>
+          <button class="btn-mini btn-save-tb" id="btn-sc-save">保存色卡改动</button>
           <span id="sc-total" style="font-size:17px;font-weight:600;color:var(--accent);"></span>
         </div>
         <div id="sc-artist-list"></div>
@@ -2698,6 +2699,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     toast('先点「⋮ → 编辑」再保存');
   }
   document.getElementById('btn-bjd-save').addEventListener('click', toolbarSave);
+  document.getElementById('btn-sc-save').addEventListener('click', toolbarSave); // 色卡工具栏的保存，与 BJD 同一套
 
   document.getElementById('btn-sc-add').addEventListener('click', function () {
     // 新建只负责新建：加一张空卡（张数默认 0），不自动进入编辑
