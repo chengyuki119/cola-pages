@@ -714,3 +714,10 @@ enhanceSelects();
 
 // ===== 汉堡菜单关闭（site-menu.js 负责） =====
 function closeMenu() { if (window.SiteMenu) SiteMenu.close(); }
+
+// ===== Service Worker：页面导航断网/加载失败时兜底到 /offline.html（自己的 UI 风格） =====
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('/sw.js').catch(function () {});
+  });
+}
