@@ -3,7 +3,7 @@
   @font-face { font-family: "Millo Body"; src: url("/fonts/Millo-RiceSoyMilk80.woff2") format("woff2"), url("/fonts/Millo-RiceSoyMilk80.ttf") format("truetype"); font-display: swap; }
 
   :root {
-    --bg: #fdf3f7;
+    --bg: #fffcfd;
     --card: #fff2f7;
     --card-hover: #ffe7f0;
     --text: #5d6780;
@@ -78,7 +78,7 @@
     height: 72vh;
     min-height: 480px;
     background:
-      linear-gradient(180deg, rgba(253,243,247,0) 82%, rgba(253,243,247,.8) 96%, #fdf3f7 100%), /* 仅照片最底部一小段轻微过渡，避免大面积泛白 */
+      linear-gradient(180deg, rgba(255,252,253,0) 82%, rgba(255,252,253,.8) 96%, #fffcfd 100%), /* 仅照片最底部一小段轻微过渡，避免大面积泛白 */
       url("/cover.jpg"); /*  封面背景图：可在后台「主页管理」更换，图片本身颜色内容不动 */
     background-color: var(--bg);
     background-size: cover;
@@ -129,7 +129,7 @@
 
   /* ===== 主页背景（仅首页生效）：几乎纯色，只留极淡的上下过渡，无粉色雾化/光晕 ===== */
   body.home {
-    background: linear-gradient(180deg, #fdf3f7 0%, #fdf4f8 100%);
+    background: linear-gradient(180deg, #fffcfd 0%, #fffafc 100%);
   }
 
   section { margin-bottom: 56px; }
