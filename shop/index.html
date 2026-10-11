@@ -425,9 +425,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     return 'on';
   }
   function productCard(p) {
-    var img = p.image_url
-      ? '<img src="' + esc(imgUrl(p.image_url)) + '" alt="' + esc(p.name) + '">'
-      : '';
+    var img = pagerWrapHtml(pagerImgsOf({ images: p.images, image_url: p.image_url }), p.name);
     var st = statusOf(p);
     var stText = st === 'on' ? t('在售','On sale') : st === 'display' ? t('仅展示','Display only') : t('售尽','Sold out');
     var stCls = st === 'on' ? 'st-on' : st === 'display' ? 'st-display' : 'st-out';
@@ -464,9 +462,20 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     }
   }
 
-  fetch(SUPABASE_URL + '/rest/v1/products?select=id,name,price,description,tag,image_url,sold,stock,display_only&order=created_at.desc&limit=100', {
-    headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }
-  }).then(function (r) { return r.json(); }).then(function (rows) {
+  function fetchProducts() { // images 列还没建时自动降级，不阻塞小铺页
+    var sel = 'id,name,price,description,tag,image_url,images,sold,stock,display_only';
+    return fetch(SUPABASE_URL + '/rest/v1/products?select=' + sel + '&order=created_at.desc&limit=100', {
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }
+    }).then(function (r) { return r.json(); }).then(function (rows) {
+      if (!Array.isArray(rows)) throw new Error('no images col');
+      return rows;
+    }).catch(function () {
+      return fetch(SUPABASE_URL + '/rest/v1/products?select=id,name,price,description,tag,image_url,sold,stock,display_only&order=created_at.desc&limit=100', {
+        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }
+      }).then(function (r) { return r.json(); });
+    });
+  }
+  fetchProducts().then(function (rows) {
     PRODUCTS = rows || [];
     renderProducts();
   }).catch(function () {

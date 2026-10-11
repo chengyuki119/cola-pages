@@ -108,6 +108,42 @@ var CARDS_CACHE = [];  // 页面脚本按需填充
 var BJDS_CACHE = [];   // 页面脚本按需填充
 var WORKS_CACHE = [];  // 页面脚本按需填充（稿件展示）
 
+// ===== 卡片多图翻页（色卡 / BJD / 小铺通用）：‹ › 切换、右下角计数 =====
+function pagerImgsOf(o) {
+  o = o || {};
+  var arr = [];
+  if (Array.isArray(o.images) && o.images.length) arr = o.images.filter(Boolean);
+  else if (Array.isArray(o.photos) && o.photos.length) arr = o.photos.filter(Boolean);
+  else if (o.image_url) arr = [o.image_url];
+  else if (o.image) arr = [o.image];
+  return arr.map(function (u) { return normImg(u); });
+}
+function pagerWrapHtml(urls, alt) {
+  urls = urls || [];
+  if (!urls.length) return '<div style="width:100%;aspect-ratio:1/1;background:var(--card);"></div>';
+  var multi = urls.length > 1;
+  return '<div class="pg-wrap" data-i="0" style="position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--card);">' +
+    '<img class="pg-img" src="' + escAttrDb(urls[0]) + '" data-urls="' + escAttrDb(JSON.stringify(urls)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + escAttrDb(alt || '') + '" loading="lazy">' +
+    (multi ? '<button type="button" class="pg-btn pg-prev" aria-label="上一张">‹</button><button type="button" class="pg-btn pg-next" aria-label="下一张">›</button><span class="pg-count">1/' + urls.length + '</span>' : '') +
+    '</div>';
+}
+document.addEventListener('click', function (e) { // 捕获阶段拦下箭头点击，不触发卡片本身的进详情
+  var btn = e.target.closest ? e.target.closest('.pg-btn') : null;
+  if (!btn) return;
+  e.preventDefault(); e.stopPropagation();
+  var wrap = btn.closest('.pg-wrap');
+  var img = wrap.querySelector('.pg-img');
+  var urls = [];
+  try { urls = JSON.parse(img.getAttribute('data-urls') || '[]'); } catch (err) {}
+  if (urls.length < 2) return;
+  var i = parseInt(wrap.getAttribute('data-i') || '0', 10) || 0;
+  i = (i + (btn.classList.contains('pg-next') ? 1 : urls.length - 1)) % urls.length;
+  wrap.setAttribute('data-i', String(i));
+  img.src = urls[i];
+  var c = wrap.querySelector('.pg-count');
+  if (c) c.textContent = (i + 1) + '/' + urls.length;
+}, true);
+
 // ===== BJD 总价（与色卡总价同一套展示口径）：已启用部件的价格自动求和 =====
 function bjdTotalV(b) {
   var p = (b && b.price) || {}, parts = (b && b.parts) || {};
@@ -520,6 +556,10 @@ if (document.getElementById('date-pop')) {
     }
     pop.style.left = left + 'px';
     pop.style.top = top + 'px';
+    if (!window.__dpScrollBound) { // 页面滚动时日期弹层直接收起，避免 fixed 弹层飘走
+      window.__dpScrollBound = true;
+      window.addEventListener('scroll', function () { var p = document.getElementById('date-pop'); if (p && p.style.display === 'block') p.style.display = 'none'; }, { passive: true });
+    }
   }
   function dpRender() {
     var pop = document.getElementById('date-pop');

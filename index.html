@@ -35,7 +35,7 @@
 <meta name="twitter:title" content="小柚的小世界">
 <meta name="twitter:description" content="欢迎来到小柚的小世界">
 <meta name="twitter:image" content="https://yukicheng.com/og-image.jpg">
-<link rel="stylesheet" href="/css/site.css?v=20261011e">
+<link rel="stylesheet" href="/css/site.css?v=20261011f">
   <link rel="stylesheet" href="/site-menu.css">
     <script src="/site-menu.js" defer></script>
 </head>
@@ -207,7 +207,7 @@
 <div id="share-pop"></div>
 
 
-<script src="/js/site-common.js?v=20261011e"></script>
+<script src="/js/site-common.js?v=20261011f"></script>
 
 <!-- ═══════════ 小柚助手（AI 入口 · 第一阶段测试：模拟回复 + 后台知识库匹配，未接真 AI）═══════════ -->
 <style>
@@ -1256,6 +1256,10 @@
     });
     // 点击年月标题：自定义年月快速选择（年份列表可滚动到旧年份，月份直接点选）
     var ymPop = document.getElementById('cal-ym-pop');
+    if (!window.__ymScrollBound) { // 页面滚动时弹层不跟随（fixed 原地不动会飘），直接收起
+      window.__ymScrollBound = true;
+      window.addEventListener('scroll', function () { if (ymPop.style.display === 'block') ymPop.style.display = 'none'; }, { passive: true });
+    }
     document.getElementById('cal-title').addEventListener('click', function (e) {
       e.stopPropagation();
       if (ymPop.style.display === 'block') { ymPop.style.display = 'none'; return; }

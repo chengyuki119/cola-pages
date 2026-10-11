@@ -560,3 +560,9 @@
   .subpage-title::after { content: " ♥"; font-size: .75em; }
   .section-sub::after { content: " ☆"; }
   .cal-head b::after { content: " ☆"; font-size: .85em; }
+
+/* ===== 卡片多图翻页（色卡 / BJD / 小铺通用） ===== */
+.pg-btn { position: absolute; top: 50%; transform: translateY(-50%); width: 30px; height: 30px; border-radius: 50%; border: none; background: rgba(255,255,255,.92); color: var(--text); font-size: 16px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(180,120,150,.25); font-family: inherit; padding: 0; }
+.pg-prev { left: 8px; }
+.pg-next { right: 8px; }
+.pg-count { position: absolute; right: 8px; bottom: 8px; background: rgba(255,255,255,.92); border-radius: 999px; padding: 2px 9px; font-size: 12px; color: var(--text); }
