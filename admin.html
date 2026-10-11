@@ -18,7 +18,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   @font-face { font-family: "Millo Body"; src: url("/fonts/Millo-RiceSoyMilk80.woff2") format("woff2"), url("/fonts/Millo-RiceSoyMilk80.ttf") format("truetype"); font-display: swap; }
 
   :root {
-    --bg: #fffcfd;
+    --bg: #fdf3f7;
     --card: #fff2f7;
     --card-hover: #ffe7f0;
     --text: #5d6780;
@@ -757,6 +757,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         <div id="works-list"></div>
         <div class="actions" style="flex-wrap:wrap;">
           <button class="btn-mini" id="btn-work-add">+ 新增稿件</button>
+          <button class="btn-mini btn-save-tb" id="btn-work-save">保存稿件改动</button>
           <span id="works-total" style="font-size:17px;font-weight:600;color:var(--accent);align-self:center;"></span>
         </div>
       </div>
@@ -3769,6 +3770,15 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     WORKS.push(normWork({ createdAt: Date.now() }));
     WORKS_EDIT = WORKS.length - 1;
     renderWorks();
+  });
+  document.getElementById('btn-work-save').addEventListener('click', function () { // 工具栏保存：存改动并自动收起编辑区，与色卡/BJD 同一套
+    if (EDIT_TYPE !== 'work') { toast('先点「⋮ → 编辑」再保存'); return; }
+    saveWorksQuiet(function () {
+      WORKS_EDIT = -1;
+      EDIT_TYPE = null;
+      renderWorks();
+      toast('已保存');
+    });
   });
   bindWorkMeta('work-cat-chips', 'work-cat-kebab', 'cats', '种类');
   bindWorkMeta('work-artist-chips', 'work-artist-kebab', 'artists', '画师');
