@@ -177,6 +177,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   #dy-cat:focus, .de-cat:focus { border-color: var(--accent); }
   #dy-cat-list, .dy-cat-list { display: none; position: absolute; z-index: 1399; background: #fff; border-radius: 10px; box-shadow: 0 6px 20px rgba(180,120,150,.18); padding: 4px; min-width: 170px; max-height: 168px; overflow-y: auto; }
   .day-item.editing .dy-cat-list { position: relative; margin-top: 4px; }
+  #days-form-card #dy-cat-list { top: calc(100% + 4px); } /* 联想浮层锚在表单行正下方（横向跟随输入框），不压住重复选项 */
   #days-form-card .cat-opt, .day-item .cat-opt { display: block; width: 100%; box-sizing: border-box; border: none; background: none; text-align: left; padding: 8px 12px; font-size:17px; cursor: pointer; border-radius: 8px; color: var(--text); font-family: inherit; line-height: 1.4; }
   #days-form-card .cat-opt:hover, .day-item .cat-opt:hover { background: var(--card-hover); }
   #days-form-card .cat-opt.cat-new, .day-item .cat-opt.cat-new { color: var(--accent); font-weight: 600; }
@@ -1402,6 +1403,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       if (inp.value.trim() && !exact) html += '<button type="button" class="cat-opt cat-new" data-cat="' + escAttr(inp.value.trim()) + '">+ 创建「' + esc(inp.value.trim()) + '」</button>';
       list.innerHTML = html;
       list.style.display = html ? 'block' : 'none';
+      if (html && getComputedStyle(list).position === 'absolute') list.style.left = inp.offsetLeft + 'px'; // 浮层左缘跟随输入框
     }
     inp.addEventListener('focus', render);
     inp.addEventListener('input', render);
