@@ -112,7 +112,7 @@
       shareBtnHtml(x.i, 'bjd', true) +
       '</div>' +
       (bjdMeta(b) ? '<div style="font-size:16px;color:var(--muted);margin-top:3px;">' + escDb(bjdMeta(b)) + '</div>' : '') +
-      (function () { var tv = bjdTotalV(b); var pv = tv > 0 ? '¥' + fmtMoney(tv) : (String(b.price.total || '').trim() !== '' ? '¥' + String(b.price.total).trim().replace(/^¥+/, '') : ''); return pv ? '<div style="font-size:18px;color:var(--accent);font-weight:600;margin-top:4px;">' + t('娃娃总价', 'Total price') + ' ' + escDb(pv) + '</div>' : ''; })() +
+      (function () { var tv = bjdTotalV(b); var pv = tv > 0 ? '¥' + fmtMoney(tv) : (String(b.price.total || '').trim() !== '' ? '¥' + String(b.price.total).trim().replace(/^¥+/, '') : ''); return pv ? '<div style="font-size:17px;color:var(--accent);font-weight:600;margin-top:4px;">' + t('总价', 'Total') + ' ' + escDb(pv) + '</div>' : ''; })() +
       '</div></div>';
   }
   function renderBjdWall() {
