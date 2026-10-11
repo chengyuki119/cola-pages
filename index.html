@@ -594,11 +594,12 @@
       if (sec.key === 'bjd') { BJD_PHOTOS = list.map(function (p) { return p.image_url; }); renderBjdHome(); return; }
       if (!tileGrid) return;
       var mt = tileGrid.querySelector('[data-sec="' + sec.key + '"]');
-      if (!mt) { // 新分区：自动建瓦片（还没有照片也显示，点进去就是照片页）
+      if (!mt) { // 新分区：自动建瓦片（还没有照片也显示；有独立页的分区直达独立页）
+        var PAGE_OF = { bjdselfie: '/bjdselfie/' };
         mt = document.createElement('div');
         mt.className = 'tile';
         mt.setAttribute('data-sec', sec.key);
-        mt.innerHTML = '<a class="photo" href="/photos/?sec=' + encodeURIComponent(sec.key) + '" data-img=""></a><span class="tile-label"></span>';
+        mt.innerHTML = '<a class="photo" href="' + (PAGE_OF[sec.key] || '/photos/?sec=' + encodeURIComponent(sec.key)) + '" data-img=""></a><span class="tile-label"></span>';
       }
       var lb = mt.querySelector('.tile-label');
       if (lb) {

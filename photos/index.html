@@ -259,7 +259,7 @@
     });
     sections.forEach(function (sec) {
       var list = groups[sec.key] || [];
-      if (sec.key === 'bjd') return; // BJD 不做照片展示（预览在主页）
+      if (sec.key === 'bjd' || sec.key === 'bjdselfie') return; // BJD 系列有独立页面，不进照片展示页
       var box = document.querySelector('#sec-' + sec.key + ' .album');
       if (!box) {
         // 新增分区：动态建区块
@@ -276,7 +276,7 @@
       if (list.length) fillAlbum(box, list);
     });
     window.PHOTO_SECTIONS = sections.filter(function (sec) {
-      return sec.key !== 'bjd' && ((groups[sec.key] || []).length || document.getElementById('sec-' + sec.key));
+      return sec.key !== 'bjd' && sec.key !== 'bjdselfie' && ((groups[sec.key] || []).length || document.getElementById('sec-' + sec.key));
     }).sort(function (a, b) { return (a.sort || 0) - (b.sort || 0); });
     applyGrids(); // 新建分区也套上列数
     // 照片展示文案（后台同步）：页面标题 + 说明小字
