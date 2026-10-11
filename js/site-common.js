@@ -510,10 +510,16 @@ if (document.getElementById('date-pop')) {
     var r = input.getBoundingClientRect();
     var pw = pop.offsetWidth || 240, ph = pop.offsetHeight || 350;
     var left = Math.max(8, Math.min(r.left, window.innerWidth - pw - 8));
-    var top = r.bottom + 6;
-    if (top + ph > window.innerHeight - 8 && r.top - ph - 6 > 8) top = r.top - ph - 6; // 下方放不下则向上弹
+    var top = r.bottom + 6; // 始终在输入框正下方
+    if (top + ph > window.innerHeight - 8) { // 下方放不下：先把输入框滚到视口中部再重算，弹层仍然贴在正下方
+      try { input.scrollIntoView({ block: 'center' }); } catch (err) {}
+      var r2 = input.getBoundingClientRect();
+      left = Math.max(8, Math.min(r2.left, window.innerWidth - pw - 8));
+      top = Math.max(8, r2.bottom + 6);
+      if (top + ph > window.innerHeight - 8) top = Math.max(8, window.innerHeight - ph - 8);
+    }
     pop.style.left = left + 'px';
-    pop.style.top = Math.max(8, top) + 'px';
+    pop.style.top = top + 'px';
   }
   function dpRender() {
     var pop = document.getElementById('date-pop');
