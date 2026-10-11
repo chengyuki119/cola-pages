@@ -157,7 +157,7 @@ function bjdMeta(b) {
 }
 function bjdRow(label, val) {
   if (val == null || String(val).trim() === '') return '';
-  return '<div style="display:flex;gap:12px;padding:3px 0;font-size:17px;"><span style="color:var(--muted);flex-shrink:0;width:96px;">' + label + '</span><span class="f-data">' + escDb(val) + '</span></div>';
+  return '<div style="display:flex;gap:12px;padding:3px 0;font-size:16px;"><span style="color:var(--muted);flex-shrink:0;width:96px;">' + label + '</span><span class="f-data">' + escDb(val) + '</span></div>';
 }
 function bjdHasPart(b, part) {
   // 部件由后台勾选决定：没勾选 = 没有这个部件

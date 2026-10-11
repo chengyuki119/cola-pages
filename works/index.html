@@ -10,7 +10,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/icon-yuki2-180.png">
 <link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki2-180.png">
 <meta name="apple-mobile-web-app-title" content="小柚的小世界">
-<link rel="stylesheet" href="/css/site.css?v=20261011d">
+<link rel="stylesheet" href="/css/site.css?v=20261011e">
 <link rel="stylesheet" href="/site-menu.css">
 <script src="/site-menu.js" defer></script>
 </head>
@@ -39,22 +39,22 @@
     <div class="page-body" style="padding-top:0;">
       <div id="works-filter" style="display:none;margin-bottom:16px;">
         <div id="wf-artist-row" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
-          <span style="font-size:17px;color:var(--muted);flex-shrink:0;" data-zh="画师" data-en="Artist">画师</span>
+          <span style="font-size:16px;color:var(--muted);flex-shrink:0;" data-zh="画师" data-en="Artist">画师</span>
           <div id="wf-artist" class="bjd-chips" style="flex:1;"></div>
         </div>
         <div id="wf-cat-row" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
-          <span style="font-size:17px;color:var(--muted);flex-shrink:0;" data-zh="种类" data-en="Type">种类</span>
+          <span style="font-size:16px;color:var(--muted);flex-shrink:0;" data-zh="种类" data-en="Type">种类</span>
           <div id="wf-cat" class="bjd-chips" style="flex:1;"></div>
         </div>
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-          <span style="font-size:17px;color:var(--muted);flex-shrink:0;" data-zh="排序" data-en="Sort">排序</span>
+          <span style="font-size:16px;color:var(--muted);flex-shrink:0;" data-zh="排序" data-en="Sort">排序</span>
           <div id="wf-sort" class="bjd-chips"></div>
           <span style="flex:1;"></span>
           <button type="button" class="bjd-chip" id="wf-reset" data-zh="重置筛选" data-en="Reset">重置筛选</button>
         </div>
       </div>
       <div id="works-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;"></div>
-      <p id="works-empty" style="display:none;color:var(--muted);text-align:center;padding:30px 0;font-size:18px;"><span data-zh="还没有稿件，去后台「稿件管理」上传吧" data-en="No works yet. Upload in the admin Works tab.">还没有稿件，去后台「稿件管理」上传吧</span></p>
+      <p id="works-empty" style="display:none;color:var(--muted);text-align:center;padding:30px 0;font-size:17px;"><span data-zh="还没有稿件，去后台「稿件管理」上传吧" data-en="No works yet. Upload in the admin Works tab.">还没有稿件，去后台「稿件管理」上传吧</span></p>
     </div>
   </div>
 
@@ -70,7 +70,7 @@
 <div id="share-pop"></div>
 <div class="toast" id="toast"></div>
 
-<script src="/js/site-common.js?v=20261011d"></script>
+<script src="/js/site-common.js?v=20261011e"></script>
 <script>
   // ===== 稿件展示：独立子页（稿件墙 + 稿件详情 /works/?id=N）=====
   // 数据：site_settings.works（与后台「稿件管理」同一份，单一数据源）
@@ -145,16 +145,16 @@
       var w = x.w;
       return '<div class="card work-card" data-i="' + x.i + '" style="margin-bottom:0;padding:0;overflow:hidden;cursor:pointer;">' +
         (w.image ? '<div style="width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--card);"><img src="' + escAttrDb(normImg(w.image)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + escAttrDb(w.name) + '" loading="lazy"></div>'
-                 : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--card);color:var(--muted);font-size:16px;">' + t('暂无图片', 'No image') + '</div>') +
+                 : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--card);color:var(--muted);font-size:15px;">' + t('暂无图片', 'No image') + '</div>') +
         '<div style="padding:12px 14px;">' +
         '<div style="display:flex;align-items:center;gap:8px;">' +
-        '<b style="flex:1;font-size:19px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(w.name || t('未命名稿件', 'Untitled work')) + '</b>' +
+        '<b style="flex:1;font-size:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(w.name || t('未命名稿件', 'Untitled work')) + '</b>' +
         shareBtnHtml(x.i, 'work', true) +
         '</div>' +
-        (w.date ? '<div style="font-size:16px;color:var(--muted);margin-top:3px;">' + escDb(fmtWorkDate(w.date)) + '</div>' : '') +
-        (w.cat || w.artist ? '<div style="font-size:16px;color:var(--muted);margin-top:3px;">' + escDb([w.cat, w.artist].filter(Boolean).join(' · ')) + '</div>' : '') +
-        (parseFloat(w.price) ? '<div style="font-size:18px;color:var(--accent);font-weight:600;margin-top:4px;">¥' + fmtMoney(w.price) + '</div>' : '') +
-        (workDesc(w) ? '<div style="font-size:17px;color:var(--text);margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">' + escDb(workDesc(w)) + '</div>' : '') +
+        (w.date ? '<div style="font-size:15px;color:var(--muted);margin-top:3px;">' + escDb(fmtWorkDate(w.date)) + '</div>' : '') +
+        (w.cat || w.artist ? '<div style="font-size:15px;color:var(--muted);margin-top:3px;">' + escDb([w.cat, w.artist].filter(Boolean).join(' · ')) + '</div>' : '') +
+        (parseFloat(w.price) ? '<div style="font-size:17px;color:var(--accent);font-weight:600;margin-top:4px;">¥' + fmtMoney(w.price) + '</div>' : '') +
+        (workDesc(w) ? '<div style="font-size:16px;color:var(--text);margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">' + escDb(workDesc(w)) + '</div>' : '') +
         '</div></div>';
     }).join('');
     document.getElementById('works-empty').style.display = list.length ? 'none' : '';
@@ -172,12 +172,12 @@
         return '<div class="album-img" style="width:100%;aspect-ratio:1/1;overflow:hidden;border-radius:12px;background:var(--card);"><img src="' + escAttrDb(normImg(u)) + '" style="width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in;" alt="' + escAttrDb(w.name) + '" loading="lazy"></div>';
       }).join('') + '</div>' : '') +
       '<div style="text-align:center;margin-bottom:18px;">' +
-      '<span style="font-size:22px;font-weight:700;">' + escDb(w.name || t('未命名稿件', 'Untitled work')) + '</span>' +
-      (w.date ? '<span style="color:var(--muted);font-size:18px;">　|　' + escDb(fmtWorkDate(w.date)) + '</span>' : '') +
-      (w.cat || w.artist ? '<span style="color:var(--muted);font-size:18px;">　|　' + escDb([w.cat, w.artist].filter(Boolean).join(' · ')) + '</span>' : '') +
-      (parseFloat(w.price) ? '<span style="color:var(--accent);font-size:19px;font-weight:700;">　|　¥' + fmtMoney(w.price) + '</span>' : '') +
+      '<span style="font-size:21px;font-weight:700;">' + escDb(w.name || t('未命名稿件', 'Untitled work')) + '</span>' +
+      (w.date ? '<span style="color:var(--muted);font-size:17px;">　|　' + escDb(fmtWorkDate(w.date)) + '</span>' : '') +
+      (w.cat || w.artist ? '<span style="color:var(--muted);font-size:17px;">　|　' + escDb([w.cat, w.artist].filter(Boolean).join(' · ')) + '</span>' : '') +
+      (parseFloat(w.price) ? '<span style="color:var(--accent);font-size:18px;font-weight:700;">　|　¥' + fmtMoney(w.price) + '</span>' : '') +
       '</div>' +
-      (workDesc(w) ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;font-size:18px;line-height:1.9;white-space:pre-wrap;word-break:break-word;">' + escDb(workDesc(w)) + '</div>' : '');
+      (workDesc(w) ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;font-size:17px;line-height:1.9;white-space:pre-wrap;word-break:break-word;">' + escDb(workDesc(w)) + '</div>' : '');
   }
   function routeWorks() {
     var id = new URLSearchParams(location.search).get('id');

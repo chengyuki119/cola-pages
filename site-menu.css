@@ -47,7 +47,7 @@
   display: flex; align-items: center; gap: 10px;
   padding: 11px 16px;
   border-radius: 12px;
-  font-size:18px;
+  font-size:17px;
   color: var(--text);
   text-decoration: none;
   transition: background .2s;
@@ -62,7 +62,7 @@
   border: none;
   background: none;
   border-radius: 12px;
-  font-size:19px;
+  font-size:18px;
   color: var(--text);
   cursor: pointer;
   text-align: left;
@@ -72,7 +72,7 @@
 .menu-toggle .plus {
   margin-left: auto;
   color: var(--muted);
-  font-size:21px;
+  font-size:20px;
   line-height: 1;
 }
 .menu-toggle .plus::before { content: "+"; }
@@ -89,7 +89,7 @@
   display: flex; align-items: center; gap: 12px;
   padding: 13px 16px;
   border-radius: 12px;
-  font-size:19px;
+  font-size:18px;
   color: var(--text);
   text-decoration: none;
   transition: background .2s;
@@ -100,7 +100,7 @@
   display: flex; align-items: center; gap: 10px;
   padding: 11px 16px;
   border-radius: 12px;
-  font-size:18px;
+  font-size:17px;
   color: var(--text);
   text-decoration: none;
   background: var(--card);
