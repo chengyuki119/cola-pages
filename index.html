@@ -594,26 +594,22 @@
       if (sec.key === 'bjd') { BJD_PHOTOS = list.map(function (p) { return p.image_url; }); renderBjdHome(); return; }
       if (!tileGrid) return;
       var mt = tileGrid.querySelector('[data-sec="' + sec.key + '"]');
-      if (mt) {
-        var lb = mt.querySelector('.tile-label');
-        if (lb) {
-          lb.setAttribute('data-zh', sec.name_zh);
-          lb.setAttribute('data-en', sec.name_en);
-          // 动态渲染晚于 applyLang，这里按当前语言直接给对文字
-          lb.textContent = (document.documentElement.lang === 'en' && sec.name_en) ? sec.name_en : sec.name_zh;
-        }
-        tileGrid.appendChild(mt); // 同步排序
+      if (!mt) { // 新分区：自动建瓦片（还没有照片也显示，点进去就是照片页）
+        mt = document.createElement('div');
+        mt.className = 'tile';
+        mt.setAttribute('data-sec', sec.key);
+        mt.innerHTML = '<a class="photo" href="/photos/?sec=' + encodeURIComponent(sec.key) + '" data-img=""></a><span class="tile-label"></span>';
       }
-      if (!list.length) return;
-      if (!mt && sec.key !== 'instax' && sec.key !== 'film') {
-        var tile = document.createElement('div');
-        tile.className = 'tile';
-        tile.setAttribute('data-sec', sec.key);
-        tile.innerHTML = '<a class="photo" href="/photos/?sec=' + encodeURIComponent(sec.key) + '" data-img="' + escAttrDb(list[0].image_url) + '"></a>' +
-          '<span class="tile-label" data-zh="' + escAttrDb(sec.name_zh) + '" data-en="' + escAttrDb(sec.name_en) + '">' + escDb((document.documentElement.lang === 'en' && sec.name_en) ? sec.name_en : sec.name_zh) + '</span>';
-        tileGrid.appendChild(tile);
-        loadDbImg(tile.querySelector('.photo'), list[0].image_url);
+      var lb = mt.querySelector('.tile-label');
+      if (lb) {
+        lb.setAttribute('data-zh', sec.name_zh);
+        lb.setAttribute('data-en', sec.name_en);
+        // 动态渲染晚于 applyLang，这里按当前语言直接给对文字
+        lb.textContent = (document.documentElement.lang === 'en' && sec.name_en) ? sec.name_en : sec.name_zh;
       }
+      tileGrid.appendChild(mt); // 同步排序
+      var pick = list.filter(function (p) { return p.home; })[0] || list[0];
+      if (pick) { var a = mt.querySelector('.photo'); a.setAttribute('data-img', pick.image_url); loadDbImg(a, pick.image_url); }
     });
   }).catch(function () {});
 
