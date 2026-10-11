@@ -172,15 +172,14 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .btn-del:hover { background: #f0c3da; }
   .btn-save:hover { opacity: .85; }
   .dy-chips { display: flex; gap: 6px; flex-wrap: wrap; }
-  .dy-chip {
-  .dy-chip { white-space: nowrap; flex: none; }
+  .dy-chip { display: inline-flex; align-items: center; border: none; background: var(--card-hover); color: var(--muted); border-radius: 999px; padding: 5px 12px; font-size:16px; cursor: pointer; transition: background .2s, color .2s; white-space: nowrap; flex: none; }
   #dy-cat, .de-cat { border: 1px solid #f0cfdf; border-radius: 8px; padding: 6px 10px; font-size:16px; font-family: inherit; color: var(--text); background: #fff; outline: none; }
   #dy-cat:focus, .de-cat:focus { border-color: var(--accent); }
   #dy-cat-list, .dy-cat-list { display: none; position: absolute; z-index: 1399; background: #fff; border-radius: 10px; box-shadow: 0 6px 20px rgba(180,120,150,.18); padding: 4px; min-width: 170px; max-height: 168px; overflow-y: auto; }
   .day-item.editing .dy-cat-list { position: relative; margin-top: 4px; }
   #days-form-card .cat-opt, .day-item .cat-opt { display: block; width: 100%; box-sizing: border-box; border: none; background: none; text-align: left; padding: 8px 12px; font-size:17px; cursor: pointer; border-radius: 8px; color: var(--text); font-family: inherit; line-height: 1.4; }
   #days-form-card .cat-opt:hover, .day-item .cat-opt:hover { background: var(--card-hover); }
-  #days-form-card .cat-opt.cat-new, .day-item .cat-opt.cat-new { color: var(--accent); font-weight: 600; } display: inline-flex; align-items: center; border: none; background: var(--card-hover); color: var(--muted); border-radius: 999px; padding: 5px 12px; font-size:16px; cursor: pointer; transition: background .2s, color .2s; }
+  #days-form-card .cat-opt.cat-new, .day-item .cat-opt.cat-new { color: var(--accent); font-weight: 600; }
   .dy-chip:hover { color: var(--text); }
   .dy-chip.active { background: var(--accent-soft); color: #fff; }
   /* 竖排文字防护：所有表单勾选/徽章标签禁止逐字换行 */
