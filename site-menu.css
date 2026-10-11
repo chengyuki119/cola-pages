@@ -1,3 +1,5 @@
+  @font-face { font-family: "Millo Body"; src: url("/fonts/Millo-RiceSoyMilk80.woff2") format("woff2"), url("/fonts/Millo-RiceSoyMilk80.ttf") format("truetype"); font-display: swap; }
+  @font-face { font-family: "Millo Body Heavy"; src: url("/fonts/Millo-RiceSoyMilk90.woff2") format("woff2"), url("/fonts/Millo-RiceSoyMilk90.ttf") format("truetype"); font-display: swap; }  /* 标题备用 */
 /* ═══════════ 全站统一汉堡菜单（唯一组件，所有页面共用）═══════════ */
 .burger {
   width: 42px; height: 42px;
@@ -41,11 +43,11 @@
   overflow-y: auto;
 }
 .menu.open { transform: translateX(0); }
-.menu a {
+.menu a { font-family: "Millo Body", -apple-system, "PingFang SC", sans-serif;
   display: flex; align-items: center; gap: 10px;
   padding: 11px 16px;
   border-radius: 12px;
-  font-size: 14px;
+  font-size:18px;
   color: var(--text);
   text-decoration: none;
   transition: background .2s;
@@ -60,7 +62,7 @@
   border: none;
   background: none;
   border-radius: 12px;
-  font-size: 15px;
+  font-size:19px;
   color: var(--text);
   cursor: pointer;
   text-align: left;
@@ -70,7 +72,7 @@
 .menu-toggle .plus {
   margin-left: auto;
   color: var(--muted);
-  font-size: 17px;
+  font-size:21px;
   line-height: 1;
 }
 .menu-toggle .plus::before { content: "+"; }
@@ -87,7 +89,7 @@
   display: flex; align-items: center; gap: 12px;
   padding: 13px 16px;
   border-radius: 12px;
-  font-size: 15px;
+  font-size:19px;
   color: var(--text);
   text-decoration: none;
   transition: background .2s;
@@ -98,7 +100,7 @@
   display: flex; align-items: center; gap: 10px;
   padding: 11px 16px;
   border-radius: 12px;
-  font-size: 14px;
+  font-size:18px;
   color: var(--text);
   text-decoration: none;
   background: var(--card);

@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+    <link rel="preload" href="/fonts/Millo-RiceSoyMilk80.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/Millo-RiceSoyMilk90.woff2" as="font" type="font/woff2" crossorigin>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>柚子的后台 · 只有自己用</title>
@@ -9,6 +11,12 @@
 <link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki2-180.png">
 <meta name="apple-mobile-web-app-title" content="小柚的小世界">
 <style>
+  /* ===== Millo 字体（测试版） ===== */
+h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; }
+
+  @font-face { font-family: "Millo Body Heavy"; src: url("/fonts/Millo-RiceSoyMilk90.woff2") format("woff2"), url("/fonts/Millo-RiceSoyMilk90.ttf") format("truetype"); font-display: swap; }
+  @font-face { font-family: "Millo Body"; src: url("/fonts/Millo-RiceSoyMilk80.woff2") format("woff2"), url("/fonts/Millo-RiceSoyMilk80.ttf") format("truetype"); font-display: swap; }
+
   :root {
     --bg: #fffcfd;
     --card: #fff2f7;
@@ -25,10 +33,11 @@
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-family: "Millo Body", -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
     line-height: 1.6;
     padding-top: 60px; /* 避开固定顶栏 */
   }
+  button { font-family: inherit; }
   /* ===== 顶部白色长条 + 汉堡菜单（与主页一致）===== */
   .topbar {
     position: fixed;
@@ -45,7 +54,7 @@
   .back-link {
     display: inline-flex; align-items: center; gap: 8px;
     color: var(--text);
-    font-size: 14px;
+    font-size:18px;
     padding: 8px 14px;
     border-radius: 999px;
     background: var(--card);
@@ -55,8 +64,8 @@
 
   .wrap { max-width: 1200px; margin: 0 auto; padding: 40px 24px 64px; }
   a { color: inherit; text-decoration: none; }
-  h1 { font-size: 26px; margin: 20px 0 6px; }
-  .sub { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
+  h1 { font-size:32px; margin: 20px 0 6px; }
+  .sub { color: var(--muted); font-size:17px; margin-bottom: 20px; }
 
   .gate {
     background: var(--card);
@@ -67,22 +76,22 @@
   .gate input {
     border: none; border-radius: 12px;
     background: #fff; padding: 12px 14px;
-    font-family: inherit; font-size: 14px;
+    font-family: inherit; font-size:18px;
     color: var(--text); outline: none;
   }
   .gate button {
     align-self: flex-end;
     border: none; background: var(--accent-soft); color: #fff;
-    font-size: 14px; padding: 9px 24px; border-radius: 999px;
+    font-size:18px; padding: 9px 24px; border-radius: 999px;
     cursor: pointer;
   }
-  .hint { font-size: 12px; color: var(--muted); }
+  .hint { font-size:16px; color: var(--muted); }
 
   .tabs { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
-  .tab-btn {
+  .tab-btn { font-family: "Millo Body", -apple-system, "PingFang SC", sans-serif;
     flex: 1 1 auto; white-space: nowrap;
     border: none; background: var(--card);
-    font-size: 13px; padding: 9px 12px;
+    font-size:17px; padding: 9px 12px;
     border-radius: 12px; cursor: pointer;
     color: var(--muted);
     transition: background .2s, color .2s;
@@ -93,12 +102,12 @@
   .pp-btn {
     display: inline-flex; align-items: center; gap: 8px;
     border: none; background: var(--card); color: var(--text);
-    font-size: 13px; padding: 9px 14px;
+    font-size:17px; padding: 9px 14px;
     border-radius: 12px; cursor: pointer;
     transition: background .2s;
   }
   .pp-btn:hover { background: var(--card-hover); }
-  .pp-btn .pp-arrow { font-size: 10px; color: var(--muted); }
+  .pp-btn .pp-arrow { font-size:14px; color: var(--muted); }
   .pp-menu {
     position: absolute; top: calc(100% + 6px); left: 0; z-index: 60;
     background: #fff; border-radius: 12px;
@@ -110,7 +119,7 @@
   .pp-menu .tab-btn {
     display: block; width: 100%; text-align: left; box-sizing: border-box;
     border: none; background: none; color: var(--text);
-    font-size: 13px; padding: 9px 12px;
+    font-size:17px; padding: 9px 12px;
     border-radius: 8px; cursor: pointer;
   }
   .pp-menu .tab-btn:hover { background: var(--card-hover); }
@@ -124,10 +133,10 @@
     margin-bottom: 14px;
     box-shadow: 0 2px 10px rgba(180,120,150,.12);
   }
-  .qa-q { font-size: 14px; white-space: pre-wrap; word-break: break-word; }
-  .qa-meta { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .qa-q { font-size:18px; white-space: pre-wrap; word-break: break-word; }
+  .qa-meta { font-size:16px; color: var(--muted); margin-top: 6px; }
   .qa-contact {
-    margin-top: 8px; font-size: 13px;
+    margin-top: 8px; font-size:17px;
     background: #fff7e6; border-radius: 10px; padding: 8px 12px;
     word-break: break-all;
   }
@@ -135,19 +144,19 @@
     width: 100%; min-height: 70px;
     border: 1px solid #f6d9e6; border-radius: 12px;
     background: var(--card); padding: 10px 12px;
-    font-family: inherit; font-size: 14px;
+    font-family: inherit; font-size:18px;
     color: var(--text); line-height: 1.6;
     resize: none; outline: none;
   }
   input, select {
     border: 1px solid #f6d9e6; border-radius: 12px;
     background: var(--card); padding: 10px 12px;
-    font-family: inherit; font-size: 14px;
+    font-family: inherit; font-size:18px;
     color: var(--text); outline: none; width: 100%;
   }
   .actions { display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end; }
   .actions button {
-    border: none; font-size: 13px; padding: 7px 16px;
+    border: none; font-size:17px; padding: 7px 16px;
     border-radius: 999px; cursor: pointer;
   }
   .btn-save { background: var(--accent-soft); color: #fff; }
@@ -155,7 +164,7 @@
   .btn-del { background: #f6d9e6; color: var(--text); }
   /* 按钮组件统一：不管在不在 .actions 里，都是同一套圆角小按钮（不再有浏览器默认样式）*/
   .btn-mini, .btn-del, .btn-save, .btn-cancel {
-    border: none; font-family: inherit; font-size: 13px;
+    border: none; font-family: inherit; font-size:17px;
     padding: 7px 16px; border-radius: 999px; cursor: pointer;
     transition: background .2s, opacity .2s;
   }
@@ -165,45 +174,45 @@
   .dy-chips { display: flex; gap: 6px; flex-wrap: wrap; }
   .dy-chip {
   .dy-chip { white-space: nowrap; flex: none; }
-  #dy-cat, .de-cat { border: 1px solid #f0cfdf; border-radius: 8px; padding: 6px 10px; font-size: 12px; font-family: inherit; color: var(--text); background: #fff; outline: none; }
+  #dy-cat, .de-cat { border: 1px solid #f0cfdf; border-radius: 8px; padding: 6px 10px; font-size:16px; font-family: inherit; color: var(--text); background: #fff; outline: none; }
   #dy-cat:focus, .de-cat:focus { border-color: var(--accent); }
   #dy-cat-list, .dy-cat-list { display: none; position: absolute; z-index: 1399; background: #fff; border-radius: 10px; box-shadow: 0 6px 20px rgba(180,120,150,.18); padding: 4px; min-width: 170px; max-height: 168px; overflow-y: auto; }
   .day-item.editing .dy-cat-list { position: relative; margin-top: 4px; }
-  #days-form-card .cat-opt, .day-item .cat-opt { display: block; width: 100%; box-sizing: border-box; border: none; background: none; text-align: left; padding: 8px 12px; font-size: 13px; cursor: pointer; border-radius: 8px; color: var(--text); font-family: inherit; line-height: 1.4; }
+  #days-form-card .cat-opt, .day-item .cat-opt { display: block; width: 100%; box-sizing: border-box; border: none; background: none; text-align: left; padding: 8px 12px; font-size:17px; cursor: pointer; border-radius: 8px; color: var(--text); font-family: inherit; line-height: 1.4; }
   #days-form-card .cat-opt:hover, .day-item .cat-opt:hover { background: var(--card-hover); }
-  #days-form-card .cat-opt.cat-new, .day-item .cat-opt.cat-new { color: var(--accent); font-weight: 600; } display: inline-flex; align-items: center; border: none; background: var(--card-hover); color: var(--muted); border-radius: 999px; padding: 5px 12px; font-size: 12px; cursor: pointer; transition: background .2s, color .2s; }
+  #days-form-card .cat-opt.cat-new, .day-item .cat-opt.cat-new { color: var(--accent); font-weight: 600; } display: inline-flex; align-items: center; border: none; background: var(--card-hover); color: var(--muted); border-radius: 999px; padding: 5px 12px; font-size:16px; cursor: pointer; transition: background .2s, color .2s; }
   .dy-chip:hover { color: var(--text); }
   .dy-chip.active { background: var(--accent-soft); color: #fff; }
   /* 竖排文字防护：所有表单勾选/徽章标签禁止逐字换行 */
   .sc-artist label, .bjd-item label, .sold-badge { white-space: nowrap; }
   /* 统一下拉菜单（替代浏览器原生 select 面板） */
-  .sel-btn { display: inline-flex; align-items: center; gap: 6px; border: none; background: var(--card); color: var(--text); border-radius: 999px; padding: 6px 12px; font-size: 12px; cursor: pointer; font-family: inherit; line-height: 1.4; }
+  .sel-btn { display: inline-flex; align-items: center; gap: 6px; border: none; background: var(--card); color: var(--text); border-radius: 999px; padding: 6px 12px; font-size:16px; cursor: pointer; font-family: inherit; line-height: 1.4; }
   .sel-btn:hover { background: var(--card-hover); }
-  .sel-btn::after { content: '▾'; color: var(--muted); font-size: 10px; }
+  .sel-btn::after { content: '▾'; color: var(--muted); font-size:14px; }
   .sel-menu { position: fixed; z-index: 1000; background: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(180,120,150,.18); padding: 6px; min-width: 160px; max-height: 260px; overflow-y: auto; display: none; box-sizing: border-box; }
-  .sel-opt { display: block; width: 100%; border: none; background: none; text-align: left; padding: 9px 12px; font-size: 13px; cursor: pointer; border-radius: 8px; color: var(--text); font-family: inherit; line-height: 1.4; }
+  .sel-opt { display: block; width: 100%; border: none; background: none; text-align: left; padding: 9px 12px; font-size:17px; cursor: pointer; border-radius: 8px; color: var(--text); font-family: inherit; line-height: 1.4; }
   .sel-opt:hover { background: var(--card-hover); }
   .sel-opt.active { background: var(--accent-soft); color: #fff; }
   /* 后台筛选/排序：自定义下拉按钮（不用原生 select），与 sel-menu 同一套视觉 */
-  .pick-btn-label { font-size: 13px; color: var(--muted); }
+  .pick-btn-label { font-size:17px; color: var(--muted); }
   /* 自定义联想下拉（画师 / 标签）：与 sel-menu / sc-pop 同一套视觉，彻底替代浏览器 datalist */
   #combo-pop { position: fixed; z-index: 1000; background: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(180,120,150,.18); padding: 6px; min-width: 200px; max-width: 320px; max-height: 240px; overflow-y: auto; display: none; box-sizing: border-box; animation: scPopIn .16s ease; }
-  .combo-opt { display: block; width: 100%; border: none; background: none; text-align: left; padding: 9px 12px; font-size: 13px; cursor: pointer; border-radius: 8px; color: var(--text); font-family: inherit; line-height: 1.4; }
+  .combo-opt { display: block; width: 100%; border: none; background: none; text-align: left; padding: 9px 12px; font-size:17px; cursor: pointer; border-radius: 8px; color: var(--text); font-family: inherit; line-height: 1.4; }
   .combo-opt:hover { background: var(--card-hover); }
   .dy-chip input { position: absolute; opacity: 0; pointer-events: none; }
   .btn-mini { background: var(--card); color: var(--text); }
   /* 头像 / 主页背景图上传区：两行对齐，隐藏原生 file 控件 */
   .hm-upload-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
   .hm-upload-row + .hm-upload-row { margin-top: 12px; }
-  .hm-upload-name { font-size: 13px; color: var(--text); min-width: 84px; flex-shrink: 0; }
-  .hm-file-name { font-size: 12px; color: var(--muted); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hm-upload-name { font-size:17px; color: var(--text); min-width: 84px; flex-shrink: 0; }
+  .hm-file-name { font-size:16px; color: var(--muted); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   /* 主页区域 / 主页文案的简化管理：显隐 chip + 卡片头 ⋮（不用绝对定位的 .kebab） */
-  .vis-chip { display: inline-flex; align-items: center; border: none; background: var(--card-hover); color: var(--muted); border-radius: 999px; padding: 4px 10px; font-size: 12px; cursor: pointer; font-family: inherit; flex-shrink: 0; }
+  .vis-chip { display: inline-flex; align-items: center; border: none; background: var(--card-hover); color: var(--muted); border-radius: 999px; padding: 4px 10px; font-size:16px; cursor: pointer; font-family: inherit; flex-shrink: 0; }
   .vis-chip.vis-on { background: var(--accent-soft); color: #fff; }
-  .area-kebab, .hm-kebab { width: 32px; height: 32px; flex-shrink: 0; border: none; border-radius: 10px; background: var(--card); color: var(--muted); font-size: 16px; cursor: pointer; font-family: inherit; line-height: 1; }
+  .area-kebab, .hm-kebab { width: 32px; height: 32px; flex-shrink: 0; border: none; border-radius: 10px; background: var(--card); color: var(--muted); font-size:20px; cursor: pointer; font-family: inherit; line-height: 1; }
   .area-kebab:hover, .hm-kebab:hover { background: var(--card-hover); color: var(--text); }
-  .empty { text-align: center; color: var(--muted); font-size: 14px; padding: 30px 0; }
-  h3 { font-size: 15px; margin: 0 0 12px; }
+  .empty { text-align: center; color: var(--muted); font-size:18px; padding: 30px 0; }
+  h3 { font-size:19px; margin: 0 0 12px; }
   h3.outside { margin: 18px 0 12px; }
 
   /* 上架表单 */
@@ -213,7 +222,7 @@
     width: 100%; aspect-ratio: 1/1;
     border-radius: 12px; background: var(--card);
     display: flex; align-items: center; justify-content: center;
-    color: var(--muted); font-size: 13px; overflow: hidden;
+    color: var(--muted); font-size:17px; overflow: hidden;
     margin-top: 8px;
   }
   .img-preview img { width: 100%; height: 100%; object-fit: cover; }
@@ -221,7 +230,7 @@
     background: var(--card);
     border: 1px solid var(--card-hover);
     color: #8d99b5;
-    font-size: 13px;
+    font-size:17px;
     padding: 6px 14px;
     border-radius: 999px;
     cursor: pointer;
@@ -234,7 +243,7 @@
   .lo-mask { position: fixed; inset: 0; background: rgba(90,66,76,.25); z-index: 2000; display: none; align-items: center; justify-content: center; }
   .lo-mask.open { display: flex; }
   .lo-box { background: #fff; border-radius: var(--radius); box-shadow: 0 10px 30px rgba(120,80,100,.2); padding: 22px 24px 18px; width: min(320px, calc(100vw - 48px)); }
-  .lo-box p { margin: 0 0 16px; font-size: 14px; color: var(--text); }
+  .lo-box p { margin: 0 0 16px; font-size:18px; color: var(--text); }
   .lo-actions { display: flex; gap: 8px; justify-content: flex-end; }
 
   .shop-item { display: flex; gap: 12px; position: relative; }
@@ -243,7 +252,7 @@
     width: 32px; height: 38px;
     border: none; border-radius: 10px;
     background: var(--card); color: var(--muted);
-    font-size: 18px; font-weight: 700; line-height: 1;
+    font-size:22px; font-weight: 700; line-height: 1;
     cursor: pointer; transition: background .2s;
   }
   .kebab:hover { background: var(--card-hover); color: var(--text); }
@@ -251,47 +260,47 @@
   .sc-row { display: grid; grid-template-columns: 100px 92px 18px 60px 18px 70px auto; gap: 8px; align-items: center; position: relative; margin-bottom: 8px; }
   .sc-row input { width: 100%; box-sizing: border-box; }
   .sc-row .r-x, .sc-row .r-eq { text-align: center; color: var(--muted); }
-  .sc-row .r-total { text-align: right; font-size: 13px; }
+  .sc-row .r-total { text-align: right; font-size:17px; }
   .sc-row .kebab { position: static; justify-self: end; }
   #sc-pop { position: fixed; z-index: 999; background: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(180,120,150,.18); padding: 6px; width: 168px; box-sizing: border-box; display: none; animation: scPopIn .16s ease; }
   @keyframes scPopIn { from { opacity: 0; transform: scale(.94); } }
   /* 自定义日期选择器（替代系统原生，购入日期/最后记录共用） */
   #date-pop { position: fixed; z-index: 1400; background: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(180,120,150,.18); padding: 10px; width: 231px; box-sizing: border-box; display: none; animation: scPopIn .16s ease; }
   #date-pop .dp-title { cursor: pointer; }
-  #date-pop .dp-hint { display: none; font-size: 11px; color: #e0722f; margin: -2px 0 6px; }
+  #date-pop .dp-hint { display: none; font-size:15px; color: #e0722f; margin: -2px 0 6px; }
   #date-pop .dp-ym { display: none; }
   #date-pop .dp-years { display: flex; flex-wrap: wrap; gap: 5px; overflow-y: auto; max-height: 96px; padding-right: 2px; margin-bottom: 6px; }
-  #date-pop .dp-year, #date-pop .dp-mon { border: none; background: var(--card); color: var(--text); border-radius: 8px; padding: 4px 7px; font-size: 12px; cursor: pointer; font-family: inherit; line-height: 1.4; }
+  #date-pop .dp-year, #date-pop .dp-mon { border: none; background: var(--card); color: var(--text); border-radius: 8px; padding: 4px 7px; font-size:16px; cursor: pointer; font-family: inherit; line-height: 1.4; }
   #date-pop .dp-mon { text-align: center; }
   #date-pop .dp-year.cur, #date-pop .dp-mon.cur { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
   #date-pop .dp-year:hover, #date-pop .dp-mon:hover { background: var(--card-hover); }
   #date-pop .dp-months { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
   #date-pop .dp-ym-row { margin-bottom: 6px; }
-  #date-pop .dp-year-input { width: 100%; box-sizing: border-box; padding: 6px 10px; border: 1px solid #f0cfdf; border-radius: 8px; font-size: 13px; font-family: inherit; color: var(--text); outline: none; }
+  #date-pop .dp-year-input { width: 100%; box-sizing: border-box; padding: 6px 10px; border: 1px solid #f0cfdf; border-radius: 8px; font-size:17px; font-family: inherit; color: var(--text); outline: none; }
   .dp-head { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
-  .dp-title { flex: 1; text-align: center; font-size: 13px; font-weight: 700; }
-  .dp-nav, .dp-today { border: none; background: var(--card-hover); color: var(--accent); font-size: 12px; border-radius: 999px; cursor: pointer; padding: 5px 10px; line-height: 1; }
+  .dp-title { flex: 1; text-align: center; font-size:17px; font-weight: 700; }
+  .dp-nav, .dp-today { border: none; background: var(--card-hover); color: var(--accent); font-size:16px; border-radius: 999px; cursor: pointer; padding: 5px 10px; line-height: 1; }
   .dp-nav:hover, .dp-today:hover { background: var(--accent-soft); color: #fff; }
   .dp-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
-  .dp-wd { font-size: 11px; color: var(--muted); text-align: center; padding: 4px 0; }
-  .dp-day { border: none; background: none; font-size: 12px; color: var(--text); border-radius: 8px; padding: 6px 0; cursor: pointer; line-height: 1; font-family: inherit; }
+  .dp-wd { font-size:15px; color: var(--muted); text-align: center; padding: 4px 0; }
+  .dp-day { border: none; background: none; font-size:16px; color: var(--text); border-radius: 8px; padding: 6px 0; cursor: pointer; line-height: 1; font-family: inherit; }
   .dp-day:hover { background: var(--card-hover); }
   .dp-day.today { color: var(--accent); font-weight: 700; }
   .dp-day.sel, .dp-day.sel:hover { background: var(--accent); color: #fff; }
-  #date-pop .dp-input { width: 100%; box-sizing: border-box; margin-bottom: 6px; border: 1px solid #f0cfdf; background: #fff; border-radius: 8px; padding: 7px 10px; font-size: 13px; font-family: inherit; color: var(--text); outline: none; }
+  #date-pop .dp-input { width: 100%; box-sizing: border-box; margin-bottom: 6px; border: 1px solid #f0cfdf; background: #fff; border-radius: 8px; padding: 7px 10px; font-size:17px; font-family: inherit; color: var(--text); outline: none; }
   #date-pop .dp-input:focus { border-color: var(--accent); }
   #date-pop .dp-year-input:focus { border-color: var(--accent); }
   .dp-empty { visibility: hidden; }
   @media (max-width: 520px) {
     .sc-row { grid-template-columns: 56px 48px 10px 38px 10px 44px auto; gap: 4px; }
-    .sc-row input { font-size: 13px; padding: 7px 8px; }
+    .sc-row input { font-size:17px; padding: 7px 8px; }
     .sc-row .kebab { width: 26px; }
   }
   @media (max-width: 360px) {
     .sc-row { grid-template-columns: 50px 42px 8px 32px 8px 38px auto; gap: 3px; }
     .sc-row .kebab { width: 22px; height: 30px; }
   }
-  #sc-pop .sc-opt { display: flex; align-items: center; gap: 8px; width: 100%; box-sizing: border-box; border: none; background: none; padding: 9px 12px; font-size: 13px; line-height: 1; cursor: pointer; border-radius: 8px; text-align: left; color: var(--text); }
+  #sc-pop .sc-opt { display: flex; align-items: center; gap: 8px; width: 100%; box-sizing: border-box; border: none; background: none; padding: 9px 12px; font-size:17px; line-height: 1; cursor: pointer; border-radius: 8px; text-align: left; color: var(--text); }
   #sc-pop .sc-opt:hover { background: var(--card); }
   #sc-pop .sc-opt:disabled { color: var(--muted); cursor: default; background: none; }
   #sc-pop .sc-opt-del { background: #f6d9e6; color: var(--text); }
@@ -302,31 +311,31 @@
   #sc-artist-list .sc-artist, #bjd-list .bjd-item { margin-bottom: 0; }
   #sc-artist-list .sc-artist.editing, #bjd-list .bjd-item.editing { grid-column: 1 / -1; }
   /* 色卡列表卡价格明细：与详情/前台同一套计算（labelAgg/artistSub/cardFinal），只补展示 */
-  .sc-bd-line { margin-top: 5px; font-size: 12px; color: var(--text); }
+  .sc-bd-line { margin-top: 5px; font-size:16px; color: var(--text); }
   .sc-bd-line b { color: var(--accent); }
-  .sc-bd { margin-top: 7px; padding-top: 7px; border-top: 1px solid var(--card-hover); font-size: 11px; line-height: 1.55; color: var(--muted); }
+  .sc-bd { margin-top: 7px; padding-top: 7px; border-top: 1px solid var(--card-hover); font-size:15px; line-height: 1.55; color: var(--muted); }
   .sc-bd-a { padding: 2px 0; }
-  .sc-bd-a b { display: block; color: var(--text); font-size: 11px; }
+  .sc-bd-a b { display: block; color: var(--text); font-size:15px; }
   .sc-bd-a span { display: inline-block; margin-right: 6px; white-space: nowrap; }
   .sc-bd-a i { display: block; font-style: normal; color: var(--accent); }
   .sc-bd-final { margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--card-hover); color: var(--accent); font-weight: 600; }
-  .sc-bd-final b { font-size: 13px; }
+  .sc-bd-final b { font-size:17px; }
   .sc-artist > .kebab { background: #fff; }
   .sc-card-img { width: 100%; aspect-ratio: 1/1; overflow: hidden; background: var(--card); }
   .sc-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .sc-card-img .sc-img-empty { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 12px; }
+  .sc-card-img .sc-img-empty { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size:16px; }
   .sc-info { padding: 12px 14px 14px; min-width: 0; }
-  .sc-info .sc-name { font-size: 15px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+  .sc-info .sc-name { font-size:19px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
   .sc-info .sc-name:hover { color: var(--accent); }
-  .sc-info .sc-shop { font-size: 12px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-height: 19px; }
-  .sc-info .sc-meta { font-size: 12px; color: var(--muted); margin-top: 3px; }
-  .sc-info .sc-price { font-size: 14px; color: var(--accent); font-weight: 600; margin-top: 4px; }
+  .sc-info .sc-shop { font-size:16px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-height: 19px; }
+  .sc-info .sc-meta { font-size:16px; color: var(--muted); margin-top: 3px; }
+  .sc-info .sc-price { font-size:18px; color: var(--accent); font-weight: 600; margin-top: 4px; }
   /* 编辑态内所有 ⋮（卡片级/画师级/行级）都在同一条垂直线上 */
   .sc-artist.editing > .sc-kebab { right: 16px; }
   .sc-artist.editing .sc-artist-block > .kebab { right: 0; }
   .section-item { margin-bottom: 10px; }
-  .section-item .sec-name { font-size: 15px; font-weight: 600; }
-  .section-item .sec-meta { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .section-item .sec-name { font-size:19px; font-weight: 600; }
+  .section-item .sec-meta { font-size:16px; color: var(--muted); margin-top: 3px; }
   .edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex: 1; min-width: 0; }
   .edit-grid .e-desc, .edit-grid .e-file { grid-column: 1 / -1; }
   /* 照片管理列表：紧凑一行卡（缩略图 72px + 信息） */
@@ -339,13 +348,13 @@
   .photo-item .thumb { width: 100%; aspect-ratio: 1 / 1; overflow: hidden; background: var(--card-hover); position: relative; }
   .photo-item .thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
   .photo-item .info { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 3px; }
-  .photo-item .ph-title { font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 1.4em; }
-  .photo-item .ph-meta { font-size: 12px; color: var(--muted); }
+  .photo-item .ph-title { font-size:18px; font-weight: 600; color: var(--text); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 1.4em; }
+  .photo-item .ph-meta { font-size:16px; color: var(--muted); }
   .photo-item .edit-grid { grid-template-columns: 1fr; margin-top: 6px; }
   .photo-item .actions { margin-top: 8px; }
   /* 每行显示选择器（分区设置）：4 个可视化布局选项，不用原生 select */
   .pr-picker { display: flex; gap: 6px; flex-wrap: wrap; }
-  .pr-opt { display: flex; flex-direction: column; align-items: center; gap: 4px; border: 1px solid #f6d9e6; background: var(--card); border-radius: 10px; padding: 7px 8px 5px; cursor: pointer; font-size: 11px; color: var(--muted); font-family: inherit; transition: background .2s, border-color .2s, color .2s; }
+  .pr-opt { display: flex; flex-direction: column; align-items: center; gap: 4px; border: 1px solid #f6d9e6; background: var(--card); border-radius: 10px; padding: 7px 8px 5px; cursor: pointer; font-size:15px; color: var(--muted); font-family: inherit; transition: background .2s, border-color .2s, color .2s; }
   .pr-opt:hover { background: var(--card-hover); }
   .pr-opt.active { background: var(--accent-soft); border-color: var(--accent); color: #fff; }
   .pr-demo { display: grid; gap: 2px; width: 38px; height: 22px; }
@@ -356,32 +365,32 @@
   .tgl .tgl-knob { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; border: 1px solid #f0cfdf; box-sizing: border-box; transition: left .2s, background .2s; }
   .tgl.on { background: var(--accent-soft); border-color: var(--accent); }
   .tgl.on .tgl-knob { left: 18px; background: var(--accent); border-color: var(--accent); }
-  .tgl-label { display: inline-flex; align-items: center; gap: 7px; cursor: pointer; font-size: 13px; flex-shrink: 0; color: var(--text); }
+  .tgl-label { display: inline-flex; align-items: center; gap: 7px; cursor: pointer; font-size:17px; flex-shrink: 0; color: var(--text); }
   /* 上传新照片：字段行内小标签 + 统一间距 */
   .fld-inline { display: flex; align-items: center; gap: 8px; min-width: 0; }
-  .fld-label { font-size: 12px; color: var(--muted); flex-shrink: 0; }
+  .fld-label { font-size:16px; color: var(--muted); flex-shrink: 0; }
   /* 小铺商品：缩略图更矮、保持原始比例不裁切 */
   .shop-item .thumb {
     width: auto; min-width: 60px; height: 60px; border-radius: 12px; overflow: hidden;
     background: var(--card); flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center; font-size: 20px;
+    display: flex; align-items: center; justify-content: center; font-size:26px;
   }
   .shop-item .thumb img { width: auto; height: 100%; object-fit: contain; display: block; }
   .shop-item .info { flex: 1; min-width: 0; }
-  .shop-item .info h3 { font-size: 15px; }
-  .shop-item .info p { font-size: 12px; color: var(--muted); }
-  .sold-badge { display: inline-block; font-size: 11px; color:#fff; border-radius: 999px; padding: 1px 8px; margin-left: 6px; }
+  .shop-item .info h3 { font-size:19px; }
+  .shop-item .info p { font-size:16px; color: var(--muted); }
+  .sold-badge { display: inline-block; font-size:15px; color:#fff; border-radius: 999px; padding: 1px 8px; margin-left: 6px; }
   .st-on { background: #9ecfae; }
   .st-display { background: #b3ace0; }
   .st-out { background: #c4bcb6; }
-  .private-line { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .private-line { font-size:16px; color: var(--muted); margin-top: 4px; }
 
     .btn-save-tb { margin-left: auto; background: var(--accent-soft) !important; color: #fff !important; }
 .toast {
     position: fixed; bottom: 32px; left: 50%;
     transform: translateX(-50%) translateY(20px);
     background: var(--text); color: #fff;
-    font-size: 14px; padding: 10px 22px;
+    font-size:18px; padding: 10px 22px;
     border-radius: 999px; opacity: 0;
     transition: opacity .25s, transform .25s;
     z-index: 400; pointer-events: none;
@@ -390,7 +399,7 @@
   footer {
     text-align: center;
     color: var(--muted);
-    font-size: 12px;
+    font-size:16px;
     padding: 24px 0 40px;
   }
 
@@ -455,16 +464,16 @@
       <style>
         .aix-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
         .aix-stat { background: #fff; border-radius: var(--radius); padding: 10px 14px; box-shadow: 0 2px 10px rgba(180,120,150,.12); }
-        .aix-stat b { display: block; font-size: 19px; color: var(--accent); line-height: 1.3; }
-        .aix-stat span { font-size: 11px; color: var(--muted); }
+        .aix-stat b { display: block; font-size:24px; color: var(--accent); line-height: 1.3; }
+        .aix-stat span { font-size:15px; color: var(--muted); }
         .aix-toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
         .aix-searchbox { flex: 1; min-width: 200px; display: flex; align-items: center; gap: 6px; border: 1px solid var(--card-hover); border-radius: 999px; background: #fff; padding: 2px 8px 2px 16px; }
         .aix-searchbox:focus-within { border-color: var(--accent-soft); }
-        .aix-searchbox input { flex: 1; min-width: 0; border: none; background: transparent; padding: 8px 0; font-size: 13px; font-family: inherit; color: var(--text); outline: none; }
-        .aix-searchbox .clear { width: 24px; height: 24px; border: none; border-radius: 50%; background: var(--card-hover); color: var(--text); font-size: 13px; line-height: 1; cursor: pointer; flex-shrink: 0; display: none; font-family: inherit; }
+        .aix-searchbox input { flex: 1; min-width: 0; border: none; background: transparent; padding: 8px 0; font-size:17px; font-family: inherit; color: var(--text); outline: none; }
+        .aix-searchbox .clear { width: 24px; height: 24px; border: none; border-radius: 50%; background: var(--card-hover); color: var(--text); font-size:17px; line-height: 1; cursor: pointer; flex-shrink: 0; display: none; font-family: inherit; }
         .aix-searchbox .clear.show { display: block; }
         .aix-filters { display: flex; gap: 6px; flex-wrap: wrap; }
-        .aix-filters button { border: none; border-radius: 999px; background: var(--card); color: var(--muted); font-size: 12px; padding: 7px 13px; cursor: pointer; font-family: inherit; transition: background .15s, color .15s; }
+        .aix-filters button { border: none; border-radius: 999px; background: var(--card); color: var(--muted); font-size:16px; padding: 7px 13px; cursor: pointer; font-family: inherit; transition: background .15s, color .15s; }
         .aix-filters button.active { background: var(--accent-soft); color: #fff; }
         .aix-filters .fclear { display: none; color: var(--accent); background: #fff; border: 1px solid var(--card-hover); }
         .aix-filters .fclear.show { display: inline-block; }
@@ -473,42 +482,42 @@
         .aix-session:hover { background: var(--card-hover); }
         .aix-session.active { border-color: var(--accent-soft); background: #fff; }
         .aix-s-top { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; flex-wrap: wrap; }
-        .aix-s-time { font-size: 11px; color: var(--muted); flex-shrink: 0; }
-        .aix-s-q { flex: 1; min-width: 0; font-size: 13px; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .aix-s-a { font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .aix-badge { font-size: 10px; background: var(--accent-soft); color: #fff; border-radius: 999px; padding: 1px 8px; flex-shrink: 0; white-space: nowrap; }
+        .aix-s-time { font-size:15px; color: var(--muted); flex-shrink: 0; }
+        .aix-s-q { flex: 1; min-width: 0; font-size:17px; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .aix-s-a { font-size:16px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .aix-badge { font-size:14px; background: var(--accent-soft); color: #fff; border-radius: 999px; padding: 1px 8px; flex-shrink: 0; white-space: nowrap; }
         .aix-badge.warn { background: #f3b96d; }
         .aix-chat { display: flex; flex-direction: column; gap: 10px; background: var(--bg); border-radius: 12px; padding: 12px; margin-top: 10px; max-height: 50vh; overflow-y: auto; }
         .aix-msg { display: flex; flex-direction: column; max-width: 85%; }
         .aix-msg.user { align-self: flex-end; align-items: flex-end; }
-        .aix-msg .bubble { border-radius: 14px; padding: 8px 12px; font-size: 13px; line-height: 1.55; word-break: break-word; }
+        .aix-msg .bubble { border-radius: 14px; padding: 8px 12px; font-size:17px; line-height: 1.55; word-break: break-word; }
         .aix-msg.user .bubble { background: var(--accent-soft); color: #fff; border-bottom-right-radius: 4px; }
         .aix-msg.ai .bubble { background: var(--card); color: var(--text); border-bottom-left-radius: 4px; }
-        .aix-msg .who { font-size: 10px; color: var(--muted); margin: 0 4px 2px; }
-        .aix-msg .t { font-size: 10px; color: var(--muted); margin: 2px 4px 0; }
-        .aix-answer { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 4px 4px 0; background: #fff; border: 1px dashed var(--accent-soft); border-radius: 10px; padding: 7px 10px; font-size: 12px; color: var(--text); max-width: 100%; }
-        .aix-answer em { font-style: normal; color: var(--muted); font-size: 11px; }
+        .aix-msg .who { font-size:14px; color: var(--muted); margin: 0 4px 2px; }
+        .aix-msg .t { font-size:14px; color: var(--muted); margin: 2px 4px 0; }
+        .aix-answer { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 4px 4px 0; background: #fff; border: 1px dashed var(--accent-soft); border-radius: 10px; padding: 7px 10px; font-size:16px; color: var(--text); max-width: 100%; }
+        .aix-answer em { font-style: normal; color: var(--muted); font-size:15px; }
         .aix-answer .spacer { flex: 1; }
-        .aix-add { margin: 4px 4px 0; border: none; border-radius: 999px; background: #f3b96d; color: #fff; font-size: 11px; padding: 4px 12px; cursor: pointer; font-family: inherit; }
+        .aix-add { margin: 4px 4px 0; border: none; border-radius: 999px; background: #f3b96d; color: #fff; font-size:15px; padding: 4px 12px; cursor: pointer; font-family: inherit; }
         .aix-add:hover { background: #eda94e; }
         .aix-form { margin: 10px 4px 2px; background: #fff; border: 1px solid var(--card-hover); border-radius: 12px; padding: 12px; }
-        .aix-form b { display: block; font-size: 13px; margin-bottom: 8px; }
-        .aix-form input, .aix-form textarea { width: 100%; box-sizing: border-box; border: 1px solid var(--card-hover); border-radius: 10px; background: var(--bg); padding: 8px 12px; font-size: 13px; font-family: inherit; color: var(--text); outline: none; margin-bottom: 8px; }
+        .aix-form b { display: block; font-size:17px; margin-bottom: 8px; }
+        .aix-form input, .aix-form textarea { width: 100%; box-sizing: border-box; border: 1px solid var(--card-hover); border-radius: 10px; background: var(--bg); padding: 8px 12px; font-size:17px; font-family: inherit; color: var(--text); outline: none; margin-bottom: 8px; }
         .aix-form textarea { min-height: 64px; resize: none; }
         .aix-form input:focus, .aix-form textarea:focus { border-color: var(--accent-soft); }
         .aix-form .row { display: flex; gap: 8px; }
         .aix-form .row button { font-family: inherit; cursor: pointer; }
-        .aix-confirm { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 4px 4px 0; font-size: 12px; color: var(--text); }
+        .aix-confirm { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 4px 4px 0; font-size:16px; color: var(--text); }
         .aix-pager { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; justify-content: center; margin: 14px 0 4px; }
-        .aix-pager button { min-width: 30px; height: 30px; border: none; border-radius: 999px; background: var(--card); color: var(--muted); font-size: 12px; padding: 0 10px; cursor: pointer; font-family: inherit; }
+        .aix-pager button { min-width: 30px; height: 30px; border: none; border-radius: 999px; background: var(--card); color: var(--muted); font-size:16px; padding: 0 10px; cursor: pointer; font-family: inherit; }
         .aix-pager button.cur { background: var(--accent); color: #fff; }
-        .aix-pager .dots { color: var(--muted); font-size: 12px; }
+        .aix-pager .dots { color: var(--muted); font-size:16px; }
         .aix-kb { margin-bottom: 10px; }
-        .aix-kb .k-q { font-size: 14px; font-weight: 600; margin-bottom: 2px; word-break: break-word; }
-        .aix-kb .k-a { font-size: 13px; color: var(--text); margin-bottom: 4px; word-break: break-word; }
-        .aix-kb .k-meta { font-size: 12px; color: var(--muted); }
+        .aix-kb .k-q { font-size:18px; font-weight: 600; margin-bottom: 2px; word-break: break-word; }
+        .aix-kb .k-a { font-size:17px; color: var(--text); margin-bottom: 4px; word-break: break-word; }
+        .aix-kb .k-meta { font-size:16px; color: var(--muted); }
         .aix-kb .k-actions { margin-top: 8px; display: flex; gap: 8px; }
-        .aix-empty { color: var(--muted); text-align: center; padding: 24px 0; font-size: 13px; }
+        .aix-empty { color: var(--muted); text-align: center; padding: 24px 0; font-size:17px; }
       </style>
       <div class="aix-hint">AI 回不上来的问题会标「待补充答案」——点开对话就能添加标准回复，以后访客问类似的问题 AI 会直接用它。测试版：模拟数据 + 主页本地记录，未接数据库。</div>
       <div class="aix-stats" id="ai-stats"></div>
@@ -564,7 +573,7 @@
           <h3 style="margin:0;">照片展示文案</h3>
           <button type="button" class="hm-kebab" data-edit="gl-copy-edit" data-view="gl-copy-view" title="编辑">⋮</button>
         </div>
-        <div id="gl-copy-view" style="margin-top:10px;font-size:13px;line-height:1.9;">
+        <div id="gl-copy-view" style="margin-top:10px;font-size:17px;line-height:1.9;">
           <div>相册页标题：<span data-v="gl-title-zh"></span> / <span data-v="gl-title-en"></span></div>
           <div>说明小字：<span data-v="gl-sub-zh"></span></div>
           <div id="gl-sec-view"></div>
@@ -609,7 +618,7 @@
           <input id="sec-zh" placeholder="分区名称（中文），如：日常碎片">
           <input id="sec-en" placeholder="分区名称（英文），如：Daily Moments">
           <input id="sec-sort" type="number" placeholder="排序数字（小的在前，可留空）">
-          <div class="full" style="margin-top:2px;"><div style="font-size:12px;color:var(--muted);margin-bottom:4px;">每行显示（前台 Photo Gallery 布局）</div><div id="sec-pr"></div></div>
+          <div class="full" style="margin-top:2px;"><div style="font-size:16px;color:var(--muted);margin-bottom:4px;">每行显示（前台 Photo Gallery 布局）</div><div id="sec-pr"></div></div>
         </div>
         <div class="actions">
           <button class="btn-save" id="btn-add-section">添加分区</button>
@@ -624,7 +633,7 @@
     <div id="tab-home" style="display:none;">
       <div class="card">
         <h3>主页区域</h3>
-        <p style="font-size:12px;color:var(--muted);margin:-4px 0 12px;">跟主页一模一样的区块都在这里（照片展示、我的小铺是两种模板）：点「⋮」编辑、排序、复制、删除；点「显示中」切换显隐；改完点「保存」，主页刷新后同步</p>
+        <p style="font-size:16px;color:var(--muted);margin:-4px 0 12px;">跟主页一模一样的区块都在这里（照片展示、我的小铺是两种模板）：点「⋮」编辑、排序、复制、删除；点「显示中」切换显隐；改完点「保存」，主页刷新后同步</p>
         <div id="area-list"></div>
         <div class="actions" style="justify-content:space-between;">
           <button class="btn-mini" id="btn-area-add">＋ 添加新区域</button>
@@ -636,7 +645,7 @@
           <h3 style="margin:0;">入口卡片</h3>
           <button type="button" class="hm-kebab" data-edit="hm-entries-edit" data-view="hm-entries-view" title="编辑">⋮</button>
         </div>
-        <div id="hm-entries-view" style="margin-top:10px;font-size:13px;line-height:1.9;">
+        <div id="hm-entries-view" style="margin-top:10px;font-size:17px;line-height:1.9;">
           <div>小铺卡片标题：<span data-v="hm-shop-h"></span></div>
           <div>小铺卡片小字：<span data-v="hm-shop-p"></span></div>
           <div>提问箱卡片标题：<span data-v="hm-anon-h"></span></div>
@@ -686,8 +695,8 @@
           <h3 style="margin:0;">Profile 编辑</h3>
           <button type="button" class="hm-kebab" data-edit="hm-hero-edit" data-view="hm-hero-view" title="编辑">⋮</button>
         </div>
-        <p style="font-size:12px;color:var(--muted);margin:8px 0 0;">改完保存，主页头像、背景图、ID 和 Bio 全部同步更新</p>
-        <div id="hm-hero-view" style="margin-top:10px;font-size:13px;line-height:1.9;display:none;">
+        <p style="font-size:16px;color:var(--muted);margin:8px 0 0;">改完保存，主页头像、背景图、ID 和 Bio 全部同步更新</p>
+        <div id="hm-hero-view" style="margin-top:10px;font-size:17px;line-height:1.9;display:none;">
           <div>名字 / ID：<span data-v="hm-name"></span></div>
           <div>Bio 第一行：<span data-v="hm-line1"></span></div>
           <div>Bio 第二行：<span data-v="hm-line2"></span></div>
@@ -734,21 +743,21 @@
         <h3>稿件管理</h3>
         <p class="sub" style="margin:-6px 0 12px;">和桓桓宝宝的稿件展示（/works/），后台改完前台同步；点「显示中」切换显隐</p>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
-          <span style="font-size:13px;color:var(--muted);flex-shrink:0;">种类管理</span>
+          <span style="font-size:17px;color:var(--muted);flex-shrink:0;">种类管理</span>
           <div id="work-cat-chips" style="display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:160px;"></div>
-          <input id="work-cat-new" placeholder="新种类名" style="border:none;border-radius:10px;background:var(--card);padding:8px 12px;font-size:13px;width:120px;outline:none;color:var(--text);">
+          <input id="work-cat-new" placeholder="新种类名" style="border:none;border-radius:10px;background:var(--card);padding:8px 12px;font-size:17px;width:120px;outline:none;color:var(--text);">
           <button class="btn-mini" id="btn-work-cat-add">+ 添加</button>
         </div>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
-          <span style="font-size:13px;color:var(--muted);flex-shrink:0;">画师管理</span>
+          <span style="font-size:17px;color:var(--muted);flex-shrink:0;">画师管理</span>
           <div id="work-artist-chips" style="display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:160px;"></div>
-          <input id="work-artist-new" placeholder="新画师名" style="border:none;border-radius:10px;background:var(--card);padding:8px 12px;font-size:13px;width:120px;outline:none;color:var(--text);">
+          <input id="work-artist-new" placeholder="新画师名" style="border:none;border-radius:10px;background:var(--card);padding:8px 12px;font-size:17px;width:120px;outline:none;color:var(--text);">
           <button class="btn-mini" id="btn-work-artist-add">+ 添加</button>
         </div>
         <div id="works-list"></div>
         <div class="actions" style="flex-wrap:wrap;">
           <button class="btn-mini" id="btn-work-add">+ 新增稿件</button>
-          <span id="works-total" style="font-size:14px;font-weight:600;color:var(--accent);align-self:center;"></span>
+          <span id="works-total" style="font-size:18px;font-weight:600;color:var(--accent);align-self:center;"></span>
         </div>
       </div>
     </div>
@@ -760,7 +769,7 @@
           <input id="dy-name" placeholder="名称，如：桓桓生日" style="flex:1;min-width:150px;">
           <input id="dy-day" type="text" class="date-pick" data-disp="1" placeholder="YYYY/MM/DD" autocomplete="off" style="flex:1;min-width:140px;">
         </div>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px;font-size:12px;position:relative;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px;font-size:16px;position:relative;">
           <span style="color:var(--muted);">分类</span>
           <input id="dy-cat" placeholder="输入分类，如：纪念日" autocomplete="off" style="width:170px;">
           <div id="dy-cat-list"></div>
@@ -770,7 +779,7 @@
           <label class="dy-chip"><input type="radio" name="dy-repeat" value="weekly">每周重复</label>
           <label class="dy-chip"><input type="radio" name="dy-repeat" value="monthly">每月重复</label>
           <label class="dy-chip active"><input type="radio" name="dy-repeat" value="yearly" checked>每年</label>
-          <button class="btn-mini btn-save-tb" id="btn-day-save" style="border:none;font-size:13px;padding:7px 16px;border-radius:999px;cursor:pointer;">保存</button>
+          <button class="btn-mini btn-save-tb" id="btn-day-save" style="border:none;font-size:17px;padding:7px 16px;border-radius:999px;cursor:pointer;">保存</button>
         </div>
       </div>
       <div id="days-list"></div>
@@ -779,17 +788,17 @@
       <div class="card">
         <h3>BJD 管理</h3>
         <div id="bjd-toolbar" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;">
-          <span style="font-size:13px;color:var(--muted);">筛选与排序</span>
+          <span style="font-size:17px;color:var(--muted);">筛选与排序</span>
           <button type="button" class="sel-btn" id="bjd-filter-btn">尺寸：全部</button>
           <button type="button" class="sel-btn" id="bjd-sort-btn">排序：默认</button>
           <span style="flex:1;"></span>
           <button class="btn-mini" id="btn-bjd-add">+ 新增 BJD</button>
-          <span id="bjd-total" style="font-size:14px;font-weight:600;color:var(--accent);"></span>
+          <span id="bjd-total" style="font-size:18px;font-weight:600;color:var(--accent);"></span>
         </div>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
-          <span style="font-size:13px;color:var(--muted);flex-shrink:0;">尺寸 / 种类管理</span>
+          <span style="font-size:17px;color:var(--muted);flex-shrink:0;">尺寸 / 种类管理</span>
           <div id="bjd-size-chips" style="display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:180px;"></div>
-          <input id="bjd-size-new" placeholder="新尺寸名" style="border:none;border-radius:10px;background:var(--card);padding:8px 12px;font-size:13px;width:120px;outline:none;color:var(--text);">
+          <input id="bjd-size-new" placeholder="新尺寸名" style="border:none;border-radius:10px;background:var(--card);padding:8px 12px;font-size:17px;width:120px;outline:none;color:var(--text);">
           <button class="btn-mini" id="btn-bjd-size-add">+ 添加</button>
         </div>
         <div id="bjd-list"></div>
@@ -803,12 +812,12 @@
       <div class="card">
         <h3>色卡管理</h3>
         <div id="sc-toolbar" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;">
-          <span style="font-size:13px;color:var(--muted);">筛选与排序</span>
+          <span style="font-size:17px;color:var(--muted);">筛选与排序</span>
           <button type="button" class="sel-btn" id="sc-filter-btn">筛选：全部</button>
           <button type="button" class="sel-btn" id="sc-sort-btn">排序：默认</button>
           <span style="flex:1;"></span>
           <button class="btn-mini" id="btn-sc-add">+ 新建色卡</button>
-          <span id="sc-total" style="font-size:14px;font-weight:600;color:var(--accent);"></span>
+          <span id="sc-total" style="font-size:18px;font-weight:600;color:var(--accent);"></span>
         </div>
         <div id="sc-artist-list"></div>
       </div>
@@ -1303,7 +1312,7 @@
         '<input data-f="name_en" value="' + escAttr(sec.name_en) + '" placeholder="名称（英文）">' +
         '<input data-f="sort" type="number" value="' + (sec.sort == null ? 0 : sec.sort) + '" placeholder="排序数字">' +
         '</div>' +
-        '<div style="margin-top:8px;"><div style="font-size:12px;color:var(--muted);margin-bottom:4px;">每行显示（前台 Photo Gallery 布局）</div>' + prPickerHtml(photoGridOf(sec.key)) + '</div>' +
+        '<div style="margin-top:8px;"><div style="font-size:16px;color:var(--muted);margin-bottom:4px;">每行显示（前台 Photo Gallery 布局）</div>' + prPickerHtml(photoGridOf(sec.key)) + '</div>' +
         '<div class="actions" style="justify-content:flex-start;">' +
         '<button class="btn-mini btn-save-section">保存</button>' +
         '<button class="btn-del btn-del-section">删除</button>' +
@@ -1416,7 +1425,7 @@
           '<input class="de-name" style="flex:1;min-width:140px;" value="' + escAttr(d.name) + '">' +
           '<input type="text" class="de-day date-pick" data-disp="1" value="' + escAttr(toDispDayAdmin(d.day)) + '" style="width:132px;flex-shrink:0;">' +
           '</div>' +
-          '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px;font-size:12px;">' +
+          '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px;font-size:16px;">' +
           '<span style="color:var(--muted);">分类</span>' +
           '<input class="de-cat" value="' + escAttr(d.type || '') + '" placeholder="输入分类" autocomplete="off" style="width:170px;">' +
           '<div class="dy-cat-list"></div>' +
@@ -1430,8 +1439,8 @@
       }
       return '<div class="card day-item" data-id="' + d.id + '" style="display:flex;align-items:center;gap:10px;padding:12px 14px;margin-bottom:10px;">' +
         '<div style="flex:1;min-width:0;">' +
-        '<b style="font-size:14px;">' + esc(d.name) + '</b>' +
-        '<div style="font-size:12px;color:var(--muted);margin-top:2px;">' + toDispDayAdmin(d.day) + ' · ' + (d.type || '重要日') + (d.repeat && d.repeat !== 'none' ? ' · ' + ({ daily: '每天重复', weekly: '每周重复', monthly: '每月重复', yearly: '每年重复' }[d.repeat] || d.repeat) : ' · 不重复') + '</div>' +
+        '<b style="font-size:18px;">' + esc(d.name) + '</b>' +
+        '<div style="font-size:16px;color:var(--muted);margin-top:2px;">' + toDispDayAdmin(d.day) + ' · ' + (d.type || '重要日') + (d.repeat && d.repeat !== 'none' ? ' · ' + ({ daily: '每天重复', weekly: '每周重复', monthly: '每月重复', yearly: '每年重复' }[d.repeat] || d.repeat) : ' · 不重复') + '</div>' +
         '</div>' +
         '<button class="btn-mini dy-edit">编辑</button>' +
         '<button class="btn-del dy-del">删除</button>' +
@@ -1599,13 +1608,13 @@
     var secs = SECTIONS.filter(function (s) { return s.key !== 'bjd'; });
     document.getElementById('gl-sec-edit').innerHTML = secs.map(function (s) {
       return '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;align-items:center;">' +
-        '<span style="font-size:12px;color:var(--muted);min-width:64px;">' + esc(s.key) + '</span>' +
+        '<span style="font-size:16px;color:var(--muted);min-width:64px;">' + esc(s.key) + '</span>' +
         '<input class="gs-zh" data-id="' + s.id + '" value="' + escAttr(s.name_zh) + '" placeholder="分类名称（中文）" style="flex:1;min-width:120px;">' +
         '<input class="gs-en" data-id="' + s.id + '" value="' + escAttr(s.name_en || '') + '" placeholder="分类名称（英文）" style="flex:1;min-width:120px;">' +
         '</div>';
     }).join('');
     document.getElementById('gl-sec-view').innerHTML = secs.map(function (s) {
-      return '<div>' + esc(s.name_zh) + (s.name_en ? ' <span style="color:var(--muted);font-size:12px;">' + esc(s.name_en) + '</span>' : '') + '</div>';
+      return '<div>' + esc(s.name_zh) + (s.name_en ? ' <span style="color:var(--muted);font-size:16px;">' + esc(s.name_en) + '</span>' : '') + '</div>';
     }).join('');
     refreshHmViews();
   }
@@ -1872,6 +1881,9 @@
         if (c) {
           CARDS = normCardsRaw(c);
           CARDS_SAVED = JSON.parse(JSON.stringify(CARDS)); // 档案基准 = 载入的已保存数据
+          var at = parseSetting('artist_templates', null);
+          if (at && typeof at === 'object' && !Array.isArray(at)) { ART_TPL = at; }
+          else { ART_TPL = artistArchiveRaw(CARDS_SAVED); saveSetting('artist_templates', ART_TPL); } // 一次性种子：把现行档案固定成模板
           // 旧数据补 id 后静默存回，主页「编辑卡」从此有真实 card_id 可传
           if (CARDS.some(function (x) { return !x.id; })) saveCardsQuiet(function () {});
         }
@@ -1991,10 +2003,10 @@
           '<div style="display:flex;align-items:center;gap:12px;">' +
           '<button type="button" class="vis-chip' + (a.visible === false ? '' : ' vis-on') + '" title="点击切换显示/隐藏">' + (a.visible === false ? '已隐藏' : '显示中') + '</button>' +
           '<div style="flex:1;min-width:0;">' +
-          '<div style="font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(a.title_zh || '未命名区域') +
-          (a.title_en ? ' <span style="color:var(--muted);font-size:12px;">' + esc(a.title_en) + '</span>' : '') +
-          (isTpl ? '<span style="display:inline-block;font-size:11px;color:#fff;background:var(--accent-soft);border-radius:8px;padding:1px 8px;margin-left:6px;vertical-align:1px;">模板</span>' : '') + '</div>' +
-          (custom && (a.content_zh || a.content_en) ? '<div style="font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(a.content_zh || a.content_en) + '</div>' : '') +
+          '<div style="font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(a.title_zh || '未命名区域') +
+          (a.title_en ? ' <span style="color:var(--muted);font-size:16px;">' + esc(a.title_en) + '</span>' : '') +
+          (isTpl ? '<span style="display:inline-block;font-size:15px;color:#fff;background:var(--accent-soft);border-radius:8px;padding:1px 8px;margin-left:6px;vertical-align:1px;">模板</span>' : '') + '</div>' +
+          (custom && (a.content_zh || a.content_en) ? '<div style="font-size:16px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(a.content_zh || a.content_en) + '</div>' : '') +
           '</div>' +
           '<button type="button" class="area-kebab" title="菜单">⋮</button>' +
           '</div></div>';
@@ -2111,6 +2123,7 @@
   });
   // ===== 色卡管理（一张色卡 · 多名画师）=====
   var CARDS = [];
+  var ART_TPL = {}; // 画师价格模板：独立固定存储，不随色卡保存/删除漂移
   var CARDS_SAVED = []; // 最近一次「正式保存」的快照：画师价格档案只从这里读取，草稿/自动保存不进档
   var BJDS = [];
   var BJDS_SAVED = []; // 最近一次保存的快照：取消编辑时从这里还原
@@ -2161,12 +2174,12 @@
     }).join('');
   }
   function bjdField(label, input) {
-    return '<div class="bjd-f" style="min-width:100%;flex:1;"><div style="font-size:12px;color:var(--muted);margin-bottom:3px;">' + label + '</div>' + input + '</div>';
+    return '<div class="bjd-f" style="min-width:100%;flex:1;"><div style="font-size:16px;color:var(--muted);margin-bottom:3px;">' + label + '</div>' + input + '</div>';
   }
   function bjdGroup(title, inner, part) {
     var hide = part && bjdParts && bjdParts[part] === false;
     return '<div' + (part ? ' data-part="' + part + '"' : '') + ' style="border-top:1px solid var(--card-hover);margin-top:12px;padding-top:10px;' + (hide ? 'display:none;' : '') + '">' +
-      '<div style="font-size:13px;font-weight:700;margin-bottom:8px;">' + title + '</div>' + inner + '</div>';
+      '<div style="font-size:17px;font-weight:700;margin-bottom:8px;">' + title + '</div>' + inner + '</div>';
   }
   var bjdParts = null; // 当前编辑娃娃的部件开关（渲染用）
   function normEntry(a) {
@@ -2284,7 +2297,7 @@
   function photoStrip(photos, cls) { // 多图缩略条：主图外追加的相册，每张 ⋮ 可删
     if (!photos || !photos.length) return '';
     return '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">' + photos.map(function (u, pi) {
-      return '<div style="width:64px;height:64px;border-radius:10px;overflow:hidden;position:relative;background:var(--card);flex-shrink:0;"><img src="' + escAttr(u) + '" style="width:100%;height:100%;object-fit:cover;display:block;"><button type="button" class="kebab ' + cls + '" data-pi="' + pi + '" title="菜单" style="position:absolute;top:3px;right:3px;width:20px;height:20px;font-size:11px;">⋮</button></div>';
+      return '<div style="width:64px;height:64px;border-radius:10px;overflow:hidden;position:relative;background:var(--card);flex-shrink:0;"><img src="' + escAttr(u) + '" style="width:100%;height:100%;object-fit:cover;display:block;"><button type="button" class="kebab ' + cls + '" data-pi="' + pi + '" title="菜单" style="position:absolute;top:3px;right:3px;width:20px;height:20px;font-size:15px;">⋮</button></div>';
     }).join('') + '</div>';
   }
   function normCardsRaw(v) {
@@ -2345,10 +2358,10 @@
     if (CARDS_EDIT >= CARDS.length) CARDS_EDIT = CARDS.length - 1;
     renderCards();
   }
-  function artistArchive() {
-    // 画师价格档案：只读「已正式保存」的色卡数据（同名取最先出现的记录，可重复使用）
+  function artistArchiveRaw(list) {
+    // 从色卡列表提取「画师名 → 项目+价格」（同名取最先出现的记录）
     var map = {};
-    CARDS_SAVED.forEach(function (c0) {
+    (list || []).forEach(function (c0) {
       normCard(c0).artists.forEach(function (a0) {
         var n = (a0.name || '').trim();
         if (!n || map[n]) return;
@@ -2356,6 +2369,14 @@
       });
     });
     return map;
+  }
+  function artistArchive() {
+    // 画师价格模板：独立存储，只在「存为模板」时更新——色卡怎么删怎么改都不影响下次带出
+    return ART_TPL;
+  }
+  function tplSaveFor(name, rows) {
+    ART_TPL[name] = (rows || []).map(function (r) { return { label: r.label || '', price: r.price }; });
+    saveSetting('artist_templates', ART_TPL);
   }
   // 色卡/BJD 后台筛选排序：只影响当前显示顺序，不改 CARDS/BJDS 原始数组（默认排序即恢复手动顺序）
   var SC_FILTER = 'all', SC_SORT = 'manual';
@@ -2530,15 +2551,15 @@
         return '<div class="sc-artist-block" data-ai="' + ai + '" style="border-top:1px solid var(--card-hover);margin-top:12px;padding-top:10px;position:relative;">' +
           '<button class="kebab sc-artist-menu" title="选项">⋮</button>' +
           '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-right:40px;">' +
-          '<span style="font-size:12px;color:var(--muted);flex-shrink:0;">画师 ' + (ai + 1) + '</span>' +
+          '<span style="font-size:16px;color:var(--muted);flex-shrink:0;">画师 ' + (ai + 1) + '</span>' +
           '<input class="a-name" style="flex:1;min-width:120px;" value="' + escAttr(a.name || '') + '" placeholder="画师名称（可输入或点输入框选已有画师）">' +
           '</div>' +
           '<div class="sc-rows" style="margin-top:8px;">' + rowsHtml + '</div>' +
           '<div class="actions" style="justify-content:flex-start;margin-top:4px;">' +
           '<button class="btn-mini sc-add-row">+ 添加项目</button>' +
           '</div>' +
-          '<div class="a-stats" style="margin-top:6px;font-size:12px;color:var(--muted);">张数统计（自动）：' + labelAgg(a) + ' · 共 ' + artistCount(a) + ' 张</div>' +
-          '<div class="a-sub" style="margin-top:2px;font-size:12px;color:var(--muted);">画师 ' + (ai + 1) + ' 小计：<b class="a-sub-v" style="color:var(--accent);">¥' + fmtMoney(artistSub(a)) + '</b></div>' +
+          '<div class="a-stats" style="margin-top:6px;font-size:16px;color:var(--muted);">张数统计（自动）：' + labelAgg(a) + ' · 共 ' + artistCount(a) + ' 张</div>' +
+          '<div class="a-sub" style="margin-top:2px;font-size:16px;color:var(--muted);">画师 ' + (ai + 1) + ' 小计：<b class="a-sub-v" style="color:var(--accent);">¥' + fmtMoney(artistSub(a)) + '</b></div>' +
           '</div>';
       }).join('');
       return '<div class="card sc-artist editing" data-i="' + i + '" style="position:relative;">' +
@@ -2554,15 +2575,15 @@
         '<label class="btn-mini">添加照片<input type="file" class="sc-photos" accept="image/*" multiple hidden></label>' +
         '</div>' +
         photoStrip(c.photos, 'c-photo-kebab') +
-        '<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:13px;">' +
-        '<label style="display:flex;align-items:center;gap:6px;flex-shrink:0;">购入日期<input type="text" class="c-bought date-pick" readonly value="' + escAttr(c.bought || '') + '" placeholder="选择日期" style="width:100px;padding:7px 10px;font-size:13px;cursor:pointer;"></label>' +
-        '<label style="display:flex;align-items:center;gap:6px;flex-shrink:0;">出生日期<input type="text" class="c-birth date-pick" readonly value="' + escAttr(c.birth || '') + '" placeholder="自动纪念日" style="width:100px;padding:7px 10px;font-size:13px;cursor:pointer;"></label>' +
-        '<label style="display:flex;align-items:center;gap:6px;flex-shrink:0;">收卡价格<input type="number" class="c-orig" min="0" value="' + escAttr(c.origPrice == null ? '' : c.origPrice) + '" placeholder="¥" style="width:90px;padding:7px 10px;font-size:13px;"></label>' +
-        '<label style="display:flex;align-items:center;gap:6px;flex-shrink:0;">最后记录<input type="text" class="c-lastrec date-pick" readonly value="' + escAttr(c.lastRec || '') + '" placeholder="自动更新" style="width:100px;padding:7px 10px;font-size:13px;cursor:pointer;"></label>' +
-        '<span style="color:var(--muted);font-size:12px;">保存时自动更新</span>' +
+        '<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:17px;">' +
+        '<label style="display:flex;align-items:center;gap:6px;flex-shrink:0;">购入日期<input type="text" class="c-bought date-pick" readonly value="' + escAttr(c.bought || '') + '" placeholder="选择日期" style="width:100px;padding:7px 10px;font-size:17px;cursor:pointer;"></label>' +
+        '<label style="display:flex;align-items:center;gap:6px;flex-shrink:0;">出生日期<input type="text" class="c-birth date-pick" readonly value="' + escAttr(c.birth || '') + '" placeholder="自动纪念日" style="width:100px;padding:7px 10px;font-size:17px;cursor:pointer;"></label>' +
+        '<label style="display:flex;align-items:center;gap:6px;flex-shrink:0;">收卡价格<input type="number" class="c-orig" min="0" value="' + escAttr(c.origPrice == null ? '' : c.origPrice) + '" placeholder="¥" style="width:90px;padding:7px 10px;font-size:17px;"></label>' +
+        '<label style="display:flex;align-items:center;gap:6px;flex-shrink:0;">最后记录<input type="text" class="c-lastrec date-pick" readonly value="' + escAttr(c.lastRec || '') + '" placeholder="自动更新" style="width:100px;padding:7px 10px;font-size:17px;cursor:pointer;"></label>' +
+        '<span style="color:var(--muted);font-size:16px;">保存时自动更新</span>' +
         '</div>' +
-        '<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:14px;">' +
-        '<span>色卡总价 <b class="sc-card-total" style="color:var(--accent);font-size:16px;">¥' + fmtMoney(cardFinal(c)) + '</b></span>' +
+        '<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:18px;">' +
+        '<span>色卡总价 <b class="sc-card-total" style="color:var(--accent);font-size:20px;">¥' + fmtMoney(cardFinal(c)) + '</b></span>' +
         '<span style="color:var(--muted);">总张数 <b class="sc-card-count">' + cardCount(c) + '</b> 张</span>' +
         '</div>' +
         '<div class="sc-artists" style="margin-top:4px;">' + blocks + '</div>' +
@@ -2651,7 +2672,8 @@
     }
     if (SC_POP.type === 'artist') {
       var c1 = normCard(CARDS[SC_POP.i]);
-      return '<button class="sc-opt sc-opt-del" data-opt="del">删除画师</button>' +
+      return '<button class="sc-opt" data-opt="tpl">★ 存为画师模板</button>' +
+        '<button class="sc-opt sc-opt-del" data-opt="del">删除画师</button>' +
         '<button class="sc-opt" data-opt="copy">复制画师</button>' +
         '<button class="sc-opt" data-opt="up"' + (SC_POP.ai === 0 ? ' disabled' : '') + '>↑ 往上移动</button>' +
         '<button class="sc-opt" data-opt="down"' + (SC_POP.ai === c1.artists.length - 1 ? ' disabled' : '') + '>↓ 往下移动</button>' +
@@ -2873,7 +2895,11 @@
   document.body.appendChild(comboPop);
   function comboSource(el) {
     if (!el || !el.classList) return null;
-    if (el.classList.contains('a-name')) return Object.keys(artistArchive());
+    if (el.classList.contains('a-name')) {
+      var names = Object.keys(artistArchive()).slice();
+      CARDS_SAVED.forEach(function (c0) { normCard(c0).artists.forEach(function (a0) { var n = (a0.name || '').trim(); if (n && names.indexOf(n) === -1) names.push(n); }); });
+      return names;
+    }
     if (el.id === 'p-tag' || el.classList.contains('e-tag')) return tagOptions();
     if (el.classList.contains('wk-artist')) return WORK_META.artists.slice(); // 稿件画师联想
     if (el.classList.contains('wk-cat')) return WORK_META.cats.slice(); // 稿件种类联想
@@ -3088,6 +3114,14 @@
       if (opt === 'del') { a.rows.splice(ctx.ri, 1); if (!a.rows.length) a.rows.push({ label: '', price: '', qty: 1 }); }
       if (opt === 'copy') { a.rows.splice(ctx.ri + 1, 0, JSON.parse(JSON.stringify(a.rows[ctx.ri]))); toast('已复制，可继续修改'); }
     } else if (ctx.type === 'artist') {
+      if (opt === 'tpl') {
+        var nm = ((c.artists[ctx.ai] || {}).name || '').trim();
+        if (!nm) { toast('先填画师名字，再存模板'); return; }
+        tplSaveFor(nm, c.artists[ctx.ai].rows);
+        toast('已把「' + nm + '」当前项目价格存为模板');
+        popClose();
+        return; // 存模板不动卡片数据
+      }
       if (opt === 'up' && ctx.ai > 0) { var t3 = c.artists[ctx.ai - 1]; c.artists[ctx.ai - 1] = c.artists[ctx.ai]; c.artists[ctx.ai] = t3; }
       if (opt === 'down' && ctx.ai < c.artists.length - 1) { var t4 = c.artists[ctx.ai + 1]; c.artists[ctx.ai + 1] = c.artists[ctx.ai]; c.artists[ctx.ai] = t4; }
       if (opt === 'del') { c.artists.splice(ctx.ai, 1); if (!c.artists.length) c.artists.push({ name: '', rows: [{ label: '', price: '', qty: 1 }] }); }
@@ -3380,14 +3414,14 @@
       var sel = function (cls, listOpts, cur) { return '<select class="' + cls + '">' + opts(listOpts, cur) + '</select>'; };
       bjdParts = b.parts;
       var chk = function (cls, part, label) {
-        return '<span class="tgl-label" style="font-size:13px;"><button type="button" class="tgl ' + cls + '-tgl' + (b.parts[part] !== false ? ' on' : '') + '" data-part="' + part + '" aria-pressed="' + (b.parts[part] !== false) + '" aria-label="' + label + '"><span class="tgl-knob"></span></button>' + label + '</span>';
+        return '<span class="tgl-label" style="font-size:17px;"><button type="button" class="tgl ' + cls + '-tgl' + (b.parts[part] !== false ? ' on' : '') + '" data-part="' + part + '" aria-pressed="' + (b.parts[part] !== false) + '" aria-label="' + label + '"><span class="tgl-knob"></span></button>' + label + '</span>';
       };
       return '<div class="card bjd-item editing" data-i="' + i + '" style="position:relative;">' +
         '<button class="kebab bjd-kebab" title="菜单">⋮</button>' +
         '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-right:40px;">' +
         bjdField('娃娃名', '<input class="b-name" style="width:100%;" value="' + escAttr(b.name) + '" placeholder="娃娃名，如：Sakura">') +
         '</div>' +
-        '<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:13px;">' +
+        '<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:17px;">' +
         '<span class="tgl-label"><button type="button" class="tgl b-home-toggle" aria-pressed="' + (b.homeShow !== false) + '" aria-label="主页展示"><span class="tgl-knob"></span></button>主页展示</span>' +
         '<span style="color:var(--muted);">添加部件：</span>' +
         chk('b-part', 'head', '娃娃头') + chk('b-part', 'body', '身体') + chk('b-part', 'eyes', '眼珠') + chk('b-part', 'clothes', '衣服') +
@@ -3477,8 +3511,8 @@
     var box = document.getElementById('bjd-size-chips');
     if (!box) return;
     box.innerHTML = BJD_SIZES.map(function (s, si) {
-      return '<span style="display:inline-flex;align-items:center;gap:2px;background:var(--card);border-radius:999px;padding:5px 6px 5px 12px;font-size:13px;">' + esc(s) +
-        '<button type="button" class="kebab bjd-size-kebab" data-si="' + si + '" title="菜单" style="width:22px;height:22px;font-size:12px;">⋮</button></span>';
+      return '<span style="display:inline-flex;align-items:center;gap:2px;background:var(--card);border-radius:999px;padding:5px 6px 5px 12px;font-size:17px;">' + esc(s) +
+        '<button type="button" class="kebab bjd-size-kebab" data-si="' + si + '" title="菜单" style="width:22px;height:22px;font-size:16px;">⋮</button></span>';
     }).join('');
   }
   document.getElementById('bjd-size-chips').addEventListener('click', function (e) {
@@ -3521,9 +3555,9 @@
       var box = document.getElementById(boxId);
       if (!box) return;
       box.innerHTML = arr.length ? arr.map(function (v, vi) {
-        return '<span style="display:inline-flex;align-items:center;gap:2px;background:var(--card);border-radius:999px;padding:5px 6px 5px 12px;font-size:13px;">' + esc(v) +
-          '<button type="button" class="kebab ' + cls + '" data-vi="' + vi + '" title="菜单" style="width:22px;height:22px;font-size:12px;">⋮</button></span>';
-      }).join('') : '<span style="font-size:12px;color:var(--muted);">还没有，可在下面添加</span>';
+        return '<span style="display:inline-flex;align-items:center;gap:2px;background:var(--card);border-radius:999px;padding:5px 6px 5px 12px;font-size:17px;">' + esc(v) +
+          '<button type="button" class="kebab ' + cls + '" data-vi="' + vi + '" title="菜单" style="width:22px;height:22px;font-size:16px;">⋮</button></span>';
+      }).join('') : '<span style="font-size:16px;color:var(--muted);">还没有，可在下面添加</span>';
     };
     mk('work-cat-chips', WORK_META.cats, 'work-cat-kebab');
     mk('work-artist-chips', WORK_META.artists, 'work-artist-kebab');
