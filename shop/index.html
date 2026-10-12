@@ -111,7 +111,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     font-size:61px;
     overflow: hidden;
   }
-  .product-img img { width: 100%; height: 100%; object-fit: cover; }
+  .product-img img { width: 100%; height: 100%; object-fit: contain; }
   .product-info { padding: 14px 16px 16px; flex: 1; display: flex; flex-direction: column; }
   .product-tag {
     align-self: flex-start;
@@ -424,6 +424,52 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     if (p.sold || !(p.stock > 0)) return 'out';
     return 'on';
   }
+  // ===== 多图翻页（与全站 site-common.js 同一份实现，shop 不加载 site-common 故内联） =====
+  function normImgS(u) {
+    u = String(u || '');
+    return /^(https?:\/\/|data:)/.test(u) ? u : '/' + u.replace(/^\/+/, '');
+  }
+  function escAttrDbS(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+  }
+  function pagerImgsOf(o) {
+    o = o || {};
+    var arr = [];
+    if (Array.isArray(o.images) && o.images.length) arr = o.images.filter(Boolean);
+    else if (o.image_url) arr = [o.image_url];
+    else if (o.image) arr = [o.image];
+    return arr.map(function (u) { return normImgS(u); });
+  }
+  function pagerWrapHtml(urls, alt) {
+    urls = urls || [];
+    if (!urls.length) return '<div style="width:100%;aspect-ratio:1/1;background:var(--card);"></div>';
+    var multi = urls.length > 1;
+    return '<div class="pg-wrap" data-i="0" style="position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--card);">' +
+      '<img class="pg-img" src="' + escAttrDbS(urls[0]) + '" data-urls="' + escAttrDbS(JSON.stringify(urls)) + '" style="width:100%;height:100%;object-fit:contain;display:block;" alt="' + escAttrDbS(alt || '') + '" loading="lazy">' +
+      (multi ? '<button type="button" class="pg-btn pg-prev" aria-label="上一张">‹</button><button type="button" class="pg-btn pg-next" aria-label="下一张">›</button><span class="pg-count">1/' + urls.length + '</span>' : '') +
+      '</div>';
+  }
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest ? e.target.closest('.pg-btn') : null;
+    if (!btn) return;
+    e.preventDefault(); e.stopPropagation();
+    var wrap = btn.closest('.pg-wrap');
+    var img = wrap.querySelector('.pg-img');
+    var urls = [];
+    try { urls = JSON.parse(img.getAttribute('data-urls') || '[]'); } catch (err) {}
+    if (urls.length < 2) return;
+    var i = parseInt(wrap.getAttribute('data-i'), 10) || 0;
+    i = (i + (btn.classList.contains('pg-next') ? 1 : -1) + urls.length) % urls.length;
+    wrap.setAttribute('data-i', i);
+    img.src = urls[i];
+    var cnt = wrap.querySelector('.pg-count');
+    if (cnt) cnt.textContent = (i + 1) + '/' + urls.length;
+  }, true);
+  function fmtPriceShop(v) {
+    var s = String(v == null ? '' : v).trim().replace(/^¥+/, '');
+    if (s === '') return '';
+    return /^\d+(\.\d+)?$/.test(s.replace(/[,\s]/g, '')) ? (parseFloat(s) || 0).toFixed(2) : s;
+  }
   function productCard(p) {
     var img = pagerWrapHtml(pagerImgsOf({ images: p.images, image_url: p.image_url }), p.name);
     var st = statusOf(p);
@@ -437,7 +483,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
       '<h3>' + esc(p.name) + '</h3>' +
       '<p>' + esc(p.description || '') + '</p>' +
       '<div class="product-row">' +
-      '<span class="price">' + (p.price ? '<small>¥</small>' + esc(p.price) : '') + '</span>' +
+      '<span class="price">' + (p.price ? '<small>¥</small>' + esc(fmtPriceShop(p.price)) : '') + '</span>' +
       (st === 'on' ? '<button class="buy-btn">' + t('找我下单','Contact to order') + '</button>' : '<span class="no-buy">' + (st === 'display' ? t('仅展示，不能下单','Not for sale') : '') + '</span>') +
       '</div></div></div>';
   }

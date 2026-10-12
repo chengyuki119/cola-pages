@@ -135,7 +135,7 @@ function pagerWrapHtml(urls, alt) {
   if (!urls.length) return '<div style="width:100%;aspect-ratio:1/1;background:var(--card);"></div>';
   var multi = urls.length > 1;
   return '<div class="pg-wrap" data-i="0" style="position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--card);">' +
-    '<img class="pg-img" src="' + escAttrDb(urls[0]) + '" data-urls="' + escAttrDb(JSON.stringify(urls)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + escAttrDb(alt || '') + '" loading="lazy">' +
+    '<img class="pg-img" src="' + escAttrDb(urls[0]) + '" data-urls="' + escAttrDb(JSON.stringify(urls)) + '" style="width:100%;height:100%;object-fit:contain;display:block;" alt="' + escAttrDb(alt || '') + '" loading="lazy">' +
     (multi ? '<button type="button" class="pg-btn pg-prev" aria-label="上一张">‹</button><button type="button" class="pg-btn pg-next" aria-label="下一张">›</button><span class="pg-count">1/' + urls.length + '</span>' : '') +
     '</div>';
 }
