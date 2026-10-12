@@ -111,7 +111,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     font-size:61px;
     overflow: hidden;
   }
-  .product-img img { width: 100%; height: 100%; object-fit: contain; }
+  .product-img img { width: 100%; height: 100%; object-fit: cover; }
   .product-info { padding: 14px 16px 16px; flex: 1; display: flex; flex-direction: column; }
   .product-tag {
     align-self: flex-start;
@@ -445,7 +445,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     if (!urls.length) return '<div style="width:100%;aspect-ratio:1/1;background:var(--card);"></div>';
     var multi = urls.length > 1;
     return '<div class="pg-wrap" data-i="0" style="position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--card);">' +
-      '<img class="pg-img" src="' + escAttrDbS(urls[0]) + '" data-urls="' + escAttrDbS(JSON.stringify(urls)) + '" style="width:100%;height:100%;object-fit:contain;display:block;" alt="' + escAttrDbS(alt || '') + '" loading="lazy">' +
+      '<img class="pg-img" src="' + escAttrDbS(urls[0]) + '" data-urls="' + escAttrDbS(JSON.stringify(urls)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + escAttrDbS(alt || '') + '" loading="lazy">' +
       (multi ? '<button type="button" class="pg-btn pg-prev" aria-label="上一张">‹</button><button type="button" class="pg-btn pg-next" aria-label="下一张">›</button><span class="pg-count">1/' + urls.length + '</span>' : '') +
       '</div>';
   }
