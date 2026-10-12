@@ -26,7 +26,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/icon-yuki2-180.png">
 <link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki2-180.png">
 <meta name="apple-mobile-web-app-title" content="小柚的小世界">
-<link rel="stylesheet" href="/css/site.css?v=20261011j">
+<link rel="stylesheet" href="/css/site.css?v=20261011k">
   <link rel="stylesheet" href="/site-menu.css">
     <script src="/site-menu.js" defer></script>
 </head>
@@ -92,7 +92,7 @@
 </div>
 <div id="share-pop"></div>
 <div class="toast" id="toast"></div>
-<script src="/js/site-common.js?v=20261011j"></script>
+<script src="/js/site-common.js?v=20261011k"></script>
 <script>
   // ===== BJD：独立子页（娃娃墙 + 娃娃详情 /bjd/?id=N）=====
   var BJD_FILTER = '全部';
@@ -176,11 +176,11 @@
     if (!BJDS_CACHE[CURRENT_BJD]) { body.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px 0;">' + t('没有找到这个娃娃', 'Doll not found') + '</p>'; return; }
     var title = document.getElementById('bjd-view-title');
     if (title) title.textContent = b.name || t('未命名娃娃', 'Unnamed doll');
-    var priceRows = (b.parts.head !== false ? bjdRow(t('娃娃头', 'Head'), fmtPriceText(b.price.doll)) : '') +
-      (b.parts.head !== false ? bjdRow(t('妆面', 'Face-up'), fmtPriceText(b.price.faceup)) : '') +
-      (b.parts.eyes !== false ? bjdRow(t('眼珠', 'Eyes'), fmtPriceText(b.price.eyes)) : '') +
-      (b.parts.body !== false ? bjdRow(t('身体', 'Body'), fmtPriceText(b.price.body)) : '') +
-      (b.parts.clothes ? bjdRow(t('衣服', 'Outfit'), fmtPriceText(b.price.clothes)) : '');
+    var priceRows = (b.parts.head !== false ? bjdRow(t('娃娃头', 'Head'), fmtPriceRow(b.price.doll)) : '') +
+      (b.parts.head !== false ? bjdRow(t('妆面', 'Face-up'), fmtPriceRow(b.price.faceup)) : '') +
+      (b.parts.eyes !== false ? bjdRow(t('眼珠', 'Eyes'), fmtPriceRow(b.price.eyes)) : '') +
+      (b.parts.body !== false ? bjdRow(t('身体', 'Body'), fmtPriceRow(b.price.body)) : '') +
+      (b.parts.clothes ? bjdRow(t('衣服', 'Outfit'), fmtPriceRow(b.price.clothes)) : '');
     var totalV = bjdTotalV(b);
     body.innerHTML =
       (b.image ? '<div style="width:100%;max-width:420px;aspect-ratio:1/1;margin:0 auto 18px;overflow:hidden;border-radius:var(--radius);background:var(--card);"><img src="' + escAttrDb(normImg(b.image)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="BJD"></div>' : '') +
@@ -203,7 +203,7 @@
       (bjdRow(t('妆面 / Face-up', 'Face-up'), b.faceup.faceup) + bjdRow(t('妆师', 'Face-up artist'), b.faceup.artist) + bjdRow(t('完成时间', 'Completed'), b.faceup.date) || '<p style="color:var(--muted);font-size:16px;">' + t('暂无记录', 'No records yet') + '</p>') + '</div>' : '') +
       ((b.price.total || priceRows || totalV) ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:19px;">' + t('价格', 'Price') + '</h2>' +
       (totalV > 0 ? '<div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--card-hover);padding:10px 0;margin-bottom:10px;"><span style="font-size:18px;font-weight:700;">' + t('娃娃总价', 'Total price') + '</span><b style="font-size:20px;color:var(--accent);">¥' + fmtMoney(totalV) + '</b></div>' : '') +
-      (bjdRow(t('娃娃价格', 'Total price'), fmtPriceText(b.price.total)) + priceRows) + '</div>' : '') +
+      (bjdRow(t('娃娃价格', 'Total price'), fmtPriceRow(b.price.total)) + priceRows) + '</div>' : '') +
       ((b.purchase.date || b.purchase.channel || b.purchase.status || b.birth) ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:19px;">' + t('购买信息', 'Purchase Info') + '</h2>' +
       (bjdRow(t('购买日期', 'Purchase date'), b.purchase.date) + bjdRow(t('出生日期', 'Birth date'), b.birth) + bjdRow(t('渠道 / 商家', 'Channel / Seller'), b.purchase.channel) + bjdRow(t('状态', 'Status'), b.purchase.status)) + '</div>' : '') +
       (b.notes ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:19px;">' + t('备注', 'Notes') + '</h2><p style="font-size:16px;line-height:1.8;white-space:pre-wrap;">' + escDb(b.notes) + '</p></div>' : '') +

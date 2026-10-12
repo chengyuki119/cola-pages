@@ -64,6 +64,11 @@ function fmtPriceText(s) {
   var num = parseFloat(str.replace(/[,\s]/g, ''));
   return isFinite(num) && /^\d+(\.\d+)?$/.test(str.replace(/[,\s]/g, '')) ? fmtMoney(num) : str;
 }
+// 详情页价格行：纯数字加 ¥ 前缀 + 两位小数，文字原样
+function fmtPriceRow(s) {
+  var v = fmtPriceText(s);
+  return v === '' ? '' : (/^\d/.test(v) ? '¥' + v : v);
+}
 function rowTotalV(r) {
   return (parseFloat(r.price) || 0) * (parseInt(r.qty, 10) || 0);
 }
