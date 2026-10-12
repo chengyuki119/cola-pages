@@ -6,6 +6,8 @@
 <title>页面走丢了 · Yuki / 柚子</title>
 <link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki2-180.png">
 <link rel="stylesheet" href="/css/site.css?v=20261011i">
+<link rel="stylesheet" href="/site-menu.css">
+<script src="/site-menu.js" defer></script>
 <style>
   body { padding: 0 !important; }
   .er-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; box-sizing: border-box; }
@@ -20,16 +22,19 @@
   .er-btn-main { background: var(--accent); color: #fff; }
   .er-btn-main:hover { filter: brightness(1.05); }
   .er-btn-soft { background: #fff; color: var(--accent); border: 1.5px solid var(--accent-soft); }
-  .er-lang { position: fixed; top: 16px; right: 16px; display: flex; gap: 4px; background: #fff; border: 1.5px solid var(--accent-soft); border-radius: 999px; padding: 4px; z-index: 9; }
-  .er-lang button { border: none; background: transparent; font-family: inherit; font-size: 14px; font-weight: 600; color: var(--muted); padding: 5px 12px; border-radius: 999px; cursor: pointer; }
-  .er-lang button.on { background: var(--accent); color: #fff; }
 </style>
 </head>
 <body>
-  <div class="er-lang">
-    <button type="button" data-setlang="zh">中</button>
-    <button type="button" data-setlang="en">EN</button>
+<header class="topbar">
+  <div class="lang-switch">
+    <button class="lang-btn" data-lang="zh">简体中文</button>
+    <button class="lang-btn" data-lang="en">English</button>
   </div>
+  <a class="site-logo" href="/" aria-label="回主页"><img src="/logo.png" alt="logo"></a>
+  <button class="burger" aria-label="菜单">
+    <span></span><span></span><span></span>
+  </button>
+</header>
   <div class="er-wrap">
     <div class="er-card">
       <img class="er-logo" src="/logo.png" alt="柚子">
@@ -46,26 +51,24 @@
 (function () {
   var lang = 'zh';
   try { lang = localStorage.getItem('yuki-lang') === 'en' ? 'en' : 'zh'; } catch (err) {}
-  var titleZh = '这一页走丢了', titleEn = 'This page wandered off';
-  var docTitleZh = '页面走丢了 · Yuki / 柚子', docTitleEn = 'Page not found · Yuki / Yuki';
   function apply(l) {
     lang = l;
     document.documentElement.lang = l === 'en' ? 'en' : 'zh-CN';
-    document.querySelector('.er-title [data-zh]').textContent = l === 'en' ? titleEn : titleZh;
-    document.title = l === 'en' ? docTitleEn : docTitleZh;
+    document.querySelector('.er-title [data-zh]').textContent = l === 'en' ? 'This page wandered off' : '这一页走丢了';
+    document.title = l === 'en' ? 'Page not found · Yuki / Yuki' : '页面走丢了 · Yuki / 柚子';
     var nodes = document.querySelectorAll('[data-zh]');
     for (var i = 0; i < nodes.length; i++) {
       var n = nodes[i];
       if (n.closest('.er-title')) continue;
       n.textContent = l === 'en' ? (n.getAttribute('data-en') || n.getAttribute('data-zh')) : n.getAttribute('data-zh');
     }
-    var btns = document.querySelectorAll('.er-lang button');
-    for (var j = 0; j < btns.length; j++) btns[j].classList.toggle('on', btns[j].getAttribute('data-setlang') === l);
+    var btns = document.querySelectorAll('.lang-btn');
+    for (var j = 0; j < btns.length; j++) btns[j].classList.toggle('active', btns[j].getAttribute('data-lang') === l);
     try { localStorage.setItem('yuki-lang', l); } catch (err) {}
   }
-  document.querySelector('.er-lang').addEventListener('click', function (e) {
-    var b = e.target.closest('[data-setlang]');
-    if (b) apply(b.getAttribute('data-setlang'));
+  document.querySelector('.lang-switch').addEventListener('click', function (e) {
+    var b = e.target.closest('.lang-btn');
+    if (b) apply(b.getAttribute('data-lang') === 'en' ? 'en' : 'zh');
   });
   apply(lang);
 })();
