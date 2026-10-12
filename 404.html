@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -20,20 +20,55 @@
   .er-btn-main { background: var(--accent); color: #fff; }
   .er-btn-main:hover { filter: brightness(1.05); }
   .er-btn-soft { background: #fff; color: var(--accent); border: 1.5px solid var(--accent-soft); }
+  .er-lang { position: fixed; top: 16px; right: 16px; display: flex; gap: 4px; background: #fff; border: 1.5px solid var(--accent-soft); border-radius: 999px; padding: 4px; z-index: 9; }
+  .er-lang button { border: none; background: transparent; font-family: inherit; font-size: 14px; font-weight: 600; color: var(--muted); padding: 5px 12px; border-radius: 999px; cursor: pointer; }
+  .er-lang button.on { background: var(--accent); color: #fff; }
 </style>
 </head>
 <body>
+  <div class="er-lang">
+    <button type="button" data-setlang="zh">中</button>
+    <button type="button" data-setlang="en">EN</button>
+  </div>
   <div class="er-wrap">
     <div class="er-card">
       <img class="er-logo" src="/logo.png" alt="柚子">
       <div class="er-code">404</div>
-      <div class="er-title">这一页走丢了 <span class="er-star">～ ☆</span></div>
-      <div class="er-sub">它可能被挪走啦，回主页逛逛吧<br>This page wandered off · back to home?</div>
+      <div class="er-title"><span data-zh="这一页走丢了">这一页走丢了</span> <span class="er-star">～ ☆</span></div>
+      <div class="er-sub" data-zh="它可能被挪走啦，回主页逛逛吧" data-en="It may have been moved — head back home?">它可能被挪走啦，回主页逛逛吧</div>
       <div class="er-btns">
-        <a class="er-btn er-btn-main" href="/">回主页</a>
-        <a class="er-btn er-btn-soft" href="/shop/">去小铺逛逛</a>
+        <a class="er-btn er-btn-main" href="/" data-zh="回主页" data-en="Back to Home">回主页</a>
+        <a class="er-btn er-btn-soft" href="/shop/" data-zh="去小铺逛逛" data-en="Browse the Shop">去小铺逛逛</a>
       </div>
     </div>
   </div>
+<script>
+(function () {
+  var lang = 'zh';
+  try { lang = localStorage.getItem('yuki-lang') === 'en' ? 'en' : 'zh'; } catch (err) {}
+  var titleZh = '这一页走丢了', titleEn = 'This page wandered off';
+  var docTitleZh = '页面走丢了 · Yuki / 柚子', docTitleEn = 'Page not found · Yuki / Yuki';
+  function apply(l) {
+    lang = l;
+    document.documentElement.lang = l === 'en' ? 'en' : 'zh-CN';
+    document.querySelector('.er-title [data-zh]').textContent = l === 'en' ? titleEn : titleZh;
+    document.title = l === 'en' ? docTitleEn : docTitleZh;
+    var nodes = document.querySelectorAll('[data-zh]');
+    for (var i = 0; i < nodes.length; i++) {
+      var n = nodes[i];
+      if (n.closest('.er-title')) continue;
+      n.textContent = l === 'en' ? (n.getAttribute('data-en') || n.getAttribute('data-zh')) : n.getAttribute('data-zh');
+    }
+    var btns = document.querySelectorAll('.er-lang button');
+    for (var j = 0; j < btns.length; j++) btns[j].classList.toggle('on', btns[j].getAttribute('data-setlang') === l);
+    try { localStorage.setItem('yuki-lang', l); } catch (err) {}
+  }
+  document.querySelector('.er-lang').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-setlang]');
+    if (b) apply(b.getAttribute('data-setlang'));
+  });
+  apply(lang);
+})();
+</script>
 </body>
 </html>
