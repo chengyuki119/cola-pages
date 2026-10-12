@@ -125,6 +125,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .product-info h3 { font-size:19px; }
   .product-info p { color: var(--muted); font-size:16px; margin: 4px 0 12px; flex: 1; }
   .product-row { display: flex; align-items: center; justify-content: space-between; }
+  .card-edit-btn { border: none; background: var(--card-hover); color: var(--accent); font-size:14px; cursor: pointer; padding: 4px 12px; border-radius: 999px; font-family: inherit; transition: background .2s, color .2s; }
+  .card-edit-btn:hover { background: var(--accent-soft); color: #fff; }
   .price { font-size:21px; font-weight: 700; color: var(--accent); font-family: "Millo Body", -apple-system, "PingFang SC", sans-serif; }
   .price small { font-size:15px; font-weight: 400; }
   .buy-btn {
@@ -321,6 +323,8 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
   var WECHAT_ID = 'yuki_060119'; //  微信号在这里改
   var SUPABASE_URL = 'https://zajcglvlzsolygvjeumb.supabase.co';
   var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InphamNnbHZsenNvbHlndmpldW1iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyMzI4NjUsImV4cCI6MjEwNjgwODg2NX0.7_Pthb3wPInb5v4o7IoWejozEvDZQgNPS8DgwikQ8ys';
+  var ADMIN_LOGGED = false; // 登录过后台账号 → 商品卡上出现「编辑商品」按钮（与色卡 / BJD 页同一套）
+  try { ADMIN_LOGGED = !!localStorage.getItem('yuki-admin-session'); } catch (err) {}
 
   // ===== 中英双语切换 =====
   var LANG = 'zh';
@@ -392,6 +396,20 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     return d.innerHTML;
   }
   function imgUrl(u) { u = String(u || ''); return /^https?:\/\//.test(u) ? u : '/' + u.replace(/^\/+/, ''); } // 相对图片路径转根绝对（页面在 /shop/ 下）
+
+  // ===== 「编辑商品」：只有登录了后台账号才出现，点它跳到后台「小铺上架」并展开这件商品 =====
+  function productEditBtn(p) {
+    if (!ADMIN_LOGGED) return '';
+    var key = String((p && p.id != null) ? p.id : '').replace(/"/g, '&quot;');
+    return '<button class="card-edit-btn" data-edit-kind="product" data-edit-key="' + key + '" data-zh="编辑商品" data-en="Edit">' + t('编辑商品', 'Edit') + '</button>';
+  }
+  document.addEventListener('click', function (e) {
+    var eb = e.target && e.target.closest ? e.target.closest('.card-edit-btn') : null;
+    if (!eb) return;
+    e.preventDefault(); e.stopPropagation();
+    try { sessionStorage.setItem('admin-edit-product', eb.getAttribute('data-edit-key') || ''); } catch (err) {}
+    location.href = '/admin.html#shop';
+  }, true);
 
   // 下单：复制微信号
   function toast(msg) {
@@ -485,6 +503,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
       '<div class="product-row">' +
       '<span class="price">' + (p.price ? '<small>¥</small>' + esc(fmtPriceShop(p.price)) : '') + '</span>' +
       (st === 'on' ? '<button class="buy-btn">' + t('找我下单','Contact to order') + '</button>' : '<span class="no-buy">' + (st === 'display' ? t('仅展示，不能下单','Not for sale') : '') + '</span>') +
+      productEditBtn(p) +
       '</div></div></div>';
   }
   function renderProducts() {

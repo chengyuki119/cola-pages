@@ -35,7 +35,7 @@
 <meta name="twitter:title" content="小柚的小世界">
 <meta name="twitter:description" content="欢迎来到小柚的小世界">
 <meta name="twitter:image" content="https://yukicheng.com/og-image.jpg">
-<link rel="stylesheet" href="/css/site.css?v=20261011m">
+<link rel="stylesheet" href="/css/site.css?v=20261011n">
   <link rel="stylesheet" href="/site-menu.css">
     <script src="/site-menu.js" defer></script>
 </head>
@@ -207,7 +207,7 @@
 <div id="share-pop"></div>
 
 
-<script src="/js/site-common.js?v=20261011m"></script>
+<script src="/js/site-common.js?v=20261011n"></script>
 
 <!-- ═══════════ 小柚助手（AI 入口 · 第一阶段测试：模拟回复 + 后台知识库匹配，未接真 AI）═══════════ -->
 <style>
@@ -556,6 +556,7 @@
         '<div style="display:flex;align-items:center;gap:8px;">' +
         '<b style="flex:1;font-size:17px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(b.name || (LANG === 'en' ? 'Unnamed doll' : '未命名娃娃')) + '</b>' +
         shareBtnHtml(x.i, 'bjd', true) +
+        bjdEditBtn(x.i) + // 登录后台后才出现
         '</div>' +
         (b.head.size ? '<div style="font-size:15px;color:var(--muted);margin-top:2px;">' + escDb(LANG === 'en' && window.sizeEnKeep ? sizeEnKeep(b.head.size) : b.head.size) + '</div>' : '') +
         '</div></div>';

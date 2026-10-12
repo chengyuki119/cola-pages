@@ -299,12 +299,30 @@ var ASKBOX_URL = '/askbox/'; // 匿名提问箱页面
 var SHARE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4"/><path d="M8 7l4-4 4 4"/><path d="M6 11h-1a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-1"/></svg>';
 var ADMIN_LOGGED = false;
 try { ADMIN_LOGGED = !!localStorage.getItem('yuki-admin-session'); } catch (e) {}
-function cardEditBtn(i) {
-  // 编辑卡：仅登录后显示；传真实 card_id（旧数据暂无 id 时传位置，后台打开会自动补 id）
+// ===== 前台「编辑」按钮（只有登录了后台账号才出现）：色卡 / BJD / 小铺 共用同一套 =====
+// 传真实 id（色卡 / 商品有 id）；没有 id 的（BJD 档案）传位置编号，后台按编号打开
+var EDIT_TAB_OF = { card: 'cards', bjd: 'bjd', product: 'shop' };
+function adminEditBtn(kind, i, list) {
   if (!ADMIN_LOGGED) return '';
-  var c = (window.CARDS_CACHE || CARDS_CACHE)[i];
-  var key = (c && c.id) ? String(c.id) : String(i);
-  return '<button class="card-edit-btn" data-edit-card="' + escAttrDb(key) + '" data-zh="编辑卡" data-en="Edit">编辑卡</button>';
+  var it = (list || [])[i] || {};
+  var key = (it && it.id != null) ? String(it.id) : String(i);
+  var zh = kind === 'bjd' ? '编辑娃' : (kind === 'product' ? '编辑商品' : '编辑卡');
+  var label = t(zh, 'Edit');
+  return '<button class="card-edit-btn" data-edit-kind="' + kind + '" data-edit-key="' + escAttrDb(key) + '" data-edit-card="' + escAttrDb(key) + '" data-zh="' + zh + '" data-en="Edit">' + label + '</button>';
+}
+function cardEditBtn(i) { return adminEditBtn('card', i, (window.CARDS_CACHE || CARDS_CACHE)); }
+function bjdEditBtn(i) { return adminEditBtn('bjd', i, (window.BJDS_CACHE || BJDS_CACHE)); }
+// 点「编辑」→ 记下要编辑的对象，跳到后台对应 tab 直接展开它
+if (!window.__editBtnBound) {
+  window.__editBtnBound = 1;
+  document.addEventListener('click', function (e) {
+    var eb = e.target && e.target.closest ? e.target.closest('.card-edit-btn') : null;
+    if (!eb) return;
+    e.preventDefault(); e.stopPropagation();
+    var kind = eb.getAttribute('data-edit-kind') || 'card';
+    try { sessionStorage.setItem('admin-edit-' + kind, eb.getAttribute('data-edit-key') || ''); } catch (err) {}
+    location.href = '/admin.html#' + (EDIT_TAB_OF[kind] || 'cards');
+  }, true);
 }
 function shareBtnHtml(i, type, inline) {
   return '<button class="share-btn' + (inline ? ' share-inline' : '') + '" data-share="' + i + '" data-share-type="' + (type || 'card') + '" title="' + t('分享', 'Share') + '" aria-label="' + t('分享', 'Share') + '">' + SHARE_ICON + '</button>';

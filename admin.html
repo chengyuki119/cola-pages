@@ -1146,6 +1146,19 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
             '<button class="kebab" title="编辑商品">⋮</button>' +
             '</div>';
         }).join('');
+        // 前台「编辑商品」直达：按商品 id 展开对应商品的编辑状态
+        try {
+          var ep = sessionStorage.getItem('admin-edit-product');
+          if (ep) {
+            sessionStorage.removeItem('admin-edit-product');
+            var pc = list.querySelector('.shop-item[data-id="' + ep + '"]');
+            if (pc) {
+              var kb2 = pc.querySelector('.kebab');
+              try { pc.scrollIntoView({ block: 'center' }); } catch (err) {}
+              if (kb2) kb2.click();
+            }
+          }
+        } catch (e) {}
       }).catch(function () {
         document.getElementById('product-list').innerHTML = '<p class="empty">加载失败，刷新重试</p>';
       });
@@ -1970,6 +1983,17 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
             for (var k = 0; k < CARDS.length; k++) { if (CARDS[k].id && CARDS[k].id === ec) { ei = k; break; } }
             if (ei < 0 && /^\d+$/.test(ec)) ei = parseInt(ec, 10); // 旧版兼容：位置编号
             if (ei >= 0 && CARDS[ei]) { CARDS_EDIT = ei; EDIT_TYPE = 'card'; PENDING_TAB = 'cards'; }
+          }
+        } catch (e) {}
+        // 前台「编辑娃」直达：BJD 档案没有 id，按位置编号打开对应娃娃的编辑状态
+        try {
+          var ebj = sessionStorage.getItem('admin-edit-bjd');
+          if (ebj) {
+            sessionStorage.removeItem('admin-edit-bjd');
+            var bj = -1;
+            for (var kb = 0; kb < BJDS.length; kb++) { if (BJDS[kb] && BJDS[kb].id != null && String(BJDS[kb].id) === ebj) { bj = kb; break; } }
+            if (bj < 0 && /^\d+$/.test(ebj)) bj = parseInt(ebj, 10); // 按位置编号
+            if (bj >= 0 && BJDS[bj]) { BJDS_EDIT = bj; EDIT_TYPE = 'bjd'; PENDING_TAB = 'bjd'; }
           }
         } catch (e) {}
         renderCards();
