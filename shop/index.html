@@ -642,7 +642,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     var upload = file
       ? fetch(SUPABASE_URL + '/storage/v1/object/reviews/' + Date.now() + '-' + file.name.replace(/[^\w.\-]/g, '_'), {
           method: 'POST',
-          headers: { 'apikey': SUPABASE_ANON_KEY, 'Content-Type': file.type || 'image/jpeg' },
+          headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'Content-Type': file.type || 'image/jpeg' },
           body: file
         }).then(function (r) { if (!r.ok) throw new Error('upload failed'); return r.json(); })
           .then(function (res) { return SUPABASE_URL + '/storage/v1/object/public/reviews/' + res.Key.split('/').slice(1).join('/'); })
