@@ -161,6 +161,10 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   }
   .btn-save { background: var(--accent-soft); color: #fff; }
   .btn-cancel { background: var(--card-hover); color: var(--text); }
+  /* 数字输入框不要浏览器原生上下小箭头（和自定义控件打架） */
+  input[type="number"] { appearance: textfield; -moz-appearance: textfield; }
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   .btn-del { background: #f6d9e6; color: var(--text); }
   /* 按钮组件统一：不管在不在 .actions 里，都是同一套圆角小按钮（不再有浏览器默认样式）*/
   .btn-mini, .btn-del, .btn-save, .btn-cancel {
@@ -1033,13 +1037,14 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       list.innerHTML = questions.map(function (q) {
         var contact = cmap[q.id];
         var contactHtml = contact ? '<div class="qa-contact">联系方式：' + esc(contact) + '</div>' : '';
-        return '<div class="card" data-id="' + q.id + '">' +
+        return '<div class="card" data-id="' + q.id + '" data-reply="' + escAttr(q.reply || '') + '">' +
           '<div class="qa-q">' + esc(q.content) + '</div>' +
           '<div class="qa-meta">' + fmtTime(q.created_at) + (q.replied_at ? ' · 已回复' : ' · 待回复') + '</div>' +
           contactHtml +
           '<textarea placeholder="写下你的回复…（会公开显示在提问箱）">' + esc(q.reply || '') + '</textarea>' +
           '<div class="actions">' +
           '<button class="btn-del">删除</button>' +
+          '<button class="btn-cancel btn-cancel-reply">取消</button>' +
           '<button class="btn-save">保存回复</button>' +
           '</div></div>';
       }).join('');
@@ -1063,6 +1068,11 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         toast('回复已保存，提问箱里能看到啦');
       }).catch(function () { toast('保存失败，再试一次'); })
         .finally(function () { e.target.disabled = false; });
+    }
+    if (e.target.classList.contains('btn-cancel-reply')) {
+      card.querySelector('textarea').value = card.getAttribute('data-reply') || ''; // 改回原来的回复内容，不动数据库
+      toast('已改回原来的回复');
+      return;
     }
     if (e.target.classList.contains('btn-del')) {
       uiConfirm('确定删除这条留言吗？', function () {
@@ -1867,8 +1877,9 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     document.getElementById('gl-sub-en').value = gc.sub_en || '';
     var secs = SECTIONS.filter(function (s) { return s.key !== 'bjd'; });
     document.getElementById('gl-sec-edit').innerHTML = secs.map(function (s) {
+      var keyTag = /^sec-/.test(s.key) ? '' : '<span style="font-size:15px;color:var(--muted);min-width:64px;">' + esc(s.key) + '</span>'; // 自动生成的乱码 key 不显示
       return '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;align-items:center;">' +
-        '<span style="font-size:15px;color:var(--muted);min-width:64px;">' + esc(s.key) + '</span>' +
+        keyTag +
         '<input class="gs-zh" data-id="' + s.id + '" value="' + escAttr(s.name_zh) + '" placeholder="分类名称（中文）" style="flex:1;min-width:120px;">' +
         '<input class="gs-en" data-id="' + s.id + '" value="' + escAttr(s.name_en || '') + '" placeholder="分类名称（英文）" style="flex:1;min-width:120px;">' +
         '</div>';
@@ -2018,6 +2029,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
             '</div>' +
             '<div class="actions" style="justify-content:flex-start;display:none;">' +
             '<button class="btn-mini btn-save-photo">保存</button>' +
+            '<button class="btn-mini btn-cancel btn-cancel-photo">取消</button>' +
             '<button class="btn-del btn-del-photo">删除</button>' +
             '</div></div></div>';
         }).join('');
@@ -2050,6 +2062,11 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         .then(function (r) { if (!r.ok) throw new Error(); return setPhotoStyle(id, newStyle); })
         .then(function () { toast('已保存'); loadPhotoList(); })
         .catch(function () { toast('保存失败'); });
+    }
+    if (e.target.classList.contains('btn-cancel-photo')) {
+      loadPhotoList(); // 收起编辑框并丢弃未保存的改动
+      toast('已取消，没保存改动');
+      return;
     }
     if (e.target.classList.contains('btn-del-photo')) {
       uiConfirm('确定删除这张照片吗？', function () {
