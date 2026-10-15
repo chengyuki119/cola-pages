@@ -924,7 +924,9 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     });
   }
   // 每 30 分钟主动续期，保持登录态不过期
-  setInterval(function () { if (REFRESH) tryRefresh().catch(function () {}); }, 30 * 60 * 1000);
+  setInterval(function () { if (REFRESH) tryRefresh().catch(function () {}); }, 20 * 60 * 1000); // 挂着不动也自动续期，不会掉登录
+  document.addEventListener('visibilitychange', function () { if (!document.hidden && REFRESH) tryRefresh().catch(function () {}); }); // 切回页面时顺手续期：离开一小时再回来还是登录状态
+  window.addEventListener('focus', function () { if (REFRESH) tryRefresh().catch(function () {}); });
   function enterAdmin() {
     document.getElementById('gate').style.display = 'none';
     document.getElementById('admin-body').style.display = 'block';
@@ -1509,10 +1511,13 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         .catch(function () { toast('保存失败'); });
     }
     if (e.target.classList.contains('btn-del-section')) {
-      uiConfirm('确定删除这个分区吗？分区里的照片不会删，但不会再显示。', function () {
+      uiConfirm('确定删除这个分区吗？分区里的照片不会删，会移到「没有标签」里继续显示。', function () {
         photoGridSave(sec.key, null);
-        api('photo_sections?id=eq.' + id, { method: 'DELETE' })
-          .then(function (r) { if (!r.ok) throw new Error(); toast('已删除'); loadSections(); })
+        // 先把分区里的照片改成「没有标签」，再删分区：一张照片都不会丢
+        api('photos?category=eq.' + encodeURIComponent(sec.key), { method: 'PATCH', body: JSON.stringify({ category: '' }) })
+          .catch(function () {})
+          .then(function () { return api('photo_sections?id=eq.' + id, { method: 'DELETE' }); })
+          .then(function (r) { if (!r.ok) throw new Error(); toast('分区已删除，照片移到了「没有标签」'); loadSections(); if (typeof loadPhotoList === 'function') loadPhotoList(); })
           .catch(function () { toast('删除失败'); });
       });
     }
@@ -2143,7 +2148,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           if (CARDS.some(function (x) { return !x.id; })) saveCardsQuiet(function () {});
         }
         var b = parseSetting('bjds', null);
-        if (b) { BJDS = b.map(normBjd); BJDS_SAVED = JSON.parse(JSON.stringify(BJDS)); }
+        if (b) { BJDS = b.map(normBjd); BJDS_SAVED = JSON.parse(JSON.stringify(BJDS)); migrateBjdEyes(); }
         var bsz = parseSetting('bjd_sizes', null); // 自定义娃娃尺寸 / 种类（像色卡画师一样可增删）
         if (Array.isArray(bsz) && bsz.length) BJD_SIZES = bsz.map(function (s) { return String(s).trim(); }).filter(Boolean);
         var wk = parseSetting('works', null); // 稿件展示（和桓桓宝宝的稿件展示 /works/）
@@ -2391,6 +2396,21 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   var CARDS = [];
   var ART_TPL = {}; // 画师价格模板：独立固定存储，不随色卡保存/删除漂移
   var CARDS_SAVED = []; // 最近一次「正式保存」的快照：画师价格档案只从这里读取，草稿/自动保存不进档
+  // 一次性迁移：「眼珠」部件默认关掉；已经填过眼珠信息的娃娃保持打勾（什么都不删）
+  function migrateBjdEyes() {
+    if (SETTINGS['bjd_eyes_migrated']) return;
+    if (!Array.isArray(BJDS) || !BJDS.length) return;
+    var changed = 0;
+    BJDS.forEach(function (b) {
+      var e = b.eyes || {};
+      var has = !!(String(e.maker || '').trim() || String(e.source || '').trim() || String(e.size || '').trim() || String(e.iris || '').trim() || String(e.note || '').trim());
+      b.parts = b.parts || {};
+      if (b.parts.eyes !== has) { b.parts.eyes = has; changed++; }
+    });
+    SETTINGS['bjd_eyes_migrated'] = '1';
+    saveSetting('bjd_eyes_migrated', '1').catch(function () {});
+    if (changed) saveBjdsQuiet();
+  }
   var BJDS = [];
   var BJDS_SAVED = []; // 最近一次保存的快照：取消编辑时从这里还原
   var BJDS_EDIT = -1;
@@ -2429,7 +2449,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     delete b.size;
     b.parts = b.parts || {};
     b.parts.head = b.parts.head !== false; b.parts.body = b.parts.body !== false;
-    b.parts.eyes = b.parts.eyes !== false; b.parts.clothes = b.parts.clothes === true;
+    b.parts.eyes = b.parts.eyes === true; b.parts.clothes = b.parts.clothes === true; // 眼珠：没主动勾就不显示（迁移脚本会给已有眼珠信息的娃娃打上勾）
     b.homeShow = b.homeShow !== false; // 主页展示
     b.createdAt = b.createdAt || null;
     return b;
@@ -2925,7 +2945,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         '<button class="sc-opt" data-opt="cancel">✕ 取消</button>';
     }
     if (SC_POP.type === 'bjd-size') {
-      return '<button class="sc-opt sc-opt-del" data-opt="del">删除尺寸</button>' +
+      return '<button class="sc-opt" data-opt="rename">重命名</button>' +
+        '<button class="sc-opt sc-opt-del" data-opt="del">删除尺寸</button>' +
         '<button class="sc-opt" data-opt="cancel">✕ 取消</button>';
     }
     if (SC_POP.type === 'row') {
@@ -3319,6 +3340,19 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       return;
     }
     if (ctx.type === 'bjd-size') {
+      if (opt === 'rename') { // 重命名：就地变成 输入框 + 保存/取消
+        var boxS = document.getElementById('bjd-size-chips');
+        var kbS = boxS && boxS.querySelector('.bjd-size-kebab[data-si="' + ctx.i + '"]');
+        var wrapS = kbS ? kbS.parentElement : null;
+        if (wrapS) {
+          wrapS.innerHTML = '<input class="bjd-size-edit" value="' + escAttr(BJD_SIZES[ctx.i]) + '" placeholder="新名字" style="border:none;background:transparent;font-size:16px;width:92px;outline:none;color:var(--text);font-family:inherit;">' +
+            '<button type="button" class="btn-mini bjd-size-save" data-si="' + ctx.i + '" style="padding:2px 8px;font-size:14px;">保存</button>' +
+            '<button type="button" class="btn-mini bjd-size-cancel" data-si="' + ctx.i + '" style="padding:2px 8px;font-size:14px;">取消</button>';
+          var inpS = wrapS.querySelector('.bjd-size-edit');
+          if (inpS) { inpS.focus(); inpS.select(); }
+        }
+        return;
+      }
       if (opt === 'del') {
         var sName = BJD_SIZES[ctx.i];
         uiConfirm('确定删除尺寸「' + sName + '」吗？已用它标注的娃娃不受影响。', function () {
@@ -3426,10 +3460,11 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         if (CARDS_EDIT === ctx.i) CARDS_EDIT = ctx.i + 1; else if (CARDS_EDIT === ctx.i + 1) CARDS_EDIT = ctx.i;
       }
       if (opt === 'del') {
-        uiConfirm('确定删除这张色卡吗？', function () {
+        uiConfirm('确定删除这张色卡吗？点了就真的删掉，找不回来。', function () {
           CARDS.splice(ctx.i, 1);
           if (CARDS_EDIT === ctx.i) CARDS_EDIT = -1; else if (CARDS_EDIT > ctx.i) CARDS_EDIT -= 1;
-          renderCards(); // ⋮ 操作只改内存，点「保存」才正式落库
+          renderCards();
+          saveCardsQuiet(function () { toast('已删除'); }); // ⋮ 里点删除就立刻落库，不用再点工具栏的保存
         });
       }
       if (opt === 'copy') {
@@ -3437,7 +3472,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         cc.id = newCardId(); // 副本拿新 id：主页「编辑卡」按 id 精准跳转，两卡互不影响
         CARDS.splice(ctx.i + 1, 0, cc);
         if (CARDS_EDIT > ctx.i) CARDS_EDIT += 1;
-        toast('已复制为新色卡，可继续修改');
+        saveCardsQuiet(function () { toast('已复制为新色卡，可以直接改'); }); // 同样立刻落库
       }
       if (opt === 'collapse') CARDS_EDIT = -1;
       if (opt === 'edit') { BJDS_EDIT = -1; CARDS_EDIT = ctx.i; EDIT_TYPE = 'card'; renderCards(); return; } // 进入编辑：不动数据、不保存
@@ -3806,10 +3841,42 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     }).join('');
   }
   document.getElementById('bjd-size-chips').addEventListener('click', function (e) {
+    var saveBtn = e.target.closest('.bjd-size-save');
+    if (saveBtn) {
+      var wrap = saveBtn.parentElement;
+      var inp = wrap ? wrap.querySelector('.bjd-size-edit') : null;
+      var si = parseInt(saveBtn.getAttribute('data-si'), 10);
+      var v = inp ? inp.value.trim() : '';
+      if (!v) { toast('名字不能空着'); return; }
+      if (BJD_SIZES.indexOf(v) !== -1 && BJD_SIZES.indexOf(v) !== si) { toast('已经有这个尺寸了'); return; }
+      var oldSizes = BJD_SIZES.slice();
+      var oldName = BJD_SIZES[si];
+      BJD_SIZES[si] = v;
+      var touched = 0;
+      BJDS.forEach(function (b) { if (b.head && b.head.size === oldName) { b.head.size = v; touched++; } }); // 已标注的娃娃跟着改名，不丢数据
+      saveSetting('bjd_sizes', BJD_SIZES.slice()).then(function (r) {
+        if (!r.ok) throw new Error();
+        if (touched) saveBjdsQuiet();
+        toast('已改名');
+        renderBjdSizes();
+        renderBjds();
+      }).catch(function () {
+        BJD_SIZES = oldSizes;
+        toast('保存失败');
+        renderBjdSizes();
+      });
+      return;
+    }
+    if (e.target.closest('.bjd-size-cancel')) { renderBjdSizes(); return; }
     var kb = e.target.closest('.bjd-size-kebab');
     if (!kb) return;
     if (SC_POP && POP_BTN === kb) { popClose(); return; }
     popOpen('bjd-size', parseInt(kb.getAttribute('data-si'), 10), -1, -1, kb);
+  });
+  document.getElementById('bjd-size-chips').addEventListener('keydown', function (e) {
+    if (!e.target.classList.contains('bjd-size-edit')) return;
+    if (e.key === 'Enter') { var sb = document.querySelector('#bjd-size-chips .bjd-size-save'); if (sb) sb.click(); }
+    if (e.key === 'Escape') renderBjdSizes();
   });
   document.getElementById('btn-bjd-size-add').addEventListener('click', function () {
     var inp = document.getElementById('bjd-size-new');

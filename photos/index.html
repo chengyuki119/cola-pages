@@ -252,7 +252,7 @@
   ]).then(function (res) {
     var sections = res[0] || [];
     var rows = res[1] || [];
-    if (!sections.length) return;
+    if (!sections.length && !rows.length) return; // 分区表与照片表都空：保持静态占位兜底（分区表空但有照片时，下面会归入「没有标签」显示）
     var groups = {};
     rows.forEach(function (p) {
       (groups[p.category] = groups[p.category] || []).push(p);
@@ -261,9 +261,10 @@
       var list = groups[sec.key] || [];
       if (sec.key === 'bjd' || sec.key === 'bjdselfie') return; // BJD 系列有独立页面，不进照片展示页
       var box = document.querySelector('#sec-' + sec.key + ' .album');
+      var secEl = box ? box.closest('section') : null; // 已存在的分区：直接定位到它的 section
       if (!box) {
         // 新增分区：动态建区块
-        var secEl = document.createElement('section');
+        secEl = document.createElement('section');
         secEl.id = 'sec-' + sec.key;
         secEl.setAttribute('data-sec', sec.key);
         secEl.innerHTML = '<h2 data-zh="' + escAttrDb(sec.name_zh) + '" data-en="' + escAttrDb(sec.name_en) + '">' + escDb(sec.name_zh) + '</h2><div class="album"></div>';
@@ -278,6 +279,31 @@
     window.PHOTO_SECTIONS = sections.filter(function (sec) {
       return sec.key !== 'bjd' && sec.key !== 'bjdselfie' && ((groups[sec.key] || []).length || document.getElementById('sec-' + sec.key));
     }).sort(function (a, b) { return (a.sort || 0) - (b.sort || 0); });
+    // 兜底分组：category 为空字符串、或指向已删除分区的照片，统一归到「没有标签」，排在列表最后；只在有照片时显示
+    var knownKeys = {};
+    sections.forEach(function (sec) { knownKeys[sec.key] = true; });
+    var orphans = rows.filter(function (p) {
+      var c = p.category || '';
+      return c === '' || !knownKeys[c];
+    });
+    if (orphans.length) {
+      var U_KEY = '__untagged__';
+      var uSec = document.getElementById('sec-' + U_KEY);
+      if (!uSec) {
+        uSec = document.createElement('section');
+        uSec.id = 'sec-' + U_KEY;
+        uSec.setAttribute('data-sec', U_KEY);
+        uSec.innerHTML = '<h2 data-zh="没有标签" data-en="Untagged / No section"></h2><div class="album"></div>';
+        var uFooter = document.querySelector('footer');
+        if (uFooter) uFooter.parentNode.insertBefore(uSec, uFooter);
+        else document.querySelector('.page-body').appendChild(uSec);
+      }
+      var uH2 = uSec.querySelector('h2');
+      if (uH2) uH2.textContent = t('没有标签', 'Untagged / No section');
+      applyGrid(uSec, U_KEY);
+      fillAlbum(uSec.querySelector('.album'), orphans);
+      window.PHOTO_SECTIONS.push({ key: U_KEY, name_zh: '没有标签', name_en: 'Untagged / No section', sort: 999999 });
+    }
     applyGrids(); // 新建分区也套上列数
     // 照片展示文案（后台同步）：页面标题 + 说明小字
     dbFetch('site_settings?select=key,value&key=eq.gallery_copy&limit=1').then(function (rr) {
