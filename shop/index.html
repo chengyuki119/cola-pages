@@ -618,7 +618,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
         return;
       }
       list.innerHTML = rows.map(function (rv) {
-        var img = rv.image_url ? '<img src="' + esc(imgUrl(rv.image_url)) + '" style="width:100%;border-radius:12px;margin-top:10px;">' : '';
+        var img = rv.image_url ? '<img src="' + esc(imgUrl(rv.image_url)) + '" style="width:120px;height:120px;object-fit:cover;border-radius:12px;margin-top:10px;display:block;">' : '';
         var stars = '<span style="color:var(--accent);letter-spacing:2px;">' + starText(rv.rating || 5) + '</span> <span style="font-size:15px;">' + (rv.rating || 5) + '/5</span>';
         return '<div style="background:#fff;border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;box-shadow:0 2px 10px rgba(180,120,150,.10);">' +
           '<div style="font-size:16px;color:var(--muted);">' + esc(rv.name || t('小可爱','a lovely buyer')) + ' · ' + fmtDate(rv.created_at) + '</div>' +
