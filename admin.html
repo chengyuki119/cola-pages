@@ -386,6 +386,10 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .st-on { background: #9ecfae; }
   .st-display { background: #b3ace0; }
   .st-out { background: #c4bcb6; }
+  .st-off { background: #e6a9c3; }
+  /* 商品列表标签筛选 chips */
+  .pf-chip { border: 1px solid #f6d9e6; }
+  .pf-chip.on { background: var(--accent-soft); border-color: var(--accent); color: #fff; }
   .private-line { font-size:15px; color: var(--muted); margin-top: 4px; }
 
     .btn-save-tb { margin-left: auto; background: var(--accent-soft) !important; color: #fff !important; }
@@ -567,7 +571,11 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           <button class="btn-save" id="btn-add-product">上架这个商品</button>
         </div>
       </div>
-      <h3 class="outside">已上架的商品</h3>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:18px 0 12px;">
+        <h3 style="margin:0;">已上架的商品</h3>
+        <span style="flex:1;"></span>
+        <span id="p-filter-chips" style="display:flex;gap:6px;flex-wrap:wrap;"></span>
+      </div>
       <div id="product-list"><p class="empty">加载中…</p></div>
     </div>
 
@@ -575,7 +583,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     <div id="tab-reviews" style="display:none;">
       <div class="card">
         <h3>评价返图</h3>
-        <p style="font-size:15px;color:var(--muted);margin:0 0 14px;">小可爱们在<a href="/shop/?sec=reviews" target="_blank" style="color:var(--accent);">小铺页面</a>提交的评价都收在这里 · 点卡片右上角 ⋮ 可以删掉不想留的那条</p>
+        <p style="font-size:15px;color:var(--muted);margin:0 0 14px;">小可爱们在<a href="/shop/?sec=reviews" target="_blank" style="color:var(--accent);">小铺页面</a>提交的评价都收在这里 · 不想留的那条点卡片里的「删除」</p>
         <div id="review-admin-list"><p class="empty">加载中…</p></div>
       </div>
     </div>
@@ -1063,6 +1071,34 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   });
 
   // ===== 小铺管理 =====
+  var P_TAG_FILTER = ''; // 商品列表筛选：'' 全部 / 具体标签 / '__off' 已下架
+  // 下架 = 从店内隐藏（存 site_settings.shop_hidden，可随时上架回来）；删除 = 真的从数据库删掉
+  function shopHiddenList() {
+    try { var v = JSON.parse(SETTINGS['shop_hidden'] || '[]'); return Array.isArray(v) ? v.map(String) : []; } catch (e) { return []; }
+  }
+  function isShopHidden(id) { return shopHiddenList().indexOf(String(id)) !== -1; }
+  function setShopHidden(id, hidden) {
+    var list = shopHiddenList();
+    var i = list.indexOf(String(id));
+    if (hidden && i === -1) list.push(String(id));
+    if (!hidden && i !== -1) list.splice(i, 1);
+    SETTINGS['shop_hidden'] = JSON.stringify(list);
+    return saveSetting('shop_hidden', list).then(function (r) { if (!r.ok) throw new Error(); });
+  }
+  function renderProductFilter() {
+    var box = document.getElementById('p-filter-chips');
+    if (!box) return;
+    var chips = [['', '全部']].concat(tagOptions().map(function (t) { return [t, t]; })).concat([['__off', '已下架']]);
+    box.innerHTML = chips.map(function (c) {
+      return '<button type="button" class="btn-mini pf-chip' + (P_TAG_FILTER === c[0] ? ' on' : '') + '" data-tag="' + escAttr(c[0]) + '">' + esc(c[1]) + '</button>';
+    }).join('');
+  }
+  document.getElementById('p-filter-chips').addEventListener('click', function (e) {
+    var b = e.target.closest('.pf-chip');
+    if (!b) return;
+    P_TAG_FILTER = b.getAttribute('data-tag') || '';
+    loadProducts();
+  });
   var pendingFiles = [];
   document.getElementById('p-file').addEventListener('change', function () {
     pendingFiles = Array.prototype.slice.call(this.files || []);
@@ -1134,22 +1170,30 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
 
   function loadProducts() {
     var tryLoad = function (withImages) {
-      return api('products?select=id,name,price,description,image_url' + (withImages ? ',images' : '') + ',sold,stock,cost,display_only,created_at&order=created_at.desc&limit=200')
+      return api('products?select=id,name,price,description,tag,image_url' + (withImages ? ',images' : '') + ',sold,stock,cost,display_only,created_at&order=created_at.desc&limit=200')
         .then(function (r) { return r.json(); })
         .then(function (rows) { if (!Array.isArray(rows)) throw new Error(); return rows; });
     };
     tryLoad(true).catch(function () { return tryLoad(false); })
       .then(function (rows) {
         var list = document.getElementById('product-list');
-        if (!rows || !rows.length) { list.innerHTML = '<p class="empty">还没有商品，先上架一件吧</p>'; return; }
         PRODUCT_CACHE = {};
-        rows.forEach(function (p) { PRODUCT_CACHE[p.id] = p; });
+        (rows || []).forEach(function (p) { PRODUCT_CACHE[p.id] = p; });
         refreshTagList(); // 已有商品的标签全部进选项
-        list.innerHTML = rows.map(function (p) {
+        renderProductFilter(); // 标签筛选 chips（数据变了重建）
+        if (!rows || !rows.length) { list.innerHTML = '<p class="empty">还没有商品，先上架一件吧</p>'; return; }
+        var shown = rows.filter(function (p) {
+          if (P_TAG_FILTER === '__off') return isShopHidden(p.id);
+          if (P_TAG_FILTER) return (p.tag || '').trim() === P_TAG_FILTER;
+          return true; // 「全部」里也显示已下架的（带「已下架」标签），方便随时上架回去
+        });
+        if (!shown.length) { list.innerHTML = '<p class="empty">这个标签下还没有商品</p>'; return; }
+        list.innerHTML = shown.map(function (p) {
           var thumb = p.image_url
             ? '<img src="' + esc(p.image_url) + '">'
             : '';
-          var st = p.display_only ? ['仅展示', 'st-display'] : (p.sold || !(p.stock > 0)) ? ['售尽', 'st-out'] : ['在售', 'st-on'];
+          var off = isShopHidden(p.id);
+          var st = off ? ['已下架', 'st-off'] : p.display_only ? ['仅展示', 'st-display'] : (p.sold || !(p.stock > 0)) ? ['售尽', 'st-out'] : ['在售', 'st-on'];
           var stockInfo = '库存 ' + (p.stock == null ? '-' : p.stock);
           var costInfo = p.cost == null ? '未填成本' : '成本 ¥' + p.cost;
           return '<div class="card shop-item" data-id="' + p.id + '" data-stock="' + (p.stock == null ? 0 : p.stock) + '">' +
@@ -1162,7 +1206,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
             '<button class="btn-mini btn-display">' + (p.display_only ? '恢复在售' : '设为仅展示') + '</button>' +
             '<button class="btn-mini btn-minus">库存 -1</button>' +
             '<button class="btn-mini btn-plus">库存 +1</button>' +
-            '<button class="btn-del">下架删除</button>' +
+            '<button class="btn-mini btn-off">' + (off ? '重新上架' : '下架') + '</button>' +
+            '<button class="btn-del btn-del-product">删除</button>' +
             '</div></div>' +
             '<button class="kebab" title="编辑商品">⋮</button>' +
             '</div>';
@@ -1276,10 +1321,16 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         }).catch(function () { toast('图片上传失败'); e.target.disabled = false; e.target.textContent = '保存修改'; });
       } else { finish(); }
     }
+    if (e.target.classList.contains('btn-off')) { // 下架 / 重新上架：改的是店内显隐，不删数据
+      var willHide = !isShopHidden(id);
+      setShopHidden(id, willHide)
+        .then(function () { toast(willHide ? '已下架（店里看不到了，随时能上架回来）' : '已重新上架'); loadProducts(); })
+        .catch(function () { toast('操作失败，重试一下'); });
+    }
     if (e.target.classList.contains('btn-del')) {
-      uiConfirm('确定下架删除这个商品吗？', function () {
+      uiConfirm('确定删除这个商品吗？删了就找不回来了。想从店里拿掉的话，用「下架」就好。', function () {
         api('products?id=eq.' + id, { method: 'DELETE' })
-          .then(function (r) { if (!r.ok) throw new Error(); toast('已下架'); loadProducts(); })
+          .then(function (r) { if (!r.ok) throw new Error(); toast('已删除'); loadProducts(); })
           .catch(function () { toast('删除失败'); });
       });
     }
@@ -1308,15 +1359,15 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           '<div class="sc-shop" style="color:var(--accent);letter-spacing:2px;">' + starsStr(rv.rating) + '</div>' +
           '<div class="rv-text">' + esc(rv.content || '') + '</div>' +
           '<div class="sc-meta">' + fmtTime(rv.created_at) + '</div>' +
+          '<div class="actions" style="justify-content:flex-start;margin-top:8px;"><button class="btn-del rv-del">删除</button></div>' +
           '</div>' +
-          '<button class="kebab" title="菜单">⋮</button>' +
           '</div>';
       }).join('');
     }).catch(function () { box.innerHTML = '<p class="empty">加载失败，刷新重试</p>'; });
   }
   document.getElementById('review-admin-list').addEventListener('click', function (e) {
     var card = e.target.closest('.rv-item');
-    if (!card || !e.target.classList.contains('kebab')) return;
+    if (!card || !e.target.classList.contains('rv-del')) return;
     var id = card.getAttribute('data-id');
     var rv = REVIEW_CACHE[id] || {};
     uiConfirm('删掉「' + (rv.name || '小可爱') + '」的这条评价吗？删了找不回来。', function () {

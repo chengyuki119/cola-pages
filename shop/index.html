@@ -147,6 +147,16 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .star:hover { color: var(--accent); }
   .star.on { color: var(--accent); }
 
+  /* 评价卡：登录了后台才会出现的 ⋮ 管理菜单（删除） */
+  .rv-kebab { position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; border: none; border-radius: 10px; background: var(--card); color: var(--muted); font-size: 19px; line-height: 1; cursor: pointer; font-family: inherit; }
+  .rv-kebab:hover { background: var(--card-hover); color: var(--text); }
+  #rv-menu { position: absolute; z-index: 300; display: none; background: #fff; border-radius: 14px; box-shadow: 0 10px 30px rgba(140,100,120,.22); padding: 6px; min-width: 156px; }
+  #rv-menu.open { display: block; }
+  #rv-menu button { display: block; width: 100%; text-align: left; border: none; background: none; border-radius: 9px; padding: 9px 12px; font-size: 16px; font-family: inherit; color: var(--text); cursor: pointer; }
+  #rv-menu button:hover { background: var(--card); }
+  #rv-menu .rv-menu-del { background: #f6d9e6; }
+  #rv-menu .rv-menu-del:hover { background: #f3c9dd; }
+
   .toast {
     position: fixed;
     bottom: 32px; left: 50%;
@@ -176,6 +186,14 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     text-align: center;
   }
   .pay-card p { font-size:17px; margin-top: 10px; }
+  /* 收款方式：一个按钮 → 点开弹出收款码图 */
+  .pay-cta { background: var(--card); border-radius: var(--radius); padding: 18px 16px; text-align: center; }
+  .pay-cta p { font-size:17px; color: var(--muted); margin-bottom: 14px; }
+  .pay-modal { position: fixed; inset: 0; background: rgba(90,66,76,.45); display: none; align-items: center; justify-content: center; z-index: 600; padding: 18px; }
+  .pay-modal.open { display: flex; }
+  .pay-modal img { max-width: min(92vw, 430px); max-height: 86vh; border-radius: 14px; display: block; box-shadow: 0 12px 40px rgba(120,80,100,.3); }
+  .pay-close { position: absolute; top: 16px; right: 16px; width: 38px; height: 38px; border: none; border-radius: 50%; background: #fff; color: var(--text); font-size: 22px; line-height: 1; cursor: pointer; font-family: inherit; }
+  .pay-close:hover { background: var(--card-hover); }
   .pay-img {
     aspect-ratio: 1;
     background: #ffffff;
@@ -297,21 +315,21 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
       </div>
     </div>
     <div id="review-list"><p style="text-align:center;color:var(--muted);font-size:17px;">加载中…</p></div>
+    <div id="rv-menu" role="menu"><button type="button" class="rv-menu-del" id="rv-menu-del" data-zh="删除这条评价" data-en="Delete this review">删除这条评价</button></div>
   </section>
 
   <section id="pay" style="margin-top:44px;">
     <h2 style="font-size:21px;margin-bottom:18px;display:flex;align-items:center;gap:8px;"><span style="width:4px;height:18px;background:var(--accent);border-radius:2px;display:inline-block;"></span><span data-zh="付款方式" data-en="Payment">付款方式</span></h2>
-    <div class="pay-grid">
-      <div class="pay-card">
-        <div class="pay-img" data-img="pay-wechat.jpg"><span>微信收款码<br>图片命名 pay-wechat.jpg</span></div>
-        <p>微信支付</p>
-      </div>
-      <div class="pay-card">
-        <div class="pay-img" data-img="pay-alipay.jpg"><span>支付宝收款码<br>图片命名 pay-alipay.jpg</span></div>
-        <p>支付宝</p>
-      </div>
+    <div class="pay-cta">
+      <p data-zh="支持微信 / 支付宝，点下面看收款方式～" data-en="WeChat / Alipay — tap below to see the payment codes~">支持微信 / 支付宝，点下面看收款方式～</p>
+      <button class="buy-btn" id="pay-open" style="padding:10px 26px;"><span data-zh="查看收款方式" data-en="View payment methods">查看收款方式</span></button>
     </div>
   </section>
+
+  <div class="pay-modal" id="pay-modal">
+    <button class="pay-close" id="pay-close" aria-label="关闭">×</button>
+    <img src="/img/pay-methods.jpg" alt="微信 / 支付宝收款码">
+  </div>
 
   <footer>© 2026 Yuki · 小柚的小铺 · Made with Cola</footer>
 </div>
@@ -436,6 +454,27 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
   }
 
   var PRODUCTS = [];
+  var SHOP_HIDDEN = []; // 后台「下架」的商品 id：店里不显示
+  var SHOP_ADMIN = false; // 登录过后台：评价卡上出现 ⋮ 管理菜单
+  try { SHOP_ADMIN = !!localStorage.getItem('yuki-admin-session'); } catch (e) {}
+  function loadShopHidden() {
+    return fetch(SUPABASE_URL + '/rest/v1/site_settings?select=value&key=eq.shop_hidden', {
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }
+    }).then(function (r) { return r.ok ? r.json() : []; }).then(function (rows) {
+      var v = [];
+      try { v = JSON.parse((rows && rows[0] && rows[0].value) || '[]'); } catch (e) {}
+      SHOP_HIDDEN = Array.isArray(v) ? v.map(String) : [];
+    }).catch(function () { SHOP_HIDDEN = []; });
+  }
+  function adminToken() { // 用后台登录态换 access token，让前台的删除走 authenticated
+    var s = null;
+    try { s = JSON.parse(localStorage.getItem('yuki-admin-session') || 'null'); } catch (e) {}
+    if (!s || !s.r) return Promise.resolve(null);
+    return fetch(SUPABASE_URL + '/auth/v1/token?grant_type=refresh_token', {
+      method: 'POST', headers: { 'apikey': SUPABASE_ANON_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: s.r })
+    }).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) { return d && d.access_token ? d.access_token : null; }).catch(function () { return null; });
+  }
   function statusOf(p) {
     if (p.display_only) return 'display';
     if (p.sold || !(p.stock > 0)) return 'out';
@@ -539,8 +578,8 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
       }).then(function (r) { return r.json(); });
     });
   }
-  fetchProducts().then(function (rows) {
-    PRODUCTS = rows || [];
+  loadShopHidden().then(fetchProducts).then(function (rows) {
+    PRODUCTS = (rows || []).filter(function (p) { return SHOP_HIDDEN.indexOf(String(p.id)) === -1; }); // 后台「下架」的不上店
     renderProducts();
   }).catch(function () {
     document.getElementById('product-grid').innerHTML =
@@ -567,6 +606,18 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     probe.src = src;
   });
 
+  // 收款方式：按钮 → 弹出收款码图片（点 × / 点背景 / Esc 关闭）
+  (function () {
+    var modal = document.getElementById('pay-modal');
+    var openBtn = document.getElementById('pay-open');
+    if (!modal || !openBtn) return;
+    function close() { modal.classList.remove('open'); }
+    openBtn.addEventListener('click', function () { modal.classList.add('open'); });
+    document.getElementById('pay-close').addEventListener('click', close);
+    modal.addEventListener('click', function (e) { if (e.target === modal) close(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+  })();
+
   // 收款码：图片存在就自动显示
   document.querySelectorAll('.pay-img[data-img]').forEach(function (el) {
     var src = el.getAttribute('data-img');
@@ -586,7 +637,9 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
   function starText(n) { return '★★★★★'.slice(0, n) + '☆☆☆☆☆'.slice(0, 5 - n); }
   function paintStars() {
     document.querySelectorAll('#r-stars .star').forEach(function (s) {
-      s.classList.toggle('on', parseInt(s.getAttribute('data-v'), 10) <= RATING);
+      var on = parseInt(s.getAttribute('data-v'), 10) <= RATING;
+      s.classList.toggle('on', on);
+      s.textContent = on ? '★' : '☆'; // 选中的实心，没选的空心
     });
     document.getElementById('r-star-text').textContent = RATING > 0 ? RATING + '/5' : '';
   }
@@ -619,16 +672,52 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
       list.innerHTML = rows.map(function (rv) {
         var img = rv.image_url ? '<img src="' + esc(imgUrl(rv.image_url)) + '" style="width:120px;height:120px;object-fit:cover;border-radius:12px;margin-top:10px;display:block;">' : '';
         var stars = '<span style="color:var(--accent);letter-spacing:2px;">' + starText(rv.rating || 5) + '</span> <span style="font-size:15px;">' + (rv.rating || 5) + '/5</span>';
-        return '<div style="background:#fff;border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;box-shadow:0 2px 10px rgba(180,120,150,.10);">' +
-          '<div style="font-size:16px;color:var(--muted);">' + esc(rv.name || t('小可爱','a lovely buyer')) + ' · ' + fmtDate(rv.created_at) + '</div>' +
+        var kebab = SHOP_ADMIN ? '<button class="rv-kebab" data-id="' + esc(rv.id) + '" aria-label="管理">⋮</button>' : '';
+        return '<div class="rv-card" data-rv="' + esc(rv.id) + '" style="background:#fff;border-radius:var(--radius);padding:14px 16px;' + (SHOP_ADMIN ? 'padding-right:52px;' : '') + 'margin-bottom:12px;box-shadow:0 2px 10px rgba(180,120,150,.10);position:relative;">' +
+          '<div style="font-size:16px;color:var(--muted);">' + esc(rv.name || t('小可爱','A lovely buyer')) + ' · ' + fmtDate(rv.created_at) + '</div>' +
           '<div style="margin-top:4px;">' + stars + '</div>' +
           '<div style="font-size:17px;margin-top:4px;white-space:pre-wrap;word-break:break-word;">' + esc(rv.content) + '</div>' +
-          img + '</div>';
+          img + kebab + '</div>';
       }).join('');
     }).catch(function () {
       document.getElementById('review-list').innerHTML = '<p style="text-align:center;color:var(--muted);font-size:17px;">' + t('评价加载失败，请刷新重试','Failed to load reviews, please refresh') + '</p>';
     });
   }
+  document.getElementById('rv-menu-del').addEventListener('click', function () {
+    var id = RV_MENU_ID;
+    rvMenuClose();
+    if (!id) return;
+    adminToken().then(function (tk) {
+      if (!tk) { toast(t('请先在后台登录再删', 'Please log in first')); return; }
+      return fetch(SUPABASE_URL + '/rest/v1/reviews?id=eq.' + id, {
+        method: 'DELETE',
+        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + tk, 'Prefer': 'return=representation' }
+      }).then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('del')); }).then(function (back) {
+        if (!Array.isArray(back) || !back.length) { toast(t('没删掉：删除权限还没开，先去 Supabase 跑那段 SQL', 'Not deleted: run the SQL in Supabase first')); return; }
+        toast(t('已删除', 'Deleted'));
+        loadReviews();
+      });
+    }).catch(function () { toast(t('删除失败，稍后再试', 'Delete failed, try again later')); });
+  });
+  var RV_MENU_ID = null;
+  function rvMenuClose() { document.getElementById('rv-menu').classList.remove('open'); }
+  document.getElementById('review-list').addEventListener('click', function (e) {
+    var kb = e.target.closest('.rv-kebab');
+    if (!kb) return;
+    e.stopPropagation();
+    RV_MENU_ID = kb.getAttribute('data-id');
+    rvMenuClose();
+    var m = document.getElementById('rv-menu');
+    var r = kb.getBoundingClientRect();
+    m.classList.add('open');
+    var top = window.scrollY + r.bottom + 6;
+    var left = window.scrollX + Math.max(8, Math.min(r.right - m.offsetWidth, window.innerWidth - m.offsetWidth - 8));
+    m.style.top = Math.round(top) + 'px';
+    m.style.left = Math.round(left) + 'px';
+  });
+  document.addEventListener('click', function (e) {
+    if (e.target.closest && (!e.target.closest('#rv-menu') && !e.target.closest('.rv-kebab'))) rvMenuClose();
+  });
   document.getElementById('r-submit').addEventListener('click', function () {
     var btn = this;
     var name = document.getElementById('r-name').value.trim();
