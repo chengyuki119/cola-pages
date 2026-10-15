@@ -2944,6 +2944,11 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       return '<button class="sc-opt sc-opt-del" data-opt="del">删除照片</button>' +
         '<button class="sc-opt" data-opt="cancel">✕ 取消</button>';
     }
+    if (SC_POP.type === 'work-meta-cats' || SC_POP.type === 'work-meta-artists') {
+      return '<button class="sc-opt" data-opt="rename">重命名</button>' +
+        '<button class="sc-opt sc-opt-del" data-opt="del">删除</button>' +
+        '<button class="sc-opt" data-opt="cancel">✕ 取消</button>';
+    }
     if (SC_POP.type === 'bjd-size') {
       return '<button class="sc-opt" data-opt="rename">重命名</button>' +
         '<button class="sc-opt sc-opt-del" data-opt="del">删除尺寸</button>' +
@@ -3339,6 +3344,44 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       }
       return;
     }
+    if (ctx.type === 'work-meta-cats' || ctx.type === 'work-meta-artists') {
+      var wmArrName = ctx.type === 'work-meta-cats' ? 'cats' : 'artists';
+      var wmLabel = wmArrName === 'cats' ? '种类' : '画师';
+      var wmArr = WORK_META[wmArrName] || [];
+      var wmBoxId = wmArrName === 'cats' ? 'work-cat-chips' : 'work-artist-chips';
+      var wmCls = wmArrName === 'cats' ? 'work-cat-kebab' : 'work-artist-kebab';
+      var wmVi = ctx.i;
+      if (wmArr[wmVi] == null) return;
+      if (opt === 'rename') { // 就地改成输入框 + 保存/取消
+        var boxW = document.getElementById(wmBoxId);
+        var kbW = boxW && boxW.querySelector('.' + wmCls + '[data-vi="' + wmVi + '"]');
+        var wrapW = kbW ? kbW.parentElement : null;
+        if (wrapW) {
+          wrapW.innerHTML = '<input class="wm-edit" data-box="' + wmBoxId + '" data-vi="' + wmVi + '" value="' + escAttr(wmArr[wmVi]) + '" style="border:none;background:transparent;font-size:16px;width:92px;outline:none;color:var(--text);font-family:inherit;">' +
+            '<button type="button" class="btn-mini wm-save" data-box="' + wmBoxId + '" data-vi="' + wmVi + '" style="padding:2px 8px;font-size:14px;">保存</button>' +
+            '<button type="button" class="btn-mini wm-cancel" data-box="' + wmBoxId + '" style="padding:2px 8px;font-size:14px;">取消</button>';
+          var inpW = wrapW.querySelector('.wm-edit');
+          if (inpW) { inpW.focus(); inpW.select(); }
+        }
+        return;
+      }
+      if (opt === 'del') {
+        uiConfirm('确定删除' + wmLabel + '「' + wmArr[wmVi] + '」吗？已有稿件里填的值不会被改动。', function () {
+          var oldW = wmArr[wmVi];
+          wmArr.splice(wmVi, 1);
+          saveSetting('work_meta', JSON.parse(JSON.stringify(WORK_META))).then(function (r) {
+            if (!r.ok) throw new Error();
+            renderWorkMeta();
+            toast('已删除');
+          }).catch(function () {
+            wmArr.splice(wmVi, 0, oldW);
+            renderWorkMeta();
+            toast('保存失败');
+          });
+        });
+      }
+      return;
+    }
     if (ctx.type === 'bjd-size') {
       if (opt === 'rename') { // 重命名：就地变成 输入框 + 保存/取消
         var boxS = document.getElementById('bjd-size-chips');
@@ -3542,7 +3585,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       if (b && !b.disabled) popAct(b.getAttribute('data-opt'));
       return;
     }
-    if (e.target.closest('.sc-kebab, .sc-artist-menu, .sc-row-menu, .bjd-kebab, .bjd-ph-menu, .ph-kebab, .area-kebab, .c-photo-kebab, .b-photo-kebab, .bjd-size-kebab, .work-kebab, .w-photo-kebab')) return; // ⋮ 由列表处理器切换
+    if (e.target.closest('.sc-kebab, .sc-artist-menu, .sc-row-menu, .bjd-kebab, .bjd-ph-menu, .ph-kebab, .area-kebab, .c-photo-kebab, .b-photo-kebab, .bjd-size-kebab, .work-kebab, .w-photo-kebab, .work-cat-kebab, .work-artist-kebab')) return; // ⋮ 由列表处理器切换
     popClose();
   });
 
@@ -3922,25 +3965,42 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   function bindWorkMeta(boxId, cls, arrName, label) {
     var box = document.getElementById(boxId);
     if (!box) return;
-    box.addEventListener('click', function (e) {
+    box.addEventListener('click', function (e) { // ⋮ → 重命名 / 删除
       var kb = e.target.closest('.' + cls);
       if (!kb) return;
-      var vi = parseInt(kb.getAttribute('data-vi'), 10);
-      var arr = WORK_META[arrName];
-      if (!arr || !arr[vi]) return;
-      uiConfirm('确定删除' + label + '「' + arr[vi] + '」吗？已有稿件里填的值不会被改动。', function () {
-        var old = arr[vi];
-        arr.splice(vi, 1);
+      if (SC_POP && POP_BTN === kb) { popClose(); return; }
+      popOpen(arrName === 'cats' ? 'work-meta-cats' : 'work-meta-artists', parseInt(kb.getAttribute('data-vi'), 10), -1, -1, kb);
+    });
+    box.addEventListener('click', function (e) { // 重命名里的保存/取消
+      var sv = e.target.closest('.wm-save');
+      if (sv) {
+        var wrap = sv.parentElement;
+        var inp = wrap ? wrap.querySelector('.wm-edit') : null;
+        var vi = parseInt(sv.getAttribute('data-vi'), 10);
+        var v = inp ? inp.value.trim() : '';
+        var arr = WORK_META[arrName];
+        if (!arr || arr[vi] == null) return;
+        if (!v) { toast('名字不能空着'); return; }
+        if (arr.indexOf(v) !== -1 && arr.indexOf(v) !== vi) { toast('已经有这个' + label + '了'); return; }
+        var oldName = arr[vi];
+        arr[vi] = v;
         saveSetting('work_meta', JSON.parse(JSON.stringify(WORK_META))).then(function (r) {
           if (!r.ok) throw new Error();
+          toast('已改名');
           renderWorkMeta();
-          toast('已删除');
         }).catch(function () {
-          arr.splice(vi, 0, old); // 保存失败回滚
+          arr[vi] = oldName;
           renderWorkMeta();
           toast('保存失败');
         });
-      });
+        return;
+      }
+      if (e.target.closest('.wm-cancel')) { renderWorkMeta(); return; }
+    });
+    box.addEventListener('keydown', function (e) {
+      if (!e.target.classList.contains('wm-edit')) return;
+      if (e.key === 'Enter') { var sb = document.querySelector('#' + boxId + ' .wm-save'); if (sb) sb.click(); }
+      if (e.key === 'Escape') renderWorkMeta();
     });
   }
   function bindWorkMetaAdd(inpId, btnId, arrName, label, renderFn) {
