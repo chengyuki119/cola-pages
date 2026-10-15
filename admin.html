@@ -1537,6 +1537,11 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     });
     document.addEventListener('click', function () { list.style.display = 'none'; }); // inp/list 自身的点击已 stopPropagation
   }
+  function dayTypeLabel(ty) { return DAY_TYPE_NAMES[ty] || ty || ''; } // 中文后台显示友好名，存的仍旧是 birthday/anniversary/event
+  function dayTypeValue(label) { // 输入框里的友好名 → 存回规范值，自定义分类原样保留
+    var s = String(label || '').trim();
+    return ({ '生日': 'birthday', '纪念日': 'anniversary', '重要日': 'event' }[s]) || s;
+  }
   // 自动事件：从 BJD/色卡日期派生（与前台日历 genAutoEvents 同一链路：出生→买入→弄好；色卡 bought）
   // 「前台展示」开关：统一存 site_settings.cal_hide，键 d:<id> 手动重要日子 / b:<i> BJD / c:<i> 色卡
   function calHideList() {
@@ -1592,7 +1597,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           '</div>' +
           '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px;font-size:15px;">' +
           '<span style="color:var(--muted);">分类</span>' +
-          '<input class="de-cat" value="' + escAttr(d.type || '') + '" placeholder="输入分类" autocomplete="off" style="width:170px;">' +
+          '<input class="de-cat" value="' + escAttr(dayTypeLabel(d.type)) + '" placeholder="输入分类" autocomplete="off" style="width:170px;">' +
           '<div class="dy-cat-list"></div>' +
           '<span style="color:var(--muted);margin-left:8px;">重复</span>' +
           [['none','不重复'],['daily','每天重复'],['weekly','每周重复'],['monthly','每月重复'],['yearly','每年重复']].map(function (o) {
@@ -1605,7 +1610,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       return '<div class="card day-item" data-id="' + d.id + '" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 14px;margin-bottom:10px;">' +
         '<div style="flex:1;min-width:150px;">' +
         '<b style="font-size:17px;">' + esc(d.name) + '</b>' +
-        '<div style="font-size:15px;color:var(--muted);margin-top:2px;">' + toDispDayAdmin(d.day) + ' · ' + (d.type || '重要日') + (d.repeat && d.repeat !== 'none' ? ' · ' + ({ daily: '每天重复', weekly: '每周重复', monthly: '每月重复', yearly: '每年重复' }[d.repeat] || d.repeat) : ' · 不重复') + '</div>' +
+        '<div style="font-size:15px;color:var(--muted);margin-top:2px;">' + toDispDayAdmin(d.day) + ' · ' + (dayTypeLabel(d.type) || '重要日') + (d.repeat && d.repeat !== 'none' ? ' · ' + ({ daily: '每天重复', weekly: '每周重复', monthly: '每月重复', yearly: '每年重复' }[d.repeat] || d.repeat) : ' · 不重复') + '</div>' +
         '</div>' +
         '<span class="tgl-label">' + calTgl('d:' + d.id) + '前台展示</span>' +
         '<button class="btn-mini dy-edit">编辑</button>' +
@@ -1619,14 +1624,14 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     return {
       name: document.getElementById('dy-name').value.trim(),
       day: toInternalDayAdmin(document.getElementById('dy-day').value),
-      type: document.getElementById('dy-cat').value.trim() || '重要日',
+      type: dayTypeValue(document.getElementById('dy-cat').value) || '重要日',
       repeat: (document.querySelector('input[name="dy-repeat"]:checked') || {}).value || 'none'
     };
   }
   function setDayForm(d) {
     document.getElementById('dy-name').value = d ? d.name : '';
     document.getElementById('dy-day').value = d ? toDispDayAdmin(d.day) : '';
-    document.getElementById('dy-cat').value = d ? (d.type || '') : '';
+    document.getElementById('dy-cat').value = d ? dayTypeLabel(d.type) : '';
     document.querySelector('input[name="dy-repeat"][value="' + (d ? (d.repeat || 'none') : 'none') + '"]').checked = true;
     syncDayChips();
   }
@@ -1697,7 +1702,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       var v2 = {
         name: row.querySelector('.de-name').value.trim(),
         day: toInternalDayAdmin(row.querySelector('.de-day').value),
-        type: row.querySelector('.de-cat').value.trim() || '重要日',
+        type: dayTypeValue(row.querySelector('.de-cat').value) || '重要日',
         repeat: (row.querySelector('input[name="de-repeat"]:checked') || {}).value || 'none'
       };
       if (!v2.name || !v2.day) { toast('名称和日期都要填哦（日期格式 YYYY/MM/DD）'); return; }
