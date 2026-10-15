@@ -573,6 +573,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       </div>
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:18px 0 12px;">
         <h3 style="margin:0;">已上架的商品</h3>
+        <button type="button" class="btn-mini" id="goto-reviews">评价返图管理 →</button>
         <span style="flex:1;"></span>
         <span id="p-filter-chips" style="display:flex;gap:6px;flex-wrap:wrap;"></span>
       </div>
@@ -1093,6 +1094,10 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       return '<button type="button" class="btn-mini pf-chip' + (P_TAG_FILTER === c[0] ? ' on' : '') + '" data-tag="' + escAttr(c[0]) + '">' + esc(c[1]) + '</button>';
     }).join('');
   }
+  document.getElementById('goto-reviews').addEventListener('click', function () {
+    var b = document.querySelector('.tab-btn[data-tab="reviews"]');
+    if (b) b.click();
+  });
   document.getElementById('p-filter-chips').addEventListener('click', function (e) {
     var b = e.target.closest('.pf-chip');
     if (!b) return;
