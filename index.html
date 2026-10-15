@@ -870,6 +870,7 @@
 <script>
   // ===== 月历 + 重要日子（Apple Calendar 式；数据存 important_days 表，与后台同一套）=====
   var EVENTS = [];
+  var CAL_HIDE = []; // 后台「前台展示」关掉的条目：d:<id> 手动重要日子 / b:<i> BJD / c:<i> 色卡
   var CAL_VIEW = null; // { y, m } 0 起始月份
   var SEL = null;      // 右侧详情当前选中的日期 { y, m, d }，默认今天
   function isSelToday() {
@@ -990,13 +991,16 @@
         out.push({ name: name + (LANG === 'en' ? ' · ' + y + 'y' : zhYears(y) + '岁'), day: iso(d2), type: '纪念', repeat: 'none', auto: true });
       }
     }
-    (bjds || []).forEach(function (b) {
+    function inCal(k) { return CAL_HIDE.indexOf(k) !== -1; }
+    (bjds || []).forEach(function (b, bi) {
       if (!b || !b.name) return;
+      if (inCal('b:' + bi)) return; // 后台关掉「前台展示」的不进日历
       var src = valid(b.birth) ? b.birth : (valid(b.purchase && b.purchase.date) ? b.purchase.date : (valid(b.faceup && b.faceup.date) ? b.faceup.date : ''));
       if (src) pushAll(b.name, src); // 出生日期 → 买入那天 → 弄好那天，取第一个填了的
     });
-    (cards || []).forEach(function (c) {
+    (cards || []).forEach(function (c, ci) {
       if (!c || !c.name) return;
+      if (inCal('c:' + ci)) return;
       var src = valid(c.birth) ? c.birth : (valid(c.bought) ? c.bought : '');
       if (src) pushAll(c.name, src);
     });
@@ -1005,22 +1009,25 @@
       if (!ev || !valid(ev.day)) return;
       var ty = String(ev.type || '');
       if (ty === 'birthday' || ty.indexOf('生日') > -1) return; // 生日保持「xxx 几岁生日」不变
+      if (CAL_HIDE.indexOf('d:' + ev.id) !== -1) return; // 后台关掉「前台展示」的不进日历
       var nm = String(ev.name || '').replace(/的?生日\s*$/, '').trim();
-      if (nm) pushAll(nm, ev.day);
+      if (nm) pushAll(nm, ev.day, false); // 只加百天系列：纪念日不再另生成「N岁」
     });
     return out;
   }
   function loadEvents() {
     Promise.all([
       dbFetch('important_days?select=*&order=day.asc&limit=200'),
-      dbFetch('site_settings?select=key,value&key=in.(bjds,cards)')
+      dbFetch('site_settings?select=key,value&key=in.(bjds,cards,cal_hide)')
     ]).then(function (res) {
       var rows = res[0];
       if (!Array.isArray(rows)) { DB_POST_OK = false; rows = []; }
       migrateOldBirthdays();
       var S = {};
       (res[1] || []).forEach(function (r) { try { S[r.key] = JSON.parse(r.value); } catch (e) {} });
-      EVENTS = rows.concat(genAutoEvents(S.bjds || [], S.cards || [], rows));
+      CAL_HIDE = Array.isArray(S.cal_hide) ? S.cal_hide.filter(function (x) { return typeof x === 'string'; }) : [];
+      var showRows = rows.filter(function (d) { return CAL_HIDE.indexOf('d:' + d.id) === -1; });
+      EVENTS = showRows.concat(genAutoEvents(S.bjds || [], S.cards || [], showRows));
       renderCal();
       renderCalSide();
     }).catch(function () { DB_POST_OK = false; renderCal(); renderCalSide(); });
