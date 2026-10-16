@@ -187,8 +187,10 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   }
   .pay-card p { font-size:17px; margin-top: 10px; }
   /* 收款方式：一个按钮 → 点开弹出收款码图 */
-  .pay-cta { background: var(--card); border-radius: var(--radius); padding: 18px 16px; text-align: center; }
-  .pay-cta p { font-size:17px; color: var(--muted); margin-bottom: 14px; }
+  .pay-cta { background: var(--card); border-radius: var(--radius); padding: 24px 16px; text-align: center; }
+  .pay-cta p { font-size:17px; color: var(--muted); margin-bottom: 16px; }
+  /* 查看收款方式：大一点的胶囊按钮 */
+  .pay-open { font-size:20px; padding: 15px 46px; }
   .pay-modal { position: fixed; inset: 0; background: rgba(90,66,76,.45); display: none; align-items: center; justify-content: center; z-index: 600; padding: 18px; }
   .pay-modal.open { display: flex; }
   .pay-modal img { max-width: min(92vw, 430px); max-height: 86vh; border-radius: 14px; display: block; box-shadow: 0 12px 40px rgba(120,80,100,.3); }
@@ -322,7 +324,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     <h2 style="font-size:21px;margin-bottom:18px;display:flex;align-items:center;gap:8px;"><span style="width:4px;height:18px;background:var(--accent);border-radius:2px;display:inline-block;"></span><span data-zh="付款方式" data-en="Payment">付款方式</span></h2>
     <div class="pay-cta">
       <p data-zh="支持微信 / 支付宝，点下面看收款方式～" data-en="WeChat / Alipay — tap below to see the payment codes~">支持微信 / 支付宝，点下面看收款方式～</p>
-      <button class="buy-btn" id="pay-open" style="padding:10px 26px;"><span data-zh="查看收款方式" data-en="View payment methods">查看收款方式</span></button>
+      <button class="buy-btn pay-open" id="pay-open"><span data-zh="查看收款方式" data-en="View payment methods">查看收款方式</span></button>
     </div>
   </section>
 
