@@ -257,6 +257,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     cursor: pointer; transition: background .2s;
   }
   .kebab:hover { background: var(--card-hover); color: var(--text); }
+  /* 管理小圆片（尺寸/种类/画师/标签）里的 ⋮：跟着圆片走，不要绝对定位飘到卡片角落 */
+  #bjd-size-chips .kebab, #work-cat-chips .kebab, #work-artist-chips .kebab, #p-tag-chips .kebab { position: static; }
   .section-item .kebab, .link-item .kebab { position: static; flex-shrink: 0; }
   .sc-row { display: grid; grid-template-columns: 100px 92px 18px 60px 18px 70px auto; gap: 8px; align-items: center; position: relative; margin-bottom: 8px; }
   .sc-row input { width: 100%; box-sizing: border-box; }
@@ -574,6 +576,15 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         <div class="actions">
           <button class="btn-save" id="btn-add-product">上架这个商品</button>
         </div>
+      </div>
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <h3 style="margin:0;flex-shrink:0;">标签管理</h3>
+          <span id="p-tag-chips" style="display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:200px;"></span>
+          <input id="p-tag-new" placeholder="新标签名" style="border:none;border-radius:10px;background:var(--card);padding:8px 12px;font-size:16px;width:120px;outline:none;color:var(--text);font-family:inherit;">
+          <button type="button" class="btn-mini" id="btn-add-tag" style="padding:8px 14px;">+ 添加</button>
+        </div>
+        <p class="hint" style="margin:10px 0 0;">删标签不会删商品：用它的商品都会保留，只是变成「没有标签」；改名会把用这个标签的商品一起改。</p>
       </div>
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:18px 0 12px;">
         <h3 style="margin:0;">已上架的商品</h3>
@@ -1147,7 +1158,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     var price = document.getElementById('p-price').value.trim();
     var stock = document.getElementById('p-stock').value.trim();
     var cost = document.getElementById('p-cost').value.trim();
-    var tag = document.getElementById('p-tag').value.trim() || '手作';
+    var tag = document.getElementById('p-tag').value.trim() || '手作'; // 没填默认「手作」
     var desc = document.getElementById('p-desc').value.trim();
     if (!name) { toast('商品名称总要有的呀'); return; }
     btn.disabled = true; btn.textContent = '上架中…';
@@ -1185,6 +1196,60 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       .finally(function () { btn.disabled = false; btn.textContent = '上架这个商品'; });
   });
 
+  // ===== 标签管理：每个标签都能改名 / 删除，商品永远不丢（删了只会变成「没有标签」）=====
+  function renderShopTags() {
+    var box = document.getElementById('p-tag-chips');
+    if (!box) return;
+    var arr = tagOptions();
+    box.innerHTML = arr.length ? arr.map(function (v, ti) {
+      return '<span style="display:inline-flex;align-items:center;gap:2px;background:var(--card);border-radius:999px;padding:5px 6px 5px 12px;font-size:16px;">' + esc(v) +
+        '<button type="button" class="kebab shop-tag-kebab" data-ti="' + ti + '" title="菜单" style="width:22px;height:22px;font-size:15px;">⋮</button></span>';
+    }).join('') : '<span style="font-size:15px;color:var(--muted);">还没有标签</span>';
+  }
+  document.getElementById('p-tag-chips').addEventListener('click', function (e) {
+    var saveBtn = e.target.closest('.shop-tag-save');
+    if (saveBtn) { // 改名 → 一起改掉用这个标签的商品
+      var wrap = saveBtn.parentElement;
+      var inp = wrap ? wrap.querySelector('.shop-tag-edit') : null;
+      var ti = parseInt(saveBtn.getAttribute('data-ti'), 10);
+      var v = inp ? inp.value.trim() : '';
+      var arr = tagOptions();
+      var oldT = arr[ti];
+      if (!v) { toast('名字不能空着'); return; }
+      if (arr.indexOf(v) !== -1 && arr.indexOf(v) !== ti) { toast('已经有这个标签了'); return; }
+      var all = arr.map(function (x) { return x === oldT ? v : x; });
+      api('products?tag=eq.' + encodeURIComponent(oldT), { method: 'PATCH', body: JSON.stringify({ tag: v }) })
+        .then(function (r) { if (!r.ok) throw new Error(); return saveSetting('tags', all); })
+        .then(function (r) { if (!r.ok) throw new Error(); SETTINGS['tags'] = JSON.stringify(all); toast('已改名，商品跟着改好了'); loadProducts(); })
+        .catch(function () { toast('保存失败'); });
+      return;
+    }
+    if (e.target.closest('.shop-tag-cancel')) { renderShopTags(); toast('没改'); return; }
+    var kb = e.target.closest('.shop-tag-kebab');
+    if (!kb) return;
+    if (SC_POP && POP_BTN === kb) { popClose(); return; }
+    popOpen('shop-tag', parseInt(kb.getAttribute('data-ti'), 10), -1, -1, kb);
+  });
+  document.getElementById('p-tag-chips').addEventListener('keydown', function (e) {
+    if (!e.target.classList.contains('shop-tag-edit')) return;
+    if (e.key === 'Enter') { var sb = document.querySelector('#p-tag-chips .shop-tag-save'); if (sb) sb.click(); }
+    if (e.key === 'Escape') renderShopTags();
+  });
+  document.getElementById('btn-add-tag').addEventListener('click', function () {
+    var inp = document.getElementById('p-tag-new');
+    var v = (inp.value || '').trim();
+    if (!v) { toast('先写个标签名'); return; }
+    if (tagOptions().indexOf(v) !== -1) { toast('已经有这个标签了'); return; }
+    var all = tagOptions().slice();
+    all.push(v);
+    saveSetting('tags', all).then(function (r) {
+      if (!r.ok) throw new Error();
+      SETTINGS['tags'] = JSON.stringify(all);
+      inp.value = '';
+      toast('已添加');
+      renderShopTags();
+    }).catch(function () { toast('保存失败'); });
+  });
   function loadProducts() {
     var tryLoad = function (withImages) {
       return api('products?select=id,name,price,description,tag,image_url' + (withImages ? ',images' : '') + ',sold,stock,cost,display_only,created_at&order=created_at.desc&limit=200')
@@ -1356,7 +1421,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   // ===== 评价返图管理 =====
   function starsStr(n) {
     n = Math.max(0, Math.min(5, parseInt(n, 10) || 0));
-    return '★★★★★'.slice(0, n) + '☆☆☆☆☆'.slice(0, 5 - n);
+    // 站内米豆乳字体把 ★ 画成空心、☆ 画成实心，所以这里反着来：得分的用 ☆（看起来是实心）
+    return '☆☆☆☆☆'.slice(0, n) + '★★★★★'.slice(0, 5 - n);
   }
   function loadReviewsAdmin() {
     var box = document.getElementById('review-admin-list');
@@ -1856,6 +1922,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   }
   function refreshTagList() {
     comboRefresh(); // 标签数据变了：如果联想下拉正开着，刷新选项
+    if (document.getElementById('p-tag-chips')) renderShopTags(); // 顺便刷新「标签管理」那一排
   }
   function rememberTag(t) {
     t = (t || '').trim();
@@ -2472,7 +2539,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     return b;
   }
   function opts(list, cur) {
-    return [''].concat(list).map(function (v) {
+    var all = (cur && list.indexOf(cur) === -1) ? [cur].concat(list) : list; // 当前值不在列表里也要留着，免得一保存被清掉
+    return [''].concat(all).map(function (v) {
       return '<option value="' + v + '"' + (v === cur ? ' selected' : '') + '>' + (v || '请选择') + '</option>';
     }).join('');
   }
@@ -2971,6 +3039,11 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         '<button class="sc-opt sc-opt-del" data-opt="del">删除尺寸</button>' +
         '<button class="sc-opt" data-opt="cancel">✕ 取消</button>';
     }
+    if (SC_POP.type === 'shop-tag') {
+      return '<button class="sc-opt" data-opt="rename">重命名</button>' +
+        '<button class="sc-opt sc-opt-del" data-opt="del">删除标签</button>' +
+        '<button class="sc-opt" data-opt="cancel">✕ 取消</button>';
+    }
     if (SC_POP.type === 'row') {
       var c0 = normCard(CARDS[SC_POP.i]);
       var a0 = normArtist(c0.artists[SC_POP.ai]);
@@ -3399,6 +3472,34 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       }
       return;
     }
+    if (ctx.type === 'shop-tag') {
+      var tagArr = tagOptions();
+      var tagName = tagArr[ctx.i];
+      if (!tagName) return;
+      if (opt === 'rename') { // 改名：就地变成 输入框 + 保存/取消
+        var boxT = document.getElementById('p-tag-chips');
+        var kbT = boxT && boxT.querySelector('.shop-tag-kebab[data-ti="' + ctx.i + '"]');
+        var wrapT = kbT ? kbT.parentElement : null;
+        if (wrapT) {
+          wrapT.innerHTML = '<input class="shop-tag-edit" value="' + escAttr(tagName) + '" placeholder="新名字" style="border:none;background:transparent;font-size:16px;width:92px;outline:none;color:var(--text);font-family:inherit;">' +
+            '<button type="button" class="btn-mini shop-tag-save" data-ti="' + ctx.i + '" style="padding:2px 8px;font-size:14px;">保存</button>' +
+            '<button type="button" class="btn-mini shop-tag-cancel" data-ti="' + ctx.i + '" style="padding:2px 8px;font-size:14px;">取消</button>';
+          var inpT = wrapT.querySelector('.shop-tag-edit');
+          if (inpT) { inpT.focus(); inpT.select(); }
+        }
+        return;
+      }
+      if (opt === 'del') {
+        uiConfirm('确定删除标签「' + tagName + '」吗？用它的商品都会保留，只是变成「没有标签」。', function () {
+          var rest = tagArr.filter(function (x) { return x !== tagName; });
+          api('products?tag=eq.' + encodeURIComponent(tagName), { method: 'PATCH', body: JSON.stringify({ tag: '' }) })
+            .then(function (r) { if (!r.ok) throw new Error(); return saveSetting('tags', rest); })
+            .then(function (r) { if (!r.ok) throw new Error(); SETTINGS['tags'] = JSON.stringify(rest); toast('标签已删除，商品都还在'); loadProducts(); })
+            .catch(function () { toast('删除失败，稍后再试'); });
+        });
+      }
+      return;
+    }
     if (ctx.type === 'bjd-size') {
       if (opt === 'rename') { // 重命名：就地变成 输入框 + 保存/取消
         var boxS = document.getElementById('bjd-size-chips');
@@ -3415,7 +3516,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       }
       if (opt === 'del') {
         var sName = BJD_SIZES[ctx.i];
-        uiConfirm('确定删除尺寸「' + sName + '」吗？已用它标注的娃娃不受影响。', function () {
+        uiConfirm('确定删除尺寸「' + sName + '」吗？用过这个尺寸的娃娃都保留，只是尺寸不再显示。', function () {
           var oldSizes = BJD_SIZES.slice();
           BJD_SIZES.splice(ctx.i, 1);
           saveSetting('bjd_sizes', BJD_SIZES.slice()).then(function (r) {
@@ -3602,7 +3703,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       if (b && !b.disabled) popAct(b.getAttribute('data-opt'));
       return;
     }
-    if (e.target.closest('.sc-kebab, .sc-artist-menu, .sc-row-menu, .bjd-kebab, .bjd-ph-menu, .ph-kebab, .area-kebab, .c-photo-kebab, .b-photo-kebab, .bjd-size-kebab, .work-kebab, .w-photo-kebab, .work-cat-kebab, .work-artist-kebab')) return; // ⋮ 由列表处理器切换
+    if (e.target.closest('.sc-kebab, .sc-artist-menu, .sc-row-menu, .bjd-kebab, .bjd-ph-menu, .ph-kebab, .area-kebab, .c-photo-kebab, .b-photo-kebab, .bjd-size-kebab, .work-kebab, .w-photo-kebab, .work-cat-kebab, .work-artist-kebab, .shop-tag-kebab')) return; // ⋮ 由列表处理器切换
     popClose();
   });
 

@@ -535,7 +535,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     return '<div class="product' + off + '">' +
       '<div class="product-img">' + img + '<span class="st ' + stCls + '">' + stText + '</span></div>' +
       '<div class="product-info">' +
-      '<span class="product-tag">' + esc(p.tag || t('手作','Handmade')) + '</span>' +
+      '<span class="product-tag">' + esc(p.tag || t('没有标签','Untagged')) + '</span>' +
       '<h3>' + esc(p.name) + '</h3>' +
       '<p>' + esc(p.description || '') + '</p>' +
       '<div class="product-row">' +
@@ -634,12 +634,13 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
 
   // ===== 评价返图 =====
   var RATING = 0;
-  function starText(n) { return '★★★★★'.slice(0, n) + '☆☆☆☆☆'.slice(0, 5 - n); }
+  // 站内米豆乳字体把 ★ 画成空心、☆ 画成实心，所以这里反着来：得分的用 ☆（看起来是实心）
+  function starText(n) { return '☆☆☆☆☆'.slice(0, n) + '★★★★★'.slice(0, 5 - n); }
   function paintStars() {
     document.querySelectorAll('#r-stars .star').forEach(function (s) {
       var on = parseInt(s.getAttribute('data-v'), 10) <= RATING;
       s.classList.toggle('on', on);
-      s.textContent = on ? '★' : '☆'; // 选中的实心，没选的空心
+      s.textContent = on ? '☆' : '★'; // 选中的那个在站内字体里画出来是实心的
     });
     document.getElementById('r-star-text').textContent = RATING > 0 ? RATING + '/5' : '';
   }
