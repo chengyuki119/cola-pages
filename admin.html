@@ -3099,8 +3099,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         '</div>' +
         '<div style="display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap;">' +
         (c.image ? '<img src="' + escAttr(c.image) + '" style="width:44px;height:44px;object-fit:cover;border-radius:8px;flex-shrink:0;">' : '') +
-        '<label class="btn-mini hm-file-btn">选择图片<input type="file" class="sc-file" accept="image/*" hidden></label>' +
-        '<label class="btn-mini hm-file-btn">添加照片<input type="file" class="sc-photos" accept="image/*" multiple hidden></label>' +
+        '<label class="btn-mini hm-file-btn">上传图片<input type="file" class="sc-photos" accept="image/*" multiple hidden></label>' +
         '</div>' +
         photoStrip(c.image, c.photos, 'c-photo-kebab', 'card', i) +
         '<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:16px;">' +
@@ -4047,8 +4046,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         '</div>' +
         '<div style="display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap;">' +
         (b.image ? '<img src="' + escAttr(b.image) + '" style="width:44px;height:44px;object-fit:cover;border-radius:8px;flex-shrink:0;">' : '') +
-        '<label class="btn-mini hm-file-btn">选择图片<input type="file" class="b-file" accept="image/*" hidden></label>' +
-        '<label class="btn-mini hm-file-btn">添加照片<input type="file" class="b-photos" accept="image/*" multiple hidden></label>' +
+        '<label class="btn-mini hm-file-btn">上传图片<input type="file" class="b-photos" accept="image/*" multiple hidden></label>' +
         '</div>' +
         photoStrip(b.image, b.photos, 'b-photo-kebab', 'bjd', i) +
         '<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:12px;">' +
@@ -4368,8 +4366,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         '</div>' +
         '<div style="display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap;">' +
         (w.image ? '<img src="' + escAttr(w.image) + '" style="width:44px;height:44px;object-fit:cover;border-radius:8px;flex-shrink:0;">' : '') +
-        '<label class="btn-mini hm-file-btn">选择图片<input type="file" class="w-file" accept="image/*" hidden></label>' +
-        '<label class="btn-mini hm-file-btn">添加照片<input type="file" class="w-photos" accept="image/*" multiple hidden></label>' +
+        '<label class="btn-mini hm-file-btn">上传图片<input type="file" class="w-photos" accept="image/*" multiple hidden></label>' +
         '</div>' +
         photoStrip(w.image, w.photos, 'w-photo-kebab', 'work', i) +
         '<div style="display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap;">' +
@@ -4468,18 +4465,13 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     if (!card) return;
     var w = normWork(WORKS[parseInt(card.getAttribute('data-i'), 10)]);
     if (e.target.classList.contains('wk-date')) { w.date = e.target.value; saveWorksQuiet(); return; }
-    if (e.target.classList.contains('w-file')) {
-      var f0 = e.target.files[0];
-      if (f0) bjdUpload(f0, function (url) { w.image = url; toast('图已上传'); saveWorksQuiet(); renderWorks(); });
-      return;
-    }
     if (e.target.classList.contains('w-photos')) {
       var fsW = Array.prototype.slice.call(e.target.files);
       if (!fsW.length) return;
       toast('上传中…');
       (function seqW(k) { // 依次上传保持选择顺序；第一张默认设为封面
         if (k >= fsW.length) return;
-        bjdUpload(fW2 = fsW[k], function (url) {
+        bjdUpload(fsW[k], function (url) {
           if (!w.image) w.image = url;
           else w.photos.push(url);
           saveWorksQuiet();
@@ -4556,11 +4548,6 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     if (cls === 'b-buy-status') b.purchase.status = e.target.value;
     if (e.target.classList.contains('b-birth')) { b.birth = e.target.value; scheduleBjdSave(); } // 出生日期 → 自动纪念日（前台日历）
     if (e.target.tagName === 'SELECT' || e.target.type === 'date') scheduleBjdSave();
-    if (cls === 'b-file') {
-      var f = e.target.files[0];
-      if (f) bjdUpload(f, function (url) { b.image = url; toast('图已上传'); scheduleBjdSave(); renderBjds(); });
-      return;
-    }
     if (cls === 'b-photos') {
       var fsB = Array.prototype.slice.call(e.target.files);
       if (!fsB.length) return;
