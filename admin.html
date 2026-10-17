@@ -1128,19 +1128,53 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     loadProducts();
   });
   var pendingFiles = [];
+  function renderPendingPreview() { // 上架前预览：第一张=封面，可拖动排序
+    var box = document.getElementById('p-preview');
+    box.classList.add('ph-strip');
+    box.setAttribute('data-kind', 'pnew');
+    if (!pendingFiles.length) { box.innerHTML = '<span class="pv-empty">选了图片会在这里预览</span>'; return; }
+    box.innerHTML = pendingFiles.map(function (f, idx) {
+      return '<div class="pv ph-tile' + (idx === 0 ? ' ph-cover' : '') + '" draggable="true" data-idx="' + idx + '" title="拖动可调整顺序" style="cursor:grab;position:relative;">' +
+        '<img src="' + URL.createObjectURL(f) + '" alt="">' +
+        (idx === 0 ? '<span style="position:absolute;left:3px;bottom:3px;background:var(--accent);color:#fff;border-radius:999px;padding:0 6px;font-size:10px;line-height:14px;">封面</span>' : '') +
+        '</div>';
+    }).join('');
+  }
+  function productStripHtml(items) { // 商品多图：第一张=封面，可拖动排序（与前台顺序一致）
+    if (!items || !items.length) return '';
+    return '<div class="ph-strip" data-kind="product" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;width:100%;">' + items.map(function (it, idx) {
+      var src = it.u || it.__url;
+      if (!src) return '';
+      return '<div class="ph-tile' + (idx === 0 ? ' ph-cover' : '') + '" draggable="true" data-idx="' + idx + '" title="拖动可调整顺序" style="width:64px;height:64px;border-radius:10px;overflow:hidden;position:relative;background:var(--card);flex-shrink:0;cursor:grab;">' +
+        '<img src="' + escAttr(src) + '" style="width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;">' +
+        (idx === 0 ? '<span style="position:absolute;left:3px;bottom:3px;background:var(--accent);color:#fff;border-radius:999px;padding:0 7px;font-size:11px;line-height:16px;">封面</span>'
+                   : '<button type="button" class="ph-del" data-idx="' + idx + '" title="删除照片" style="position:absolute;top:3px;right:3px;width:20px;height:20px;font-size:13px;line-height:1;border:none;border-radius:50%;background:rgba(255,255,255,.92);cursor:pointer;color:#5d6780;">⋮</button>') +
+        '</div>';
+    }).join('') + '</div>';
+  }
+  function productStripRefresh(card) {
+    var stripEl = card.querySelector('.ph-strip');
+    if (stripEl) stripEl.outerHTML = productStripHtml(card.__imgItems);
+  }
+  function productImgReorder(strip, from, to) {
+    var card2 = strip.closest('.shop-item');
+    if (!card2 || !Array.isArray(card2.__imgItems)) return;
+    var arrP = card2.__imgItems;
+    var mvP = arrP.splice(from, 1)[0];
+    arrP.splice(to, 0, mvP);
+    card2.__imgsChanged = true;
+    productStripRefresh(card2);
+  }
   document.getElementById('p-file').addEventListener('change', function () {
     pendingFiles = Array.prototype.slice.call(this.files || []);
-    var box = document.getElementById('p-preview');
     var label = document.getElementById('p-file-name');
     if (!pendingFiles.length) {
-      box.innerHTML = '<span class="pv-empty">选了图片会在这里预览</span>';
+      renderPendingPreview();
       label.textContent = '未选择图片';
       return;
     }
-    label.textContent = '已选 ' + pendingFiles.length + ' 张';
-    box.innerHTML = pendingFiles.map(function (f) {
-      return '<div class="pv"><img src="' + URL.createObjectURL(f) + '" alt=""></div>';
-    }).join('');
+    label.textContent = '已选 ' + pendingFiles.length + ' 张（第一张默认封面，可拖动排序）';
+    renderPendingPreview();
   });
   function uploadShopFiles(files) {
     return Promise.all(files.map(function (f) {
@@ -1188,7 +1222,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       document.getElementById('p-desc').value = '';
       document.getElementById('p-file').value = '';
       pendingFiles = [];
-      document.getElementById('p-preview').innerHTML = '<span class="pv-empty">选了图片会在这里预览</span>';
+      renderPendingPreview();
       document.getElementById('p-file-name').textContent = '未选择图片';
       rememberTag(tag); // 新标签存起来，下次直接选
       loadProducts();
@@ -1328,15 +1362,26 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         .then(function (r) { if (!r.ok) throw new Error(); toast('库存已改为 ' + next); loadProducts(); })
         .catch(function () { toast('操作失败'); });
     }
+    var pdel = e.target.closest('.ph-del');
+    if (pdel) { // 商品照片 ⋮ → 删除（封面不会被删，拖到后面才能删）
+      var di = parseInt(pdel.getAttribute('data-idx'), 10);
+      uiConfirm('确定删除这张照片吗？', function () {
+        card.__imgItems.splice(di, 1);
+        card.__imgsChanged = true;
+        productStripRefresh(card);
+      });
+      return;
+    }
     if (e.target.classList.contains('kebab')) {
       var p = PRODUCT_CACHE[id];
       if (!p) return;
+      var base0 = (Array.isArray(p.images) && p.images.length) ? p.images.filter(Boolean) : (p.image_url ? [p.image_url] : []);
+      card.__imgItems = base0.map(function (u) { return { u: u }; }); // 全部图：第一张=封面，可拖动排序
       var thumbHtml = p.image_url ? '<img src="' + esc(p.image_url) + '">' : '';
-      var imgCnt = (Array.isArray(p.images) ? p.images.filter(Boolean).length : 0) || (p.image_url ? 1 : 0);
-      if (imgCnt > 1) thumbHtml += '<span style="position:absolute;right:6px;bottom:6px;background:rgba(255,255,255,.92);border-radius:999px;padding:1px 8px;font-size:12px;">' + imgCnt + '图</span>';
       card.innerHTML =
         '<div class="thumb">' + thumbHtml + '</div>' +
         '<div class="info">' +
+        productStripHtml(card.__imgItems) +
         '<div class="edit-grid">' +
         '<input class="e-name" value="' + escAttr(p.name) + '" placeholder="商品名称">' +
         '<input class="e-price" value="' + escAttr(p.price) + '" placeholder="价格">' +
@@ -1375,9 +1420,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       };
       if (!body.name) { toast('名称不能为空'); return; }
       e.target.disabled = true; e.target.textContent = '保存中…';
-      var fileInput = card.querySelector('.e-file');
-      var files = fileInput ? Array.prototype.slice.call(fileInput.files || []) : [];
-      var p0 = PRODUCTS.filter(function (x) { return String(x.id) === String(id); })[0] || {};
+      var items2 = Array.isArray(card.__imgItems) ? card.__imgItems : null;
       var tryPatch = function (b) {
         return api('products?id=eq.' + id, { method: 'PATCH', body: JSON.stringify(b) }).then(function (r) {
           if (r.ok) return r;
@@ -1393,13 +1436,20 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           toast('已保存'); rememberTag(body.tag); loadProducts();
         }).catch(function () { toast('保存失败，重试一下'); e.target.disabled = false; e.target.textContent = '保存修改'; });
       };
-      if (files.length) {
-        e.target.disabled = true; e.target.textContent = '上传中…';
-        uploadShopFiles(files).then(function (urls) {
-          var base = (Array.isArray(p0.images) && p0.images.length) ? p0.images.filter(Boolean) : (p0.image_url ? [p0.image_url] : []);
-          urls.forEach(function (u) { if (base.indexOf(u) === -1) base.push(u); });
-          if (base.length > 1) body.images = base;
-          body.image_url = base[0] || null;
+      if (items2 && card.__imgsChanged) { // 图片条被拖动过或加过图：按顺序重建 images（第一张=封面）
+        e.target.disabled = true;
+        var final = [];
+        var chainI = Promise.resolve();
+        if (items2.some(function (it) { return it.f; })) e.target.textContent = '上传中…';
+        items2.forEach(function (it) {
+          chainI = chainI.then(function () {
+            if (it.u) { final.push(it.u); return null; }
+            return uploadShopFiles([it.f]).then(function (us) { final.push(us[0]); });
+          });
+        });
+        chainI.then(function () {
+          if (final.length) { body.image_url = final[0]; if (final.length > 1) body.images = final; }
+          else body.image_url = null;
           finish();
         }).catch(function () { toast('图片上传失败'); e.target.disabled = false; e.target.textContent = '保存修改'; });
       } else { finish(); }
@@ -2271,8 +2321,17 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         } catch (e) {}
         renderCards();
         renderBjds();
-        if (BJDS_EDIT >= 0 || CARDS_EDIT >= 0) goEditTop(); // 从前台「编辑」跳进来也回到最上面
         renderWorks();
+        // 前台「编辑稿」直达：按位置编号打开对应稿件的编辑状态
+        try {
+          var ewk = sessionStorage.getItem('admin-edit-work');
+          if (ewk && /^\d+$/.test(ewk)) {
+            sessionStorage.removeItem('admin-edit-work');
+            var wi2 = parseInt(ewk, 10);
+            if (WORKS[wi2]) { WORKS_EDIT = wi2; EDIT_TYPE = 'work'; PENDING_TAB = 'works'; }
+          }
+        } catch (e) {}
+        if (BJDS_EDIT >= 0 || CARDS_EDIT >= 0 || WORKS_EDIT >= 0) goEditTop(); // 从前台「编辑」跳进来也回到最上面
       })
       .catch(function () { toast('主页数据加载失败，刷新试试'); });
   }
@@ -2670,12 +2729,72 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     if (!Array.isArray(c.photos)) c.photos = []; // 追加相册（主图 image 保留）
     return c;
   }
-  function photoStrip(photos, cls) { // 多图缩略条：主图外追加的相册，每张 ⋮ 可删
-    if (!photos || !photos.length) return '';
-    return '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">' + photos.map(function (u, pi) {
-      return '<div style="width:64px;height:64px;border-radius:10px;overflow:hidden;position:relative;background:var(--card);flex-shrink:0;"><img src="' + escAttr(u) + '" style="width:100%;height:100%;object-fit:cover;display:block;"><button type="button" class="kebab ' + cls + '" data-pi="' + pi + '" title="菜单" style="position:absolute;top:3px;right:3px;width:20px;height:20px;font-size:14px;">⋮</button></div>';
+  function photoStrip(cover, photos, cls, kind, gi) { // 多图缩略条：第一张=封面，可拖动排序（与前台展示顺序一致）
+    photos = Array.isArray(photos) ? photos.filter(Boolean) : [];
+    var all = (cover ? [cover] : []).concat(photos);
+    if (!all.length) return '';
+    return '<div class="ph-strip" data-kind="' + kind + '" data-gi="' + gi + '" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">' + all.map(function (u, idx) {
+      var isC = idx === 0 && !!cover;
+      return '<div class="ph-tile' + (isC ? ' ph-cover' : '') + '" draggable="true" data-idx="' + idx + '" title="拖动可调整顺序" style="width:64px;height:64px;border-radius:10px;overflow:hidden;position:relative;background:var(--card);flex-shrink:0;cursor:grab;">' +
+        '<img src="' + escAttr(u) + '" style="width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;">' +
+        (isC ? '<span style="position:absolute;left:3px;bottom:3px;background:var(--accent);color:#fff;border-radius:999px;padding:0 7px;font-size:11px;line-height:16px;">封面</span>'
+             : '<button type="button" class="kebab ' + cls + '" data-pi="' + (idx - (cover ? 1 : 0)) + '" title="菜单" style="position:absolute;top:3px;right:3px;width:20px;height:20px;font-size:14px;">⋮</button>') +
+        '</div>';
     }).join('') + '</div>';
   }
+  function phItemArr(kind, gi) { // 取某个条目的合并图数组（封面在前），并返回写回函数
+    if (kind === 'card') { var c = normCard(CARDS[parseInt(gi, 10)]); if (!Array.isArray(c.photos)) c.photos = []; return { all: (c.image ? [c.image] : []).concat(c.photos.filter(Boolean)), write: function (a) { c.image = a[0] || ''; c.photos = a.slice(1); } }; }
+    if (kind === 'bjd') { var b = BJDS[parseInt(gi, 10)]; if (!b) return null; if (!Array.isArray(b.photos)) b.photos = []; return { all: (b.image ? [b.image] : []).concat(b.photos.filter(Boolean)), write: function (a) { b.image = a[0] || ''; b.photos = a.slice(1); } }; }
+    if (kind === 'work') { var w = normWork(WORKS[parseInt(gi, 10)]); if (!Array.isArray(w.photos)) w.photos = []; return { all: (w.image ? [w.image] : []).concat(w.photos.filter(Boolean)), write: function (a) { w.image = a[0] || ''; w.photos = a.slice(1); } }; }
+    return null;
+  }
+  function phAfterSave(kind, gi) { // 拖动后按区块各自的方式落库/重渲染
+    if (kind === 'card') renderCards();
+    else if (kind === 'bjd') { saveBjdsQuiet(); renderBjds(); }
+    else if (kind === 'work') { saveWorksQuiet(); renderWorks(); }
+  }
+  (function () { // 拖动排序：一次绑定，色卡/BJD/稿件/商品缩略条通用
+    var DRAG = null;
+    document.addEventListener('dragstart', function (e) {
+      var t = e.target.closest ? e.target.closest('.ph-tile') : null;
+      if (!t) return;
+      var strip = t.closest('.ph-strip');
+      if (!strip) return;
+      DRAG = { kind: strip.getAttribute('data-kind'), gi: strip.getAttribute('data-gi'), from: parseInt(t.getAttribute('data-idx'), 10), strip: strip };
+      try { e.dataTransfer.setData('text/plain', 'ph'); e.dataTransfer.effectAllowed = 'move'; } catch (err) {}
+    });
+    document.addEventListener('dragover', function (e) {
+      if (!DRAG || !e.target.closest) return;
+      var strip = e.target.closest('.ph-strip');
+      if (strip === DRAG.strip) e.preventDefault();
+    });
+    document.addEventListener('drop', function (e) {
+      if (!DRAG || !e.target.closest) return;
+      var strip = e.target.closest('.ph-strip');
+      if (strip !== DRAG.strip) return;
+      e.preventDefault();
+      var to = strip.querySelectorAll('.ph-tile').length - 1;
+      var hover = e.target.closest('.ph-tile');
+      if (hover) to = parseInt(hover.getAttribute('data-idx'), 10);
+      var from = DRAG.from;
+      if (from === to) { DRAG = null; return; }
+      if (DRAG.kind === 'pnew') { // 上架表单：待上传文件排序
+        var mvP = pendingFiles.splice(from, 1)[0];
+        pendingFiles.splice(to, 0, mvP);
+        renderPendingPreview();
+        DRAG = null; return;
+      }
+      if (DRAG.kind === 'product') { productImgReorder(strip, from, to); DRAG = null; return; }
+      var ctx = phItemArr(DRAG.kind, DRAG.gi);
+      if (!ctx) { DRAG = null; return; }
+      var moved = ctx.all.splice(from, 1)[0];
+      ctx.all.splice(to, 0, moved);
+      ctx.write(ctx.all);
+      phAfterSave(DRAG.kind, DRAG.gi);
+      DRAG = null;
+    });
+    document.addEventListener('dragend', function () { DRAG = null; });
+  })();
   function normCardsRaw(v) {
     var arr = Array.isArray(v) ? v : (v && v.artists ? v.artists : []);
     return arr.map(function (c) { return normCard(c); });
@@ -2981,7 +3100,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         '<label class="btn-mini hm-file-btn">选择图片<input type="file" class="sc-file" accept="image/*" hidden></label>' +
         '<label class="btn-mini hm-file-btn">添加照片<input type="file" class="sc-photos" accept="image/*" multiple hidden></label>' +
         '</div>' +
-        photoStrip(c.photos, 'c-photo-kebab') +
+        photoStrip(c.image, c.photos, 'c-photo-kebab', 'card', i) +
         '<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:16px;">' +
         '<label style="display:flex;align-items:center;gap:6px;flex-shrink:0;">购入日期<input type="text" class="c-bought date-pick" readonly value="' + escAttr(c.bought || '') + '" placeholder="选择日期" style="width:100px;padding:7px 10px;font-size:16px;cursor:pointer;"></label>' +
         '<label style="display:flex;align-items:center;gap:6px;flex-shrink:0;">出生日期<input type="text" class="c-birth date-pick" readonly value="' + escAttr(c.birth || '') + '" placeholder="自动纪念日" style="width:100px;padding:7px 10px;font-size:16px;cursor:pointer;"></label>' +
@@ -3049,7 +3168,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   // ===== 悬浮菜单（Popover）：固定定位，不推挤内容，⋮ 坐标永远不变 =====
   function popItems() {
     if (!SC_POP) return '';
-    if (SC_POP.type === 'bjd-ph' || SC_POP.type === 'card-ph') {
+    if (SC_POP.type === 'bjd-ph' || SC_POP.type === 'card-ph' || SC_POP.type === 'work-ph') {
       return '<button class="sc-opt sc-opt-del" data-opt="del">删除照片</button>' +
         '<button class="sc-opt" data-opt="cancel">✕ 取消</button>';
     }
@@ -3849,24 +3968,6 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       delete aNameSnap[key];
       return;
     }
-    if (!e.target.classList.contains('sc-file')) return;
-    var card = e.target.closest('.sc-artist');
-    var c = normCard(CARDS[parseInt(card.getAttribute('data-i'), 10)]);
-    var f = e.target.files[0];
-    if (!f || !c) return;
-    if (!ACCESS) { toast('请先登录'); return; }
-    toast('上传中…');
-    authedFetch(SUPABASE_URL + '/storage/v1/object/site/' + Date.now() + '-' + f.name.replace(/[^\w.\-]/g, '_'), {
-      method: 'POST',
-      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + ACCESS, 'Content-Type': f.type || 'image/jpeg' },
-      body: f
-    }).then(function (r) { if (!r.ok) throw new Error(); return r.json(); })
-      .then(function (res) {
-        c.image = SUPABASE_URL + '/storage/v1/object/public/site/' + res.Key.split('/').slice(1).join('/');
-        toast('图已上传');
-        renderCards();
-      })
-      .catch(function () { toast('上传失败'); });
   if (e.target.classList.contains('sc-photos')) {
     var cardPh = e.target.closest('.sc-artist');
     var cPh = normCard(CARDS[parseInt(cardPh.getAttribute('data-i'), 10)]);
@@ -3874,14 +3975,16 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     if (!fsPh.length || !cPh) return;
     if (!ACCESS) { toast('请先登录'); return; }
     toast('上传中…');
-    fsPh.forEach(function (fPh) {
-      bjdUpload(fPh, function (url) {
-        cPh.photos = Array.isArray(cPh.photos) ? cPh.photos : [];
-        cPh.photos.push(url);
+    (function seqPh(k) { // 依次上传保持选择顺序；第一张默认设为封面
+      if (k >= fsPh.length) return;
+      bjdUpload(fsPh[k], function (url) {
+        if (!cPh.image) cPh.image = url;
+        else { cPh.photos = Array.isArray(cPh.photos) ? cPh.photos : []; cPh.photos.push(url); }
         toast('已添加');
         renderCards();
+        seqPh(k + 1);
       });
-    });
+    })(0);
     return;
   }
 });
@@ -3945,7 +4048,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         '<label class="btn-mini hm-file-btn">选择图片<input type="file" class="b-file" accept="image/*" hidden></label>' +
         '<label class="btn-mini hm-file-btn">添加照片<input type="file" class="b-photos" accept="image/*" multiple hidden></label>' +
         '</div>' +
-        photoStrip(b.photos, 'b-photo-kebab') +
+        photoStrip(b.image, b.photos, 'b-photo-kebab', 'bjd', i) +
         '<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:12px;">' +
         bjdField('尺寸 / 种类', '<select class="b-head-size">' + opts(BJD_SIZES, b.head.size) + '</select>') +
         '</div>' +
@@ -4266,7 +4369,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         '<label class="btn-mini hm-file-btn">选择图片<input type="file" class="w-file" accept="image/*" hidden></label>' +
         '<label class="btn-mini hm-file-btn">添加照片<input type="file" class="w-photos" accept="image/*" multiple hidden></label>' +
         '</div>' +
-        photoStrip(w.photos, 'w-photo-kebab') +
+        photoStrip(w.image, w.photos, 'w-photo-kebab', 'work', i) +
         '<div style="display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap;">' +
         bjdField('日期', '<input type="text" class="wk-date date-pick" readonly data-dp="1" placeholder="选择日期" style="width:100%;cursor:pointer;" value="' + escAttr(w.date) + '">') +
         bjdField('价格（选填）', '<input type="text" class="wk-price" inputmode="decimal" placeholder="如 66" style="width:100%;" value="' + escAttr(w.price || '') + '">') +
@@ -4372,14 +4475,17 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       var fsW = Array.prototype.slice.call(e.target.files);
       if (!fsW.length) return;
       toast('上传中…');
-      fsW.forEach(function (fW) {
-        bjdUpload(fW, function (url) {
-          w.photos.push(url);
+      (function seqW(k) { // 依次上传保持选择顺序；第一张默认设为封面
+        if (k >= fsW.length) return;
+        bjdUpload(fW2 = fsW[k], function (url) {
+          if (!w.image) w.image = url;
+          else w.photos.push(url);
           saveWorksQuiet();
           renderWorks();
           toast('已添加');
+          seqW(k + 1);
         });
-      });
+      })(0);
       return;
     }
   });
@@ -4457,15 +4563,17 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       var fsB = Array.prototype.slice.call(e.target.files);
       if (!fsB.length) return;
       toast('上传中…');
-      fsB.forEach(function (fB) {
-        bjdUpload(fB, function (url) {
-          b.photos = Array.isArray(b.photos) ? b.photos : [];
-          b.photos.push(url);
+      (function seqB(k) { // 依次上传保持选择顺序；第一张默认设为封面
+        if (k >= fsB.length) return;
+        bjdUpload(fsB[k], function (url) {
+          if (!b.image) b.image = url;
+          else { b.photos = Array.isArray(b.photos) ? b.photos : []; b.photos.push(url); }
           scheduleBjdSave();
           renderBjds();
           toast('已添加');
+          seqB(k + 1);
         });
-      });
+      })(0);
       return;
     }
   });

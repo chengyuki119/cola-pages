@@ -307,14 +307,14 @@
   #bjd-sort { border: none; background: var(--card); color: var(--muted); border-radius: 999px; padding: 6px 12px; font-size:15px; cursor: pointer; outline: none; font-family: inherit; }
   .cg-item { position: relative; aspect-ratio: 1/1; overflow: hidden; border-radius: 12px; background: var(--card); cursor: pointer; display: block; }
   .cg-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  #cards-home-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
-  #works-home-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
+  #cards-home-grid { display: grid; grid-template-columns: repeat(var(--home-cols, 4), 1fr); gap: 12px; } /* 主页预览：几张图均分几列，舖满 1000px */
+  #works-home-grid { display: grid; grid-template-columns: repeat(var(--home-cols, 4), 1fr); gap: 12px; }
   .bjd-size-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
   .bjd-size-h { font-size:18px; margin: 20px 0 10px; }
   .bjd-size-h:first-child { margin-top: 0; }
   .home-long-btn { display: block; text-align: center; margin-top: 14px; padding: 11px 0; font-size:17px; border-radius: 12px; background: var(--accent-soft); color: #fff; font-weight: 600; text-decoration: none; transition: filter .2s; }
   .home-long-btn:hover { filter: brightness(1.05); }
-  #bjd-home-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
+  #bjd-home-grid { display: grid; grid-template-columns: repeat(var(--home-cols, 4), 1fr); gap: 12px; }
   /* 卡片视觉与 Photo Gallery 统一：圆角 + hover 平滑放大 */
   #bjd-home-grid .bjd-card, #cards-home-grid .sc-product, #works-home-grid .work-card, #cards-grid .sc-product, #bjd-grid .bjd-card {
     min-width: 0;
@@ -324,6 +324,7 @@
   #bjd-home-grid .bjd-card img, #cards-home-grid .sc-product img, #works-home-grid .work-card img, #cards-grid .sc-product img, #bjd-grid .bjd-card img { transition: transform .25s; }
   #bjd-home-grid .bjd-card:hover img, #cards-home-grid .sc-product:hover img, #works-home-grid .work-card:hover img, #cards-grid .sc-product:hover img, #bjd-grid .bjd-card:hover img { transform: scale(1.05); }
   .share-btn.share-inline { position: static; width: 30px; height: 30px; flex-shrink: 0; }
+  @media (max-width: 640px) { #bjd-home-grid, #cards-home-grid, #works-home-grid { grid-template-columns: repeat(2, 1fr); } } /* 手机上保持两张一行，好认 */
   .card-edit-btn { border: none; background: var(--card-hover); color: var(--accent); font-size:14px; cursor: pointer; padding: 3px 10px; border-radius: 999px; flex-shrink: 0; transition: background .2s, color .2s; }
   .card-edit-btn:hover { background: var(--accent-soft); color: #fff; }
   /* Apple Calendar 式月历 + 重要日子 */
@@ -568,4 +569,10 @@
 .pg-btn { position: absolute; top: 50%; transform: translateY(-50%); width: 30px; height: 30px; border-radius: 50%; border: none; background: rgba(255,255,255,.92); color: var(--text); font-size: 16px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(180,120,150,.25); font-family: inherit; padding: 0; }
 .pg-prev { left: 8px; }
 .pg-next { right: 8px; }
-.pg-count { position: absolute; right: 8px; bottom: 8px; background: rgba(255,255,255,.92); border-radius: 999px; padding: 2px 9px; font-size: 12px; color: var(--text); }
+.pg-dots { position: absolute; left: 0; right: 0; bottom: 48px; display: flex; justify-content: center; gap: 4px; pointer-events: none; }
+.pg-dot { width: 5px; height: 5px; border-radius: 999px; background: rgba(255,255,255,.88); box-shadow: 0 1px 3px rgba(0,0,0,.18); transition: width .2s, background .2s; }
+.pg-dot.on { width: 16px; background: var(--accent); }
+.pg-thumbs { position: absolute; left: 0; right: 0; bottom: 8px; display: flex; gap: 5px; overflow-x: auto; padding: 3px 10px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.pg-thumbs::-webkit-scrollbar { display: none; }
+.pg-thumb { width: 30px; height: 30px; border-radius: 8px; object-fit: cover; flex-shrink: 0; border: 2px solid rgba(255,255,255,.9); cursor: pointer; opacity: .85; transition: opacity .2s, border-color .2s; box-sizing: border-box; background: var(--card); display: block; }
+.pg-thumb.on { border-color: var(--accent); opacity: 1; }

@@ -10,7 +10,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/icon-yuki2-180.png">
 <link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki2-180.png">
 <meta name="apple-mobile-web-app-title" content="小柚的小世界">
-<link rel="stylesheet" href="/css/site.css?v=20261017b">
+<link rel="stylesheet" href="/css/site.css?v=20261017c">
 <link rel="stylesheet" href="/site-menu.css">
 <script src="/site-menu.js" defer></script>
 </head>
@@ -70,7 +70,7 @@
 <div id="share-pop"></div>
 <div class="toast" id="toast"></div>
 
-<script src="/js/site-common.js?v=20261017b"></script>
+<script src="/js/site-common.js?v=20261017c"></script>
 <script>
   // ===== 稿件展示：独立子页（稿件墙 + 稿件详情 /works/?id=N）=====
   // 数据：site_settings.works（与后台「稿件管理」同一份，单一数据源）
@@ -149,6 +149,7 @@
         '<div style="display:flex;align-items:center;gap:8px;">' +
         '<b style="flex:1;font-size:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(w.name || t('未命名稿件', 'Untitled work')) + '</b>' +
         shareBtnHtml(x.i, 'work', true) +
+        workEditBtn(x.i, WORKS_CACHE) +
         '</div>' +
         (w.date ? '<div style="font-size:15px;color:var(--muted);margin-top:3px;">' + escDb(fmtWorkDate(w.date)) + '</div>' : '') +
         (w.cat || w.artist ? '<div style="font-size:15px;color:var(--muted);margin-top:3px;">' + escDb([w.cat, w.artist].filter(Boolean).join(' · ')) + '</div>' : '') +

@@ -124,10 +124,12 @@ var WORKS_CACHE = [];  // 页面脚本按需填充（稿件展示）
 function pagerImgsOf(o) {
   o = o || {};
   var arr = [];
-  if (Array.isArray(o.images) && o.images.length) arr = o.images.filter(Boolean);
-  else if (Array.isArray(o.photos) && o.photos.length) arr = o.photos.filter(Boolean);
+  if (Array.isArray(o.images) && o.images.length) arr = o.images.filter(Boolean); // 小铺：images 自带主图
+  else if (o.image || Array.isArray(o.photos)) { // 色卡/BJD/稿件：封面在前，照片跟后（去重）
+    if (o.image) arr.push(o.image);
+    (Array.isArray(o.photos) ? o.photos : []).forEach(function (u) { if (u && arr.indexOf(u) === -1) arr.push(u); });
+  }
   else if (o.image_url) arr = [o.image_url];
-  else if (o.image) arr = [o.image];
   return arr.map(function (u) { return normImg(u); });
 }
 function pagerWrapHtml(urls, alt) {
@@ -135,25 +137,39 @@ function pagerWrapHtml(urls, alt) {
   if (!urls.length) return '<div style="width:100%;aspect-ratio:1/1;background:var(--card);"></div>';
   var multi = urls.length > 1;
   return '<div class="pg-wrap" data-i="0" style="position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--card);">' +
-    '<img class="pg-img" src="' + escAttrDb(urls[0]) + '" data-urls="' + escAttrDb(JSON.stringify(urls)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + escAttrDb(alt || '') + '" loading="lazy">' +
-    (multi ? '<button type="button" class="pg-btn pg-prev" aria-label="上一张">‹</button><button type="button" class="pg-btn pg-next" aria-label="下一张">›</button><span class="pg-count">1/' + urls.length + '</span>' : '') +
+    '<img class="pg-img" src="' + escAttrDb(urls[0]) + '" data-urls="' + escAttrDb(JSON.stringify(urls)) + '" style="width:100%;height:100%;object-fit:contain;display:block;" alt="' + escAttrDb(alt || '') + '" loading="lazy">' +
+    (multi ?
+      '<button type="button" class="pg-btn pg-prev" aria-label="上一张">‹</button><button type="button" class="pg-btn pg-next" aria-label="下一张">›</button>' +
+      '<div class="pg-dots">' + urls.map(function (_, k) { return '<span class="pg-dot' + (k === 0 ? ' on' : '') + '"></span>'; }).join('') + '</div>' +
+      '<div class="pg-thumbs">' + urls.map(function (u, k) { return '<img class="pg-thumb' + (k === 0 ? ' on' : '') + '" src="' + escAttrDb(u) + '" data-k="' + k + '" alt="" loading="lazy">'; }).join('') + '</div>'
+      : '') +
     '</div>';
 }
-document.addEventListener('click', function (e) { // 捕获阶段拦下箭头点击，不触发卡片本身的进详情
-  var btn = e.target.closest ? e.target.closest('.pg-btn') : null;
-  if (!btn) return;
-  e.preventDefault(); e.stopPropagation();
-  var wrap = btn.closest('.pg-wrap');
+function pgSet(wrap, i) { // 统一切换：大图 + 极简圆点（当前是长条） + 底部小图预览（自动滚到当前，也可手动左右划、点小图跳转）
   var img = wrap.querySelector('.pg-img');
   var urls = [];
   try { urls = JSON.parse(img.getAttribute('data-urls') || '[]'); } catch (err) {}
-  if (urls.length < 2) return;
-  var i = parseInt(wrap.getAttribute('data-i') || '0', 10) || 0;
-  i = (i + (btn.classList.contains('pg-next') ? 1 : urls.length - 1)) % urls.length;
+  if (!urls.length) return;
+  i = (i + urls.length) % urls.length;
   wrap.setAttribute('data-i', String(i));
   img.src = urls[i];
-  var c = wrap.querySelector('.pg-count');
-  if (c) c.textContent = (i + 1) + '/' + urls.length;
+  wrap.querySelectorAll('.pg-dot').forEach(function (d, k) { d.classList.toggle('on', k === i); });
+  wrap.querySelectorAll('.pg-thumb').forEach(function (t, k) {
+    t.classList.toggle('on', k === i);
+    if (k === i) { try { t.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); } catch (err) { t.scrollIntoView(); } } // 小图条自动滑到当前张
+  });
+}
+document.addEventListener('click', function (e) { // 捕获阶段拦下箭头/小图点击，不触发卡片本身的进详情；点大图直接进详情页
+  var t = e.target.closest ? e.target.closest('.pg-btn, .pg-thumb') : null;
+  if (!t) return;
+  e.preventDefault(); e.stopPropagation();
+  var wrap = t.closest('.pg-wrap');
+  var urls = [];
+  try { urls = JSON.parse(wrap.querySelector('.pg-img').getAttribute('data-urls') || '[]'); } catch (err) {}
+  if (urls.length < 2) return;
+  if (t.classList.contains('pg-thumb')) { pgSet(wrap, parseInt(t.getAttribute('data-k'), 10) || 0); return; }
+  var i = parseInt(wrap.getAttribute('data-i') || '0', 10) || 0;
+  pgSet(wrap, i + (t.classList.contains('pg-next') ? 1 : -1));
 }, true);
 
 // ===== BJD 总价（与色卡总价同一套展示口径）：已启用部件的价格自动求和 =====
@@ -301,7 +317,7 @@ var ADMIN_LOGGED = false;
 try { ADMIN_LOGGED = !!localStorage.getItem('yuki-admin-session'); } catch (e) {}
 // ===== 前台「编辑」按钮（只有登录了后台账号才出现）：色卡 / BJD / 小铺 共用同一套 =====
 // 传真实 id（色卡 / 商品有 id）；没有 id 的（BJD 档案）传位置编号，后台按编号打开
-var EDIT_TAB_OF = { card: 'cards', bjd: 'bjd', product: 'shop' };
+var EDIT_TAB_OF = { card: 'cards', bjd: 'bjd', product: 'shop', work: 'works' };
 function adminEditBtn(kind, i, list) {
   if (!ADMIN_LOGGED) return '';
   var it = (list || [])[i] || {};
@@ -312,6 +328,7 @@ function adminEditBtn(kind, i, list) {
 }
 function cardEditBtn(i) { return adminEditBtn('card', i, (window.CARDS_CACHE || CARDS_CACHE)); }
 function bjdEditBtn(i) { return adminEditBtn('bjd', i, (window.BJDS_CACHE || BJDS_CACHE)); }
+function workEditBtn(i, list) { return adminEditBtn('work', i, list).replace(/编辑卡/g, '编辑稿'); } // 稿件：同套编辑按钮，文案用「编辑稿」
 // 点「编辑」→ 记下要编辑的对象，跳到后台对应 tab 直接展开它
 if (!window.__editBtnBound) {
   window.__editBtnBound = 1;
