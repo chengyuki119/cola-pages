@@ -2325,10 +2325,12 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         // 前台「编辑稿」直达：按位置编号打开对应稿件的编辑状态
         try {
           var ewk = sessionStorage.getItem('admin-edit-work');
-          if (ewk && /^\d+$/.test(ewk)) {
+          if (ewk) {
             sessionStorage.removeItem('admin-edit-work');
-            var wi2 = parseInt(ewk, 10);
-            if (WORKS[wi2]) { WORKS_EDIT = wi2; EDIT_TYPE = 'work'; PENDING_TAB = 'works'; }
+            var wi2 = -1;
+            for (var kw = 0; kw < WORKS.length; kw++) { if (WORKS[kw] && WORKS[kw].id != null && String(WORKS[kw].id) === ewk) { wi2 = kw; break; } }
+            if (wi2 < 0 && /^\d+$/.test(ewk)) wi2 = parseInt(ewk, 10); // 兼容旧版位置编号
+            if (wi2 >= 0 && WORKS[wi2]) { WORKS_EDIT = wi2; EDIT_TYPE = 'work'; PENDING_TAB = 'works'; }
           }
         } catch (e) {}
         if (BJDS_EDIT >= 0 || CARDS_EDIT >= 0 || WORKS_EDIT >= 0) goEditTop(); // 从前台「编辑」跳进来也回到最上面
