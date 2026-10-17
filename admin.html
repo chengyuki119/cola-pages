@@ -2724,7 +2724,12 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       return false;
     };
     setTimeout(function () { if (!go()) { try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { window.scrollTo(0, 0); } } }, 80);
-    setTimeout(go, 400); // 布局稳定后再校一次
+    [400, 900, 1500].forEach(function (t) { setTimeout(function () { try { go && goInstant(); } catch (e) {} }, t); }); // 布局晚稳也兜住：多次瞬时校正
+    function goInstant() {
+      var el = document.querySelector('.bjd-item.editing, .editing');
+      if (!el) { var eg = document.querySelector('.edit-grid'); if (eg && eg.offsetHeight > 0) el = eg.closest('.card') || eg; }
+      if (el && el.getBoundingClientRect().height > 0) window.scrollTo(0, Math.max(0, el.getBoundingClientRect().top + window.pageYOffset - 74));
+    }
   }
   function bjdSumV(b) { // 与前台 bjdTotalV 同一套算法：各项价格加起来
     var p = (b && b.price) || {}, parts = (b && b.parts) || {};
