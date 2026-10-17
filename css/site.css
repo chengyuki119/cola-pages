@@ -122,7 +122,7 @@
     text-shadow: 0 1px 6px rgba(255,111,165,.45);
   }
   .page-body {
-    max-width: 900px;
+    max-width: 1000px;
     margin: 0 auto;
     padding: 80px 24px 64px;
   }
@@ -454,7 +454,7 @@
 
   /* ===== 子页面 ===== */
   .subpage-header {
-    max-width: 900px;
+    max-width: 1000px;
     margin: 0 auto;
     padding: 84px 24px 0;
   }
@@ -470,7 +470,7 @@
   .back-link:hover { background: var(--card-hover); }
   .subpage-title { font-size:31px; margin: 20px 0 6px; }
   .subpage-sub { color: var(--muted); font-size:17px; margin-bottom: 28px; }
-  .album-body { max-width: 900px; } /* 与页头同宽，照片和返回按钮左边对齐 */
+  .album-body { max-width: 1000px; } /* 与页头同宽，照片和返回按钮左边对齐 */
 
   /* 复制成功提示 */
   .toast {
