@@ -3692,7 +3692,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     if (SC_POP) { popClose(); return; } // 菜单开着时点其他地方：只关菜单
     var c = normCard(CARDS[i]);
     if (i !== CARDS_EDIT && e.target.closest('.sc-name')) {
-      BJDS_EDIT = -1; CARDS_EDIT = i; EDIT_TYPE = 'card'; renderCards(); goEditTop(); return; // 点色卡名称 → 直接打开这张卡的详情/编辑
+      window.open('/color-card/?card=' + i, '_blank'); return; // 点色卡名 → 打开前台检视页（跟主页点进去看到的一样）
     }
     if (i === CARDS_EDIT) {
       var blk2 = e.target.closest('.sc-artist-block');
@@ -3938,10 +3938,12 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         '<label class="btn-mini hm-file-btn">添加照片<input type="file" class="b-photos" accept="image/*" multiple hidden></label>' +
         '</div>' +
         photoStrip(b.photos, 'b-photo-kebab') +
+        '<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:12px;">' +
+        bjdField('尺寸 / 种类', '<select class="b-head-size">' + opts(BJD_SIZES, b.head.size) + '</select>') +
+        '</div>' +
         bjdGroup('娃娃头', '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
           bjdField('厂家 / 品牌', '<input class="b-head-brand" style="width:100%;" value="' + escAttr(b.head.brand) + '" placeholder="如：大米自制">') +
           bjdField('型号 / Sculpt', '<input class="b-head-sculpt" style="width:100%;" value="' + escAttr(b.head.sculpt) + '" placeholder="如：XXX Head">') +
-          bjdField('娃娃头尺寸', '<select class="b-head-size">' + opts(BJD_SIZES, b.head.size) + '</select>') +
           bjdField('头部备注', '<input class="b-head-note" style="width:100%;" value="' + escAttr(b.head.note) + '" placeholder="自由填写">') +
           '</div>', 'head') +
         bjdGroup('身体', '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
@@ -3965,12 +3967,12 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           bjdField('妆面完成时间', '<input type="text" class="b-fu-date" readonly data-dp="1" placeholder="选择日期" style="width:100%;cursor:pointer;" value="' + escAttr(b.faceup.date) + '">') +
           '</div>', 'head') +
         bjdGroup('价格', '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
-          (b.parts.head !== false ? bjdField('价格：娃娃头', '<input class="b-cost-doll" style="width:100%;" value="' + escAttr(b.price.doll) + '" placeholder="选填">') : '') +
+          (b.parts.head !== false ? bjdField('价格：娃头', '<input class="b-cost-doll" style="width:100%;" value="' + escAttr(b.price.doll) + '" placeholder="选填">') : '') +
           (b.parts.body !== false ? bjdField('价格：身体', '<input class="b-cost-body" style="width:100%;" value="' + escAttr(b.price.body) + '" placeholder="选填">') : '') +
           (b.parts.eyes !== false ? bjdField('价格：眼珠', '<input class="b-cost-eyes" style="width:100%;" value="' + escAttr(b.price.eyes) + '" placeholder="选填">') : '') +
           (b.parts.clothes ? bjdField('价格：衣服', '<input class="b-cost-clothes" style="width:100%;" value="' + escAttr(b.price.clothes) + '" placeholder="选填">') : '') +
           (b.parts.head !== false ? bjdField('价格：妆面', '<input class="b-cost-faceup" style="width:100%;" value="' + escAttr(b.price.faceup) + '" placeholder="选填">') : '') +
-          bjdField('总价（自动算，也可手改）', '<input class="b-price-total" style="width:100%;" value="' + escAttr(b.price.total) + '" placeholder="填了各项价格会自动算出来">') +
+          bjdField('总价', '<input class="b-price-total" style="width:100%;" value="' + escAttr(b.price.total) + '" placeholder="填了各项价格会自动算出，也可手改">') +
           '</div>') +
         bjdGroup('购买信息（全部选填）', '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
           bjdField('购买日期', '<input type="text" class="b-buy-date" readonly data-dp="1" placeholder="选择日期" style="width:100%;cursor:pointer;" value="' + escAttr(b.purchase.date) + '">') +
@@ -4009,6 +4011,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     CARDS_EDIT = -1;
     popClose();
     renderBjds();
+    goEditTop();
   });
   // ===== 娃娃尺寸 / 身体类型管理：两排标签同一套（改名 / 删除 / 添加）=====
   var BJD_LISTS = {
