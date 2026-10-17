@@ -298,7 +298,7 @@
   #share-pop { position: fixed; z-index: 999; background: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(180,120,150,.18); padding: 6px; width: 168px; box-sizing: border-box; display: none; animation: scPopIn .16s ease; }
   @keyframes scPopIn { from { opacity: 0; transform: scale(.94); } }
   #share-pop .sc-opt { display: flex; align-items: center; gap: 8px; width: 100%; box-sizing: border-box; border: none; background: none; padding: 9px 12px; font-size:16px; line-height: 1; cursor: pointer; border-radius: 8px; text-align: left; color: var(--text); }
-  #share-pop .sc-opt:hover { background: var(--card); }
+  #share-pop .sc-opt:hover { background: #f6d9e6; }
   .bjd-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
   .bjd-chips { display: flex; gap: 6px; flex-wrap: wrap; }
   .bjd-chip { border: none; background: var(--card); color: var(--muted); border-radius: 999px; padding: 6px 12px; font-size:15px; cursor: pointer; transition: background .2s, color .2s; }

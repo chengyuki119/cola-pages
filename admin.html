@@ -304,10 +304,10 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     .sc-row .kebab { width: 22px; height: 30px; }
   }
   #sc-pop .sc-opt { display: flex; align-items: center; gap: 8px; width: 100%; box-sizing: border-box; border: none; background: none; padding: 9px 12px; font-size:16px; line-height: 1; cursor: pointer; border-radius: 8px; text-align: left; color: var(--text); }
-  #sc-pop .sc-opt:hover { background: var(--card); }
+  #sc-pop .sc-opt:hover { background: #f6d9e6; }
   #sc-pop .sc-opt:disabled { color: var(--muted); cursor: default; background: none; }
-  #sc-pop .sc-opt-del { background: #f6d9e6; color: var(--text); }
-  #sc-pop .sc-opt-del:hover { background: #f3c9dd; }
+  #sc-pop .sc-opt-del { background: none; color: var(--text); }
+  #sc-pop .sc-opt-del:hover { background: #f6d9e6; }
   /* 色卡 / BJD 列表：同一个卡片尺寸规范（同一网格、同一间距、同一卡片结构）*/
   #sc-artist-list, #bjd-list, #works-list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
   @media (max-width: 900px) { #sc-artist-list, #bjd-list, #works-list { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); } }
@@ -3965,12 +3965,12 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           bjdField('妆面完成时间', '<input type="text" class="b-fu-date" readonly data-dp="1" placeholder="选择日期" style="width:100%;cursor:pointer;" value="' + escAttr(b.faceup.date) + '">') +
           '</div>', 'head') +
         bjdGroup('价格', '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
-          bjdField('娃娃价格（总价）', '<input class="b-price-total" style="width:100%;" value="' + escAttr(b.price.total) + '" placeholder="如：$500（选填）">') +
           (b.parts.head !== false ? bjdField('价格：娃娃头', '<input class="b-cost-doll" style="width:100%;" value="' + escAttr(b.price.doll) + '" placeholder="选填">') : '') +
           (b.parts.body !== false ? bjdField('价格：身体', '<input class="b-cost-body" style="width:100%;" value="' + escAttr(b.price.body) + '" placeholder="选填">') : '') +
           (b.parts.eyes !== false ? bjdField('价格：眼珠', '<input class="b-cost-eyes" style="width:100%;" value="' + escAttr(b.price.eyes) + '" placeholder="选填">') : '') +
           (b.parts.clothes ? bjdField('价格：衣服', '<input class="b-cost-clothes" style="width:100%;" value="' + escAttr(b.price.clothes) + '" placeholder="选填">') : '') +
           (b.parts.head !== false ? bjdField('价格：妆面', '<input class="b-cost-faceup" style="width:100%;" value="' + escAttr(b.price.faceup) + '" placeholder="选填">') : '') +
+          bjdField('总价（自动算，也可手改）', '<input class="b-price-total" style="width:100%;" value="' + escAttr(b.price.total) + '" placeholder="填了各项价格会自动算出来">') +
           '</div>') +
         bjdGroup('购买信息（全部选填）', '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
           bjdField('购买日期', '<input type="text" class="b-buy-date" readonly data-dp="1" placeholder="选择日期" style="width:100%;cursor:pointer;" value="' + escAttr(b.purchase.date) + '">') +
@@ -4334,6 +4334,9 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       saveWorksQuiet();
       return;
     }
+    if (i !== WORKS_EDIT && e.target.closest('.sc-name')) {
+      window.open('/works/?id=' + i, '_blank'); return; // 点稿件名 → 打开前台检视页
+    }
     if (SC_POP) { popClose(); return; }
   });
   document.getElementById('works-list').addEventListener('input', function (e) {
@@ -4392,6 +4395,9 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       popOpen(i === BJDS_EDIT ? 'bjd-e' : 'bjd', i, -1, -1, kebab);
       return;
     }
+    if (i !== BJDS_EDIT && e.target.closest('.sc-name')) {
+      window.open('/bjd/?id=' + i, '_blank'); return; // 点娃娃名 → 打开前台检视页
+    }
     if (SC_POP) { popClose(); return; }
   });
   document.getElementById('bjd-list').addEventListener('input', function (e) {
@@ -4403,11 +4409,19 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       'b-eye-maker': ['eyes', 'maker'], 'b-eye-size': ['eyes', 'size'], 'b-eye-note': ['eyes', 'note'],
       'b-cl-brand': ['clothes', 'brand'], 'b-cl-note': ['clothes', 'note'],
       'b-fu-faceup': ['faceup', 'faceup'], 'b-fu-artist': ['faceup', 'artist'],
-      'b-price-total': ['price', 'total'], 'b-cost-doll': ['price', 'doll'], 'b-cost-faceup': ['price', 'faceup'], 'b-cost-eyes': ['price', 'eyes'], 'b-cost-body': ['price', 'body'],
+      'b-price-total': ['price', 'total'], 'b-cost-doll': ['price', 'doll'], 'b-cost-faceup': ['price', 'faceup'], 'b-cost-eyes': ['price', 'eyes'], 'b-cost-body': ['price', 'body'], 'b-cost-clothes': ['price', 'clothes'],
       'b-buy-channel': ['purchase', 'channel'], 'b-notes': ['notes'] };
     var path = map[e.target.className];
     if (path) {
       if (path.length === 1) b[path[0]] = e.target.value; else b[path[0]][path[1]] = e.target.value;
+      // 填各项价格时自动算总价（总价仍可手改）
+      if (/^b-cost-/.test(e.target.className)) {
+        var t = bjdSumV(b);
+        if (t > 0) {
+          var ti = card.querySelector('.b-price-total');
+          if (ti) { ti.value = String(parseFloat(t.toFixed(2))); b.price.total = ti.value; }
+        }
+      }
       scheduleBjdSave();
     }
   });
