@@ -4027,7 +4027,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         '<button type="button" class="kebab ' + cfg.chip + '" data-si="' + i + '" title="菜单" style="width:22px;height:22px;font-size:15px;">⋮</button></span>';
     }).join('') : '<span style="font-size:15px;color:var(--muted);">还没有，可在后面添加</span>';
   }
-  function renderBjdLists() { renderBjdList('size'); renderBjdList('body'); }
+  function renderBjdLists() { renderBjdList('size'); }
   var renderBjdSizes = function () { renderBjdList('size'); }; // 侧旧：保存后重建尺寸那一排
   function bjdInfoLines(b) { // 后台卡片显示的信息：跟前台 sub page 一致（含价格）
     var j = function (arr) { return arr.filter(Boolean).join(' · '); };
