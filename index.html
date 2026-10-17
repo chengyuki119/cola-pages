@@ -35,7 +35,7 @@
 <meta name="twitter:title" content="小柚的小世界">
 <meta name="twitter:description" content="欢迎来到小柚的小世界">
 <meta name="twitter:image" content="https://yukicheng.com/og-image.jpg">
-<link rel="stylesheet" href="/css/site.css?v=20261017a">
+<link rel="stylesheet" href="/css/site.css?v=20261017b">
   <link rel="stylesheet" href="/site-menu.css">
     <script src="/site-menu.js" defer></script>
 </head>
@@ -207,7 +207,7 @@
 <div id="share-pop"></div>
 
 
-<script src="/js/site-common.js?v=20261017a"></script>
+<script src="/js/site-common.js?v=20261017b"></script>
 
 <!-- ═══════════ 小柚助手（AI 入口 · 第一阶段测试：模拟回复 + 后台知识库匹配，未接真 AI）═══════════ -->
 <style>
@@ -544,7 +544,7 @@
     var grid = document.getElementById('bjd-home-grid');
     if (!grid) return;
     var all = BJDS_CACHE.map(function (b, i) { return { b: normBjdView(b), i: i }; });
-    var flagged = all.filter(function (x) { return x.b.homeShow !== false; }); // 只显示勾选「主页展示」的娃，不限数量，无勾选则隐藏区块
+    var flagged = all.filter(function (x) { return x.b.homeShow !== false; }).slice(0, 4); // 只显示勾选「主页展示」的娃，最多四张，无勾选则隐藏区块
     var show = flagged;
     grid.style.display = show.length ? 'grid' : 'none';
     grid.innerHTML = show.map(function (x) {
@@ -700,7 +700,7 @@
     // 色卡：主页简洁预览（点卡片进色卡子页详情）
     var chGrid = document.getElementById('cards-home-grid');
     if (chGrid) {
-      var showCards = CARDS_CACHE.map(function (c, i) { return { c: c, i: i }; }).filter(function (x) { return x.c.homeShow !== false; }); // 只显示勾选「主页展示」的色卡，不限数量
+      var showCards = CARDS_CACHE.map(function (c, i) { return { c: c, i: i }; }).filter(function (x) { return x.c.homeShow !== false; }).slice(0, 4); // 只显示勾选「主页展示」的色卡，最多四张
       if (!CARDS_CACHE.length) {
         chGrid.style.display = 'block';
         chGrid.innerHTML = '<p style="color:var(--muted);text-align:center;padding:30px 0;font-size:17px;">还没有色卡，去后台「色卡管理」新建吧</p>';
@@ -746,7 +746,7 @@
     var wkGrid = document.getElementById('works-home-grid');
     if (wkGrid) {
       var worksRaw = parseSetting('works', []);
-      var worksList = (Array.isArray(worksRaw) ? worksRaw : []).filter(function (w) { return w && w.visible !== false; }); // 与 /works/ 同样过滤，序号一致
+      var worksList = (Array.isArray(worksRaw) ? worksRaw : []).filter(function (w) { return w && w.visible !== false; }).slice(0, 4); // 与 /works/ 同样过滤，序号一致，主页最多四张
       if (!worksList.length) {
         wkGrid.style.display = 'block';
         wkGrid.innerHTML = '<p style="color:var(--muted);text-align:center;padding:30px 0;font-size:17px;">还没有稿件，去后台「稿件管理」上传吧</p>';
