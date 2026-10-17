@@ -839,12 +839,6 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           <input id="bjd-size-new" placeholder="新尺寸名" style="border:none;border-radius:10px;background:var(--card);padding:8px 12px;font-size:16px;width:120px;outline:none;color:var(--text);">
           <button class="btn-mini" id="btn-bjd-size-add">+ 添加</button>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
-          <span style="font-size:16px;color:var(--muted);flex-shrink:0;">身体类型管理</span>
-          <div id="bjd-body-chips" style="display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:180px;"></div>
-          <input id="bjd-body-new" placeholder="新类型名" style="border:none;border-radius:10px;background:var(--card);padding:8px 12px;font-size:16px;width:120px;outline:none;color:var(--text);">
-          <button class="btn-mini" id="btn-bjd-body-add">+ 添加</button>
-        </div>
         <div id="bjd-list"></div>
         <div class="actions" style="flex-wrap:wrap;">
           <button class="btn-mini btn-save-tb" id="btn-bjd-save">保存 BJD 改动</button>
@@ -1823,6 +1817,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           var tb = document.querySelector('.tab-btn[data-tab="bjd"]');
           if (tb) tb.click();
           renderBjds();
+          goEditTop();
         } else {
           CARDS_EDIT = ai; EDIT_TYPE = 'card';
           var tc = document.querySelector('.tab-btn[data-tab="cards"]');
@@ -2715,8 +2710,18 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   function fmtMoney(v) {
     return (parseFloat(v) || 0).toFixed(2); // 金额统一两位小数，避免浮点长尾
   }
-  function goEditTop() { // 打开编辑时自动跳到页面最上面（保存按钮就在最上面那排）
-    setTimeout(function () { try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { window.scrollTo(0, 0); } }, 80);
+  function goEditTop() { // 打开编辑时自动滚到编辑卡最上面（娃娃名那一栏贴到顶栏下方）
+    setTimeout(function () {
+      try {
+        var el = document.querySelector('.bjd-item.editing, .editing, .edit-grid:not([style*="none"])');
+        if (el && el.getBoundingClientRect().height > 0) {
+          var y = el.getBoundingClientRect().top + window.pageYOffset - 74;
+          window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+          return;
+        }
+      } catch (e) {}
+      try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { window.scrollTo(0, 0); }
+    }, 80);
   }
   function bjdSumV(b) { // 与前台 bjdTotalV 同一套算法：各项价格加起来
     var p = (b && b.price) || {}, parts = (b && b.parts) || {};
@@ -3075,20 +3080,18 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         '<button class="sc-opt" data-opt="cancel">✕ 取消</button>';
     }
     if (SC_POP.type === 'work' || SC_POP.type === 'work-e') {
-      return (SC_POP.type === 'work' ? '<button class="sc-opt" data-opt="edit">编辑</button>' : '') +
+      return (SC_POP.type === 'work' ? '<button class="sc-opt" data-opt="edit">编辑</button>' : '<button class="sc-opt" data-opt="collapse">收起编辑</button>') +
         '<button class="sc-opt sc-opt-del" data-opt="del">删除</button>' +
         '<button class="sc-opt" data-opt="up"' + (SC_POP.i === 0 ? ' disabled' : '') + '>↑ 往上移动</button>' +
         '<button class="sc-opt" data-opt="down"' + (SC_POP.i === WORKS.length - 1 ? ' disabled' : '') + '>↓ 往下移动</button>' +
-        (SC_POP.type === 'work' ? '<button class="sc-opt" data-opt="cancel">✕ 取消</button>'
-                               : '<button class="sc-opt" data-opt="collapse">收起编辑</button>');
+        (SC_POP.type === 'work' ? '<button class="sc-opt" data-opt="cancel">✕ 取消</button>' : '');
     }
     if (SC_POP.type === 'bjd' || SC_POP.type === 'bjd-e') {
-      return (SC_POP.type === 'bjd' ? '<button class="sc-opt" data-opt="edit">编辑</button>' : '') +
+      return (SC_POP.type === 'bjd' ? '<button class="sc-opt" data-opt="edit">编辑</button>' : '<button class="sc-opt" data-opt="collapse">收起编辑</button>') +
         '<button class="sc-opt sc-opt-del" data-opt="del">删除</button>' +
         '<button class="sc-opt" data-opt="up"' + (SC_POP.i === 0 ? ' disabled' : '') + '>↑ 往上移动</button>' +
         '<button class="sc-opt" data-opt="down"' + (SC_POP.i === BJDS.length - 1 ? ' disabled' : '') + '>↓ 往下移动</button>' +
-        (SC_POP.type === 'bjd' ? '<button class="sc-opt" data-opt="cancel">✕ 取消</button>'
-                               : '<button class="sc-opt" data-opt="collapse">收起编辑</button>');
+        (SC_POP.type === 'bjd' ? '<button class="sc-opt" data-opt="cancel">✕ 取消</button>' : '');
     }
     if (SC_POP.type === 'photo') {
       return (SC_POP.ph.pinned ? '<button class="sc-opt" data-opt="unpin">取消置顶</button>'
@@ -3112,8 +3115,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         '<button class="sc-opt" data-opt="cancel">✕ 取消</button>';
     }
     var last = SC_POP.type === 'card' ? '<button class="sc-opt" data-opt="cancel">✕ 取消</button>'
-                                      : '<button class="sc-opt" data-opt="collapse">收起编辑</button>';
-    return (SC_POP.type === 'card' ? '<button class="sc-opt" data-opt="edit">编辑色卡</button>' : '') +
+                                      : '';
+    return (SC_POP.type === 'card' ? '<button class="sc-opt" data-opt="edit">编辑色卡</button>' : '<button class="sc-opt" data-opt="collapse">收起编辑</button>') +
       '<button class="sc-opt" data-opt="copy">复制色卡</button>' +
       '<button class="sc-opt sc-opt-del" data-opt="del">删除色卡</button>' +
       '<button class="sc-opt" data-opt="up"' + (SC_POP.i === 0 ? ' disabled' : '') + '>↑ 往上移动</button>' +
@@ -3944,14 +3947,12 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         bjdGroup('身体', '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
           bjdField('厂家 / 品牌', '<input class="b-body-brand" style="width:100%;" value="' + escAttr(b.body.brand) + '" placeholder="如：熊蛋">') +
           bjdField('Body 型号', '<input class="b-body-model" style="width:100%;" value="' + escAttr(b.body.model) + '" placeholder="如：XXX Body">') +
-          bjdField('身体类型', '<select class="b-body-type">' + opts(BJD_BODY_TYPES, b.body.type) + '</select>') +
           bjdField('身体备注', '<input class="b-body-note" style="width:100%;" value="' + escAttr(b.body.note) + '" placeholder="自由填写">') +
           '</div>', 'body') +
         bjdGroup('眼珠', '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
           bjdField('商家 / 制作者', '<input class="b-eye-maker" style="width:100%;" value="' + escAttr(b.eyes.maker) + '" placeholder="如：XX工作室 / 自制">') +
           bjdField('来源', '<select class="b-eye-source">' + opts(BJD_EYE_SOURCES, b.eyes.source) + '</select>') +
           bjdField('眼珠尺寸', '<input class="b-eye-size" style="width:100%;" value="' + escAttr(b.eyes.size) + '" placeholder="如：14mm">') +
-          bjdField('虹膜尺寸', '<input class="b-eye-iris" style="width:100%;" value="' + escAttr(b.eyes.iris) + '" placeholder="如：7mm（可留空）">') +
           bjdField('眼珠备注', '<input class="b-eye-note" style="width:100%;" value="' + escAttr(b.eyes.note) + '" placeholder="自由填写">') +
           '</div>', 'eyes') +
         bjdGroup('衣服', '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
@@ -4014,10 +4015,6 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     size: {
       p: 'bjd-size', box: 'bjd-size-chips', chip: 'bjd-size-kebab', input: 'bjd-size-new', key: 'bjd_sizes', word: '尺寸',
       get: function () { return BJD_SIZES; }, set: function (a) { BJD_SIZES = a; }, fieldKey: 'size'
-    },
-    body: {
-      p: 'bjd-body', box: 'bjd-body-chips', chip: 'bjd-body-kebab', input: 'bjd-body-new', key: 'bjd_body_types', word: '类型',
-      get: function () { return BJD_BODY_TYPES; }, set: function (a) { BJD_BODY_TYPES = a; }, fieldKey: 'type'
     }
   };
   function renderBjdList(which) {
@@ -4037,7 +4034,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     var rows = [];
     if (b.parts.head !== false) { var h = j([b.head.size, j([b.head.brand, b.head.sculpt]), b.head.note]); if (h) rows.push(['娃娃头', h]); }
     if (b.parts.body !== false) { var bd = j([b.body.brand, b.body.model, b.body.type, b.body.note]); if (bd) rows.push(['身体', bd]); }
-    if (b.parts.eyes !== false) { var ey = j([b.eyes.maker, b.eyes.source, b.eyes.size, b.eyes.iris, b.eyes.note]); if (ey) rows.push(['眼珠', ey]); }
+    if (b.parts.eyes !== false) { var ey = j([b.eyes.maker, b.eyes.source, b.eyes.size, b.eyes.note]); if (ey) rows.push(['眼珠', ey]); }
     if (b.parts.clothes) { var cl = j([b.clothes.brand, b.clothes.note]); if (cl) rows.push(['衣服', cl]); }
     if (b.parts.head !== false) { var fu = j([b.faceup.faceup, b.faceup.artist, b.faceup.date]); if (fu) rows.push(['妆面', fu]); }
     var pv = [];
@@ -4054,7 +4051,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     if (b.notes) rows.push(['备注', b.notes]);
     return rows;
   }
-  ['size', 'body'].forEach(function (which) {
+  ['size'].forEach(function (which) {
     var cfg = BJD_LISTS[which];
     var box = document.getElementById(cfg.box);
     if (!box) return;
@@ -4403,7 +4400,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     var b = normBjd(BJDS[parseInt(card.getAttribute('data-i'), 10)]);
     var map = { 'b-name': ['name'], 'b-head-brand': ['head', 'brand'], 'b-head-sculpt': ['head', 'sculpt'], 'b-head-note': ['head', 'note'],
       'b-body-brand': ['body', 'brand'], 'b-body-model': ['body', 'model'], 'b-body-note': ['body', 'note'],
-      'b-eye-maker': ['eyes', 'maker'], 'b-eye-size': ['eyes', 'size'], 'b-eye-iris': ['eyes', 'iris'], 'b-eye-note': ['eyes', 'note'],
+      'b-eye-maker': ['eyes', 'maker'], 'b-eye-size': ['eyes', 'size'], 'b-eye-note': ['eyes', 'note'],
       'b-cl-brand': ['clothes', 'brand'], 'b-cl-note': ['clothes', 'note'],
       'b-fu-faceup': ['faceup', 'faceup'], 'b-fu-artist': ['faceup', 'artist'],
       'b-price-total': ['price', 'total'], 'b-cost-doll': ['price', 'doll'], 'b-cost-faceup': ['price', 'faceup'], 'b-cost-eyes': ['price', 'eyes'], 'b-cost-body': ['price', 'body'],
@@ -4420,7 +4417,6 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     var b = normBjd(BJDS[parseInt(card.getAttribute('data-i'), 10)]);
     var cls = e.target.className;
     if (cls === 'b-head-size') b.head.size = e.target.value;
-    if (cls === 'b-body-type') b.body.type = e.target.value;
     if (cls === 'b-eye-source') b.eyes.source = e.target.value;
     if (cls === 'b-fu-date') b.faceup.date = e.target.value;
     if (cls === 'b-buy-date') b.purchase.date = e.target.value;
