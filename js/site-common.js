@@ -12,10 +12,10 @@ function escAttrDb(s) {
 }
 
 // ===== Supabase 数据层（全站同一份连接与登录态） =====
-var DB_BASE = 'https://zajcglvlzsolygvjeumb.supabase.co/rest/v1/';
+var DB_BASE = 'https://vmmmuyxrsiufzurwbydg.supabase.co/rest/v1/';
 var DB_HEADERS = {
-  'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InphamNnbHZsenNvbHlndmpldW1iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyMzI4NjUsImV4cCI6MjEwNjgwODg2NX0.7_Pthb3wPInb5v4o7IoWejozEvDZQgNPS8DgwikQ8ys',
-  'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InphamNnbHZsenNvbHlndmpldW1iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyMzI4NjUsImV4cCI6MjEwNjgwODg2NX0.7_Pthb3wPInb5v4o7IoWejozEvDZQgNPS8DgwikQ8ys'
+  'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtbW11eXhyc2l1Znp1cndieWRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI4NzM2NTAsImV4cCI6MjEwODQ0OTY1MH0.SbdbAJV5hP3MtyZxf7DQUAD9Fm-XNlVC5PaYf47lzsw',
+  'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtbW11eXhyc2l1Znp1cndieWRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI4NzM2NTAsImV4cCI6MjEwODQ0OTY1MH0.SbdbAJV5hP3MtyZxf7DQUAD9Fm-XNlVC5PaYf47lzsw'
 };
 function dbFetch(path) {
   return fetch(DB_BASE + path, { headers: DB_HEADERS }).then(function (r) { return r.ok ? r.json() : []; });
@@ -26,7 +26,7 @@ function getAuthToken() { // 用后台登录态（refresh token）换 access tok
   var s = null;
   try { s = JSON.parse(localStorage.getItem('yuki-admin-session') || 'null'); } catch (e) {}
   if (!s || !s.r) return Promise.resolve(null);
-  return fetch('https://zajcglvlzsolygvjeumb.supabase.co/auth/v1/token?grant_type=refresh_token', {
+  return fetch('https://vmmmuyxrsiufzurwbydg.supabase.co/auth/v1/token?grant_type=refresh_token', {
     method: 'POST',
     headers: { 'apikey': DB_HEADERS.apikey, 'Content-Type': 'application/json' },
     body: JSON.stringify({ refresh_token: s.r })
