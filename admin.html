@@ -80,7 +80,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     .adm-head .adm-home-btn { position: static; margin: 0 14px 0 0; flex-shrink: 0; }
   }
   @media (max-width: 899px) {
-    .adm-head { margin-left: 160px; } /* 手机端标题行也让出左栏，返回主页不再被固定侧栏盖住（她 20261027 01:16） */
+    .adm-head { margin-left: 0; } /* 手机端无常驻侧栏，标题行全宽（B4 20261028，与下方媒体查询同规则） */
     .adm-head .adm-home-btn { display: inline-block; order: -1; margin: 0 0 10px 2px; }
     .wrap { padding: 24px 10px 64px; } /* 两栏后手机端内容区变窄，内边距同步收紧 */
     .wrap h1 { font-size: 22px; margin: 16px 0 4px; } /* 内容区变窄，标题同步缩小避免截断 */
@@ -202,22 +202,24 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       width: 100%; max-height: none; overflow: visible;
     }
   }
-  /* ── 手机端：同款两栏，左栏窄条常驻（原来收在“管理面板”下拉里；她 20261027 00:00 要两图分开、左固定右独立滚）── */
+  /* ── 手机端：抽屉式导航（她 20261028 总任务书 B4：不再让完整侧栏常驻挤压内容）
+     「当前页面 ▾」按钮恢复显示，点开浮层选页；内容区全宽。桌面端不变。 ── */
   @media (max-width: 899px) {
     #admin-body { display: block; }
-    #pp-wrap {
-      position: fixed; left: 10px; top: 110px; width: 150px; margin-bottom: 0;
-      max-height: calc(100vh - 110px - 50px); overflow-y: auto;
-      z-index: 90;
-    }
-    #pp-btn { display: none; }
-    #adm-content { margin-left: 160px; min-width: 0; padding: 20px 10px 64px; box-sizing: border-box; } /* 手机端同步留白（与 .wrap 手机口径一致）*/
+    #pp-wrap { position: relative; width: auto; max-height: none; overflow: visible; margin-bottom: 18px; }
+    #pp-btn { display: inline-flex; }
+    #adm-content { margin-left: 0; min-width: 0; padding: 20px 10px 64px; box-sizing: border-box; } /* 内容区全宽（手机端） */
     #pp-menu {
-      position: static; display: block; width: 100%; padding: 6px;
-      max-height: none; overflow: visible; box-shadow: 0 2px 12px rgba(255,143,171,.10); animation: none;
+      position: absolute; top: calc(100% + 6px); left: 0;
+      display: none; width: min(300px, calc(100vw - 40px)); padding: 6px; box-sizing: border-box;
+      max-height: calc(100vh - 240px); overflow-y: auto; /* 菜单顶在内容区顶部（topbar 60 + 头部 ≈208），底部不出屏（B4 20261028） */
+      box-shadow: 0 6px 20px rgba(255,143,171,.18); animation: ppIn .16s ease;
     }
+    #pp-menu.open { display: block; }
     #pp-menu .tab-btn { font-size: 14px; padding: 8px 10px; }
     #pp-menu .pp-group { font-size: 12px; padding: 8px 10px 2px; }
+    .adm-head { margin-left: 0; padding: 0 10px; box-sizing: border-box; }
+    .adm-head h1, .adm-head .hint { word-break: keep-all; overflow-wrap: anywhere; } /* 标题不再逐字断行 */
   }
   /* 返回主页：粉色胶囊按钮，桌面端与「柚子的后台」标题同行（内容区左上角）；手机端在标题上方；点击进首页路由不依赖历史记录（她 20261026 21:50 任务书） */
   .adm-home-btn {
@@ -6063,7 +6065,7 @@ function loadEmailLog() {
           document.getElementById(el).style.color = '#3aa06a';
         } else {
           document.getElementById(el).textContent = anonBlockedText;
-          document.getElementById(el).style.color = '#3aa06a'; /* 匿名被拦截=权限生效，正常态用绿色（20261028p52 状态色语义统一） */
+          document.getElementById(el).style.color = '#3aa06a'; /* 匿名被拦截=权限生效，正常态用绿色（20261028p62 状态色语义统一） */
         }
       })
       .catch(function () {
@@ -6214,15 +6216,15 @@ function loadEmailLog() {
 </script>
 
 
-<script src="js/admin-shop.js?v=20261028p5"></script>
-<script src="js/admin-crm.js?v=20261028p5"></script>
-<script src="js/admin-vip.js?v=20261028p5"></script>
-<script src="js/vendor/jsQR.js?v=20261028p5"></script>
-<script src="js/vendor/qrcode-generator.js?v=20261028p5"></script>
-<script src="js/vendor/JsBarcode.all.min.js?v=20261028p5"></script>
-<script src="js/admin-workbench.js?v=20261028p5"></script>
-<script src="js/admin-biz.js?v=20261028p5"></script>
-<script src="js/admin-export.js?v=20261028p5"></script>
+<script src="js/admin-shop.js?v=20261028p6"></script>
+<script src="js/admin-crm.js?v=20261028p6"></script>
+<script src="js/admin-vip.js?v=20261028p6"></script>
+<script src="js/vendor/jsQR.js?v=20261028p6"></script>
+<script src="js/vendor/qrcode-generator.js?v=20261028p6"></script>
+<script src="js/vendor/JsBarcode.all.min.js?v=20261028p6"></script>
+<script src="js/admin-workbench.js?v=20261028p6"></script>
+<script src="js/admin-biz.js?v=20261028p6"></script>
+<script src="js/admin-export.js?v=20261028p6"></script>
 <footer style="padding:18px 0 0; text-align:center;">© 2026 Yuki · Made with Cola</footer>
 </body>
 </html>

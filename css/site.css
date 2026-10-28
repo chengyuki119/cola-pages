@@ -323,7 +323,8 @@
   .bjd-size-h { font-size:18px; margin: 20px 0 10px; }
   .bjd-size-h:first-child { margin-top: 0; }
   .home-long-btn { display: block; text-align: center; margin-top: 14px; padding: 11px 0; font-size:17px; border-radius: 12px; background: var(--accent,#ffd9e6); color: var(--text, #604C57); font-weight: 600; text-decoration: none; transition: filter .2s; }
-  .home-long-btn:hover { filter: brightness(1.05); }
+  .home-long-btn:hover { filter: brightness(0.94); } /* 悬停变深不变浅（她 20261028 总任务书 6.2/6.3） */
+  .home-long-btn:focus-visible { filter: brightness(0.94); outline: 2px solid var(--accent-strong,#A04A68); outline-offset: 2px; }
   #bjd-home-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; } /* §6.1 每行 5 个 */
   /* 卡片视觉与 Photo Gallery 统一：圆角 + hover 平滑放大 */
   #bjd-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; } /* §6.1 每行 5 个（此前无 grid 定义） */
@@ -488,13 +489,13 @@
 
   .entry-card {
     display: flex; align-items: center; gap: 18px;
-    background: var(--card);
+    background: var(--card-hover); /* 常态即原悬停粉（她 20261028 总任务书 6.1） */
     border-radius: var(--radius);
     padding: 22px;
     transition: background .2s, transform .2s;
     cursor: pointer;
   }
-  .entry-card:hover { background: var(--card-hover); transform: translateY(-2px); }
+  .entry-card:hover { background: var(--accent); transform: translateY(-2px); } /* 正常态改为原悬停粉（她 20261028 总任务书 6.1），悬停再深一档品牌粉 */
   .entry-emoji {
     width: 64px; height: 64px;
     border-radius: 14px;

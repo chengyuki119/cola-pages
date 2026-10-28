@@ -353,4 +353,52 @@
   else refresh();
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', applyCurrent);
   else applyCurrent();
+
+  /* ═══ 手机端 Index 页面选择入口（她 20261028 总任务书 B3）═══
+     仅手机端显示（CSS ≤700px）；同一导航数据源 NAV + 同一套 permFilter 权限过滤；
+     样式与后台「当前页面」选择器同款（胶囊 + 白底圆角浮层 + 浅粉高亮）；后台页不挂载。 */
+  function buildWrap() {
+    var wrap = el('<div class="idx-wrap" id="idx-wrap"><button class="idx-btn" id="idx-btn" type="button">Index <span class="idx-arrow">▾</span></button><div class="idx-menu" id="idx-menu"></div></div>');
+    var menu = wrap.querySelector('.idx-menu');
+    var flat = [];
+    permFilter(NAV).forEach(function (item) {
+      if (item.group) item.items.forEach(function (s) { flat.push(s); });
+      else flat.push(item);
+    });
+    flat.forEach(function (it) {
+      if (it.key === 'cal') return; // 主页锚点：Index 里由 Home 入口覆盖，不重复放
+      var a = el('<a href="' + hrefOf(it) + '" data-key="' + it.key + '" class="idx-link">' + span(it.zh, it.en) + '</a>');
+      if (isCurrent(it)) a.classList.add('current');
+      menu.appendChild(a);
+    });
+    return wrap;
+  }
+  function idxBuild() {
+    var old = document.getElementById('idx-wrap');
+    if (old && old.parentNode) old.parentNode.removeChild(old);
+    var page = document.querySelector('.page.active');
+    if (page && curPage !== 'admin') {
+      page.insertBefore(buildWrap(), page.firstChild);
+      return;
+    }
+    var tb = document.querySelector('.topbar'); // shop 等无 .page 容器的页面：挂在 topbar 之后（B3 兼容）
+    if (!tb || curPage === 'admin') return;
+    tb.insertAdjacentElement('afterend', buildWrap());
+  }
+  function idxToggle(force) {
+    var m = document.getElementById('idx-menu');
+    if (!m) return;
+    var open = (force === undefined) ? !m.classList.contains('open') : force;
+    m.classList.toggle('open', open);
+  }
+  document.addEventListener('click', function (e) {
+    if (e.target.closest('#idx-btn')) idxToggle();
+    else if (!e.target.closest('#idx-wrap')) idxToggle(false);
+  });
+  window.addEventListener('storage', function (e) { if (e.key === 'yuki-lang') idxBuild(); });
+  document.addEventListener('DOMContentLoaded', idxBuild);
+  if (document.readyState !== 'loading') idxBuild();
+  // 专属权限异步确认后随菜单重建（BJD/色卡/稿件入口自动出现）
+  var _ykRefresh = refresh;
+  refresh = function () { _ykRefresh(); try { idxBuild(); } catch (e) {} };
 })();

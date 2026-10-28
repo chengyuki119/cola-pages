@@ -176,3 +176,33 @@
   text-align: center;
 }
 .menu-acct-bottom.acct-loading { pointer-events: none; opacity: .75; }
+
+/* ═══ 手机端 Index 页面选择入口（她 20261028 总任务书 B3）═══ */
+.idx-wrap { position: relative; display: none; margin: 12px 12px 0; z-index: 80; }
+.idx-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  border: 1px solid var(--card-hover, #FFD9E6);
+  background: var(--card, #FFFFFF); color: var(--text, #604C57);
+  font-size: 15px; padding: 8px 14px; border-radius: 999px; cursor: pointer;
+  font-family: inherit; box-shadow: 0 1px 6px rgba(255,143,171,.14);
+  transition: background .2s;
+}
+.idx-btn:hover { background: var(--card-hover, #FCE4EC); }
+.idx-arrow { font-size: 11px; color: var(--muted, #A88E9B); }
+.idx-menu {
+  position: absolute; top: calc(100% + 6px); left: 0; z-index: 95;
+  background: #fff; border-radius: 14px;
+  box-shadow: 0 6px 20px rgba(180,120,150,.18);
+  padding: 6px; width: min(260px, calc(100vw - 36px)); box-sizing: border-box;
+  display: none; animation: idxIn .16s ease;
+  max-height: calc(100vh - 120px); overflow-y: auto;
+}
+.idx-menu.open { display: block; }
+@keyframes idxIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+.idx-link {
+  display: block; padding: 9px 12px; border-radius: 8px;
+  color: var(--text, #604C57); font-size: 15px; text-decoration: none;
+}
+.idx-link:hover { background: var(--card-hover, #FCE4EC); }
+.idx-link.current { background: var(--accent-soft, #FCE4EC); color: var(--accent-strong, #A04A68); font-weight: 600; }
+@media (max-width: 700px) { .idx-wrap { display: block; } }
