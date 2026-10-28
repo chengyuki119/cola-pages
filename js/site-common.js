@@ -293,10 +293,9 @@ function toast(msg) {
   setTimeout(function () { t0.classList.remove('show'); }, 1800);
 }
 // ── R2 图片适配层（正式站版）─────────────────────────
-// 图片源：R2 镜像 → 测试库 Supabase（历史数据 URL 所指）→ 正式库 Supabase（后台新传图）
+// 图片源：R2 镜像 → 正式库 Supabase（后台新传图；测试库已于 2026-10-28 删除，已移出回退链）
 var R2_BASE = 'https://img.yukicheng.com';
-var R2_FB = ['https://zajcglvlzsolygvjeumb.supabase.co/storage/v1/object/public/',
-             'https://vmmmuyxrsiufzurwbydg.supabase.co/storage/v1/object/public/'];
+var R2_FB = ['https://vmmmuyxrsiufzurwbydg.supabase.co/storage/v1/object/public/'];
 function ykImgNext(src) { // 加载失败 → 返回下一个候选源（耗尽返回空）
   var p = null, idx = -1;
   if (src && src.indexOf(R2_BASE + '/') === 0) { p = src.slice(R2_BASE.length + 1).split('?')[0]; idx = 0; }
