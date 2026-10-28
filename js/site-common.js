@@ -292,10 +292,40 @@ function toast(msg) {
   t0.classList.add('show');
   setTimeout(function () { t0.classList.remove('show'); }, 1800);
 }
-function normImg(u) { // 相对图片路径转根绝对（子页在 /photos/ /bjd/ 等目录下也能正确加载）
+// ── R2 图片适配层（正式站版）─────────────────────────
+// 图片源：R2 镜像 → 测试库 Supabase（历史数据 URL 所指）→ 正式库 Supabase（后台新传图）
+var R2_BASE = 'https://img.yukicheng.com';
+var R2_FB = ['https://zajcglvlzsolygvjeumb.supabase.co/storage/v1/object/public/',
+             'https://vmmmuyxrsiufzurwbydg.supabase.co/storage/v1/object/public/'];
+function ykImgNext(src) { // 加载失败 → 返回下一个候选源（耗尽返回空）
+  var p = null, idx = -1;
+  if (src && src.indexOf(R2_BASE + '/') === 0) { p = src.slice(R2_BASE.length + 1).split('?')[0]; idx = 0; }
+  else {
+    for (var i = 0; i < R2_FB.length; i++) {
+      if (src && src.indexOf(R2_FB[i]) === 0) { p = src.slice(R2_FB[i].length).split('?')[0]; idx = i + 1; break; }
+    }
+  }
+  if (p === null || idx >= R2_FB.length) return '';
+  return R2_FB[idx] + p;
+}
+function normImg(u) { // 相对图片路径转根绝对 + R2 重写
   u = String(u || '');
+  if (!/^data:/.test(u)) {
+    var m = u.match(/https?:\/\/[^/]+\.supabase\.co\/storage\/v1\/object\/public\/([^?#]+)/);
+    if (m) return R2_BASE + '/' + m[1];
+    var m2 = u.match(/^\/?storage\/v1\/object\/public\/([^?#]+)/);
+    if (m2) return R2_BASE + '/' + m2[1];
+  }
   return /^(https?:\/\/|data:)/.test(u) ? u : '/' + u.replace(/^\/+/, '');
 }
+// 全局图片回退：任何 <img>（含动态渲染）加载失败自动切下一个源
+document.addEventListener('error', function (e) {
+  var t = e.target;
+  if (t && t.tagName === 'IMG' && t.src) {
+    var nxt = ykImgNext(t.src);
+    if (nxt) { t.src = nxt; return; }
+  }
+}, true);
 function loadPhoto(el, hideIfMissing) {
   var src = normImg(el.getAttribute('data-img'));
   var probe = new Image();
@@ -307,7 +337,11 @@ function loadPhoto(el, hideIfMissing) {
     img.alt = '照片';
     el.appendChild(img);
   };
-  if (hideIfMissing) probe.onerror = function () { el.style.display = 'none'; };
+  probe.onerror = function () {
+    var nxt = ykImgNext(src);
+    if (nxt) { src = nxt; probe.src = nxt; return; }
+    if (hideIfMissing) el.style.display = 'none';
+  };
   probe.src = src;
 }
 function loadDbImg(el, src) {
@@ -322,6 +356,8 @@ function loadDbImg(el, src) {
     el.appendChild(img);
   };
   probe.onerror = function () {
+    var nxt = ykImgNext(src);
+    if (nxt) { src = nxt; probe.src = nxt; return; }
     var box = el.closest('.album-item, .photo');
     if (box) box.style.display = 'none';
   };
