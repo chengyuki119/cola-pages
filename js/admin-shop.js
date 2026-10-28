@@ -410,7 +410,7 @@
         '<input class="sm-ship-note" placeholder="备注" value="' + escAttr(o.ship_note || '') + '"></div>' +
         '<button type="button" class="btn-save sm-act-ship" style="padding:10px 26px;font-size:16px;">确认发货</button>' +
         '</div>' +
-        // 20261028p42：虚拟物流 6 状态推进（仅 TEST- 测试单号；加载当前进度后可点击切换）
+        // 20261028p52：虚拟物流 6 状态推进（仅 TEST- 测试单号；加载当前进度后可点击切换）
         ((o.tracking || '').indexOf('TEST-') === 0 ?
           '<div class="sm-act sm-act-v"><span class="sm-vlabel">虚拟物流状态（测试单号专用，点击切换 · 不会发给真实客户）</span>' +
           '<div class="sm-track-steps" data-no="' + escAttr(o.tracking) + '" style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0;"><span style="font-size:13px;color:var(--muted);">加载中…</span></div>' +

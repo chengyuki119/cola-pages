@@ -15,7 +15,7 @@
   function sym(c) { return CURS[c] || '¥'; }
   function curOf(p, v) { var c = (v && v.currency) || (p && p.currency) || 'USD'; return CURS[c] ? c : 'USD'; }
   function priceHtml(c, v) { return '<small>' + sym(c) + '</small>' + money(v); }
-  function normImg(u) { u = String(u || ''); return /^(https?:\/\/|data:)/.test(u) ? u : '/' + u.replace(/^\/+/, ''); }
+  function normImg(u) { u = String(u || ''); if (!/^data:/.test(u)) { var mR = u.match(/https?:\/\/[^/]+\.supabase\.co\/storage\/v1\/object\/public\/([^?#]+)/); if (mR) return 'https://img.yukicheng.com/' + mR[1]; var mR2 = u.match(/^\/?storage\/v1\/object\/public\/([^?#]+)/); if (mR2) return 'https://img.yukicheng.com/' + mR2[1]; } return /^(https?:\/\/|data:)/.test(u) ? u : '/' + u.replace(/^\/+/, ''); }
   function t(zh, en) { return (window.LANG === 'en') ? en : zh; }
   function svgHeart(on) { // 收藏按钮：实心/空心 SVG（原 ♥/♡ 字符按「全站去 emoji」改矢量）
     var p = 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z';
@@ -296,7 +296,7 @@
         '</div>' +
         '<div class="d-desc"><p style="color:var(--muted);font-size:17px;line-height:1.8;margin:12px 0;">' + esc((window.LANG === 'en' && p.description_en) ? p.description_en : (p.description || '')) + '</p></div>' +
       '</div>' +
-      // 20261028p4：键帽商品购买须知（手工/气泡/色差/兼容性/定制/规格；仅键帽类商品显示）
+      // 20261028p5：键帽商品购买须知（手工/气泡/色差/兼容性/定制/规格；仅键帽类商品显示）
       (isKeycapProduct(p) ? '<div class="keycap-notes-wrap" id="keycap-notes"></div>' : '') +
       '<div id="d-group-form" style="display:none;margin-top:16px;" class="card"></div>';
     return el;
