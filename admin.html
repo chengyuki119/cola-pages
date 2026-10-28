@@ -3970,6 +3970,40 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     input.value = input.getAttribute('data-disp') === '1' ? dpToDisp(internal) : internal;
   }
   function dpClose() { DP = null; document.getElementById('date-pop').style.display = 'none'; }
+  function pickPop(anchor, options, current, cb) { // 站内选择弹层：手动建单状态/货币、导出筛选等（她 2026-10-28 报「状态/币种无法修改」根因=pickPop 未定义）
+    if (anchor._pickClose) anchor._pickClose();
+    var pop = document.createElement('div');
+    pop.style.cssText = 'position:absolute;z-index:10000;background:#fff;border:1px solid #FFD9E6;border-radius:12px;box-shadow:0 8px 30px rgba(120,80,100,.22);padding:6px;display:flex;flex-direction:column;gap:2px;min-width:150px;max-height:60vh;overflow:auto;';
+    options.forEach(function (o) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.style.cssText = 'text-align:left;border:none;background:' + (String(o.v) === String(current) ? '#FCE4EC' : 'transparent') + ';color:#604C57;padding:8px 14px;border-radius:9px;font-size:15px;cursor:pointer;';
+      b.textContent = o.label;
+      b.addEventListener('mouseenter', function () { if (String(o.v) !== String(current)) b.style.background = '#FFF0F5'; });
+      b.addEventListener('mouseleave', function () { if (String(o.v) !== String(current)) b.style.background = 'transparent'; });
+      b.addEventListener('click', function (ev) { ev.stopPropagation(); close(); cb(o.v); });
+      pop.appendChild(b);
+    });
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'position:fixed;inset:0;z-index:9999;';
+    wrap.appendChild(pop);
+    document.body.appendChild(wrap);
+    var place = function () {
+      var r = anchor.getBoundingClientRect();
+      var pw = pop.offsetWidth || 170, ph = pop.offsetHeight || 100;
+      var left = Math.max(8, Math.min(r.left, window.innerWidth - pw - 8));
+      var top = r.bottom + 6;
+      if (top + ph > window.innerHeight - 8 && r.top - ph - 6 > 8) top = r.top - ph - 6; // 下方放不下则向上弹
+      pop.style.left = left + 'px';
+      pop.style.top = Math.max(8, top) + 'px';
+    };
+    place();
+    function close() { wrap.remove(); document.removeEventListener('scroll', onScroll, true); anchor._pickClose = null; }
+    function onScroll() { close(); } // 滚动时收起，避免 fixed 弹层飘走（与日期弹层同策略）
+    document.addEventListener('scroll', onScroll, true);
+    wrap.addEventListener('click', function (e) { if (e.target === wrap) close(); }); // 点空白处关闭
+    anchor._pickClose = close;
+  }
   function dpOpen(input) {
     var cur = dpToInternal(input.value);
     var t = new Date();
@@ -6065,7 +6099,7 @@ function loadEmailLog() {
           document.getElementById(el).style.color = '#3aa06a';
         } else {
           document.getElementById(el).textContent = anonBlockedText;
-          document.getElementById(el).style.color = '#3aa06a'; /* 匿名被拦截=权限生效，正常态用绿色（20261028p72 状态色语义统一） */
+          document.getElementById(el).style.color = '#3aa06a'; /* 匿名被拦截=权限生效，正常态用绿色（20261028p82 状态色语义统一） */
         }
       })
       .catch(function () {
@@ -6216,15 +6250,15 @@ function loadEmailLog() {
 </script>
 
 
-<script src="js/admin-shop.js?v=20261028p7"></script>
-<script src="js/admin-crm.js?v=20261028p7"></script>
-<script src="js/admin-vip.js?v=20261028p7"></script>
-<script src="js/vendor/jsQR.js?v=20261028p7"></script>
-<script src="js/vendor/qrcode-generator.js?v=20261028p7"></script>
-<script src="js/vendor/JsBarcode.all.min.js?v=20261028p7"></script>
-<script src="js/admin-workbench.js?v=20261028p7"></script>
-<script src="js/admin-biz.js?v=20261028p7"></script>
-<script src="js/admin-export.js?v=20261028p7"></script>
+<script src="js/admin-shop.js?v=20261028p8"></script>
+<script src="js/admin-crm.js?v=20261028p8"></script>
+<script src="js/admin-vip.js?v=20261028p8"></script>
+<script src="js/vendor/jsQR.js?v=20261028p8"></script>
+<script src="js/vendor/qrcode-generator.js?v=20261028p8"></script>
+<script src="js/vendor/JsBarcode.all.min.js?v=20261028p8"></script>
+<script src="js/admin-workbench.js?v=20261028p8"></script>
+<script src="js/admin-biz.js?v=20261028p8"></script>
+<script src="js/admin-export.js?v=20261028p8"></script>
 <footer style="padding:18px 0 0; text-align:center;">© 2026 Yuki · Made with Cola</footer>
 </body>
 </html>

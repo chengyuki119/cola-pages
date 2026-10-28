@@ -86,7 +86,7 @@
   var SM = {
     tab: 'orders',
     loaded: false,
-    orders: [], groups: [], coupons: [], profiles: [], msgs: [], products: [], payments: [],
+    orders: [], groups: [], coupons: [], profiles: [], msgs: [], products: [], payments: [], payRecords: [],
     ship: { service_fee: 2, flat_est: 5 },
     ofilter: '', osearch: '',
     oopen: {},            // order_id -> 行是否展开
@@ -208,10 +208,22 @@
       .catch(function () { SM.ship = window.SHOP_SHIP || { service_fee: 2, flat_est: 5 }; })
       .then(renderSettings);
   }
-  function loadPayments() { // 支付/退款流水：付款状态与部分退款判定以这里为准（她 2026-10-25 规格）
+  function loadPayments() { // Stripe 支付/退款流水：付款状态判定以这里为准（她 2026-10-25 规格）
     return restGet('shop_payments?select=order_id,status,amount&order=created_at.desc&limit=1000')
       .then(function (rows) { SM.payments = arr(rows); })
       .catch(function () { SM.payments = arr(window.SHOP_PAYMENTS); });
+  }
+  function loadPayRecords() { // 人工收款台账（订金/尾款/分期/退款，生产库已有表+RPC，2026-10-28 接线）
+    return restGet('shop_order_pay_records?select=order_id,kind,amount,method,txn_ref,paid_at&order=created_at.desc&limit=1000')
+      .then(function (rows) { SM.payRecords = arr(rows); })
+      .catch(function () { SM.payRecords = []; });
+  }
+  var KIND_LABEL = { deposit: '订金', final: '尾款', installment: '分期', other: '其他' }; // 收款类型（shop_pay_record_add 合法值，她 2026-10-28 任务书 6.4）
+  function payNet(o) { // 人工收款台账汇总：非退款=累计实收，refund=退款
+    var ps = arr(SM.payRecords).filter(function (x) { return String(x.order_id) === String(o.id); });
+    var paid = ps.filter(function (x) { return x.kind !== 'refund'; }).reduce(function (t, x) { return t + num(x.amount); }, 0);
+    var refunded = ps.filter(function (x) { return x.kind === 'refund'; }).reduce(function (t, x) { return t + num(x.amount); }, 0);
+    return { paid: paid, refunded: refunded, rows: ps };
   }
   function payInfo(o) {
     var ps = arr(SM.payments).filter(function (x) { return String(x.order_id) === String(o.id); });
@@ -219,12 +231,15 @@
     var refunded = ps.filter(function (x) { return x.status === 'refunded'; }).reduce(function (t, x) { return t + num(x.amount); }, 0);
     return { paid: paid, refunded: refunded };
   }
-  function payLabel(o) { // 付款状态（与订单状态分开展示，不把已付款和已发货混为一谈）
+  function payLabel(o) { // 付款状态（与订单状态分开展示，不把已付款和已发货混为一谈；含人工收款台账）
     var pi = payInfo(o);
+    var mn = payNet(o);
+    var paidAll = pi.paid + mn.paid, refAll = pi.refunded + mn.refunded;
     var total = num(o.total) || 1;
-    if (pi.refunded > 0 && pi.refunded >= total - 0.005) return '已全额退款';
-    if (pi.refunded > 0) return '部分退款 $' + fmtMoney(pi.refunded);
-    if (pi.paid > 0 || ['paid', 'shipped', 'completed'].indexOf(o.status) !== -1) return '已付款';
+    if (refAll > 0 && refAll >= total - 0.005) return '已全额退款';
+    if (refAll > 0) return '部分退款 $' + fmtMoney(refAll);
+    if (paidAll > 0) return paidAll >= total - 0.005 ? '已付款' : '部分付款 $' + fmtMoney(paidAll);
+    if (['paid', 'shipped', 'completed'].indexOf(o.status) !== -1) return '已付款';
     if (o.status === 'pending') return '待付款';
     if (o.status === 'reviewing') return '待审核付款';
     if (o.status === 'rejected') return '凭证有误';
@@ -233,7 +248,7 @@
     return '未付款';
   }
   function loadAll() {
-    return Promise.all([loadOrders(), loadGroups(), loadCoupons(), loadProfiles(), loadMsgs(), loadProducts(), loadShip(), loadPayments()])
+    return Promise.all([loadOrders(), loadGroups(), loadCoupons(), loadProfiles(), loadMsgs(), loadProducts(), loadShip(), loadPayments(), loadPayRecords()])
       .then(function () { SM.loaded = true; renderOrders(); renderStats(); }); // 全部到齐再刷一次：付款状态徽章要用支付流水（她 2026-10-25）
   }
 
@@ -378,10 +393,32 @@
           ' · <b style="color:var(--price,#ff6fa5);">总价 $' + fmtMoney(o.total) + '</b></div>' +
         (function () {
           var pi = payInfo(o);
-          if (pi.refunded <= 0 && pi.paid <= 0) return '';
-          return '<div class="sm-line"><span class="lbl">退款</span>' +
-            (pi.paid > 0 ? '已付 <span style="color:var(--price,#ff6fa5);">$' + fmtMoney(pi.paid) + '</span>' + ' · ' : '') +
-            (pi.refunded > 0 ? (pi.refunded >= num(o.total) - 0.005 ? '已全额退款 <span style="color:var(--price,#ff6fa5);">$' + fmtMoney(pi.refunded) + '</span>' : '<b style="color:#f3b96d;">部分退款 $' + fmtMoney(pi.refunded) + '</b>') : '') + '</div>';
+          var mn = payNet(o);
+          var paidAll = pi.paid + mn.paid, refAll = pi.refunded + mn.refunded;
+          var out = '';
+          if (paidAll > 0 || refAll > 0) { // 收款明细：Stripe 流水+人工台账（订金/尾款/分期）分列，待收=总价-实收+退款（她 2026-10-28 任务书 6.4）
+            var bits = [];
+            if (pi.paid > 0) bits.push('Stripe <span style="color:var(--price,#ff6fa5);">$' + fmtMoney(pi.paid) + '</span>');
+            var by = {};
+            mn.rows.filter(function (x) { return x.kind !== 'refund'; }).forEach(function (x) { var k = x.kind || 'other'; by[k] = (by[k] || 0) + num(x.amount); });
+            Object.keys(by).forEach(function (k) { bits.push((KIND_LABEL[k] || k) + ' <span style="color:var(--price,#ff6fa5);">$' + fmtMoney(by[k]) + '</span>'); });
+            if (bits.length) out += '<div class="sm-line"><span class="lbl">收款</span>' + bits.join(' · ');
+            var rem = num(o.total) - paidAll + refAll;
+            if (bits.length) out += (rem > 0.005 ? ' · <b style="color:#f3b96d;">待收 $' + fmtMoney(rem) + '</b>' : ' · <b style="color:var(--price,#ff6fa5);">已结清</b>') + '</div>';
+            if (refAll > 0) out += '<div class="sm-line"><span class="lbl">退款</span>' +
+              (refAll >= num(o.total) - 0.005 ? '已全额退款 <span style="color:var(--price,#ff6fa5);">$' + fmtMoney(refAll) + '</span>' : '<b style="color:#f3b96d;">部分退款 $' + fmtMoney(refAll) + '</b>') + '</div>';
+          }
+          if (!dead) { // 多次收款：订金/尾款/分期分笔记录（人工收款，走 shop_pay_record_add RPC，幂等）
+            out += '<div class="sm-act"><button type="button" class="btn-mini sm-recpay-toggle">＋ 记录收款</button>' +
+              '<span class="sm-recpay" style="display:none;gap:8px;align-items:center;flex-wrap:wrap;">' +
+              '<button type="button" class="sel-btn sm-pkind" data-v="deposit"><span class="pick-btn-label">订金</span></button>' +
+              '<button type="button" class="sel-btn sm-pmethod" data-v="cash"><span class="pick-btn-label">现金</span></button>' +
+              '<input class="sm-recpay-amt" type="number" step="0.01" min="0.01" placeholder="本次实收 $" style="width:110px;">' +
+              '<input class="sm-recpay-ref" placeholder="参考号（选填，防重复）" style="width:150px;">' +
+              '<button type="button" class="btn-save sm-recpay-save">保存收款</button>' +
+              '</span></div>';
+          }
+          return out;
         })() +
         (dead ? '<div class="sm-line"><span class="lbl">发货</span>' + (o.status === 'refunded' ? '已退款 · 无需发货' : '已取消 · 无需发货') +
             (o.tracking ? '（历史物流：' + esc(o.carrier || '') + ' ' + esc(o.tracking) + '）' : '') + '</div>' : '') +
@@ -410,7 +447,7 @@
         '<input class="sm-ship-note" placeholder="备注" value="' + escAttr(o.ship_note || '') + '"></div>' +
         '<button type="button" class="btn-save sm-act-ship" style="padding:10px 26px;font-size:16px;">确认发货</button>' +
         '</div>' +
-        // 20261028p72：虚拟物流 6 状态推进（仅 TEST- 测试单号；加载当前进度后可点击切换）
+        // 20261028p82：虚拟物流 6 状态推进（仅 TEST- 测试单号；加载当前进度后可点击切换）
         ((o.tracking || '').indexOf('TEST-') === 0 ?
           '<div class="sm-act sm-act-v"><span class="sm-vlabel">虚拟物流状态（测试单号专用，点击切换 · 不会发给真实客户）</span>' +
           '<div class="sm-track-steps" data-no="' + escAttr(o.tracking) + '" style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0;"><span style="font-size:13px;color:var(--muted);">加载中…</span></div>' +
@@ -967,6 +1004,49 @@
       var reason = card.querySelector('.sm-reject-reason').value.trim();
       if (!reason) { toast('拒绝凭证要写原因哦（必填）'); return; }
       patchOrder(id, { status: 'rejected', reject_reason: reason }, '已拒绝，买家可重传凭证', 'status', '凭证有误 → rejected：' + reason);
+      return;
+    }
+    if (e.target.classList.contains('sm-recpay-toggle')) { // 记录收款表单展开/收起
+      var rf = card.querySelector('.sm-recpay');
+      if (rf) rf.style.display = rf.style.display === 'none' ? 'inline-flex' : 'none';
+      return;
+    }
+    if (e.target.classList.contains('sm-pkind')) { // 收款类型：订金/尾款/分期/其他（站内弹层）
+      pickPop(e.target, Object.keys(KIND_LABEL).map(function (k) { return { v: k, label: KIND_LABEL[k] }; }),
+        e.target.getAttribute('data-v') || 'deposit', function (v) {
+          e.target.setAttribute('data-v', v);
+          e.target.querySelector('.pick-btn-label').textContent = KIND_LABEL[v] || v;
+        });
+      return;
+    }
+    if (e.target.classList.contains('sm-pmethod')) { // 收款渠道：与线下开单渠道一致的人工方式
+      pickPop(e.target, [['cash', '现金'], ['zelle', 'Zelle'], ['venmo', 'Venmo'], ['cashapp', 'CashApp'], ['paypal', 'PayPal'], ['bank', '银行转账'], ['other', '其他']].map(function (m) { return { v: m[0], label: m[1] }; }),
+        e.target.getAttribute('data-v') || 'cash', function (v) {
+          e.target.setAttribute('data-v', v);
+          e.target.querySelector('.pick-btn-label').textContent = v === 'cash' ? '现金' : v === 'bank' ? '银行转账' : v === 'other' ? '其他' : v;
+        });
+      return;
+    }
+    if (e.target.classList.contains('sm-recpay-save')) { // 保存一笔人工收款：shop_pay_record_add（幂等，返回累计/待收）
+      var amt = parseFloat(card.querySelector('.sm-recpay-amt').value);
+      var kind = (card.querySelector('.sm-pkind').getAttribute('data-v')) || 'deposit';
+      var method = (card.querySelector('.sm-pmethod').getAttribute('data-v')) || 'cash';
+      if (!isFinite(amt) || amt <= 0) { toast('收款金额要大于 0'); return; }
+      var svBtn = e.target; svBtn.disabled = true;
+      api('rpc/shop_pay_record_add', { method: 'POST', body: JSON.stringify({
+        p_order_id: id, p_kind: kind, p_amount: amt, p_method: method,
+        p_txn_ref: card.querySelector('.sm-recpay-ref').value.trim(), p_note: ''
+      }) })
+        .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('rpc')); })
+        .then(function (res) {
+          toast('已记录' + (KIND_LABEL[kind] || '收款') + ' $' + fmtMoney(amt) + (res && res.outstanding > 0.005 ? '，待收 $' + fmtMoney(res.outstanding) : '，已结清'));
+          return loadPayRecords();
+        })
+        .then(function () { renderOrders(); renderStats(); })
+        .catch(function (err) {
+          toast(err && err.message === 'rpc' ? '记录失败：数据库没连上（本次不会落库）' : '记录失败，重试一下');
+          svBtn.disabled = false;
+        });
       return;
     }
     if (e.target.classList.contains('sm-act-fee')) { // 录入实际运费（total 一起重算）
