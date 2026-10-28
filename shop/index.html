@@ -18,13 +18,15 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   @font-face { font-family: "Millo Body"; src: url("/fonts/Millo-RiceSoyMilk80.woff2") format("woff2"), url("/fonts/Millo-RiceSoyMilk80.ttf") format("truetype"); font-display: swap; }
 
   :root {
-    --bg: #fffcfd;
-    --card: #fff2f7;
-    --card-hover: #ffe7f0;
-    --text: #5d6780;
-    --muted: #9aa5bd;
-    --accent: #ff6fa5;
-    --accent-soft: #ffc8d6;
+    --bg: #FFFBFC;
+    --card: #FFFFFF;
+    --card-hover: #FCE4EC;
+    --text: #604C57;
+    --muted: #A88E9B;
+    --accent: #ffd9e6;
+    --accent-soft: #FCE4EC;
+    --accent-strong: #A04A68;
+    --price: #FF6FA5;
     --radius: 16px;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -37,29 +39,29 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   }
   body.lang-en .product.sold::after { content: "Sold"; }
 
-  /* 状态标签：在售 / 仅展示 / 售尽 */
+  /* 状态标签：在售 / 仅展示 / 售尽（图片右下角，避开右上角的收藏心形） */
   .st {
     position: absolute;
-    top: 10px; right: 10px;
+    top: auto; bottom: 10px; right: 10px;
     font-size:15px;
     padding: 3px 12px;
     border-radius: 999px;
     color: #fff;
   }
-  .st-on { background: #9ecfae; }
-  .st-display { background: #b3ace0; }
-  .st-out { background: #c4bcb6; }
+  .st-on { background: var(--success,#5FA777); }
+  .st-display { background: #fff; color: var(--text, #604C57); font-weight: 600; } /* 白底深字（浅紫白字看不清） */
+  .st-out { background: #fff; color: var(--muted, #A88E9B); font-weight: 600; }
   .product.off .product-img { filter: grayscale(.7); }
   .no-buy { font-size:16px; color: var(--muted); }
   a { color: inherit; text-decoration: none; }
   button { font-family: inherit; }
 
   .shop-header {
-    background: #ffdfe9;
+    background: var(--accent-soft,#FCE4EC);
     padding: 84px 0 40px;
     position: relative;
   }
-  .shop-header-inner { max-width: 1000px; margin: 0 auto; padding: 0 24px; } /* 与主页照片页同宽，同一条左边线 */
+  .shop-header-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; } /* 与主页照片页同宽，同一条左边线 */
   .shop-header h1 { font-size:31px; margin: 20px 0 6px; }
   .shop-header p { color: var(--muted); font-size:17px; }
   .back-link {
@@ -74,7 +76,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .back-link:hover { background: var(--card-hover); }
 
   .shop-body {
-    max-width: 1000px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 12px 24px 72px;
   }
@@ -90,11 +92,15 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
 
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 18px;
+    grid-template-columns: repeat(5, minmax(0, 1fr)); /* §6.1 桌面每行 5 个 */
+    gap: 12px;
   }
+  @media (max-width: 1200px) { .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  @media (max-width: 900px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 640px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } } /* 手机上一行两个，好认 */
   .product {
     background: #fff;
+    border: 1px solid #F3DDE5; /* 20261026r 商品卡描框（与 site.css r 轮规则同一套；本页不加载 site.css，故此处声明） */
     border-radius: var(--radius);
     overflow: hidden;
     box-shadow: 0 2px 14px rgba(255,143,171,.12);
@@ -106,46 +112,64 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .product-img {
     position: relative;
     aspect-ratio: 1;
-    background: #ffe9f2;
+    background: var(--accent-soft,#FCE4EC);
     display: flex; align-items: center; justify-content: center;
     font-size:61px;
     overflow: hidden;
   }
   .product-img img { width: 100%; height: 100%; object-fit: cover; }
+  .product-img .pg-img { object-fit: cover !important; } /* 卡片图正方形填满（内联 contain 会留白边，用 !important 压过） */
   .product-info { padding: 14px 16px 16px; flex: 1; display: flex; flex-direction: column; }
   .product-tag {
     align-self: flex-start;
     font-size:14px;
-    color: var(--accent);
-    background: #ffe1ea;
+    color:var(--text,#604C57);
+    background: var(--accent-soft,#FCE4EC);
     border-radius: 999px;
     padding: 2px 10px;
     margin-bottom: 8px;
   }
   .product-info h3 { font-size:19px; }
   .product-info p { color: var(--muted); font-size:16px; margin: 4px 0 12px; flex: 1; }
-  .product-row { display: flex; align-items: center; justify-content: space-between; }
-  .card-edit-btn { border: none; background: var(--card-hover); color: var(--accent); font-size:14px; cursor: pointer; padding: 4px 12px; border-radius: 999px; font-family: inherit; transition: background .2s, color .2s; }
-  .card-edit-btn:hover { background: var(--accent-soft); color: #fff; }
-  .price { font-size:21px; font-weight: 700; color: var(--accent); font-family: "Millo Body", -apple-system, "PingFang SC", sans-serif; }
+  .product-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; row-gap: 8px; }
+  .product-row .buy-btn, .product-row .card-edit-btn, .product-row .no-buy, .product-row .price { white-space: nowrap; flex-shrink: 0; }
+  .card-edit-btn { border: none; background: var(--card-hover); color:var(--text,#604C57); font-size:14px; cursor: pointer; padding: 4px 12px; border-radius: 999px; font-family: inherit; transition: background .2s, color .2s; white-space: nowrap; }
+  .card-edit-btn:hover { background: var(--accent-soft); color: var(--text, #604C57); }
+  .price { font-size:21px; font-weight: 700; color:var(--price,#ff6fa5); font-family: "Millo Body", -apple-system, "PingFang SC", sans-serif; }
   .price small { font-size:15px; font-weight: 400; }
   .buy-btn {
     border: none;
     background: var(--accent-soft);
-    color: #fff;
+    color: var(--accent-strong);
     font-size:16px;
     padding: 8px 18px;
     border-radius: 999px;
     cursor: pointer;
     transition: background .2s;
   }
-  .buy-btn:hover { background: var(--accent); }
+  .buy-btn:hover { background:var(--accent,#ffd9e6); }
+
+
+  /* 收藏心心 */
+  .fav-btn {
+    border: none; background: rgba(255,251,252,.92);
+    color:var(--text,#604C57); cursor: pointer;
+    font-size: 18px; line-height: 1;
+    width: 34px; height: 34px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: transform .15s, background .2s;
+    font-family: inherit;
+  }
+  .fav-btn:hover { transform: scale(1.12); background: var(--accent-soft,#FCE4EC); }
+  .product-img .fav-btn { position: absolute; top: 10px; right: 10px; z-index: 2; }
+  .product-img { position: relative; }
+  .fav-btn.detail-fav { width: 40px; height: 40px; font-size: 22px; vertical-align: middle; margin-left: 8px; }
 
   /* 售尽 / 仅展示：图片灰化，不放购买按钮 */
 
   .star { cursor: pointer; font-size:25px; color: #f0c3da; transition: color .15s; }
-  .star:hover { color: var(--accent); }
-  .star.on { color: var(--accent); }
+  .star:hover { color:var(--text,#604C57); }
+  .star.on { color:var(--text,#604C57); }
 
   /* 评价卡：登录了后台才会出现的 ⋮ 管理菜单（删除） */
   .rv-kebab { position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; border: none; border-radius: 10px; background: var(--card); color: var(--muted); font-size: 19px; line-height: 1; cursor: pointer; font-family: inherit; }
@@ -154,8 +178,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   #rv-menu.open { display: block; }
   #rv-menu button { display: block; width: 100%; text-align: left; border: none; background: none; border-radius: 9px; padding: 9px 12px; font-size: 16px; font-family: inherit; color: var(--text); cursor: pointer; }
   #rv-menu button:hover { background: var(--card); }
-  #rv-menu .rv-menu-del { background: #f6d9e6; }
-  #rv-menu .rv-menu-del:hover { background: #f3c9dd; }
+  #rv-menu .rv-menu-del { background: var(--accent,#FFD9E6); }
+  #rv-menu .rv-menu-del:hover { background: var(--accent-soft,#FCE4EC); }
 
   .toast {
     position: fixed;
@@ -172,38 +196,6 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     pointer-events: none;
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-  /* 付款方式 */
-  .pay-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 14px;
-  }
-  .pay-card {
-    background: var(--card);
-    border-radius: var(--radius);
-    padding: 16px;
-    text-align: center;
-  }
-  .pay-card p { font-size:17px; margin-top: 10px; }
-  /* 收款方式：一个按钮 → 点开弹出收款码图 */
-  .pay-cta { background: var(--card); border-radius: var(--radius); padding: 18px 16px; text-align: center; }
-  .pay-cta p { font-size:17px; color: var(--muted); margin-bottom: 14px; }
-  .pay-modal { position: fixed; inset: 0; background: var(--bg); display: none; align-items: center; justify-content: center; z-index: 600; padding: 8px; }
-  .pay-modal.open { display: flex; }
-  .pay-modal img { max-width: min(98vw, 620px); max-height: 94vh; border-radius: 14px; display: block; box-shadow: 0 12px 40px rgba(120,80,100,.3); }
-  .pay-close { position: absolute; top: 16px; right: 16px; width: 38px; height: 38px; border: none; border-radius: 50%; background: var(--card-hover); color: var(--text); font-size: 22px; line-height: 1; cursor: pointer; font-family: inherit; }
-  .pay-close:hover { background: var(--card); }
-  .pay-img {
-    aspect-ratio: 1;
-    background: #ffffff;
-    border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    color: var(--muted); font-size:16px;
-    text-align: center;
-    overflow: hidden;
-  }
-  .pay-img img { width: 100%; height: 100%; object-fit: contain; }
 
   footer {
     text-align: center;
@@ -228,7 +220,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .lang-switch {
     display: flex;
     gap: 4px;
-    background: var(--card);
+    background: var(--accent-soft, #FCE4EC); /* 20261026s 她指定款：粉胶囊底座+白胶囊选中（全站同款） */
     padding: 4px;
     border-radius: 999px;
   }
@@ -240,17 +232,21 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     border-radius: 999px;
     cursor: pointer;
     color: var(--muted);
-    transition: background .2s, color .2s;
+    transition: background .2s, color .2s, box-shadow .2s;
   }
   .lang-btn.active {
-    background: var(--accent-soft);
-    color: #fff;
+    background: #ffffff;
+    color: var(--text, #604C57);
+    font-weight: 600;
+    box-shadow: 0 1px 4px rgba(180,120,150,.28);
   }
 
   @media (max-width: 400px) {
     .lang-btn { padding: 4px 8px; }
     .topbar { padding: 0 10px; }
   }
+
+
 h1::after { content: " ♥"; font-size: .75em; }
 h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
 /* 多图翻页：与 site.css 同步（大图‹› + 极简圆点 + 底部小图预览） */
@@ -259,14 +255,89 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
 .pg-next { right: 8px; }
 .pg-dots { position: absolute; left: 0; right: 0; bottom: 48px; display: flex; justify-content: center; gap: 4px; pointer-events: none; }
 .pg-dot { width: 5px; height: 5px; border-radius: 999px; background: rgba(255,255,255,.88); box-shadow: 0 1px 3px rgba(0,0,0,.18); transition: width .2s, background .2s; }
-.pg-dot.on { width: 16px; background: var(--accent); }
+.pg-dot.on { width: 16px; background: var(--text); }
 .pg-thumbs { position: absolute; left: 0; right: 0; bottom: 8px; display: flex; gap: 5px; overflow-x: auto; padding: 3px 10px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
 .pg-thumbs::-webkit-scrollbar { display: none; }
 .pg-thumb { width: 30px; height: 30px; border-radius: 8px; object-fit: cover; flex-shrink: 0; border: 2px solid rgba(255,255,255,.9); cursor: pointer; opacity: .85; transition: opacity .2s, border-color .2s; box-sizing: border-box; background: var(--card); display: block; }
-.pg-thumb.on { border-color: var(--accent); opacity: 1; }
+.pg-thumb.on { border-color: var(--card-hover, #FCE4EC); opacity: 1; }
+
+/* ═══ 商品详情：描述区用大圆角卡片格子（她 2026-10-25：把 Footer 卡片样式留给描述区用）═══ */
+.pdp .d-desc {
+  background: var(--card, #FFFFFF);
+  border-radius: 22px;
+  padding: 16px 20px;
+  margin: 12px 0;
+}
+.pdp .d-desc p { margin: 0; }
+@media (max-width: 639px) {
+  .pdp .d-desc { padding: 15px 17px; margin: 13px 0; border-radius: 20px; }
+}
+
+/* ═══ 商品详情页（.pdp：桌面双栏网格 / 手机纵向单栏）═══ */
+.pdp {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 22px;
+  align-items: start;
+}
+.pdp { grid-template-rows: auto auto; }
+.pdp .d-pager { grid-column: 1; grid-row: 1; }
+.pdp .d-info { grid-column: 2; grid-row: 1; }
+.pdp .d-head .product-tag, .pdp .d-head .fav-btn { margin-top: 0 !important; margin-bottom: 0 !important; align-self: auto !important; } /* 一行头部：清掉旧竖排遗留 margin/align-self，三元素严格同中线（桌面+手机） */
+.pdp .d-desc { grid-column: 1 / 3; grid-row: 2; } /* 商品解释：底部横跨全宽（她 2026-10-25：写在页脚链接那一带的位置） */
+
+@media (max-width: 639px) {
+  /* 手机纵向：名称 → 1:1 主图 → 价格 → 规格/数量/购买按钮 → 详情 → 购买须知 */
+  .pdp { display: flex; flex-direction: column; gap: 0; align-items: stretch; }
+  .pdp .d-info { display: contents; }
+  .pdp .d-head { order: 1; } .pdp .d-pager { order: 2; } .pdp .d-price { order: 3; }
+  .pdp .d-variants { order: 4; } .pdp .d-actions { order: 5; } .pdp .d-desc { order: 6; } .pdp .d-notice { order: 7; }
+  .pdp .d-pager { margin-top: 2px; }
+  .pdp .pg-wrap { width: 100%; max-width: 100%; margin: 0 auto; }
+  .pdp .pg-img { object-fit: contain !important; background: #fff; } /* 主图完整显示不裁切（她 2026-10-26）；列表卡仍 cover 填满 */
+  .pdp .d-price > div:first-child { font-size: 28px !important; }
+  .pdp .d-actions .buy-btn { flex: 1; min-width: 120px; justify-content: center; padding: 13px 22px !important; font-size: 17px; }
+}
+  /* ===== 商城新增：视图 / 规格 / 订单 / 拼团 ===== */
+  .sku-chip { border: 2px solid var(--accent-soft); background: #fff; color: var(--text); border-radius: 999px; padding: 7px 16px; font-size: 16px; font-family: inherit; cursor: pointer; transition: all .2s; }
+  .sku-chip.on { border-color:var(--accent-soft,#FCE4EC); background:var(--accent-soft,#FCE4EC); color: var(--accent-strong); }
+  .sku-chip.dis { opacity: .45; cursor: not-allowed; }
+  .qty-btn { border: none; background: var(--card-hover); color: var(--text); width: 30px; height: 30px; border-radius: 50%; font-size: 16px; cursor: pointer; font-family: inherit; }
+  .card { background: #fff; border-radius: var(--radius); box-shadow: 0 2px 14px rgba(255,143,171,.12); }
+  #view-detail, #view-cart, #view-checkout, #view-orders, #view-account, #view-groups { display: none; }
+  @media (max-width: 700px) { #view-detail > div { grid-template-columns: 1fr !important; } }
+
+  /* ═══ 大图预览层（她 2026-10-26 阶段2）：点主图打开，←→/滑动切换，Esc 关闭 ═══ */
+  #pg-lightbox { position: fixed; inset: 0; z-index: 9999; background: rgba(56,42,50,.72); display: none; align-items: center; justify-content: center; }
+  #pg-lightbox.on { display: flex; }
+  #pg-lightbox .lb-body { position: relative; max-width: 92vw; }
+  #pg-lightbox .lb-img { max-width: 88vw; max-height: 82vh; border-radius: 20px; display: block; box-shadow: 0 12px 50px rgba(0,0,0,.35); }
+  #pg-lightbox .lb-btn { position: absolute; top: 50%; transform: translateY(-50%); width: 46px; height: 46px; border-radius: 50%; border: none; background: #fff; color: var(--text, #604C57); font-size: 22px; cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,.25); font-family: inherit; }
+  #pg-lightbox .lb-prev { left: -64px; } #pg-lightbox .lb-next { right: -64px; }
+  #pg-lightbox .lb-close { position: absolute; top: -54px; right: 0; width: 42px; height: 42px; border-radius: 50%; border: none; background: #fff; color: var(--text, #604C57); font-size: 19px; cursor: pointer; font-family: inherit; }
+  #pg-lightbox .lb-count { position: absolute; bottom: -46px; left: 50%; transform: translateX(-50%); background: #fff; color: var(--text, #604C57); border-radius: 999px; padding: 6px 20px; font-size: 14px; font-weight: 600; }
+  @media (max-width: 760px) {
+    #pg-lightbox .lb-prev { left: 8px; } #pg-lightbox .lb-next { right: 8px; }
+    #pg-lightbox .lb-img { max-width: 96vw; max-height: 74vh; }
+  }
+
+  /* ── 原生 select 外观对齐设计系统（仅样式，行为不变 · 20261026k） ── */
+  select { font-family: inherit; font-size: 15px; color: var(--text, #604C57); background: #fff; border: 1.5px solid var(--border, #FFD9E6); border-radius: 10px; padding: 7px 10px; outline: none; max-width: 100%; cursor: pointer; box-sizing: border-box; }
+  select:focus { border-color: var(--text, #604C57); }
+  /* 20261027p1：键帽购买须知（标题+独立圆角文本框，与政策页同一布局语言） */
+  .keycap-notes-wrap { margin: 6px 0 10px; }
+  .keycap-notes-wrap .keycap-notes-title { font-size: 20px; font-weight: 800; color: var(--text,#604C57); margin: 18px 0 14px; }
+  .keycap-notes-wrap .pol-sec { margin: 0 0 24px; }
+  .keycap-notes-wrap .pol-h2 { font-size: 16px; font-weight: 700; color: var(--text,#604C57); margin: 0 0 8px 2px; }
+  .keycap-notes-wrap .keycap-h3 { }
+  .keycap-notes-wrap .pol-card { background: #fff; border-radius: 16px; padding: 18px 20px; box-shadow: 0 2px 10px rgba(180,120,150,.12); font-size: 15px; line-height: 1.75; color: var(--text,#604C57); word-break: break-word; overflow-wrap: anywhere; }
+  .keycap-notes-wrap .pol-card p { margin: 0 0 10px; }
+  .keycap-notes-wrap .pol-card p:last-child { margin-bottom: 0; }
 </style>
-  <link rel="stylesheet" href="/site-menu.css">
-  <script src="/site-menu.js" defer></script>
+  <link rel="stylesheet" href="/site-menu.css?v=20261027p1">
+  <script src="/js/site-common.js?v=20261027p1"></script>
+  <script src="/js/policy-content.js?v=20261027p1"></script>
+  <script src="/site-menu.js?v=20261027p1" defer></script>
 </head>
 <body>
 <header class="topbar">
@@ -275,24 +346,30 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     <button class="lang-btn" data-lang="en">English</button>
   </div>
   <a class="site-logo" href="/" aria-label="回主页"><img src="/logo.png" alt="logo"></a>
-  <button class="burger" id="burger" aria-label="菜单">
-    <span></span><span></span><span></span>
-  </button>
+  <div class="topbar-right">
+    <a class="topbar-cart" id="topbar-cart" href="/shop/?sec=cart" aria-label="购物车">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3.5h2.2l2.3 11.2a1.8 1.8 0 0 0 1.8 1.4h8.5a1.8 1.8 0 0 0 1.8-1.4l1.5-8.2H6"/></svg>
+      <span class="topbar-cart-badge" id="topbar-cart-badge" style="display:none;">0</span>
+    </a>
+    <button class="burger" id="burger" aria-label="菜单">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
 </header>
 <div class="menu-mask" id="menu-mask"></div>
 <nav class="menu" id="menu"></nav>
 
 <header class="shop-header">
   <div class="shop-header-inner">
-    <a class="back-link" href="/"><span data-zh="← 返回主页" data-en="← Back to Home">← 返回主页</span></a>
     <h1><span data-zh="小柚的小铺" data-en="Yuki's Shop">小柚的小铺</span></h1>
     <p><span data-zh="Yuki's Shop · 手作小物 · 每一件都是亲手做的" data-en="Yuki's Shop · Handmade with love, every piece made by hand">Yuki's Shop · 手作小物 · 每一件都是亲手做的</span></p>
   </div>
 </header>
 
 <div class="shop-body">
+<a class="back-link page-back" href="/" style="margin:8px 0 24px 2px;"><span data-zh="← 返回主页" data-en="← Back to Home">← 返回主页</span></a>
   <div class="notice">
-    <b>怎么买：</b>点「找我下单」会自动复制微信号 <b>yuki_060119</b>，来微信告诉我要哪件就行；也欢迎发邮件到 <b>chengyuki119@gmail.com</b>。
+    <b><span data-zh="怎么买：" data-en="How to buy:">怎么买：</span></b><span data-zh="选好规格加入购物车 → 去结算 → 上传付款截图等柚子确认，或用 Stripe 在线付款。有疑问欢迎发邮件到 snowyuzustudio@gmail.com。" data-en="Pick options → add to cart → checkout → upload your payment screenshot for Yuki to confirm, or pay online with Stripe. Questions? Email snowyuzustudio@gmail.com.">选好规格加入购物车 → 去结算 → 上传付款截图等柚子确认，或用 Stripe 在线付款。有疑问欢迎发邮件到 snowyuzustudio@gmail.com。</span>
   </div>
 
   <div class="grid" id="product-grid">
@@ -300,23 +377,23 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
   </div>
 
   <section id="past" style="margin-top:44px;">
-    <h2 style="font-size:21px;margin-bottom:18px;display:flex;align-items:center;gap:8px;"><span style="width:4px;height:18px;background:var(--accent);border-radius:2px;display:inline-block;"></span><span data-zh="往期商品" data-en="Past Items">往期商品</span></h2>
+    <h2 style="font-size:22px;margin-bottom:14px;display:flex;align-items:center;gap:8px;"><span style="width:4px;height:18px;background:var(--accent,#ffd9e6);border-radius:2px;display:inline-block;"></span><span data-zh="往期商品" data-en="Past Items">往期商品</span></h2>
     <div class="grid" id="past-grid"></div>
   </section>
 
   <section id="reviews" style="margin-top:44px;">
-    <h2 style="font-size:21px;margin-bottom:18px;display:flex;align-items:center;gap:8px;"><span style="width:4px;height:18px;background:var(--accent);border-radius:2px;display:inline-block;"></span><span data-zh="评价返图" data-en="Reviews">评价返图</span></h2>
+    <h2 style="font-size:22px;margin-bottom:14px;display:flex;align-items:center;gap:8px;"><span style="width:4px;height:18px;background:var(--accent,#ffd9e6);border-radius:2px;display:inline-block;"></span><span data-zh="评价返图" data-en="Reviews">评价返图</span></h2>
     <div class="card" style="background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:20px;">
       <p style="font-size:16px;color:var(--muted);margin-bottom:10px;"><span data-zh="买过小铺东西的小可爱，欢迎晒图评价～" data-en="Bought something? Share your photos & review~">买过小铺东西的小可爱，欢迎晒图评价～</span></p>
-      <input id="r-name" maxlength="30" data-ph-zh="你的名字（选填）" data-ph-en="Your name (optional)" style="width:100%;margin-bottom:10px;padding:12px 14px;font-size:18px;border:none;border-radius:12px;background:#fff;outline:none;color:var(--text);font-family:inherit;">
+      <input id="r-name" maxlength="30" data-ph-zh="你的名字（选填）" data-ph-en="Your name (optional)" style="width:100%;margin-bottom:10px;padding:12px 14px;font-size:18px;border:1px solid #FFD9E6;border-radius:12px;background:#FFF8FA;outline:none;color:var(--text);font-family:inherit;box-sizing:border-box;">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
         <span style="font-size:16px;color:var(--muted);"><span data-zh="评分" data-en="Rating">评分</span></span>
         <span id="r-stars" style="display:inline-flex;gap:4px;">
           <span class="star" data-v="1">★</span><span class="star" data-v="2">★</span><span class="star" data-v="3">★</span><span class="star" data-v="4">★</span><span class="star" data-v="5">★</span>
         </span>
-        <span id="r-star-text" style="font-size:16px;color:var(--accent);">5/5</span>
+        <span id="r-star-text" style="font-size:16px;color:var(--text,#604C57);">5/5</span>
       </div>
-      <textarea id="r-text" style="width:100%;min-height:70px;border:none;border-radius:12px;background:#fff;padding:12px 14px;font-family:inherit;font-size:18px;color:var(--text);resize:none;outline:none;" data-ph-zh="写下你的评价～" data-ph-en="Write your review~"></textarea>
+      <textarea id="r-text" style="width:100%;min-height:70px;border:1px solid #FFD9E6;border-radius:12px;background:#FFF8FA;padding:12px 14px;font-family:inherit;font-size:18px;color:var(--text);resize:none;outline:none;box-sizing:border-box;" data-ph-zh="写下你的评价～" data-ph-en="Write your review~"></textarea>
       <div style="margin-top:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
         <label class="buy-btn" style="padding:7px 16px;font-size:16px;cursor:pointer;"><span data-zh="选择图片" data-en="Choose photo">选择图片</span><input id="r-file" type="file" accept="image/*" hidden></label>
         <span id="r-file-name" style="font-size:16px;color:var(--muted);"><span data-zh="未选择图片" data-en="No photo chosen">未选择图片</span></span>
@@ -329,26 +406,19 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     <div id="rv-menu" role="menu"><button type="button" class="rv-menu-del" id="rv-menu-del" data-zh="删除这条评价" data-en="Delete this review">删除这条评价</button></div>
   </section>
 
-  <section id="pay" style="margin-top:44px;">
-    <h2 style="font-size:21px;margin-bottom:18px;display:flex;align-items:center;gap:8px;"><span style="width:4px;height:18px;background:var(--accent);border-radius:2px;display:inline-block;"></span><span data-zh="付款方式" data-en="Payment">付款方式</span></h2>
-    <div class="pay-cta">
-      <p data-zh="支持微信 / 支付宝，点下面看收款方式～" data-en="WeChat / Alipay — tap below to see the payment codes~">支持微信 / 支付宝，点下面看收款方式～</p>
-      <button class="buy-btn" id="pay-open" style="padding:10px 26px;"><span data-zh="查看收款方式" data-en="View payment methods">查看收款方式</span></button>
-    </div>
-  </section>
+  <div id="view-detail"></div>
+  <div id="view-cart"></div>
+  <div id="view-checkout"></div>
+  <div id="view-orders"></div>
+  <div id="view-account"></div>
+  <div id="view-groups"></div>
 
-  <div class="pay-modal" id="pay-modal">
-    <button class="pay-close" id="pay-close" aria-label="关闭">×</button>
-    <img src="/img/pay-methods.jpg" alt="微信 / 支付宝收款码">
-  </div>
-
-  <footer>© 2026 Yuki · 小柚的小铺 · Made with Cola</footer>
+<footer>© 2026 Yuki · 小柚的小铺 · Made with Cola</footer>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-  var WECHAT_ID = 'yuki_060119'; //  微信号在这里改
   var SUPABASE_URL = 'https://vmmmuyxrsiufzurwbydg.supabase.co';
   var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtbW11eXhyc2l1Znp1cndieWRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI4NzM2NTAsImV4cCI6MjEwODQ0OTY1MH0.SbdbAJV5hP3MtyZxf7DQUAD9Fm-XNlVC5PaYf47lzsw';
   var ADMIN_LOGGED = false; // 登录过后台账号 → 商品卡上出现「编辑商品」按钮（与色卡 / BJD 页同一套）
@@ -439,7 +509,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     location.href = '/admin.html#shop';
   }, true);
 
-  // 下单：复制微信号
+  // 下单：新版购物车流程（旧微信复制流程已移除）
   function toast(msg) {
     var t = document.getElementById('toast');
     t.textContent = msg;
@@ -449,18 +519,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
   function bindBuy(btn) {
     btn.addEventListener('click', function () {
       if (btn.closest('.sold')) { toast('这件已经售出啦'); return; }
-      function done() { toast('微信号已复制：' + WECHAT_ID + '，来找我下单吧'); }
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(WECHAT_ID).then(done, function () { fallbackCopy(); done(); });
-      } else { fallbackCopy(); done(); }
-      function fallbackCopy() {
-        var ta = document.createElement('textarea');
-        ta.value = WECHAT_ID;
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
-      }
+      toast('请进商品页选规格加入购物车哦');
     });
   }
 
@@ -547,7 +606,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     pgSet(wrap, i + (t.classList.contains('pg-next') ? 1 : -1));
   }, true);
   function fmtPriceShop(v) {
-    var s = String(v == null ? '' : v).trim().replace(/^¥+/, '');
+    var s = String(v == null ? '' : v).trim().replace(/^[¥$]+/, '');
     if (s === '') return '';
     return /^\d+(\.\d+)?$/.test(s.replace(/[,\s]/g, '')) ? (parseFloat(s) || 0).toFixed(2) : s;
   }
@@ -562,10 +621,9 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
       '<div class="product-info">' +
       '<span class="product-tag">' + esc(p.tag || t('没有标签','Untagged')) + '</span>' +
       '<h3>' + esc(p.name) + '</h3>' +
-      '<p>' + esc(p.description || '') + '</p>' +
       '<div class="product-row">' +
-      '<span class="price">' + (p.price ? '<small>¥</small>' + esc(fmtPriceShop(p.price)) : '') + '</span>' +
-      (st === 'on' ? '<button class="buy-btn">' + t('找我下单','Contact to order') + '</button>' : '<span class="no-buy">' + (st === 'display' ? t('仅展示，不能下单','Not for sale') : '') + '</span>') +
+      '<span class="price">' + (p.price ? '<small>' + ((p.currency || 'USD') === 'CNY' ? '¥' : '$') + '</small>' + esc(fmtPriceShop(p.price)) : '') + '</span>' +
+      (st === 'on' ? '<span class="no-buy" style="font-size:14px;">' + t('请进详情选购', 'Open to buy') + '</span>' : '<span class="no-buy">' + (st === 'display' ? t('仅展示，不能下单','Not for sale') : '') + '</span>') +
       productEditBtn(p) +
       '</div></div></div>';
   }
@@ -591,14 +649,14 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
   }
 
   function fetchProducts() { // images 列还没建时自动降级，不阻塞小铺页
-    var sel = 'id,name,price,description,tag,image_url,images,sold,stock,display_only';
+    var sel = 'id,name,price,currency,description,description_en,tag,image_url,images,sold,stock,display_only';
     return fetch(SUPABASE_URL + '/rest/v1/products?select=' + sel + '&order=created_at.desc&limit=100', {
       headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }
     }).then(function (r) { return r.json(); }).then(function (rows) {
       if (!Array.isArray(rows)) throw new Error('no images col');
       return rows;
     }).catch(function () {
-      return fetch(SUPABASE_URL + '/rest/v1/products?select=id,name,price,description,tag,image_url,sold,stock,display_only&order=created_at.desc&limit=100', {
+      return fetch(SUPABASE_URL + '/rest/v1/products?select=id,name,price,description,description_en,tag,image_url,sold,stock,display_only&order=created_at.desc&limit=100', {
         headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }
       }).then(function (r) { return r.json(); });
     });
@@ -627,32 +685,6 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
       img.src = src;
       img.alt = '';
       slot.appendChild(img);
-    };
-    probe.src = src;
-  });
-
-  // 收款方式：按钮 → 弹出收款码图片（点 × / 点背景 / Esc 关闭）
-  (function () {
-    var modal = document.getElementById('pay-modal');
-    var openBtn = document.getElementById('pay-open');
-    if (!modal || !openBtn) return;
-    function close() { modal.classList.remove('open'); }
-    openBtn.addEventListener('click', function () { modal.classList.add('open'); });
-    document.getElementById('pay-close').addEventListener('click', close);
-    modal.addEventListener('click', function (e) { if (e.target === modal) close(); });
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
-  })();
-
-  // 收款码：图片存在就自动显示
-  document.querySelectorAll('.pay-img[data-img]').forEach(function (el) {
-    var src = el.getAttribute('data-img');
-    var probe = new Image();
-    probe.onload = function () {
-      el.innerHTML = '';
-      var img = document.createElement('img');
-      img.src = src;
-      img.alt = '收款码';
-      el.appendChild(img);
     };
     probe.src = src;
   });
@@ -697,7 +729,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
       }
       list.innerHTML = rows.map(function (rv) {
         var img = rv.image_url ? '<img src="' + esc(imgUrl(rv.image_url)) + '" style="width:120px;height:120px;object-fit:cover;border-radius:12px;margin-top:10px;display:block;">' : '';
-        var stars = '<span style="color:var(--accent);letter-spacing:2px;">' + starText(rv.rating || 5) + '</span> <span style="font-size:15px;">' + (rv.rating || 5) + '/5</span>';
+        var stars = '<span style="color:var(--text,#604C57);letter-spacing:2px;">' + starText(rv.rating || 5) + '</span> <span style="font-size:15px;">' + (rv.rating || 5) + '/5</span>';
         var kebab = SHOP_ADMIN ? '<button class="rv-kebab" data-id="' + esc(rv.id) + '" aria-label="管理">⋮</button>' : '';
         return '<div class="rv-card" data-rv="' + esc(rv.id) + '" style="background:#fff;border-radius:var(--radius);padding:14px 16px;' + (SHOP_ADMIN ? 'padding-right:52px;' : '') + 'margin-bottom:12px;box-shadow:0 2px 10px rgba(180,120,150,.10);position:relative;">' +
           '<div style="font-size:16px;color:var(--muted);">' + esc(rv.name || t('小可爱','A lovely buyer')) + ' · ' + fmtDate(rv.created_at) + '</div>' +
@@ -764,11 +796,20 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     upload.then(function (imageUrl) {
       return fetch(SUPABASE_URL + '/rest/v1/reviews', {
         method: 'POST',
-        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'Content-Type': 'application/json' },
+        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
         body: JSON.stringify({ name: name, content: text, rating: RATING, image_url: imageUrl })
       });
     }).then(function (r) {
       if (!r.ok) throw new Error();
+      return r.json().catch(function () { return null; });
+    }).then(function (rows) {
+      // 记住本机发出去的评价（不绑账号，只在本机「发出去的评价」里展示）
+      try {
+        if (rows && rows[0] && rows[0].id) {
+          var ids = JSON.parse(localStorage.getItem('yuki-my-reviews') || '[]');
+          if (Array.isArray(ids) && ids.indexOf(rows[0].id) === -1) { ids.push(rows[0].id); localStorage.setItem('yuki-my-reviews', JSON.stringify(ids.slice(-100))); }
+        }
+      } catch (e) {}
       toast(t('评价提交成功，谢谢你～', 'Review submitted, thank you~'));
       document.getElementById('r-name').value = '';
       document.getElementById('r-text').value = '';
@@ -793,6 +834,62 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
       if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 74, behavior: 'smooth' });
     }, 300);
   }
+</script>
+<script src="/js/shop-app.js?v=20261027p1"></script>
+<script src="/js/site-footer.js?v=20261027p1"></script>
+<script>
+  // 统一 Footer（已有 <footer> 则替换其内容，不新建第二个）
+  function initSiteFooter() { renderSiteFooter(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initSiteFooter);
+  else initSiteFooter();
+</script>
+
+<script>
+/* ═══ 大图预览层逻辑（她 2026-10-26）：点详情主图打开；←→ 键/按钮/手机滑动切换；Esc 关闭；单图隐藏切换 ═══ */
+(function () {
+  var lb = document.createElement('div');
+  lb.id = 'pg-lightbox';
+  lb.innerHTML = '<div class="lb-body"><button class="lb-close" aria-label="关闭">✕</button><img class="lb-img" alt=""><button class="lb-btn lb-prev" aria-label="上一张">‹</button><button class="lb-btn lb-next" aria-label="下一张">›</button><div class="lb-count"></div></div>';
+  document.body.appendChild(lb);
+  var cur = 0, urls = [];
+  function show(i) {
+    if (!urls.length) return;
+    cur = (i + urls.length) % urls.length;
+    lb.querySelector('.lb-img').src = urls[cur];
+    var multi = urls.length > 1;
+    lb.querySelector('.lb-count').textContent = (cur + 1) + ' / ' + urls.length;
+    ['lb-count', 'lb-prev', 'lb-next'].forEach(function (c) { lb.querySelector('.' + c).style.display = multi ? '' : 'none'; });
+  }
+  function openLb(arr, i) { urls = arr || []; show(i || 0); lb.classList.add('on'); }
+  function closeLb() { lb.classList.remove('on'); }
+  lb.querySelector('.lb-close').addEventListener('click', closeLb);
+  lb.querySelector('.lb-prev').addEventListener('click', function (e) { e.stopPropagation(); show(cur - 1); });
+  lb.querySelector('.lb-next').addEventListener('click', function (e) { e.stopPropagation(); show(cur + 1); });
+  lb.addEventListener('click', function (e) { if (e.target === lb) closeLb(); });
+  document.addEventListener('keydown', function (e) {
+    if (!lb.classList.contains('on')) return;
+    if (e.key === 'Escape') closeLb();
+    else if (e.key === 'ArrowLeft') show(cur - 1);
+    else if (e.key === 'ArrowRight') show(cur + 1);
+  });
+  var tx = null;
+  lb.addEventListener('touchstart', function (e) { tx = e.touches[0].clientX; }, { passive: true });
+  lb.addEventListener('touchend', function (e) {
+    if (tx == null) return;
+    var dx = e.changedTouches[0].clientX - tx;
+    if (Math.abs(dx) > 40) show(cur + (dx < 0 ? 1 : -1));
+    tx = null;
+  }, { passive: true });
+  document.addEventListener('click', function (e) {
+    var img = e.target.closest && e.target.closest('#view-detail .pg-img');
+    if (!img) return;
+    e.preventDefault(); e.stopPropagation();
+    var u = []; try { u = JSON.parse(img.getAttribute('data-urls') || '[]'); } catch (err) {}
+    if (!u.length) u = [img.src];
+    var i = 0; try { i = parseInt(img.closest('.pg-wrap').getAttribute('data-i') || '0', 10) || 0; } catch (err) {}
+    openLb(u, i);
+  });
+})();
 </script>
 </body>
 </html>

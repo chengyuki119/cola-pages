@@ -10,8 +10,8 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/icon-yuki2-180.png">
 <link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki2-180.png">
 <meta name="apple-mobile-web-app-title" content="小柚的小世界">
-<link rel="stylesheet" href="/css/site.css?v=20261024a">
-<link rel="stylesheet" href="/site-menu.css">
+<link rel="stylesheet" href="/css/site.css?v=20261027p1">
+<link rel="stylesheet" href="/site-menu.css?v=20261027p1">
 <script src="/site-menu.js" defer></script>
 </head>
 <body>
@@ -22,20 +22,26 @@
     <button class="lang-btn" data-lang="en">English</button>
   </div>
   <a class="site-logo" href="/" aria-label="回主页"><img src="/logo.png" alt="logo"></a>
-  <button class="burger" id="burger" aria-label="菜单">
-    <span></span><span></span><span></span>
-  </button>
+  <div class="topbar-right">
+    <a class="topbar-cart" id="topbar-cart" href="/shop/?sec=cart" aria-label="购物车">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3.5h2.2l2.3 11.2a1.8 1.8 0 0 0 1.8 1.4h8.5a1.8 1.8 0 0 0 1.8-1.4l1.5-8.2H6"/></svg>
+      <span class="topbar-cart-badge" id="topbar-cart-badge" style="display:none;">0</span>
+    </a>
+    <button class="burger" id="burger" aria-label="菜单">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
 </header>
 <div class="menu-mask" id="menu-mask"></div>
 <nav class="menu" id="menu"></nav>
 
 <div class="page active" id="page-works-page">
   <div id="works-list-page">
-    <div class="subpage-header">
-      <a class="back-link" href="/"><span data-zh="← 返回主页" data-en="← Back to Home">← 返回主页</span></a>
+<div class="subpage-header">
       <h1 class="subpage-title" data-zh="和桓桓宝宝的稿件展示" data-en="Our Works">和桓桓宝宝的稿件展示</h1>
       <p class="subpage-sub" data-zh="和桓桓宝宝一起完成的稿件 · 点开看大图" data-en="Pieces made together with Huanhuan · tap to view">和桓桓宝宝一起完成的稿件 · 点开看大图</p>
     </div>
+    <a class="back-link page-back" href="/" style="margin:8px 0 24px 2px;"><span data-zh="← 返回主页" data-en="← Back to Home">← 返回主页</span></a>
     <div class="page-body" style="padding-top:0;">
       <div id="works-filter" style="display:none;margin-bottom:16px;">
         <div id="wf-artist-row" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
@@ -53,7 +59,7 @@
           <button type="button" class="bjd-chip" id="wf-reset" data-zh="重置筛选" data-en="Reset">重置筛选</button>
         </div>
       </div>
-      <div id="works-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;"></div>
+      <div id="works-grid" style="display:grid;gap:14px;"></div>
       <p id="works-empty" style="display:none;color:var(--muted);text-align:center;padding:30px 0;font-size:17px;"><span data-zh="还没有稿件，去后台「稿件管理」上传吧" data-en="No works yet. Upload in the admin Works tab.">还没有稿件，去后台「稿件管理」上传吧</span></p>
     </div>
   </div>
@@ -70,7 +76,7 @@
 <div id="share-pop"></div>
 <div class="toast" id="toast"></div>
 
-<script src="/js/site-common.js?v=20261024a"></script>
+<script src="/js/site-common.js?v=20261027p1"></script>
 <script>
   // ===== 稿件展示：独立子页（稿件墙 + 稿件详情 /works/?id=N）=====
   // 数据：site_settings.works（与后台「稿件管理」同一份，单一数据源）
@@ -143,8 +149,9 @@
     var list = worksFiltered();
     grid.innerHTML = list.map(function (x) {
       var w = x.w;
+      var imgs = (Array.isArray(w.photos) && w.photos.length) ? w.photos.filter(Boolean) : (w.image ? [w.image] : []);
       return '<div class="card work-card" data-i="' + x.i + '" style="margin-bottom:0;padding:0;overflow:hidden;cursor:pointer;">' +
-        pagerWrapHtml(pagerImgsOf({ photos: w.photos, image: w.image }), w.name) +
+        (imgs.length ? '<div style="width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--card);"><img src="' + escAttrDb(normImg(imgs[0])) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + escAttrDb(w.name || '') + '" loading="lazy"></div>' : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--card);color:var(--muted);font-size:15px;">' + t('暂无图片', 'No photo') + '</div>') +
         '<div style="padding:12px 14px;">' +
         '<div style="display:flex;align-items:center;gap:8px;">' +
         '<b style="flex:1;font-size:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(w.name || t('未命名稿件', 'Untitled work')) + '</b>' +
@@ -153,7 +160,7 @@
         '</div>' +
         (w.date ? '<div style="font-size:15px;color:var(--muted);margin-top:3px;">' + escDb(fmtWorkDate(w.date)) + '</div>' : '') +
         (w.cat || w.artist ? '<div style="font-size:15px;color:var(--muted);margin-top:3px;">' + escDb([w.cat, w.artist].filter(Boolean).join(' · ')) + '</div>' : '') +
-        (parseFloat(w.price) ? '<div style="font-size:17px;color:var(--accent);font-weight:600;margin-top:4px;">¥' + fmtMoney(w.price) + '</div>' : '') +
+        (parseFloat(w.price) ? '<div style="font-size:17px;color:var(--price,#ff6fa5);font-weight:600;margin-top:4px;">¥' + fmtMoney(w.price) + '</div>' : '') +
         (workDesc(w) ? '<div style="font-size:16px;color:var(--text);margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">' + escDb(workDesc(w)) + '</div>' : '') +
         '</div></div>';
     }).join('');
@@ -167,15 +174,18 @@
     var title = document.getElementById('works-view-title');
     if (title) title.textContent = w.name || t('未命名稿件', 'Untitled work');
     body.innerHTML =
-      (w.image ? '<div style="width:100%;max-width:420px;aspect-ratio:1/1;margin:0 auto 18px;overflow:hidden;border-radius:var(--radius);background:var(--card);"><img src="' + escAttrDb(normImg(w.image)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + escAttrDb(w.name) + '"></div>' : '') +
-      ((w.photos && w.photos.length) ? '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:420px;margin:0 auto 18px;">' + w.photos.map(function (u) {
-        return '<div class="album-img" style="width:100%;aspect-ratio:1/1;overflow:hidden;border-radius:12px;background:var(--card);"><img src="' + escAttrDb(normImg(u)) + '" style="width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in;" alt="' + escAttrDb(w.name) + '" loading="lazy"></div>';
-      }).join('') + '</div>' : '') +
+      // 详情：大图 + ‹› + 圆点 + 缩略图条（检视所有图片从第一张开始，进入详情才有）
+      '<div style="max-width:420px;margin:0 auto 18px;">' +
+      (function () {
+        var urls = (Array.isArray(w.photos) ? w.photos : []).map(function (u) { return normImg(u); }).filter(Boolean);
+        if (w.image && urls.indexOf(normImg(w.image)) === -1) urls.unshift(normImg(w.image)); // 封面不在照片里才放最前
+        return pagerWrapHtml(urls, w.name);
+      })() + '</div>' +
       '<div style="text-align:center;margin-bottom:18px;">' +
       '<span style="font-size:21px;font-weight:700;">' + escDb(w.name || t('未命名稿件', 'Untitled work')) + '</span>' +
       (w.date ? '<span style="color:var(--muted);font-size:17px;">　|　' + escDb(fmtWorkDate(w.date)) + '</span>' : '') +
       (w.cat || w.artist ? '<span style="color:var(--muted);font-size:17px;">　|　' + escDb([w.cat, w.artist].filter(Boolean).join(' · ')) + '</span>' : '') +
-      (parseFloat(w.price) ? '<span style="color:var(--accent);font-size:18px;font-weight:700;">　|　¥' + fmtMoney(w.price) + '</span>' : '') +
+      (parseFloat(w.price) ? '<span style="color:var(--price,#ff6fa5);font-size:18px;font-weight:700;">　|　¥' + fmtMoney(w.price) + '</span>' : '') +
       '</div>' +
       (workDesc(w) ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;font-size:17px;line-height:1.9;white-space:pre-wrap;word-break:break-word;">' + escDb(workDesc(w)) + '</div>' : '');
   }
@@ -188,9 +198,23 @@
       renderWorkView();
     }
   }
-  dbFetch('site_settings?select=key,value&key=eq.works').then(function (rows) {
-    var raw = null;
-    try { raw = rows && rows[0] ? JSON.parse(rows[0].value) : null; } catch (e) {}
+  // 数据：柚子专属门禁（契约见 js/site-common.js ykGatePage / ykExclusiveData）
+  function ykStartLoad(kind, fn) {
+    if (!window.ykGatePage) { fn(); return; } // 旧缓存 site-common 无门禁模块时按 pending 放行
+    ykGatePage().then(function (ok) {
+      if (!ok) return;
+      if (window.ykExclusiveCheck && window.ykExclusiveData) {
+        ykExclusiveCheck().then(function (res) {
+          if (res.ok !== true) { fn(); return; }
+          ykExclusiveData(kind).then(function (v) { window.YK_RPC_DATA = v; fn(); }, function () { fn(); });
+        }).catch(function () { fn(); });
+      } else fn();
+    }).catch(function () {});
+  }
+  function ykLoadData() {
+  ykAuthFetch('site_settings?select=key,value&key=eq.works') /* 私有键走登录态 */.then(function (rows) {
+    var raw = (window.YK_RPC_DATA !== undefined) ? window.YK_RPC_DATA : null;
+    if (window.YK_RPC_DATA === undefined) { try { raw = rows && rows[0] ? JSON.parse(rows[0].value) : null; } catch (e) {} }
     WORKS_CACHE = (Array.isArray(raw) ? raw : []).map(normWorkView).filter(function (w) { return w.visible !== false; });
     renderWorksWall();
     routeWorks();
@@ -198,6 +222,8 @@
     renderWorksWall();
     routeWorks();
   });
+  }
+  ykStartLoad('works', ykLoadData);
   ['wf-artist', 'wf-cat', 'wf-sort'].forEach(function (id) {
     var el = document.getElementById(id);
     if (!el) return;
@@ -222,6 +248,13 @@
   });
   if (window.SiteMenu) SiteMenu.notify('works');
   applyLang(LANG);
+</script>
+<script src="/js/site-footer.js?v=20261027p1"></script>
+<script>
+  // 统一 Footer（页面没有 <footer> 时自动在页尾新建）
+  function initSiteFooter() { renderSiteFooter(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initSiteFooter);
+  else initSiteFooter();
 </script>
 
 </body>

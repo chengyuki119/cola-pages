@@ -35,8 +35,8 @@
 <meta name="twitter:title" content="小柚的小世界">
 <meta name="twitter:description" content="欢迎来到小柚的小世界">
 <meta name="twitter:image" content="https://yukicheng.com/og-image.jpg">
-<link rel="stylesheet" href="/css/site.css?v=20261024a">
-  <link rel="stylesheet" href="/site-menu.css">
+<link rel="stylesheet" href="/css/site.css?v=20261027p1">
+  <link rel="stylesheet" href="/site-menu.css?v=20261027p1">
     <script src="/site-menu.js" defer></script>
 </head>
 <body class="home">
@@ -48,9 +48,15 @@
     <button class="lang-btn" data-lang="en">English</button>
   </div>
   <a class="site-logo" href="/" aria-label="回主页"><img src="/logo.png" alt="logo"></a>
-  <button class="burger" id="burger" aria-label="菜单">
-    <span></span><span></span><span></span>
-  </button>
+  <div class="topbar-right">
+    <a class="topbar-cart" id="topbar-cart" href="/shop/?sec=cart" aria-label="购物车">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3.5h2.2l2.3 11.2a1.8 1.8 0 0 0 1.8 1.4h8.5a1.8 1.8 0 0 0 1.8-1.4l1.5-8.2H6"/></svg>
+      <span class="topbar-cart-badge" id="topbar-cart-badge" style="display:none;">0</span>
+    </a>
+    <button class="burger" id="burger" aria-label="菜单">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
 </header>
 <div class="menu-mask" id="menu-mask"></div>
 <nav class="menu" id="menu"></nav>
@@ -101,6 +107,20 @@
       <div id="cal-form"></div>
     </div>
 
+    <!-- 自制小铺（日历下方） -->
+    <section id="shop">
+      <h2>我的小铺</h2>
+      <div id="home-shop-grid" class="home-shop-grid"></div>
+      <a class="entry-card" href="/shop/" style="margin-top:16px;">
+        
+        <div class="entry-info">
+          <h3>小柚的小铺</h3>
+          <p>自制小物上架中 · 点进去逛逛</p>
+        </div>
+        <div class="entry-arrow">›</div>
+      </a>
+    </section>
+
     <section id="sec-gallery">
       <h2 data-zh="照片墙" data-en="Photo Gallery">照片墙</h2>
       <div class="preview-grid">
@@ -130,73 +150,7 @@
       <a class="home-long-btn" href="/works/"><span data-zh="查看全部稿件" data-en="View All Works">查看全部稿件</span></a>
     </section>
 
-    <!-- 自制小铺 -->
-    <section id="shop">
-      <h2>我的小铺</h2>
-      <a class="entry-card" href="/shop/">
-        
-        <div class="entry-info">
-          <h3>小柚的小铺</h3>
-          <p>自制小物上架中 · 点进去逛逛</p>
-        </div>
-        <div class="entry-arrow">›</div>
-      </a>
-    </section>
-
     <!-- 匿名提问箱：页面最下面 -->
-    <section id="anon">
-      <h2>匿名提问箱</h2>
-      <p class="section-sub">悄悄问我任何话，完全匿名 · 我的回答在这里可以看到</p>
-      <a class="askbox-card" id="askbox-card">
-        
-        <div class="askbox-info">
-          <h3>给我递个小纸条吧</h3>
-          <p>匿名提问 · 我会在这里回复 · 点进去可以看所有回答</p>
-        </div>
-        <div class="askbox-arrow">›</div>
-      </a>
-    </section>
-
-    <!-- 联系方式 -->
-    <section id="links">
-      <h2>找到我</h2>
-      <div class="links">
-        <a class="link-card" href="mailto:chengyuki119@gmail.com">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#ea8c7b" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m2 7 10 6L22 7"/></svg>
-          <span>Gmail<small>chengyuki119</small></span>
-        </a>
-        <a class="link-card" href="https://instagram.com/zyc.0119" target="_blank">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#e073a8" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="#e073a8" stroke="none"/></svg>
-          <span>Instagram<small>zyc.0119</small></span>
-        </a>
-        <a class="link-card" href="https://x.com/yuki_zheng119" target="_blank">
-          <svg viewBox="0 0 24 24" fill="#d5d7de"><path d="M18.9 2H22l-6.8 7.8L23.2 22h-6.3l-4.9-6.4L6.4 22H3.3l7.3-8.3L1.2 2h6.4l4.4 5.9L18.9 2Zm-1.1 18h1.7L7 3.7H5.2L17.8 20Z"/></svg>
-          <span>X / Twitter<small>@yuki_zheng119</small></span>
-        </a>
-        <a class="link-card" href="https://discord.gg/aWSfnydGG" target="_blank">
-          <svg viewBox="0 0 24 24" fill="#5865f2"><path d="M20.32 4.37a19.8 19.8 0 0 0-4.89-1.52.07.07 0 0 0-.08.04c-.21.38-.44.87-.6 1.25a18.3 18.3 0 0 0-5.5 0 12.6 12.6 0 0 0-.61-1.25.08.08 0 0 0-.08-.04 19.7 19.7 0 0 0-4.88 1.52.07.07 0 0 0-.04.03C.53 9.05-.32 13.58.1 18.06a.08.08 0 0 0 .03.05 19.9 19.9 0 0 0 6 3.03.08.08 0 0 0 .08-.03c.46-.63.87-1.3 1.22-2a.08.08 0 0 0-.04-.11 13.1 13.1 0 0 1-1.87-.9.08.08 0 0 1-.01-.13c.13-.09.25-.19.37-.29a.07.07 0 0 1 .08 0 14.2 14.2 0 0 0 12.06 0 .07.07 0 0 1 .08 0c.12.1.25.2.38.29a.08.08 0 0 1-.01.13c-.6.35-1.22.64-1.87.9a.08.08 0 0 0-.04.11c.36.7.77 1.37 1.22 2a.08.08 0 0 0 .08.03 19.8 19.8 0 0 0 6.02-3.03.08.08 0 0 0 .03-.05c.5-5.18-.84-9.68-3.55-13.66a.06.06 0 0 0-.03-.03ZM8.02 15.33c-1.18 0-2.16-1.08-2.16-2.42 0-1.33.96-2.42 2.16-2.42 1.21 0 2.18 1.1 2.16 2.42 0 1.34-.96 2.42-2.16 2.42Zm7.97 0c-1.18 0-2.16-1.08-2.16-2.42 0-1.33.95-2.42 2.16-2.42 1.21 0 2.18 1.1 2.16 2.42 0 1.34-.95 2.42-2.16 2.42Z"/></svg>
-          <span>Discord<small data-zh="小柚的服务器" data-en="Welcome to my server">小柚的服务器</small></span>
-        </a>
-        <a class="link-card" id="wechat-card">
-          <svg viewBox="0 0 24 24" fill="#57bb6a"><path d="M9.3 4C5.3 4 2 6.7 2 10.1c0 1.9 1 3.5 2.7 4.7l-.7 2.1 2.4-1.2c.7.2 1.4.4 2.2.4h.4a5.5 5.5 0 0 1-.2-1.5c0-3.2 3-5.8 6.7-5.8h.4C15.3 6 12.6 4 9.3 4ZM7 7.4a.9.9 0 1 1 0 1.8.9.9 0 0 1 0-1.8Zm4.6 0a.9.9 0 1 1 0 1.8.9.9 0 0 1 0-1.8ZM15.5 10c-3.2 0-5.8 2.1-5.8 4.8 0 2.6 2.6 4.8 5.8 4.8.6 0 1.2-.1 1.8-.3l2 1-.6-1.7c1.4-.9 2.3-2.2 2.3-3.8 0-2.6-2.6-4.8-5.5-4.8Zm-2 2.3a.8.8 0 1 1 0 1.6.8.8 0 0 1 0-1.6Zm4 0a.8.8 0 1 1 0 1.6.8.8 0 0 1 0-1.6Z"/></svg>
-          <span>微信<small>yuki_060119</small></span>
-        </a>
-
-        <a class="link-card" href="https://v.douyin.com/rDWydc4QlBE/" target="_blank">
-          <svg viewBox="0 0 24 24" fill="#5ad7d0"><path d="M16.6 3c.4 2.3 1.9 3.8 4.4 4v3c-1.7 0-3.2-.5-4.4-1.4v6.6c0 3.5-2.6 5.8-5.9 5.8-3.1 0-5.7-2.4-5.7-5.6 0-3.3 2.9-5.8 6.3-5.4v3.1c-1.7-.5-3.2.5-3.2 2.2 0 1.5 1.2 2.6 2.6 2.6 1.6 0 2.8-1.1 2.8-3.2V3h3.1Z"/></svg>
-          <span>抖音<small>小柚ovo</small></span>
-        </a>
-        <a class="link-card" href="https://xhslink.cn/o/8ZUGYxQgnKG" target="_blank">
-          <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="6" fill="#ff2442"/><text x="12" y="16.5" text-anchor="middle" font-size="11" font-weight="bold" fill="#ffffff">红</text></svg>
-          <span><span data-zh="小红书" data-en="RED">小红书</span><small>柚y</small></span>
-        </a>        <a class="link-card" href="https://y.music.163.com/m/user?id=5022037817" target="_blank">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#e35d5d" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
-          <span>网易云音乐<small>Snow柚</small></span>
-        </a>
-
-
-      </div>
-    </section>
 
     <footer>© 2026 Yuki · Made with Cola</footer>
   </div>
@@ -207,7 +161,7 @@
 <div id="share-pop"></div>
 
 
-<script src="/js/site-common.js?v=20261024a"></script>
+<script src="/js/site-common.js?v=20261027p1"></script>
 
 <!-- ═══════════ 小柚助手（AI 入口 · 第一阶段测试：模拟回复 + 后台知识库匹配，未接真 AI）═══════════ -->
 <style>
@@ -217,8 +171,8 @@
     width: 62px; height: 62px;
     border-radius: 50%;
     border: 1px solid var(--card-hover);
-    background: var(--card);
-    color: #8d99b5;
+    background: #ffffff; /* 未悬停不用粉底（她 17:46 要求），悬停才上粉色 */
+    color: var(--muted,#A88E9B);
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
     box-shadow: inset 0 2px 3px rgba(255,255,255,.9), inset 0 -2px 4px rgba(220,170,190,.28), 0 4px 10px rgba(180,120,150,.16);
     cursor: pointer;
@@ -226,9 +180,9 @@
     transition: transform .28s ease, box-shadow .18s ease;
     font-family: inherit;
   }
-  .ai-fab .l1 { font-size:15px; font-weight: 600; line-height: 1.25; color: #8d99b5; }
-  .ai-fab .l2 { font-size:14px; font-weight: 600; line-height: 1.25; color: #e0a9c1; }
-  .ai-fab:not(.docked):hover { transform: translateY(-2px); box-shadow: inset 0 2px 3px rgba(255,255,255,.9), inset 0 -2px 4px rgba(220,170,190,.28), 0 7px 14px rgba(180,120,150,.20); }
+  .ai-fab .l1 { font-size:15px; font-weight: 600; line-height: 1.25; color: var(--muted,#A88E9B); }
+  .ai-fab .l2 { font-size:14px; font-weight: 600; line-height: 1.25; color: var(--muted,#A88E9B); }
+  .ai-fab:not(.docked):hover { background: var(--card, #FFFFFF); transform: translateY(-2px); box-shadow: inset 0 2px 3px rgba(255,255,255,.9), inset 0 -2px 4px rgba(220,170,190,.28), 0 7px 14px rgba(180,120,150,.20); }
   .ai-fab:not(.docked):active { transform: scale(.95); }
 
   .ai-win {
@@ -295,7 +249,7 @@
   .ai-input { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: #fff; border-top: 1px solid var(--card-hover); flex-shrink: 0; padding-bottom: max(10px, env(safe-area-inset-bottom)); }
   .ai-input input { flex: 1; border: 1px solid var(--card-hover); border-radius: 999px; background: var(--bg); padding: 9px 14px; font-size:16px; font-family: inherit; color: var(--text); outline: none; min-width: 0; }
   .ai-input input:focus { border-color: var(--accent-soft); }
-  .ai-input .send { width: 36px; height: 36px; flex-shrink: 0; border: none; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; transition: transform .12s; cursor: pointer; }
+  .ai-input .send { width: 36px; height: 36px; flex-shrink: 0; border: none; border-radius: 50%; background:var(--accent,#ffd9e6); color: var(--text, #604C57); display: flex; align-items: center; justify-content: center; transition: transform .12s; cursor: pointer; }
   .ai-input .send:active { transform: scale(.92); }
   .ai-input .send svg { width: 16px; height: 16px; fill: #fff; }
 
@@ -358,14 +312,25 @@
   );
   var FALLBACK = T('我现在还是测试版本，暂时只回答少量网站相关问题。', "I'm still a test version, so I can only answer a few questions about the site for now.");
 
-  // ── 知识库（后台添加的标准回复，优先使用）──
-  function kbAll() {
-    try { return JSON.parse(localStorage.getItem('yuki-ai-kb') || '[]') || []; } catch (e) { return []; }
+  // ── 知识库（数据库 ai_kb 表 · 后台添加的所有访客都能读到；断网/未建表时退回本地缓存）──
+  var KB = (function () { try { return JSON.parse(localStorage.getItem('yuki-ai-kb') || '[]') || []; } catch (e) { return []; } })();
+  var KB_DB_OK = false;
+  function kbAll() { return KB; }
+  function kbLoad() {
+    return fetch(DB_BASE + 'ai_kb?select=id,q,a&order=id.asc&limit=200', { headers: DB_HEADERS })
+      .then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); })
+      .then(function (rows) {
+        if (!Array.isArray(rows)) throw new Error('bad');
+        KB = rows.map(function (x) { return { id: 'kb-' + x.id, dbId: x.id, q: x.q, a: x.a }; });
+        KB_DB_OK = true;
+        try { localStorage.setItem('yuki-ai-kb', JSON.stringify(KB)); } catch (e) {} // 缓存兑底
+      })
+      .catch(function () { KB_DB_OK = false; }); // 未建表/断网：沿用本地缓存，不阻塞聊天
   }
-  function kbSaveUse(id) {
-    var kb = kbAll();
-    kb.forEach(function (k) { if (k.id === id) k.uses = (k.uses || 0) + 1; });
-    try { localStorage.setItem('yuki-ai-kb', JSON.stringify(kb)); } catch (e) {}
+  kbLoad();
+  function kbSaveUse(k) { // 使用计数：写数据库日志（失败静默，不影响回复）
+    if (!k || !k.dbId || !KB_DB_OK) return;
+    fetch(DB_BASE + 'ai_kb_uses', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }, body: JSON.stringify({ kb_id: k.dbId }) }).catch(function () {});
   }
   function normQ(s) { return String(s || '').toLowerCase().replace(/[\s，。？！?!,.'\"“”‘’、~～·：:;；]/g, ''); }
   function bigrams(s) { var r = []; for (var i = 0; i < s.length - 1; i++) r.push(s.substr(i, 2)); return r; }
@@ -391,7 +356,7 @@
   // ── 模拟回复（第一阶段；知识库优先 → 内置回复 → 兑底；中英文跟随网站语言）──
   function replyFor(q) {
     var k = kbMatch(q);
-    if (k) { kbSaveUse(k.id); return { text: k.a, kbId: k.id }; }
+    if (k) { kbSaveUse(k); return { text: k.a, kbId: k.dbId || k.id, kbObj: k }; }
     var nq = (q || '').toLowerCase();
     if (/你好|您好|hi|hello|嗨|哈喽/.test(nq)) return { text: T('你好呀～我是小柚助手（测试版）。可以点下面的快捷问题，或直接问我「网站怎么用」「色卡」「小铺」。', "Hi there~ I'm Yuki's Assistant (test version). Tap a quick question below, or ask me 'How to use the site', 'Color Cards' or 'My Shop'."), kbId: null };
     if (/色卡|价目|价格表|color ?card|price/.test(nq)) return { text: T('色卡页面在导航的「色卡」，里面有每张色卡的主图、画师和张数，还有收卡价格和色卡总价。点任意一张卡片可以进入详情查看更多信息。', 'The Color Cards page is in the menu under "Color Cards". Each card shows its cover, artists and count, plus the base price and the card total. Tap any card to see the full details.'), kbId: null };
@@ -429,24 +394,38 @@
     } else if (!on && old) old.remove();
   }
 
-  // ── 会话记录：写入 localStorage，后台「AI 对话」可看 ──
+  // ── 会话记录：本地保存最近 20 个会话（修复之前只留 1 个、超 24h 丢弃的问题）；
+  // 同时把每条消息写入数据库副本 ai_chat_msgs（后台「AI 对话」可看真实访客提问；失败不影响本地聊天）──
   function loadLog() {
     try { return JSON.parse(localStorage.getItem('yuki-ai-log') || '[]') || []; } catch (e) { return []; }
+  }
+  function sessKey() {
+    var k = null;
+    try { k = sessionStorage.getItem('yuki-ai-session-key'); } catch (e) {}
+    if (!k) { k = 's-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8); try { sessionStorage.setItem('yuki-ai-session-key', k); } catch (e) {} }
+    return k;
   }
   var curSession = null;
   (function restore() {
     var logs = loadLog();
-    if (logs.length && logs[0] && logs[0].msgs && logs[0].msgs.length && Date.now() - logs[0].start < 86400000) {
+    if (logs.length && logs[0] && logs[0].msgs && logs[0].msgs.length) {
       curSession = logs[0];
+      try { sessionStorage.setItem('yuki-ai-session-key', curSession.key || sessKey()); } catch (e) {}
       curSession.msgs.forEach(function (m) { addMsg(m.role === 'me' ? 'me' : 'ai', m.text, m.time); });
     }
   })();
   function logSession(role, txt, meta) {
-    if (!curSession) curSession = { start: Date.now(), msgs: [] };
+    if (!curSession) curSession = { start: Date.now(), key: sessKey(), msgs: [] };
     var m = { role: role, text: txt, time: Date.now() };
     if (meta) { m.kbId = meta.kbId; m.fb = !!meta.fb; }
     curSession.msgs.push(m);
-    try { localStorage.setItem('yuki-ai-log', JSON.stringify([curSession])); } catch (e) {}
+    var logs = loadLog().filter(function (s) { return s.key !== curSession.key; });
+    try { localStorage.setItem('yuki-ai-log', JSON.stringify([curSession].concat(logs).slice(0, 20))); } catch (e) {}
+    // 数据库副本（后台可看真实提问；失败不弹窗不打扰访客，后台读不到即知）
+    if (meta && meta.kbObj) {} // kb 使用已在 replyFor 里记过
+    fetch(DB_BASE + 'ai_chat_msgs', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ session_key: curSession.key, role: role === 'me' ? 'user' : 'ai', text: txt, kb_hit: !!(meta && meta.kbId && !meta.fb) })
+    }).catch(function () {});
   }
 
   function send(q) {
@@ -547,23 +526,23 @@
     var flagged = all.filter(function (x) { return x.b.homeShow !== false; }).slice(0, 4); // 只显示勾选「主页展示」的娃，最多四张，无勾选则隐藏区块
     var show = flagged;
     grid.style.display = show.length ? 'grid' : 'none';
-    if (show.length) grid.style.setProperty('--home-cols', String(Math.max(1, Math.min(4, show.length)))); // 几张图就均分几列，舖满 1000px
+    /* 固定 4 列：CSS 已硬编码，不再按项目数均分（她 2026-10-26：2~3 个项目也不拉伸） */
     grid.innerHTML = show.map(function (x) {
       var b = x.b, img = b.cover || b.image;
       var tv = bjdTotalV(b);
       var pvRaw = String((b.price && b.price.total) || '').trim();
       var pv = tv > 0 ? fmtMoney(tv) : (pvRaw !== '' ? fmtPriceText(pvRaw) : '');
-      return '<div class="card bjd-card" data-i="' + x.i + '" style="margin-bottom:0;padding:0;overflow:hidden;cursor:pointer;position:relative;">' +
+      return '<div class="card bjd-card" data-i="' + x.i + '" style="margin-bottom:0;padding:0;overflow:hidden;cursor:pointer;position:relative;display:flex;flex-direction:column;">' +
         (img ? '<div style="width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--card);"><img src="' + escAttrDb(normImg(img)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="BJD" loading="lazy"></div>'
              : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--card);color:var(--muted);font-size:15px;">' + (LANG === 'en' ? 'No photo' : '暂无图片') + '</div>') +
-        '<div style="padding:10px 12px;">' +
+        '<div style="padding:10px 12px;display:flex;flex-direction:column;flex:1;">' +
         '<div style="display:flex;align-items:center;gap:8px;">' +
         '<b style="flex:1;font-size:17px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(b.name || (LANG === 'en' ? 'Unnamed doll' : '未命名娃娃')) + '</b>' +
         shareBtnHtml(x.i, 'bjd', true) +
         bjdEditBtn(x.i) + // 登录后台后才出现
         '</div>' +
-        (b.head.size ? '<div style="font-size:15px;color:var(--muted);margin-top:2px;">' + escDb(LANG === 'en' && window.sizeEnKeep ? sizeEnKeep(b.head.size) : b.head.size) + '</div>' : '') +
-        (pv ? '<div style="display:flex;align-items:center;gap:8px;margin-top:4px;"><span style="flex:1;font-size:17px;color:var(--accent);font-weight:600;">' + (LANG === 'en' ? 'Total ¥' : '总价 ¥') + pv + '</span></div>' : '') +
+        (b.head.size ? '<div style="font-size:15px;color:var(--muted);margin-top:4px;">' + escDb(LANG === 'en' && window.sizeEnKeep ? sizeEnKeep(b.head.size) : b.head.size) + '</div>' : '') +
+        '<div style="display:flex;align-items:center;gap:8px;margin-top:auto;padding-top:6px;"><span style="flex:1;font-size:17px;color:var(--text,#604C57);font-weight:600;">' + (LANG === 'en' ? 'Total ' : '总价 ') + '</span><span style="color:var(--price,#ff6fa5);font-weight:600;">' + (pv ? '¥' + pv : '—') + '</span></div>' +
         '</div></div>';
     }).join('');
   }
@@ -620,20 +599,50 @@
     });
   }).catch(function () {});
 
-  // ===== 主页设置（后台「主页管理」同步：文案/头像/背景图/找到我）=====
-  var HOME_ICONS = {
-    gmail: '<svg viewBox="0 0 24 24" fill="none" stroke="#ea8c7b" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m2 7 10 6L22 7"/></svg>',
-    instagram: '<svg viewBox="0 0 24 24" fill="none" stroke="#e073a8" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="#e073a8" stroke="none"/></svg>',
-    x: '<svg viewBox="0 0 24 24" fill="#d5d7de"><path d="M18.9 2H22l-6.8 7.8L23.2 22h-6.3l-4.9-6.4L6.4 22H3.3l7.3-8.3L1.2 2h6.4l4.4 5.9L18.9 2Zm-1.1 18h1.7L7 3.7H5.2L17.8 20Z"/></svg>',
-    discord: '<svg viewBox="0 0 24 24" fill="#5865f2"><path d="M20.32 4.37a19.8 19.8 0 0 0-4.89-1.52.07.07 0 0 0-.08.04c-.21.38-.44.87-.6 1.25a18.3 18.3 0 0 0-5.5 0 12.6 12.6 0 0 0-.61-1.25.08.08 0 0 0-.08-.04 19.7 19.7 0 0 0-4.88 1.52.07.07 0 0 0-.04.03C.53 9.05-.32 13.58.1 18.06a.08.08 0 0 0 .03.05 19.9 19.9 0 0 0 6 3.03.08.08 0 0 0 .08-.03c.46-.63.87-1.3 1.22-2a.08.08 0 0 0-.04-.11 13.1 13.1 0 0 1-1.87-.9.08.08 0 0 1-.01-.13c.13-.09.25-.19.37-.29a.07.07 0 0 1 .08 0 14.2 14.2 0 0 0 12.06 0 .07.07 0 0 1 .08 0c.12.1.25.2.38.29a.08.08 0 0 1-.01.13c-.6.35-1.22.64-1.87.9a.08.08 0 0 0-.04.11c.36.7.77 1.37 1.22 2a.08.08 0 0 0 .08.03 19.8 19.8 0 0 0 6.02-3.03.08.08 0 0 0 .03-.05c.5-5.18-.84-9.68-3.55-13.66a.06.06 0 0 0-.03-.03ZM8.02 15.33c-1.18 0-2.16-1.08-2.16-2.42 0-1.33.96-2.42 2.16-2.42 1.21 0 2.18 1.1 2.16 2.42 0 1.34-.96 2.42-2.16 2.42Zm7.97 0c-1.18 0-2.16-1.08-2.16-2.42 0-1.33.95-2.42 2.16-2.42 1.21 0 2.18 1.1 2.16 2.42 0 1.34-.95 2.42-2.16 2.42Z"/></svg>',
-    wechat: '<svg viewBox="0 0 24 24" fill="#57bb6a"><path d="M9.3 4C5.3 4 2 6.7 2 10.1c0 1.9 1 3.5 2.7 4.7l-.7 2.1 2.4-1.2c.7.2 1.4.4 2.2.4h.4a5.5 5.5 0 0 1-.2-1.5c0-3.2 3-5.8 6.7-5.8h.4C15.3 6 12.6 4 9.3 4ZM7 7.4a.9.9 0 1 1 0 1.8.9.9 0 0 1 0-1.8Zm4.6 0a.9.9 0 1 1 0 1.8.9.9 0 0 1 0-1.8ZM15.5 10c-3.2 0-5.8 2.1-5.8 4.8 0 2.6 2.6 4.8 5.8 4.8.6 0 1.2-.1 1.8-.3l2 1-.6-1.7c1.4-.9 2.3-2.2 2.3-3.8 0-2.6-2.6-4.8-5.5-4.8Zm-2 2.3a.8.8 0 1 1 0 1.6.8.8 0 1 1 0-1.6Zm4 0a.8.8 0 1 1 0 1.6.8.8 0 1 1 0-1.6Z"/></svg>',
-    xhs: '<svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="6" fill="#ff2442"/><text x="12" y="16.5" text-anchor="middle" font-size="11" font-weight="bold" fill="#ffffff">红</text></svg>',
-    netease: '<svg viewBox="0 0 24 24" fill="none" stroke="#e35d5d" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>',
-    link: '<svg viewBox="0 0 24 24" fill="none" stroke="#b9a7b3" stroke-width="2"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1.5 1.5"/><path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7L12.5 19"/></svg>'
-  };
+  // ===== 主页设置（后台「主页管理」同步：文案/头像/背景图）=====
+  // 柚子专属门禁：未授权剥离 BJD/色卡/稿件数据并隐藏区块；授权改用 RPC 数据；pending（SQL 未跑）按旧源放行
+  // 契约见 js/site-common.js ykExclusiveCheck() / ykExclusiveData(kind)
+  function ykGateApply(S) {
+    var strip = function () {
+      delete S.bjds; delete S.cards; delete S.works;
+      var logged = false;
+      try {
+        var ss = JSON.parse(localStorage.getItem('yuki-user-session') || 'null') || JSON.parse(localStorage.getItem('yuki-admin-session') || 'null');
+        logged = !!(ss && (ss.a || ss.r));
+      } catch (e) {}
+      ['sec-bjd', 'sec-cards', 'sec-works'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) { el.style.display = 'none'; el.setAttribute('data-yk-hidden', '1'); }
+      });
+      if (!logged) { // 照片展示也需登录：未登录隐藏照片区块
+        var g = document.getElementById('sec-gallery');
+        if (g) { g.style.display = 'none'; g.setAttribute('data-yk-hidden', '1'); }
+      }
+      return S;
+    };
+    if (!window.ykExclusiveCheck) return Promise.resolve(S); // 旧缓存 site-common 无新模块时按 pending 放行
+    return window.ykExclusiveCheck().then(function (res) {
+      if (res && res.ok === false) return strip();
+      if (res && res.ok === true && window.ykExclusiveData) {
+        return Promise.all(['bjds', 'cards', 'works'].map(function (k) {
+          return window.ykExclusiveData(k).catch(function () { return undefined; });
+        })).then(function (r) {
+          ['bjds', 'cards', 'works'].forEach(function (k, i) {
+            var v = r[i];
+            if (v === undefined || v === null) { delete S[k]; return; }
+            S[k] = (typeof v === 'string') ? v : JSON.stringify(v);
+          });
+          return S;
+        });
+      }
+      return S;
+    }).catch(function () { return S; });
+  }
   dbFetch('site_settings?select=key,value&limit=100').then(function (rows) {
     var S = {};
     (rows || []).forEach(function (r) { S[r.key] = r.value; });
+    return ykGateApply(S);
+  }).then(function (S) {
     function parseSetting(key, fallback) {
       try { var v = JSON.parse(S[key] || 'null'); return v == null ? fallback : v; } catch (e) { return fallback; }
     }
@@ -667,7 +676,7 @@
     var cov = parseSetting('cover', null);
     if (cov && cov.url) {
       var heroEl = document.querySelector('.hero');
-      if (heroEl) heroEl.style.backgroundImage = 'url("' + cov.url + '"), linear-gradient(180deg, rgba(255,252,253,0) 45%, #fffcfd 100%)';
+      if (heroEl) heroEl.style.backgroundImage = 'url("' + cov.url + '"), linear-gradient(180deg, rgba(255,251,252,0) 45%, var(--bg,#FFFBFC) 100%)';
     }
     // 入口卡片文案
     var en = parseSetting('entries', {});
@@ -676,25 +685,6 @@
       var sp = document.querySelector('#shop .entry-card p');
       if (sh) sh.textContent = en.shop_h;
       if (sp && en.shop_p) sp.textContent = en.shop_p;
-    }
-    if (en.anon_h) {
-      var ah = document.querySelector('#anon .askbox-card h3');
-      var ap = document.querySelector('#anon .askbox-card p');
-      if (ah) ah.textContent = en.anon_h;
-      if (ap && en.anon_p) ap.textContent = en.anon_p;
-    }
-    // 找到我
-    var links = parseSetting('links', []);
-    if (links.length) {
-      var linksBox = document.querySelector('#links .links');
-      if (linksBox) {
-        linksBox.innerHTML = links.map(function (l) {
-          return '<a class="link-card"' + (l.url ? ' href="' + escAttrDb(l.url) + '" target="_blank" rel="noopener"' : '') + '>' +
-            (HOME_ICONS[l.icon] || HOME_ICONS.link) +
-            '<span>' + escDb(l.name) + (l.sub ? '<small>' + escDb(l.sub) + '</small>' : '') + '</span>' +
-            '</a>';
-        }).join('');
-      }
     }
     // 色卡 / BJD 数据（与后台同一份）
     var cardsRaw = parseSetting('cards', null);
@@ -714,7 +704,7 @@
         chGrid.innerHTML = '<p style="color:var(--muted);text-align:center;padding:30px 0;font-size:17px;">暂无展示中的色卡</p>';
       } else {
         chGrid.style.display = 'grid';
-        chGrid.style.setProperty('--home-cols', String(Math.max(1, Math.min(4, showCards.length)))); // 几张图就均分几列，舖满 1000px
+        /* 色卡预览固定 4 列（CSS 硬编码） */
         chGrid.innerHTML = showCards.map(function (x) {
           var c = x.c, i = x.i;
           return '<div class="card sc-product" data-i="' + i + '" style="margin-bottom:0;padding:0;overflow:hidden;cursor:pointer;position:relative;">' +
@@ -725,9 +715,9 @@
             '<b style="flex:1;font-size:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(c.name || '未命名色卡') + '</b>' +
             shareBtnHtml(i, null, true) +
             '</div>' +
-            '<div style="font-size:15px;color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (c.shop ? escDb(c.shop) : '&nbsp;') + '</div>' +
+            '<div style="font-size:15px;color:var(--muted);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (c.shop ? escDb(c.shop) : '&nbsp;') + '</div>' +
             '<div style="display:flex;align-items:center;gap:8px;margin-top:4px;">' +
-            '<span style="flex:1;font-size:17px;color:var(--accent);font-weight:600;">' + (LANG === 'en' ? 'Total ¥' : '总价 ¥') + fmtMoney(cardFinalV(c)) + '</span>' +
+            '<span style="flex:1;font-size:17px;color:var(--text,#604C57);font-weight:600;">' + (LANG === 'en' ? 'Total ' : '色卡总价 ') + '</span><span style="color:var(--price,#ff6fa5);font-weight:600;">¥' + fmtMoney(cardFinalV(c)) + '</span>' +
             cardEditBtn(i) +
             '</div>' +
             '</div></div>';
@@ -758,7 +748,7 @@
         wkGrid.innerHTML = '<p style="color:var(--muted);text-align:center;padding:30px 0;font-size:17px;">还没有稿件，去后台「稿件管理」上传吧</p>';
       } else {
         wkGrid.style.display = 'grid';
-        wkGrid.style.setProperty('--home-cols', String(Math.max(1, Math.min(4, worksList.length)))); // 几张图就均分几列，舖满 1000px
+        /* 稿件预览固定 4 列（CSS 硬编码） */
         wkGrid.innerHTML = worksList.map(function (x, i) {
           var w = x.w, i = x.i; // 用原始序号：详情/分享/编辑都与 /works/ 一致
           return '<div class="card work-card" data-i="' + i + '" style="margin-bottom:0;padding:0;overflow:hidden;cursor:pointer;position:relative;">' +
@@ -771,7 +761,7 @@
             workEditBtn(i, worksRaw) +
             '</div>' +
             (w.date ? '<div style="font-size:15px;color:var(--muted);margin-top:3px;">' + escDb(String(w.date).replace(/-/g, '/')) + '</div>' : '') +
-            (parseFloat(w.price) ? '<div style="font-size:17px;color:var(--accent);font-weight:600;margin-top:4px;">¥' + fmtMoney(w.price) + '</div>' : '') +
+            (parseFloat(w.price) ? '<div style="font-size:17px;color:var(--price,#ff6fa5);font-weight:600;margin-top:4px;">¥' + fmtMoney(w.price) + '</div>' : '') +
             '</div></div>';
         }).join('');
       }
@@ -785,7 +775,7 @@
       }
     }
     // 区域管理：显示/隐藏、标题、顺序、自定义文字区块
-    var FIXED_AREA_SEL = { links: '#links', gallery: '#sec-gallery', works: '#sec-works', shop: '#shop', anon: '#anon', cards: '#sec-cards' };
+    var FIXED_AREA_SEL = { gallery: '#sec-gallery', works: '#sec-works', shop: '#shop', anon: '#anon', cards: '#sec-cards' };
     var areas = parseSetting('areas', []);
     areas.forEach(function (a) {
       if (a.key === 'cards' && a.title_zh === '色卡展示') a.title_zh = '色卡'; // 旧默认名按新版规范显示
@@ -795,7 +785,7 @@
     if (areas.length) {
       var homeBody = document.querySelector('#page-home .page-body');
       var homeFooter = homeBody ? homeBody.querySelector('footer') : null;
-      var CANON = { gallery: 0, cards: 1, works: 2, shop: 3, anon: 4, links: 5 }; // 主页固定顺序；BJD 独立区块插在色卡前，稿件展示在色卡下、小铺上
+      var CANON = { shop: 0, gallery: 1, cards: 2, works: 3, anon: 4 }; // 主页固定顺序（小铺在日历下方）：小铺 → 照片墙 → BJD → 色卡 → 稿件 → 提问箱
       areas.slice().sort(function (a, b) {
         var ka = a.key in CANON ? CANON[a.key] : 100 + (a.sort || 0);
         var kb = b.key in CANON ? CANON[b.key] : 100 + (b.sort || 0);
@@ -809,7 +799,7 @@
           el.innerHTML = '<h2></h2><div class="card" style="padding:18px 20px;"><p style="font-size:17px;line-height:1.8;white-space:pre-wrap;"></p></div>';
         }
         if (!el) return;
-        el.style.display = a.visible === false ? 'none' : '';
+        el.style.display = (a.visible === false || el.getAttribute('data-yk-hidden') === '1') ? 'none' : ''; // 柚子专属门禁隐藏优先
         var h2 = el.querySelector('h2');
         if (h2 && a.title_zh) {
           h2.setAttribute('data-zh', a.title_zh);
@@ -832,10 +822,13 @@
       });
       applyLang(LANG);
     }
-    // 主页区块顺序：Photo Gallery → BJD → 色卡 → 稿件展示 → 我的小铺 → 匿名提问箱 → 找到我
+    // 主页区块顺序：Photo Gallery → BJD → 色卡 → 稿件展示 → 我的小铺 → 匿名提问箱
     var scSec = document.getElementById('sec-cards');
     var bjdSec = document.getElementById('sec-bjd');
-    if (bjdSec && scSec && scSec.parentNode) scSec.parentNode.insertBefore(bjdSec, scSec); // BJD 在色卡之前
+    if (bjdSec && scSec && scSec.parentNode) scSec.parentNode.insertBefore(bjdSec, scSec); // BJD 在色卡之前（门禁隐藏时也无妨）
+    var shopSec = document.getElementById('shop');
+    var galSec = document.getElementById('sec-gallery');
+    if (shopSec && galSec && galSec.parentNode) galSec.parentNode.insertBefore(shopSec, galSec); // 小铺紧跟日历（在照片墙之前）
     renderBjdHome();
     if (!document.getElementById('bjd-home-grid').dataset.bound) {
       document.getElementById('bjd-home-grid').dataset.bound = '1';
@@ -846,12 +839,6 @@
       });
     }
   }).catch(function () {});
-
-  // ===== 匿名提问箱：点卡片打开提问箱页面（同一个页签，不另开新窗口）=====
-  document.getElementById('askbox-card').addEventListener('click', function () {
-    if (!ASKBOX_URL) { toast(t('提问箱还在准备中', 'The ask box is coming soon')); return; }
-    location.href = ASKBOX_URL;
-  });
 
   // ===== 旧 # 深链兼容：#card-N / #bjd-N → 对应新子页 =====
   (function () {
@@ -960,9 +947,9 @@
     dbSend('site_settings', 'POST', { key: 'day_cats', value: JSON.stringify(DAY_CATS) }).catch(function () {});
   }
   function typeColor(r) {
-    var fixed = { birthday: '#ff6fa5', anniversary: '#b3ace0', event: '#9ecfae' }[r];
+    var fixed = { birthday: '#e8a0c8', anniversary: '#b3ace0', event: '#9ecfae' }[r];
     if (fixed) return fixed;
-    var palette = ['#ff6fa5', '#f5a25d', '#9ecfae', '#8fc7e8', '#b3ace0', '#e8a0c8']; // 新分类按名字固定取色
+    var palette = ['#e8a0c8', '#f5a25d', '#9ecfae', '#8fc7e8', '#b3ace0', '#7fa8d9']; // 新分类按名字固定取色
     var h = 0;
     for (var i = 0; i < (r || '').length; i++) h = (h * 31 + r.charCodeAt(i)) >>> 0;
     return palette[h % palette.length];
@@ -1000,16 +987,16 @@
         out.push({ name: name + (LANG === 'en' ? ' · ' + y + 'y' : zhYears(y) + '岁'), day: iso(d2), type: '纪念', repeat: 'none', auto: true });
       }
     }
-    function inCal(k) { return CAL_HIDE.indexOf(k) !== -1; }
+    function inCal(k, nameKey) { return CAL_HIDE.indexOf(nameKey || k) !== -1 || CAL_HIDE.indexOf(k) !== -1; } // 名字键优先（排序/删除后不错位），旧下标键兼容
     (bjds || []).forEach(function (b, bi) {
       if (!b || !b.name) return;
-      if (inCal('b:' + bi)) return; // 后台关掉「前台展示」的不进日历
+      if (inCal('b:' + bi, 'bn:' + b.name)) return; // 后台关掉「前台展示」的不进日历
       var src = valid(b.birth) ? b.birth : (valid(b.purchase && b.purchase.date) ? b.purchase.date : (valid(b.faceup && b.faceup.date) ? b.faceup.date : ''));
       if (src) pushAll(b.name, src); // 出生日期 → 买入那天 → 弄好那天，取第一个填了的
     });
     (cards || []).forEach(function (c, ci) {
       if (!c || !c.name) return;
-      if (inCal('c:' + ci)) return;
+      if (inCal('c:' + ci, 'cn:' + c.name)) return;
       var src = valid(c.birth) ? c.birth : (valid(c.bought) ? c.bought : '');
       if (src) pushAll(c.name, src);
     });
@@ -1024,16 +1011,45 @@
     });
     return out;
   }
+  function ykCalGate(S) {
+    // 日历是柚子专属内容：未登录/普通买家隐藏，仅专属账号显示
+    var cal = document.getElementById('home-cal');
+    var logged = false;
+    try {
+      var ss = JSON.parse(localStorage.getItem('yuki-user-session') || 'null') || JSON.parse(localStorage.getItem('yuki-admin-session') || 'null');
+      logged = !!(ss && (ss.a || ss.r));
+    } catch (e) {}
+    if (cal && !logged) cal.style.display = 'none'; // 未登录同步隐藏，避免闪现
+    if (!window.ykExclusiveCheck) return Promise.resolve(S);
+    return window.ykExclusiveCheck().then(function (res) {
+      if (res && res.ok === true) {
+        if (cal) cal.style.display = '';
+        if (window.ykExclusiveData) {
+          return Promise.all(['bjds', 'cards'].map(function (k) {
+            return window.ykExclusiveData(k).catch(function () { return []; });
+          })).then(function (r) { S.bjds = r[0] || []; S.cards = r[1] || []; return S; });
+        }
+        return S;
+      }
+      // 未确认 / 无权限 / pending：一律隐藏（宁可少显示，不可泄露）
+      if (cal) cal.style.display = 'none';
+      if (res && res.ok === false) { S.bjds = []; S.cards = []; }
+      return S;
+    }).catch(function () { if (cal) cal.style.display = 'none'; return S; });
+  }
   function loadEvents() {
     Promise.all([
-      dbFetch('important_days?select=*&order=day.asc&limit=200'),
-      dbFetch('site_settings?select=key,value&key=in.(bjds,cards,cal_hide)')
+      ykAuthFetch('important_days?select=*&order=day.asc&limit=200') /* 日历数据走登录态（SQL6 后匿名拒绝，只有专属可读） */,
+      ykAuthFetch('site_settings?select=key,value&key=in.(bjds,cards,cal_hide)') /* 私有键走登录态 */
     ]).then(function (res) {
       var rows = res[0];
       if (!Array.isArray(rows)) { DB_POST_OK = false; rows = []; }
       migrateOldBirthdays();
       var S = {};
       (res[1] || []).forEach(function (r) { try { S[r.key] = JSON.parse(r.value); } catch (e) {} });
+      return ykCalGate(S).then(function (S2) { return { S: S2, rows: rows }; });
+    }).then(function (out) {
+      var S = out.S, rows = out.rows;
       CAL_HIDE = Array.isArray(S.cal_hide) ? S.cal_hide.filter(function (x) { return typeof x === 'string'; }) : [];
       var showRows = rows.filter(function (d) { return CAL_HIDE.indexOf('d:' + d.id) === -1; });
       EVENTS = showRows.concat(genAutoEvents(S.bjds || [], S.cards || [], showRows));
@@ -1054,14 +1070,20 @@
     var done = false;
     try { done = !!localStorage.getItem('yuki-birthdays-migrated'); } catch (e) {}
     if (!old.length || done || !DB_POST_OK) return;
-    Promise.all(old.map(function (b) {
-      return dbSend('important_days', 'POST', { name: b.name, day: b.date, type: 'birthday', repeat: 'yearly' }).catch(function () { return null; });
-    })).then(function (res) {
-      if (res.every(function (x) { return x; })) {
-        try { localStorage.setItem('yuki-birthdays-migrated', '1'); } catch (e) {}
-        loadEvents();
-      }
-    });
+    // 先读库去重：同名生日已存在就不再插（防部分成功后重试产生重复记录）
+    ykAuthFetch('important_days?select=name&type=eq.birthday&limit=200').then(function (r) { return r.json(); }).then(function (exist) {
+      var names = Array.isArray(exist) ? exist.map(function (x) { return String(x.name || ''); }) : [];
+      var todo = old.filter(function (b) { return b.name && names.indexOf(b.name) === -1; });
+      if (!todo.length) { try { localStorage.setItem('yuki-birthdays-migrated', '1'); } catch (e) {} return; }
+      return Promise.all(todo.map(function (b) {
+        return dbSend('important_days', 'POST', { name: b.name, day: b.date, type: 'birthday', repeat: 'yearly' }).catch(function () { return null; });
+      })).then(function (res) {
+        if (res.every(function (x) { return x; })) {
+          try { localStorage.setItem('yuki-birthdays-migrated', '1'); } catch (e) {}
+          loadEvents();
+        }
+      });
+    }).catch(function () {});
   }
   var CAL_WD = {
     zh: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
@@ -1340,6 +1362,67 @@
     renderCal();
     renderCalSide();
   })();
+</script>
+<script>
+// ═══ 首页小铺：展示 4 件真实商品（与商城同一套上下架规则；下架/删除的不出现；不显示成本）═══
+(function () {
+  var HIDE = [];
+  function loadHidden() {
+    return fetch(DB_BASE + 'site_settings?select=value&key=eq.shop_hidden', { headers: DB_HEADERS })
+      .then(function (r) { return r.ok ? r.json() : []; }).then(function (rows) {
+        try { var v = JSON.parse((rows && rows[0] && rows[0].value) || '[]'); HIDE = Array.isArray(v) ? v.map(String) : []; } catch (e) { HIDE = []; }
+      }).catch(function () { HIDE = []; });
+  }
+  function fetchProducts() {
+    var sel = 'id,name,price,currency,tag,image_url,images,sold,stock,display_only';
+    var toRows = function (rows) { if (!Array.isArray(rows)) throw new Error('bad'); return rows; };
+    return fetch(DB_BASE + 'products?select=' + sel + '&order=created_at.desc&limit=100', { headers: DB_HEADERS })
+      .then(function (r) { return r.json(); }).then(toRows)
+      .catch(function () {
+        // currency 列还没建（未跑 SQL9）时降级为不带 currency 的查询
+        return fetch(DB_BASE + 'products?select=id,name,price,tag,image_url,images,sold,stock,display_only&order=created_at.desc&limit=100', { headers: DB_HEADERS })
+          .then(function (r) { return r.json(); }).then(toRows).catch(function () { return []; });
+      });
+  }
+  function statusOf(p) { return p.display_only ? 'display' : (p.sold || !(p.stock > 0)) ? 'out' : 'on'; }
+  function hsPrice(p) { // 价格文本兼容（旧数据可能带 $/¥ 符号）；纯文字价格原样不加符号
+    var v = fmtPriceText(p.price);
+    return v ? ((/^\d/.test(v) ? '<small>' + ((p.currency || 'USD') === 'CNY' ? '¥' : '$') + '</small>' : '') + v) : '';
+  }
+  function cardHtml(p) {
+    var imgs = pagerImgsOf({ images: p.images, image_url: p.image_url });
+    var st = statusOf(p);
+    var stText = st === 'on' ? t('在售', 'On sale') : st === 'display' ? t('仅展示', 'Display only') : t('售尽', 'Sold out');
+    return '<div class="hs-card' + (st === 'on' ? '' : ' off') + '" data-href="/shop/?id=' + encodeURIComponent(p.id) + '">' +
+      '<div class="hs-imgbox">' + pagerWrapHtml(imgs, p.name || '') +
+        '<span class="st st-' + st + '">' + stText + '</span></div>' +
+      '<div class="hs-info">' +
+        '<span class="hs-tag">' + escDb(p.tag || '没有标签') + '</span>' +
+        '<b class="hs-name">' + escDb(p.name || '') + '</b>' +
+        '<div class="hs-row"><span class="hs-price">' + (p.price ? hsPrice(p) : '') + '</span>' +
+        '</div>' +
+      '</div></div>';
+  }
+  var grid = document.getElementById('home-shop-grid');
+  if (grid) grid.addEventListener('click', function (e) {
+    if (e.target.closest('.pg-btn, .pg-thumb, .pg-dots')) return; // 翻页操作不跳转
+    var card = e.target.closest('.hs-card');
+    if (card && card.getAttribute('data-href')) location.href = card.getAttribute('data-href');
+  });
+  loadHidden().then(fetchProducts).then(function (rows) {
+    if (!grid) return;
+    var list = (rows || []).filter(function (p) { return HIDE.indexOf(String(p.id)) === -1; }).slice(0, 3);
+    if (!list.length) return; // 没有可展示的商品：只保留原入口卡，不放假数据
+    grid.innerHTML = list.map(cardHtml).join('');
+  });
+})();
+</script>
+<script src="/js/site-footer.js?v=20261027p1"></script>
+<script>
+  // 统一 Footer（已有 <footer> 则替换其内容，不新建第二个）
+  function initSiteFooter() { renderSiteFooter(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initSiteFooter);
+  else initSiteFooter();
 </script>
 </body>
 </html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>关于 Snow Yuzu · 小柚的小世界</title>
+  <meta name="description" content="Snow Yuzu 的所有社交平台与联系方式：Gmail、Instagram、X、Discord、微信、抖音、小红书、网易云音乐">
+  <link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki2-180.png">
+  <link rel="stylesheet" href="/css/site.css?v=20261027p1">
+  <link rel="stylesheet" href="/site-menu.css?v=20261027p1">
+  <script src="/js/site-common.js?v=20261027p1"></script>
+  <script src="/site-menu.js?v=20261027p1" defer></script>
+  <style>
+    /* §3.3：找到我改为纵向文字链接列表，不再使用大型卡片网格 */
+    #links { max-width: 640px; }
+    #links .sy-linkline { display: block; padding: 13px 4px; border-bottom: 1px solid var(--accent,#FFD9E6); color: var(--text,#604C57); font-size:17px; text-decoration: none; transition: color .2s, padding-left .2s; }
+    #links .sy-linkline:hover { color: var(--price,#FF6FA5); padding-left: 10px; }
+    #links .sy-linkline:first-child { border-top: 1px solid var(--accent,#FFD9E6); }
+  </style>
+</head>
+<body>
+
+<!-- 顶部白色长条：左边切换语言，中间 logo 点击回主页，右边菜单（与全站子页面同一套） -->
+<header class="topbar">
+  <div class="lang-switch">
+    <button class="lang-btn" data-lang="zh">简体中文</button>
+    <button class="lang-btn" data-lang="en">English</button>
+  </div>
+  <a class="site-logo" href="/" aria-label="回主页"><img src="/logo.png" alt="logo"></a>
+  <div class="topbar-right">
+    <a class="topbar-cart" id="topbar-cart" href="/shop/?sec=cart" aria-label="购物车">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3.5h2.2l2.3 11.2a1.8 1.8 0 0 0 1.8 1.4h8.5a1.8 1.8 0 0 0 1.8-1.4l1.5-8.2H6"/></svg>
+      <span class="topbar-cart-badge" id="topbar-cart-badge" style="display:none;">0</span>
+    </a>
+    <button class="burger" id="burger" aria-label="菜单">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+<div class="menu-mask" id="menu-mask"></div>
+
+<div class="subpage-header">
+    <h1 class="subpage-title">关于 Snow Yuzu</h1>
+    <p class="subpage-sub" data-zh="找到我 · 各平台的账号都在这里" data-en="Find me · all my accounts are here">找到我 · 各平台的账号都在这里</p>
+  </div>
+  <a class="back-link page-back" href="/" style="margin:8px 0 24px 2px;"><span data-zh="← 返回主页" data-en="← Back to Home">← 返回主页</span></a>
+
+  <div class="page-body" style="padding-top:6px;">
+    <section id="links">
+      <div class="links" id="about-links"></div>
+    </section>
+  </div>
+
+<footer></footer>
+  <script src="/js/social-cards.js?v=20261027p1"></script>
+  <script src="/js/site-footer.js?v=20261027p1"></script>
+  <script>
+    renderSocialCards('#about-links','text');
+    if (window.renderSiteFooter) renderSiteFooter();
+      // §1.3 语言状态初始化：刷新/跳转后恢复 yuki-lang 选中态并翻译静态文案（此前四页漏调，语言按钮无选中态）
+    if (typeof applyLang === 'function') applyLang((function(){try{return localStorage.getItem('yuki-lang')||'zh';}catch(e){return 'zh';}})());
+</script>
+</body>
+</html>

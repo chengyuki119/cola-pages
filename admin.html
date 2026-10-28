@@ -18,13 +18,15 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   @font-face { font-family: "Millo Body"; src: url("/fonts/Millo-RiceSoyMilk80.woff2") format("woff2"), url("/fonts/Millo-RiceSoyMilk80.ttf") format("truetype"); font-display: swap; }
 
   :root {
-    --bg: #fffcfd;
-    --card: #fff2f7;
-    --card-hover: #ffe7f0;
-    --text: #5d6780;
-    --muted: #9aa5bd;
-    --accent: #ff6fa5;
-    --accent-soft: #ffc8d6;
+    --bg: #FFF8FA;
+    --card: #FFF0F5;
+    --card-hover: #FCE4EC;
+    --text: #604C57;
+    --muted: #A88E9B;
+    --accent: #ffd9e6;
+    --accent-soft: #FCE4EC;
+    --accent-strong: #A04A68;
+    --price: #FF6FA5;
     --radius: 16px;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -39,6 +41,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   }
   button { font-family: inherit; }
   /* ===== 顶部白色长条 + 汉堡菜单（与主页一致）===== */
+  html, body { height: 100%; }
   .topbar {
     position: fixed;
     top: 0; left: 0; right: 0;
@@ -61,33 +64,73 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     transition: background .2s;
   }
   .back-link:hover { background: var(--card-hover); }
+  /* 语言切换（与前台同款组件样式；admin 不加载 site.css，样式内联） */
+  .lang-switch { display: flex; gap: 4px; background: var(--accent-soft, #FCE4EC); padding: 4px; border-radius: 999px; } /* 20261026s 她指定款：粉胶囊底座+白胶囊选中（前台后台同款） */
+  .lang-btn { border: none; background: none; color: var(--muted); font-size:14px; font-family: inherit; padding: 5px 12px; border-radius: 999px; cursor: pointer; transition: background .2s, color .2s, box-shadow .2s; }
+  .lang-btn.active { background: #fff; color: var(--text, #604C57); font-weight: 600; box-shadow: 0 1px 4px rgba(180,120,150,.28); }
 
-  .wrap { max-width: 1200px; margin: 0 auto; padding: 40px 24px 64px; }
+  .wrap { max-width: none; width: 100%; margin: 0 auto; padding: 0; box-sizing: border-box; }
+  /* 后台标题行 + 侧栏宽度变量（她 20261026t 任务书 §1：标题与右侧内容面板左缘对齐；变量复用避免魔法数重复） */
+  :root { --adm-side-w: 190px; --adm-gap: 22px; }
+  .adm-head { display: flex; align-items: center; gap: 14px; position: relative; }
+  .adm-head .logout { float: none; flex-shrink: 0; margin-left: auto; }
+  @media (min-width: 900px) {
+    /* 标题行整体推进内容列（侧栏 fixed 占左侧），返回主页按钮为行内首项：与「柚子的后台」同一行且在内容区左上，不再被侧栏盖住也不贴屏幕左缘（她 20261027 01:16） */
+    .adm-head { margin-left: calc(var(--adm-side-w) + var(--adm-gap)); }
+    .adm-head .adm-home-btn { position: static; margin: 0 14px 0 0; flex-shrink: 0; }
+  }
+  @media (max-width: 899px) {
+    .adm-head { margin-left: 160px; } /* 手机端标题行也让出左栏，返回主页不再被固定侧栏盖住（她 20261027 01:16） */
+    .adm-head .adm-home-btn { display: inline-block; order: -1; margin: 0 0 10px 2px; }
+    .wrap { padding: 24px 10px 64px; } /* 两栏后手机端内容区变窄，内边距同步收紧 */
+    .wrap h1 { font-size: 22px; margin: 16px 0 4px; } /* 内容区变窄，标题同步缩小避免截断 */
+    .wrap .sub { font-size: 14px; }
+  }
   a { color: inherit; text-decoration: none; }
   h1 { font-size:31px; margin: 20px 0 6px; }
   .sub { color: var(--muted); font-size:16px; margin-bottom: 20px; }
 
   .gate {
-    background: var(--card);
+    background: #fff;
     border-radius: var(--radius);
+    box-shadow: 0 2px 14px rgba(255,143,171,.12);
     padding: 22px;
+    max-width: 460px;
+    margin: 0 auto;
     display: flex; flex-direction: column; gap: 12px;
   }
+  /* 登录页比例：内容区撑满视口高度，登录卡垂直居中，不再下方塌一大段空白（她 20261027 16:35）*/
+  .wrap:has(> form.gate) { min-height: calc(100vh - 200px); display: flex; flex-direction: column; }
+  .wrap:has(> form.gate) .adm-head { flex: none; }
+  .wrap:has(> form.gate) form.gate { margin: auto; width: 100%; }
   .gate input {
-    border: none; border-radius: 12px;
-    background: #fff; padding: 12px 14px;
+    border: 1.5px solid var(--accent-soft); border-radius: 12px;
+    background: #fff; padding: 11px 14px;
     font-family: inherit; font-size:17px;
     color: var(--text); outline: none;
+    transition: border-color .15s;
   }
+  .gate input:focus { border-color: var(--accent-strong,#A04A68); }
   .gate button {
-    align-self: flex-end;
-    border: none; background: var(--accent-soft); color: #fff;
-    font-size:17px; padding: 9px 24px; border-radius: 999px;
-    cursor: pointer;
+    width: 100%;
+    border: none; background: var(--accent,#ffd9e6); color: var(--text, #604C57);
+    font-size:17px; padding: 11px 24px; border-radius: 12px;
+    cursor: pointer; transition: opacity .15s;
+  }
+  .gate button:disabled { opacity: .6; cursor: default; }
+  .gate input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px #fff inset;
+    -webkit-text-fill-color: var(--text);
+    caret-color: var(--text);
+    transition: background-color 99999s ease-in-out 0s;
   }
   .hint { font-size:15px; color: var(--muted); }
 
   .tabs { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+  .adm-subtabs { display: none; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  .adm-subtab { border: none; background: var(--card); color: var(--muted); font-size: 15px; padding: 7px 16px; border-radius: 999px; cursor: pointer; font-family: inherit; transition: background .2s, color .2s; }
+  .adm-subtab:hover { background: var(--card-hover); color: var(--text); }
+  .adm-subtab.active { background: var(--accent-soft); color: var(--accent-strong); font-weight: 600; }
   .tab-btn { font-family: "Millo Body", -apple-system, "PingFang SC", sans-serif;
     flex: 1 1 auto; white-space: nowrap;
     border: none; background: var(--card);
@@ -96,7 +139,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     color: var(--muted);
     transition: background .2s, color .2s;
   }
-  .tab-btn.active { background: var(--accent-soft); color: #fff; }
+  .tab-btn.active { background: var(--accent-soft); color: var(--accent-strong); }
   /* 后台页面切换器：所有后台页面共用一个下拉 */
   .pp-wrap { position: relative; display: inline-block; margin-bottom: 18px; }
   .pp-btn {
@@ -114,6 +157,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     box-shadow: 0 6px 20px rgba(180,120,150,.18);
     padding: 6px; width: 200px; box-sizing: border-box;
     display: none; animation: ppIn .16s ease;
+    max-height: calc(100vh - 90px); overflow-y: auto; /* 手机上菜单比屏长也能滚到底看完（她 2026-10-25） */
   }
   .pp-menu.open { display: block; }
   .pp-menu .tab-btn {
@@ -123,8 +167,66 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     border-radius: 8px; cursor: pointer;
   }
   .pp-menu .tab-btn:hover { background: var(--card-hover); }
-  .pp-menu .tab-btn.active { background: var(--accent-soft); color: #fff; }
+  .pp-menu .tab-btn.active { background: var(--accent-soft); color: var(--accent-strong); }
   @keyframes ppIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+  /* ── 后台导航五组分组标签 ── */
+  .pp-menu .pp-group {
+    font-size: 13px; color: var(--muted); letter-spacing: .04em;
+    padding: 9px 12px 3px; user-select: none;
+  }
+  .pp-menu .pp-group:not(:first-child) {
+    border-top: 1px solid var(--card-hover); margin-top: 7px; padding-top: 12px;
+  }
+  /* 组内子区标签（如订单与履约工具下的「互动管理」）：比分组标题更轻，不另起分组边线 */
+  .pp-menu .pp-sub {
+    font-size: 12px; color: var(--muted); letter-spacing: .05em; opacity: .85;
+    padding: 10px 12px 2px; user-select: none;
+  }
+  /* ── 桌面端：导航固定左侧栏，内容右侧 ──
+     她 20261027 00:00：右栏怎么往下滑左栏都不动，左栏自己能滚。
+     sticky 会被全局 overflow-x clip 祖先破坏（实测失效），改用 fixed 钉死视口。 */
+  #adm-content { min-width: 0; }
+  @media (min-width: 900px) {
+    #admin-body { display: block; }
+    #pp-wrap {
+      position: fixed; left: 24px; top: 110px; width: var(--adm-side-w);
+      margin-bottom: 0; max-height: calc(100vh - 110px - 50px); overflow-y: auto; /* 左栏自己滚 */
+      z-index: 90;
+    }
+    #pp-btn { display: none; }
+    #adm-content { margin-left: calc(var(--adm-side-w) + var(--adm-gap)); padding: 40px 20px; box-sizing: border-box; } /* 工作台四周留白：上下 40 / 左右 20（她 20261027 14:41 验收口径），右侧不再贴边 */
+    .adm-head { padding: 0 20px; box-sizing: border-box; } /* 标题行与加留白后的内容左缘对齐 */
+    #pp-menu {
+      position: static; display: block;
+      box-shadow: none; border: 1px solid var(--card-hover);
+      width: 100%; max-height: none; overflow: visible;
+    }
+  }
+  /* ── 手机端：同款两栏，左栏窄条常驻（原来收在“管理面板”下拉里；她 20261027 00:00 要两图分开、左固定右独立滚）── */
+  @media (max-width: 899px) {
+    #admin-body { display: block; }
+    #pp-wrap {
+      position: fixed; left: 10px; top: 110px; width: 150px; margin-bottom: 0;
+      max-height: calc(100vh - 110px - 50px); overflow-y: auto;
+      z-index: 90;
+    }
+    #pp-btn { display: none; }
+    #adm-content { margin-left: 160px; min-width: 0; padding: 20px 10px 64px; box-sizing: border-box; } /* 手机端同步留白（与 .wrap 手机口径一致）*/
+    #pp-menu {
+      position: static; display: block; width: 100%; padding: 6px;
+      max-height: none; overflow: visible; box-shadow: 0 2px 12px rgba(255,143,171,.10); animation: none;
+    }
+    #pp-menu .tab-btn { font-size: 14px; padding: 8px 10px; }
+    #pp-menu .pp-group { font-size: 12px; padding: 8px 10px 2px; }
+  }
+  /* 返回主页：粉色胶囊按钮，桌面端与「柚子的后台」标题同行（内容区左上角）；手机端在标题上方；点击进首页路由不依赖历史记录（她 20261026 21:50 任务书） */
+  .adm-home-btn {
+    display: inline-block; margin-bottom: 10px; padding: 9px 18px;
+    background: var(--accent, #FFD9E6); color: var(--text, #604C57);
+    font-size: 16px; font-weight: 600; text-decoration: none;
+    border-radius: 999px; transition: filter .2s; font-family: inherit;
+  }
+  .adm-home-btn:hover { filter: brightness(1.05); }
 
   .card {
     background: #fff;
@@ -142,51 +244,59 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   }
   textarea {
     width: 100%; min-height: 70px;
-    border: 1px solid #f6d9e6; border-radius: 12px;
+    border: 1px solid var(--accent,#FFD9E6); border-radius: 12px;
     background: var(--card); padding: 10px 12px;
     font-family: inherit; font-size:17px;
     color: var(--text); line-height: 1.6;
     resize: none; outline: none;
   }
   input, select {
-    border: 1px solid #f6d9e6; border-radius: 12px;
+    border: 1px solid var(--accent,#FFD9E6); border-radius: 12px;
     background: var(--card); padding: 10px 12px;
     font-family: inherit; font-size:17px;
     color: var(--text); outline: none; width: 100%;
   }
-  .actions { display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; justify-content: flex-end; }
   .actions button {
     border: none; font-size:16px; padding: 7px 16px;
     border-radius: 999px; cursor: pointer;
+    white-space: nowrap; flex-shrink: 0; /* 防窄容器挤压成一字一行（与规格区同类问题） */
   }
-  .btn-save { background: var(--accent-soft); color: #fff; }
+  .btn-save { border: none; background: var(--accent,#ffd9e6); color: var(--text, #604C57); font-family: inherit; cursor: pointer; }
   .btn-cancel { background: var(--card-hover); color: var(--text); }
   /* 数字输入框不要浏览器原生上下小箭头（和自定义控件打架） */
   input[type="number"] { appearance: textfield; -moz-appearance: textfield; }
   input[type="number"]::-webkit-outer-spin-button,
   input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-  .btn-del { background: #f6d9e6; color: var(--text); }
+  .btn-del { border: none; background: var(--accent,#FFD9E6); color: var(--text); font-family: inherit; cursor: pointer; }
+  /* 确认弹窗的确认按钮（此前无样式定义导致浏览器默认外观，她 20261026 第三轮 §3.2） */
+  .btn-ok { border: none; background: var(--accent-strong,#A04A68); color: #fff; font-family: inherit; cursor: pointer; }
   /* 按钮组件统一：不管在不在 .actions 里，都是同一套圆角小按钮（不再有浏览器默认样式）*/
-  .btn-mini, .btn-del, .btn-save, .btn-cancel {
+  .btn-mini, .btn-del, .btn-ok, .btn-save, .btn-cancel {
     border: none; font-family: inherit; font-size:16px;
     padding: 7px 16px; border-radius: 999px; cursor: pointer;
     transition: background .2s, opacity .2s;
   }
   .btn-mini:hover { background: var(--card-hover); }
+  .btn-ok:hover { background: #8d3d5a; }
   .btn-del:hover { background: #f0c3da; }
   .btn-save:hover { opacity: .85; }
   .dy-chips { display: flex; gap: 6px; flex-wrap: wrap; }
-  .dy-chip { display: inline-flex; align-items: center; border: none; background: var(--card-hover); color: var(--muted); border-radius: 999px; padding: 5px 12px; font-size:15px; cursor: pointer; transition: background .2s, color .2s; white-space: nowrap; flex: none; }
-  #dy-cat, .de-cat { border: 1px solid #f0cfdf; border-radius: 8px; padding: 6px 10px; font-size:15px; font-family: inherit; color: var(--text); background: #fff; outline: none; }
-  #dy-cat:focus, .de-cat:focus { border-color: var(--accent); }
+  .dy-chip { display: inline-flex; align-items: center; border: 1.5px solid var(--border,#FFD9E6); background: #fff; color: var(--muted); border-radius: 999px; padding: 5px 12px; font-size:15px; cursor: pointer; transition: background .2s, color .2s; white-space: nowrap; flex: none; }
+  #dy-cat, .de-cat { border: 1px solid var(--accent,#FFD9E6); border-radius: 8px; padding: 6px 10px; font-size:15px; font-family: inherit; color: var(--text); background: #fff; outline: none; }
+  #dy-cat:focus, .de-cat:focus { border-color:var(--text,#604C57); }
   #dy-cat-list, .dy-cat-list { display: none; position: absolute; z-index: 1399; background: #fff; border-radius: 10px; box-shadow: 0 6px 20px rgba(180,120,150,.18); padding: 4px; min-width: 170px; max-height: 168px; overflow-y: auto; }
   .day-item.editing .dy-cat-list { position: relative; margin-top: 4px; }
   #days-form-card #dy-cat-list { top: calc(100% + 4px); } /* 联想浮层锚在表单行正下方（横向跟随输入框），不压住重复选项 */
   #days-form-card .cat-opt, .day-item .cat-opt { display: block; width: 100%; box-sizing: border-box; border: none; background: none; text-align: left; padding: 8px 12px; font-size:16px; cursor: pointer; border-radius: 8px; color: var(--text); font-family: inherit; line-height: 1.4; }
   #days-form-card .cat-opt:hover, .day-item .cat-opt:hover { background: var(--card-hover); }
-  #days-form-card .cat-opt.cat-new, .day-item .cat-opt.cat-new { color: var(--accent); font-weight: 600; }
+  #days-form-card .cat-opt.cat-new, .day-item .cat-opt.cat-new { color:var(--text,#604C57); font-weight: 600; }
   .dy-chip:hover { color: var(--text); }
-  .dy-chip.active { background: var(--accent-soft); color: #fff; }
+  .dy-chip.active { background: var(--accent-soft); color: var(--accent-strong); }
+  /* ── 原生 select 外观对齐设计系统（仅样式：字体/边框/圆角/配色，行为与选项不变 · 20261026k） ── */
+  select { font-family: inherit; font-size: 15px; color: var(--text, #604C57); background: #fff; border: 1.5px solid var(--border, #FFD9E6); border-radius: 10px; padding: 7px 10px; outline: none; max-width: 100%; cursor: pointer; box-sizing: border-box; }
+  select:focus { border-color: var(--text, #604C57); }
+  select:disabled { opacity: .5; cursor: default; }
   /* 竖排文字防护：所有表单勾选/徽章标签禁止逐字换行 */
   .sc-artist label, .bjd-item label, .sold-badge { white-space: nowrap; }
   /* 统一下拉菜单（替代浏览器原生 select 面板） */
@@ -196,7 +306,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .sel-menu { position: fixed; z-index: 1000; background: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(180,120,150,.18); padding: 6px; min-width: 160px; max-height: 260px; overflow-y: auto; display: none; box-sizing: border-box; }
   .sel-opt { display: block; width: 100%; border: none; background: none; text-align: left; padding: 9px 12px; font-size:16px; cursor: pointer; border-radius: 8px; color: var(--text); font-family: inherit; line-height: 1.4; }
   .sel-opt:hover { background: var(--card-hover); }
-  .sel-opt.active { background: var(--accent-soft); color: #fff; }
+  .sel-opt.active { background: var(--accent-soft); color: var(--accent-strong); }
   /* 后台筛选/排序：自定义下拉按钮（不用原生 select），与 sel-menu 同一套视觉 */
   .pick-btn-label { font-size:16px; color: var(--muted); }
   /* 自定义联想下拉（画师 / 标签）：与 sel-menu / sc-pop 同一套视觉，彻底替代浏览器 datalist */
@@ -204,7 +314,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .combo-opt { display: block; width: 100%; border: none; background: none; text-align: left; padding: 9px 12px; font-size:16px; cursor: pointer; border-radius: 8px; color: var(--text); font-family: inherit; line-height: 1.4; }
   .combo-opt:hover { background: var(--card-hover); }
   .dy-chip input { position: absolute; opacity: 0; pointer-events: none; }
-  .btn-mini { background: var(--card); color: var(--text); }
+  .btn-mini { border: none; background: var(--card); color: var(--text); font-family: inherit; cursor: pointer; }
   /* 头像 / 主页背景图上传区：两行对齐，隐藏原生 file 控件 */
   .hm-upload-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
   .hm-upload-row + .hm-upload-row { margin-top: 12px; }
@@ -212,7 +322,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .hm-file-name { font-size:15px; color: var(--muted); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   /* 主页区域 / 主页文案的简化管理：显隐 chip + 卡片头 ⋮（不用绝对定位的 .kebab） */
   .vis-chip { display: inline-flex; align-items: center; border: none; background: var(--card-hover); color: var(--muted); border-radius: 999px; padding: 4px 10px; font-size:15px; cursor: pointer; font-family: inherit; flex-shrink: 0; }
-  .vis-chip.vis-on { background: var(--accent-soft); color: #fff; }
+  .vis-chip.vis-on { background: var(--accent-soft); color: var(--accent-strong); }
   .area-kebab, .hm-kebab { width: 32px; height: 32px; flex-shrink: 0; border: none; border-radius: 10px; background: var(--card); color: var(--muted); font-size:19px; cursor: pointer; font-family: inherit; line-height: 1; }
   .area-kebab:hover, .hm-kebab:hover { background: var(--card-hover); color: var(--text); }
   .empty { text-align: center; color: var(--muted); font-size:17px; padding: 30px 0; }
@@ -221,6 +331,11 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
 
   /* 上架表单 */
   .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  /* 她说上架页挤（2026-10-25）：拉开行距、输入框加高、货币行呼吸感 */
+  #tab-shop .form-grid { gap: 14px; row-gap: 18px; }
+  #tab-shop .form-grid input, #tab-shop .form-grid textarea { padding: 11px 14px; font-size: 16px; }
+  #tab-shop .form-grid .fld-inline { margin: 2px 0; }
+  #tab-shop .form-grid .cur-chip { padding: 9px 18px; }
   .form-grid .full { grid-column: 1 / -1; }
   /* 上架预览：小方图缩略条（跟色卡/照片管理同一套尺寸，不用整屏大预览框） */
   .p-preview { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 8px; }
@@ -230,7 +345,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .logout {
     background: var(--card);
     border: 1px solid var(--card-hover);
-    color: #8d99b5;
+    color: var(--muted,#A88E9B);
     font-size:16px;
     padding: 6px 14px;
     border-radius: 999px;
@@ -263,7 +378,23 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .sc-row { display: grid; grid-template-columns: 100px 92px 18px 60px 18px 70px auto; gap: 8px; align-items: center; position: relative; margin-bottom: 8px; }
   .sc-row input { width: 100%; box-sizing: border-box; }
   .sc-row .r-x, .sc-row .r-eq { text-align: center; color: var(--muted); }
-  .sc-row .r-total { text-align: right; font-size:16px; }
+  .sc-row .r-total { text-align: right; font-size:16px; color:var(--price,#ff6fa5); }
+  .sm-stat b { color:var(--price,#ff6fa5); font-size:16px; }
+  /* ═══ 客户管理 / 线下开单（CRM，admin-crm.js）═══ */
+  .sm-stat { display:inline-flex; align-items:baseline; gap:6px; font-size:13px; color:var(--muted,#A88E9B); background:#fff; border:1px solid var(--accent-soft,#FCE4EC); border-radius:999px; padding:5px 14px; }
+  .cust-row:hover { background: var(--card-hover, #FFEDF3); }
+  .chip { display:inline-block; font-size:13px; line-height:1.5; padding:4px 14px; border-radius:999px; background:#fff; border:1.5px solid var(--accent-soft,#FCE4EC); color:var(--muted,#A88E9B); cursor:pointer; user-select:none; } /* line-height 錡1.5：不再继承外层大行高被撑高（她 20261027 14:40 报按钮过大）*/
+  .chip.on { background:var(--accent-soft,#FCE4EC); border-color:var(--accent-soft,#FCE4EC); color:var(--text,#604C57); font-weight:600; }
+  .paytab { font-size:14px; padding:7px 16px; border-radius:999px; background:#fff; border:1.5px solid var(--accent-soft,#FCE4EC); color:var(--text,#604C57); cursor:pointer; }
+  .paytab.on { background:var(--accent-soft,#FCE4EC); border-color:var(--accent-soft,#FCE4EC); font-weight:600; }
+  .pick { display:flex; align-items:center; gap:10px; padding:8px 10px; border:1px solid var(--accent-soft,#FCE4EC); border-radius:12px; margin-bottom:8px; background:#fff; }
+  .pick img { width:56px; height:56px; object-fit:cover; border-radius:10px; flex-shrink:0; background:var(--card,#FFF0F5); }
+  .pick .nm { font-size:14px; font-weight:600; color:var(--text,#604C57); }
+  .pick .st { font-size:12px; color:var(--muted,#A88E9B); }
+  .pick .pr { font-size:13px; color:var(--price,#ff6fa5); font-weight:700; }
+  .pick .qty { margin-left:auto; }
+  .qb { width:28px; height:28px; border-radius:50%; border:1.5px solid var(--accent-soft,#FCE4EC); background:#fff; color:var(--text,#604C57); font-size:15px; cursor:pointer; line-height:1; }
+  .qb:hover { background:var(--accent-soft,#FCE4EC); }
   .sc-row .kebab { position: static; justify-self: end; }
   #sc-pop { position: fixed; z-index: 999; background: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(180,120,150,.18); padding: 6px; width: 168px; box-sizing: border-box; display: none; animation: scPopIn .16s ease; }
   @keyframes scPopIn { from { opacity: 0; transform: scale(.94); } }
@@ -277,22 +408,22 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .dp-wheel .wheel::-webkit-scrollbar { display: none; }
   .dp-wheel .wheel-list { padding: 72px 0; }
   .dp-wheel .wheel-item { height: 36px; line-height: 36px; text-align: center; scroll-snap-align: center; font-size:16px; color: var(--text); cursor: pointer; font-family: inherit; }
-  .dp-wheel .wheel-item.cur { color: var(--accent); font-weight: 700; }
+  .dp-wheel .wheel-item.cur { color:var(--text,#604C57); font-weight: 700; }
   .dp-wheel .wheel-band { position: absolute; left: 8px; right: 8px; top: 50%; height: 36px; transform: translateY(-50%); background: var(--accent-soft); border-radius: 10px; opacity: .45; pointer-events: none; }
   #date-pop .dp-ym { display: none; }
   #date-pop .dp-mon { text-align: center; }
   .dp-head { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
   .dp-title { flex: 1; text-align: center; font-size:16px; font-weight: 700; }
-  .dp-nav, .dp-today { border: none; background: var(--card-hover); color: var(--accent); font-size:15px; border-radius: 999px; cursor: pointer; padding: 5px 10px; line-height: 1; }
-  .dp-nav:hover, .dp-today:hover { background: var(--accent-soft); color: #fff; }
+  .dp-nav, .dp-today { border: none; background: var(--card-hover); color:var(--text,#604C57); font-size:15px; border-radius: 999px; cursor: pointer; padding: 5px 10px; line-height: 1; }
+  .dp-nav:hover, .dp-today:hover { background: var(--accent-soft); color: var(--text, #604C57); }
   .dp-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
   .dp-wd { font-size:14px; color: var(--muted); text-align: center; padding: 4px 0; }
   .dp-day { border: none; background: none; font-size:15px; color: var(--text); border-radius: 8px; padding: 6px 0; cursor: pointer; line-height: 1; font-family: inherit; }
   .dp-day:hover { background: var(--card-hover); }
-  .dp-day.today { color: var(--accent); font-weight: 700; }
-  .dp-day.sel, .dp-day.sel:hover { background: var(--accent); color: #fff; }
-  #date-pop .dp-input { width: 100%; box-sizing: border-box; margin-bottom: 6px; border: 1px solid #f0cfdf; background: #fff; border-radius: 8px; padding: 7px 10px; font-size:16px; font-family: inherit; color: var(--text); outline: none; }
-  #date-pop .dp-input:focus { border-color: var(--accent); }
+  .dp-day.today { color:var(--text,#604C57); font-weight: 700; }
+  .dp-day.sel, .dp-day.sel:hover { background: var(--accent-soft,#FCE4EC); color: var(--accent-strong,#A04A68); border-color: var(--accent-soft,#FCE4EC); }
+  #date-pop .dp-input { width: 100%; box-sizing: border-box; margin-bottom: 6px; border: 1px solid var(--accent,#FFD9E6); background: #fff; border-radius: 8px; padding: 7px 10px; font-size:16px; font-family: inherit; color: var(--text); outline: none; }
+  #date-pop .dp-input:focus { border-color:var(--text,#604C57); }
   .dp-empty { visibility: hidden; }
   @media (max-width: 520px) {
     .sc-row { grid-template-columns: 56px 48px 10px 38px 10px 44px auto; gap: 4px; }
@@ -304,30 +435,30 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     .sc-row .kebab { width: 22px; height: 30px; }
   }
   #sc-pop .sc-opt { display: flex; align-items: center; gap: 8px; width: 100%; box-sizing: border-box; border: none; background: none; padding: 9px 12px; font-size:16px; line-height: 1; cursor: pointer; border-radius: 8px; text-align: left; color: var(--text); }
-  #sc-pop .sc-opt:hover { background: #f6d9e6; }
+  #sc-pop .sc-opt:hover { background: var(--accent,#FFD9E6); }
   #sc-pop .sc-opt:disabled { color: var(--muted); cursor: default; background: none; }
   #sc-pop .sc-opt-del { background: none; color: var(--text); }
-  #sc-pop .sc-opt-del:hover { background: #f6d9e6; }
+  #sc-pop .sc-opt-del:hover { background: var(--accent,#FFD9E6); }
   /* 色卡 / BJD 列表：同一个卡片尺寸规范（同一网格、同一间距、同一卡片结构）*/
-  #sc-artist-list, #bjd-list, #works-list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  #sc-artist-list, #bjd-list, #works-list { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; } /* §2.2 桌面每行 5 个（她 20261026 总任务书） */
   @media (max-width: 900px) { #sc-artist-list, #bjd-list, #works-list { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); } }
   #sc-artist-list .sc-artist, #bjd-list .bjd-item { margin-bottom: 0; }
   #sc-artist-list .sc-artist.editing, #bjd-list .bjd-item.editing, #works-list .work-item.editing { grid-column: 1 / -1; }
   /* 评价返图管理：跟色卡同一套卡片尺寸规范（方图卡 + 卡内 ⋮） */
-  #review-admin-list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  #review-admin-list { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; } /* §2.2 每行 5 个 */
   @media (max-width: 900px) { #review-admin-list { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); } }
   .rv-item { margin-bottom: 0; padding: 0; overflow: hidden; }
   .rv-item > .kebab { top: 8px; right: 8px; z-index: 2; background: rgba(255,255,255,.92); }
   .rv-text { font-size:15px; line-height: 1.55; color: var(--text); margin-top: 4px; white-space: pre-wrap; word-break: break-word; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
   /* 色卡列表卡价格明细：与详情/前台同一套计算（labelAgg/artistSub/cardFinal），只补展示 */
   .sc-bd-line { margin-top: 5px; font-size:15px; color: var(--text); }
-  .sc-bd-line b { color: var(--accent); }
+  .sc-bd-line b { color:var(--text,#604C57); }
   .sc-bd { margin-top: 7px; padding-top: 7px; border-top: 1px solid var(--card-hover); font-size:14px; line-height: 1.55; color: var(--muted); }
   .sc-bd-a { padding: 2px 0; }
   .sc-bd-a b { display: block; color: var(--text); font-size:14px; }
   .sc-bd-a span { display: inline-block; margin-right: 6px; white-space: nowrap; }
-  .sc-bd-a i { display: block; font-style: normal; color: var(--accent); }
-  .sc-bd-final { margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--card-hover); color: var(--accent); font-weight: 600; }
+  .sc-bd-a i { display: block; font-style: normal; color:var(--text,#604C57); }
+  .sc-bd-final { margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--card-hover); color:var(--text,#604C57); font-weight: 600; }
   .sc-bd-final b { font-size:16px; }
   .sc-artist > .kebab { background: #fff; }
   .sc-card-img { width: 100%; aspect-ratio: 1/1; overflow: hidden; background: var(--card); }
@@ -335,10 +466,10 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .sc-card-img .sc-img-empty { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size:15px; }
   .sc-info { padding: 12px 14px 14px; min-width: 0; }
   .sc-info .sc-name { font-size:18px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
-  .sc-info .sc-name:hover { color: var(--accent); }
+  .sc-info .sc-name:hover { color:var(--text,#604C57); }
   .sc-info .sc-shop { font-size:15px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-height: 19px; }
   .sc-info .sc-meta { font-size:15px; color: var(--muted); margin-top: 3px; }
-  .sc-info .sc-price { font-size:17px; color: var(--accent); font-weight: 600; margin-top: 4px; }
+  .sc-info .sc-price { font-size:17px; color:var(--text,#604C57); font-weight: 600; margin-top: 4px; }
   /* 编辑态内所有 ⋮（卡片级/画师级/行级）都在同一条垂直线上 */
   .sc-artist.editing > .sc-kebab { right: 16px; }
   .sc-artist.editing .sc-artist-block > .kebab { right: 0; }
@@ -347,9 +478,17 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .section-item .sec-meta { font-size:15px; color: var(--muted); margin-top: 3px; }
   .edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex: 1; min-width: 0; }
   .edit-grid .e-desc, .edit-grid .e-file { grid-column: 1 / -1; }
+  /* 商品货币选择：自定义胶囊（¥/美元），不用原生 select */
+  .cur-chip { border: 1.5px solid var(--accent-soft,#FCE4EC); background: #fff; color: var(--muted,#A88E9B); font-size: 15px; padding: 5px 14px; border-radius: 999px; cursor: pointer; font-family: inherit; }
+  .cur-chip.on { background: var(--accent-soft,#FCE4EC); color: var(--accent-strong,#A04A68); border-color: var(--accent-soft,#FCE4EC); }
+  /* 货币说明独占一行（她说手机端挤）：控件一行、说明下一行，两端布局一致 */
+  .cur-row { display: block; }
+  .cur-row .cur-line { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .cur-row .cur-line .cur-chip { flex-shrink: 0; }
+  .cur-row .cur-hint { font-size: 13px; color: var(--muted); margin: 6px 0 0; line-height: 1.5; }
   /* 照片管理列表：紧凑一行卡（缩略图 72px + 信息） */
   /* 照片管理：4 列照片卡片网格（与前台同一套视觉；管理操作全在卡片内） */
-  #photo-list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  #photo-list { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; } /* §2.2 每行 5 个 */
   @media (max-width: 900px) { #photo-list { grid-template-columns: repeat(3, 1fr); } }
   @media (max-width: 640px) { #photo-list { grid-template-columns: repeat(2, 1fr); } }
   .photo-item { display: flex; flex-direction: column; padding: 0; overflow: hidden; position: relative; }
@@ -361,19 +500,42 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .photo-item .ph-meta { font-size:15px; color: var(--muted); }
   .photo-item .edit-grid { grid-template-columns: 1fr; margin-top: 6px; }
   .photo-item .actions { margin-top: 8px; }
-  /* 每行显示选择器（分区设置）：4 个可视化布局选项，不用原生 select */
+  /* 每行显示选择器（分区设置）：5 个可视化布局选项，不用原生 select */
   .pr-picker { display: flex; gap: 6px; flex-wrap: wrap; }
-  .pr-opt { display: flex; flex-direction: column; align-items: center; gap: 4px; border: 1px solid #f6d9e6; background: var(--card); border-radius: 10px; padding: 7px 8px 5px; cursor: pointer; font-size:14px; color: var(--muted); font-family: inherit; transition: background .2s, border-color .2s, color .2s; }
+  .pr-opt { display: flex; flex-direction: column; align-items: center; gap: 4px; border: 1px solid var(--accent,#FFD9E6); background: var(--card); border-radius: 10px; padding: 7px 8px 5px; cursor: pointer; font-size:14px; color: var(--muted); font-family: inherit; transition: background .2s, border-color .2s, color .2s; }
   .pr-opt:hover { background: var(--card-hover); }
-  .pr-opt.active { background: var(--accent-soft); border-color: var(--accent); color: #fff; }
+  .pr-opt.active { background: var(--accent-soft); border-color:var(--accent-soft); color: var(--accent-strong); }
   .pr-demo { display: grid; gap: 2px; width: 38px; height: 22px; }
   .pr-demo i { background: var(--accent-soft); border-radius: 2px; display: block; }
   .pr-opt.active .pr-demo i { background: #fff; }
-  /* 主页展示开关：自定义粉色开关，不用原生 checkbox */
-  .tgl { position: relative; width: 38px; height: 22px; border-radius: 11px; border: 1px solid #f6d9e6; background: var(--card); cursor: pointer; padding: 0; flex-shrink: 0; transition: background .2s, border-color .2s; }
-  .tgl .tgl-knob { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; border: 1px solid #f0cfdf; box-sizing: border-box; transition: left .2s, background .2s; }
-  .tgl.on { background: var(--accent-soft); border-color: var(--accent); }
-  .tgl.on .tgl-knob { left: 18px; background: var(--accent); border-color: var(--accent); }
+  /* §3.1 复选框/单选框全量统一（appearance:none 自定义主题样式，保留键盘可达性） */
+  input[type="checkbox"], input[type="radio"] {
+    appearance: none; -webkit-appearance: none;
+    width: 20px; height: 20px; flex: none; margin: 0;
+    border: 1.5px solid var(--border,#FFD9E6); border-radius: 6px; background: #fff;
+    display: inline-block; vertical-align: middle; cursor: pointer; position: relative;
+    transition: background .15s, border-color .15s, box-shadow .15s; box-sizing: border-box;
+  }
+  input[type="radio"] { border-radius: 50%; }
+  input[type="checkbox"]:hover, input[type="radio"]:hover { border-color: #f0b9d2; }
+  input[type="checkbox"]:checked, input[type="radio"]:checked {
+    background: var(--accent-soft,#FCE4EC); border-color: #f0b9d2;
+  }
+  input[type="checkbox"]:checked::after {
+    content: ''; position: absolute; left: 5px; top: 1.5px; width: 6px; height: 11px;
+    border: solid var(--accent-strong,#A04A68); border-width: 0 2px 2px 0; transform: rotate(45deg);
+  }
+  input[type="radio"]:checked::after {
+    content: ''; position: absolute; left: 4.5px; top: 4.5px; width: 8px; height: 8px;
+    border-radius: 50%; background: var(--accent-strong,#A04A68);
+  }
+  input[type="checkbox"]:disabled, input[type="radio"]:disabled { opacity: .45; cursor: default; }
+  input[type="checkbox"]:focus-visible, input[type="radio"]:focus-visible { outline: 2px solid #f0b9d2; outline-offset: 2px; }
+
+  .tgl { position: relative; width: 38px; height: 22px; border-radius: 11px; border: 1px solid var(--accent,#FFD9E6); background: var(--card); cursor: pointer; padding: 0; flex-shrink: 0; transition: background .2s, border-color .2s; }
+  .tgl .tgl-knob { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; border: 1px solid var(--accent,#FFD9E6); box-sizing: border-box; transition: left .2s, background .2s; }
+  .tgl.on { background: var(--accent-soft); border-color:var(--accent-soft); }
+  .tgl.on .tgl-knob { left: 18px; background:var(--accent,#ffd9e6); border-color:var(--text,#604C57); }
   .tgl-label { display: inline-flex; align-items: center; gap: 7px; cursor: pointer; font-size:16px; flex-shrink: 0; color: var(--text); }
   /* 上传新照片：字段行内小标签 + 统一间距 */
   .fld-inline { display: flex; align-items: center; gap: 8px; min-width: 0; }
@@ -389,16 +551,23 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .shop-item .info h3 { font-size:18px; }
   .shop-item .info p { font-size:15px; color: var(--muted); }
   .sold-badge { display: inline-block; font-size:14px; color:#fff; border-radius: 999px; padding: 1px 8px; margin-left: 6px; }
-  .st-on { background: #9ecfae; }
-  .st-display { background: #b3ace0; }
+  .st-on { background: var(--success,#5FA777); }
+  .st-display { background: var(--muted,#A88E9B); }
   .st-out { background: #c4bcb6; }
   .st-off { background: #e6a9c3; }
   /* 商品列表标签筛选 chips */
-  .pf-chip { border: 1px solid #f6d9e6; }
-  .pf-chip.on { background: var(--accent-soft); border-color: var(--accent); color: #fff; }
+  .pf-chip { border: 1px solid var(--accent,#FFD9E6); }
+  .pf-chip.on { background: var(--accent-soft); border-color:var(--accent-soft); color: var(--accent-strong); }
   .private-line { font-size:15px; color: var(--muted); margin-top: 4px; }
 
-    .btn-save-tb { margin-left: auto; background: var(--accent-soft) !important; color: #fff !important; }
+  /* 后台保存主按钮：完整胶囊样式（之前只给底色没重置 border，浏览器默认灰立体边框会露出来——她 2026-10-26） */
+  .btn-save-tb {
+    border: none; font-family: inherit; font-size: 16px; padding: 7px 16px;
+    border-radius: 999px; cursor: pointer; white-space: nowrap; flex-shrink: 0;
+    background: var(--accent,#ffd9e6); color: var(--text, #604C57); transition: background .2s, opacity .2s;
+  }
+  .btn-save-tb:hover { background: #f0c3da; }
+  .btn-save-tb:disabled { opacity: .55; cursor: default; }
 .toast {
     position: fixed; bottom: 32px; left: 50%;
     transform: translateX(-50%) translateY(20px);
@@ -428,48 +597,115 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
 </head>
 <body>
 <header class="topbar">
-  <a class="back-link" href="/">← 返回主页</a>
+  <div class="lang-switch" id="admin-lang">
+    <button class="lang-btn" data-lang="zh" type="button">简体中文</button>
+    <button class="lang-btn" data-lang="en" type="button">English</button>
+  </div>
   <a class="site-logo" href="/" aria-label="回主页"><img src="logo.png" alt="logo"></a>
-  <button class="burger" id="burger" aria-label="菜单">
-    <span></span><span></span><span></span>
-  </button>
+  <div class="topbar-right">
+    <a class="topbar-cart" id="topbar-cart" href="/shop/?sec=cart" aria-label="购物车">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3.5h2.2l2.3 11.2a1.8 1.8 0 0 0 1.8 1.4h8.5a1.8 1.8 0 0 0 1.8-1.4l1.5-8.2H6"/></svg>
+      <span class="topbar-cart-badge" id="topbar-cart-badge" style="display:none;">0</span>
+    </a>
+    <button class="burger" id="burger" aria-label="菜单">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
 </header>
 <div class="menu-mask" id="menu-mask"></div>
 <nav class="menu" id="menu"></nav>
 
 <div class="wrap">
-  <h1>柚子的后台 <button class="logout" id="btn-logout" style="display:none;">退出登录</button></h1>
-  <p class="sub">回留言 · 上小铺新品，全都在这里自己搞定</p>
+  <div class="adm-head">
+    <a class="adm-home-btn" href="/">← 返回主页</a>
+    <div>
+      <h1 style="margin-bottom:4px;">柚子的后台</h1>
+      <p class="sub" style="margin-bottom:0;">回留言 · 上小铺新品，全都在这里自己搞定</p>
+    </div>
+    <button class="logout" id="btn-logout" style="display:none;">退出登录</button>
+  </div>
 
   <!-- 登录 -->
-  <div class="gate" id="gate">
+  <form class="gate" id="gate">
     <div class="hint">用你在 Supabase 后台创建的账号密码登录（第一次用要先去建账号：Supabase 网页 → Authentication → Users → Add user → Create new user，填邮箱和密码）</div>
     <input id="email" type="email" placeholder="邮箱" autocomplete="username">
     <input id="password" type="password" placeholder="密码" autocomplete="current-password">
-    <button id="btn-login">登录</button>
-  </div>
+    <button id="btn-login" type="submit">登录</button>
+  </form>
 
   <!-- 登录后 -->
   <div id="admin-body" style="display:none;">
     <div class="pp-wrap" id="pp-wrap">
       <button class="pp-btn" id="pp-btn" type="button">当前页面：<span id="pp-cur">Profile 编辑</span> <span class="pp-arrow">▼</span></button>
       <div class="pp-menu" id="pp-menu">
+        <div class="pp-group">主页设置</div>
         <button class="tab-btn active" data-tab="profile">Profile 编辑</button>
         <button class="tab-btn" data-tab="home">主页管理</button>
+        <div class="pp-group">内容管理</div>
         <button class="tab-btn" data-tab="days">重要日子</button>
         <button class="tab-btn" data-tab="photos">照片管理</button>
         <button class="tab-btn" data-tab="works">稿件管理</button>
         <button class="tab-btn" data-tab="bjd">BJD管理</button>
         <button class="tab-btn" data-tab="cards">色卡管理</button>
+        <div class="pp-group">商城管理</div>
         <button class="tab-btn" data-tab="shop">小铺上架</button>
-        <button class="tab-btn" data-tab="reviews">评价返图</button>
-        <button class="tab-btn" data-tab="messages">匿名留言</button>
+        <button class="tab-btn" data-tab="shopmgr">订单管理</button>
+        <button class="tab-btn" data-tab="vip">VIP 客户查询</button>
+        <button class="tab-btn" data-tab="pos">线下开单</button>
+        <div class="pp-sub">互动管理</div>
+        <button class="tab-btn" data-tab="messages">联系与留言管理</button>
+        <button class="tab-btn" data-tab="reviews">评价返图管理</button>
         <button class="tab-btn" data-tab="ai">AI 对话</button>
+        <div class="pp-group">系统设置</div>
+        <button class="tab-btn" data-tab="mailsync">邮件与联系人同步</button>
+        <button class="tab-btn" data-tab="mailtpl">邮件模板管理</button>
+        <button class="tab-btn" data-tab="theme">主题颜色</button>
+        <button class="tab-btn" data-tab="system">系统状态</button>
       </div>
     </div>
 
+
     <!-- 留言管理 -->
     <div id="tab-messages" style="display:none;">
+      <style>
+        /* 联系与留言管理（原匿名留言）：状态筛选 + 关键词搜索 + 状态流转 + 内部备注 */
+        #tab-messages .msg-toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+        #tab-messages .msg-searchbox { flex: 1; min-width: 220px; display: flex; align-items: center; gap: 6px; border: 1px solid var(--card-hover); border-radius: 999px; background: #fff; padding: 2px 8px 2px 16px; }
+        #tab-messages .msg-searchbox:focus-within { border-color: var(--accent-soft); }
+        #tab-messages .msg-searchbox input { flex: 1; min-width: 0; border: none; background: transparent; padding: 8px 0; font-size:16px; font-family: inherit; color: var(--text); outline: none; }
+        #tab-messages .msg-searchbox .clear { width: 24px; height: 24px; border: none; border-radius: 50%; background: var(--card-hover); color: var(--text); font-size:16px; line-height: 1; cursor: pointer; flex-shrink: 0; display: none; font-family: inherit; }
+        #tab-messages .msg-searchbox .clear.show { display: block; }
+        #tab-messages .msg-filters { display: flex; gap: 6px; flex-wrap: wrap; }
+        #tab-messages .msg-filters button { border: none; border-radius: 999px; background: var(--card); color: var(--muted); font-size:15px; padding: 6px 12px; cursor: pointer; font-family: inherit; transition: background .15s, color .15s; }
+        #tab-messages .msg-filters button.active { background: var(--accent-soft); color: var(--accent-strong); }
+        #tab-messages .card { position: relative; }
+        #tab-messages .qa-badges { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-bottom: 6px; }
+        #tab-messages .msg-badge { font-size:13px; border-radius: 999px; padding: 1px 10px; color: #fff; background: var(--accent-strong); white-space: nowrap; }
+        #tab-messages .msg-badge.warn { background: var(--warning,#E0A458); }
+        #tab-messages .msg-badge.ok { background: var(--success,#5FA777); }
+        #tab-messages .msg-badge.off { background: #c6cddb; }
+        #tab-messages .qa-q { margin-top: 10px; }
+        #tab-messages .qa-contact { font-size:15px; color: var(--muted); margin-top: 6px; line-height: 1.6; word-break: break-all; }
+        #tab-messages .qa-contact b { color: var(--text,#604C57); font-weight: 600; }
+        #tab-messages .qa-status-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+        #tab-messages .qa-status-row .lbl { font-size:14px; color: var(--muted); flex-shrink: 0; }
+        #tab-messages .qa-status-row select { border: 1px solid var(--card-hover); border-radius: 10px; background: #fff; padding: 6px 10px; font-size:15px; font-family: inherit; color: var(--text); outline: none; }
+        #tab-messages textarea { margin-top: 10px; }
+        #tab-messages textarea.note-in { min-height: 44px; }
+      </style>
+      <div class="msg-toolbar">
+        <div class="msg-searchbox">
+          <input id="msg-search" placeholder="搜留言内容 / 称呼 / Email / 联系方式">
+          <button type="button" class="clear" id="msg-search-clear">✕</button>
+        </div>
+        <div class="msg-filters" id="msg-status-filters">
+          <button type="button" class="active" data-v="">全部</button>
+          <button type="button" data-v="pending">未处理</button>
+          <button type="button" data-v="processing">处理中</button>
+          <button type="button" data-v="replied">已回复</button>
+          <button type="button" data-v="closed">已关闭</button>
+        </div>
+      </div>
       <div id="qa-list"><p class="empty">加载中…</p></div>
     </div>
 
@@ -478,7 +714,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       <style>
         .aix-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
         .aix-stat { background: #fff; border-radius: var(--radius); padding: 10px 14px; box-shadow: 0 2px 10px rgba(180,120,150,.12); }
-        .aix-stat b { display: block; font-size:23px; color: var(--accent); line-height: 1.3; }
+        .aix-stat b { display: block; font-size:23px; color:var(--text,#604C57); line-height: 1.3; }
         .aix-stat span { font-size:14px; color: var(--muted); }
         .aix-toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
         .aix-searchbox { flex: 1; min-width: 200px; display: flex; align-items: center; gap: 6px; border: 1px solid var(--card-hover); border-radius: 999px; background: #fff; padding: 2px 8px 2px 16px; }
@@ -487,9 +723,9 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         .aix-searchbox .clear { width: 24px; height: 24px; border: none; border-radius: 50%; background: var(--card-hover); color: var(--text); font-size:16px; line-height: 1; cursor: pointer; flex-shrink: 0; display: none; font-family: inherit; }
         .aix-searchbox .clear.show { display: block; }
         .aix-filters { display: flex; gap: 6px; flex-wrap: wrap; }
-        .aix-filters button { border: none; border-radius: 999px; background: var(--card); color: var(--muted); font-size:15px; padding: 7px 13px; cursor: pointer; font-family: inherit; transition: background .15s, color .15s; }
-        .aix-filters button.active { background: var(--accent-soft); color: #fff; }
-        .aix-filters .fclear { display: none; color: var(--accent); background: #fff; border: 1px solid var(--card-hover); }
+        .aix-filters button { border: none; border-radius: 999px; background: var(--card); color: var(--muted); font-size:15px; padding: 6px 12px; cursor: pointer; font-family: inherit; transition: background .15s, color .15s; }
+        .aix-filters button.active { background: var(--accent-soft); color: var(--accent-strong); }
+        .aix-filters .fclear { display: none; color:var(--text,#604C57); background: #fff; border: 1px solid var(--card-hover); }
         .aix-filters .fclear.show { display: inline-block; }
         .aix-list { display: flex; flex-direction: column; gap: 10px; }
         .aix-session { background: #fff; border-radius: var(--radius); padding: 14px 16px; cursor: pointer; border: 2px solid transparent; box-shadow: 0 2px 10px rgba(180,120,150,.12); transition: border-color .15s, background .15s; }
@@ -499,13 +735,13 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         .aix-s-time { font-size:14px; color: var(--muted); flex-shrink: 0; }
         .aix-s-q { flex: 1; min-width: 0; font-size:16px; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .aix-s-a { font-size:15px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .aix-badge { font-size:13px; background: var(--accent-soft); color: #fff; border-radius: 999px; padding: 1px 8px; flex-shrink: 0; white-space: nowrap; }
-        .aix-badge.warn { background: #f3b96d; }
+        .aix-badge { font-size:13px; background: var(--accent-strong); color: #fff; border-radius: 999px; padding: 1px 8px; flex-shrink: 0; white-space: nowrap; }
+        .aix-badge.warn { background: var(--warning,#E0A458); }
         .aix-chat { display: flex; flex-direction: column; gap: 10px; background: var(--bg); border-radius: 12px; padding: 12px; margin-top: 10px; max-height: 50vh; overflow-y: auto; }
         .aix-msg { display: flex; flex-direction: column; max-width: 85%; }
         .aix-msg.user { align-self: flex-end; align-items: flex-end; }
         .aix-msg .bubble { border-radius: 14px; padding: 8px 12px; font-size:16px; line-height: 1.55; word-break: break-word; }
-        .aix-msg.user .bubble { background: var(--accent-soft); color: #fff; border-bottom-right-radius: 4px; }
+        .aix-msg.user .bubble { background: var(--accent-strong); color: #fff; border-bottom-right-radius: 4px; }
         .aix-msg.ai .bubble { background: var(--card); color: var(--text); border-bottom-left-radius: 4px; }
         .aix-msg .who { font-size:13px; color: var(--muted); margin: 0 4px 2px; }
         .aix-msg .t { font-size:13px; color: var(--muted); margin: 2px 4px 0; }
@@ -524,7 +760,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         .aix-confirm { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 4px 4px 0; font-size:15px; color: var(--text); }
         .aix-pager { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; justify-content: center; margin: 14px 0 4px; }
         .aix-pager button { min-width: 30px; height: 30px; border: none; border-radius: 999px; background: var(--card); color: var(--muted); font-size:15px; padding: 0 10px; cursor: pointer; font-family: inherit; }
-        .aix-pager button.cur { background: var(--accent); color: #fff; }
+        .aix-pager button.cur { background:var(--accent-soft,#FCE4EC); color: var(--accent-strong,#A04A68); }
         .aix-pager .dots { color: var(--muted); font-size:15px; }
         .aix-kb { margin-bottom: 10px; }
         .aix-kb .k-q { font-size:17px; font-weight: 600; margin-bottom: 2px; word-break: break-word; }
@@ -559,22 +795,51 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       <div class="aix-pager" id="ai-pager"></div>
     </div>
 
+    <!-- 子页签条：整合后的「小铺上架」与「订单管理」内部页签（她 20261026t 任务书 §三；子页签条放在面板外，宿主页签显隐时同步显隐） -->
+    <div class="adm-subtabs" id="shop-subtabs" style="display:none;">
+      <button class="adm-subtab" data-sub="shop">商品上架</button>
+      <button class="adm-subtab" data-sub="units">商品编码</button>
+      <button class="adm-subtab" data-sub="qcscan">扫码验货</button>
+      <button class="adm-subtab" data-sub="cost">成本计算</button>
+    </div>
+    <div class="adm-subtabs" id="shopmgr-subtabs" style="display:none;">
+      <button class="adm-subtab" data-sub="shopmgr">订单列表</button>
+      <button class="adm-subtab" data-sub="crm">客户管理</button>
+      <button class="adm-subtab" data-sub="workbench">订单工作台</button>
+      <button class="adm-subtab" data-sub="export">订单导出</button>
+      <button class="adm-subtab" data-sub="print">清单打印</button>
+    </div>
+
     <!-- 小铺管理 -->
     <div id="tab-shop" style="display:none;">
       <div class="card">
+        <button class="btn-mini" id="btn-toggle-newprod" style="padding:9px 20px;font-size:15px;">＋ 添加新商品</button>
+        <div id="newprod-wrap" style="display:none;margin-top:14px;">
         <h3>上架新商品</h3>
         <div class="form-grid">
           <input id="p-name" placeholder="商品名称 *">
           <input id="p-price" placeholder="价格，如 39.9（可留空）">
+          <div class="full cur-row"><div class="cur-line"><span style="font-size:15px;color:var(--muted);">货币</span><button type="button" class="cur-chip" data-cur="CNY">¥ 人民币</button><button type="button" class="cur-chip on" data-cur="USD">$ 美元</button></div><p class="cur-hint">每件商品各自选，金额不会自动换算</p></div>
           <input id="p-stock" type="number" min="0" placeholder="库存数量（0 = 售尽）">
           <input id="p-cost" type="number" min="0" step="0.01" placeholder="成本，只有你自己能看到">
           <input id="p-tag" placeholder="标签，如 手作 / 毛线 / 黏土（点输入框可选已有标签）">
           <div class="full fld-inline"><label class="btn-mini hm-file-btn">选择图片<input id="p-file" type="file" accept="image/*" multiple hidden></label><span class="hm-file-name" id="p-file-name">未选择图片</span></div>
           <textarea id="p-desc" class="full" style="min-height:56px;" placeholder="商品描述：材料、尺寸、细节…"></textarea>
+          <textarea id="p-desc-en" class="full" style="min-height:56px;" placeholder="英文描述 Description in English（切到 English 时显示，可留空）"></textarea>
         </div>
         <div class="p-preview" id="p-preview"><span class="pv-empty">选了图片会在这里预览</span></div>
         <div class="actions">
           <button class="btn-save" id="btn-add-product">上架这个商品</button>
+          <button class="btn-mini" id="btn-prod-draft" style="padding:9px 18px;">存为草稿</button>
+          <button class="btn-mini" id="btn-prod-bulk-toggle" style="padding:9px 18px;">批量导入商品</button>
+        </div>
+        <div id="bulk-wrap" style="display:none;margin-top:14px;">
+          <textarea id="bulk-text" style="width:100%;min-height:110px;box-sizing:border-box;border:1.5px solid var(--accent-soft,#FCE4EC);border-radius:14px;background:#fff;padding:12px 14px;font-size:16px;color:var(--text,#604C57);font-family:inherit;resize:vertical;outline:none;" placeholder="一行一个商品：名称，价格，库存，标签&#10;例如：&#10;毛线小兔，39.9，3，手作&#10;黏土小熊，52，1，黏土"></textarea>
+          <p class="hint" style="margin:8px 0 0;">一行一个商品，用逗号隔开：名称，价格，库存，标签（价格/库存/标签可留空；标签不填默认「手作」）。批量导入的商品没有图片，上架后再逐个补。</p>
+          <div class="actions" style="margin-top:10px;">
+            <button class="btn-save" id="btn-bulk-import">导入这些商品</button>
+          </div>
+        </div>
         </div>
       </div>
       <div class="card">
@@ -595,11 +860,38 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       <div id="product-list"><p class="empty">加载中…</p></div>
     </div>
 
+    <!-- 商城管理（买家商城后台：js/admin-shop.js） -->
+    <div id="tab-shopmgr" style="display:none;"></div>
+
+    <!-- 客户管理（js/admin-crm.js） -->
+    <div id="tab-crm" style="display:none;"></div>
+    <!-- 线下开单 -->
+    <div id="tab-pos" style="display:none;"></div>
+    <!-- 邮件与联系人同步 -->
+    <div id="tab-mailsync" style="display:none;"></div>
+    <div id="tab-vip" style="display:none;"></div>
+    <!-- 邮件模板管理（js/admin-crm.js） -->
+    <div id="tab-mailtpl" style="display:none;"></div>
+    <!-- 主题颜色（js/admin-crm.js） -->
+    <div id="tab-theme" style="display:none;"></div>
+    <!-- 订单工作台（js/admin-workbench.js）：草稿/批量导入/外部商品/付款计划 -->
+    <div id="tab-workbench" style="display:none;"></div>
+    <!-- 订单导出（js/admin-export.js） -->
+    <div id="tab-export" style="display:none;"></div>
+    <!-- 商品清单打印（js/admin-export.js） -->
+    <div id="tab-print" style="display:none;"></div>
+    <!-- 成本计算（js/admin-biz.js） -->
+    <div id="tab-cost" style="display:none;"></div>
+    <!-- 商品编码（js/admin-biz.js） -->
+    <div id="tab-units" style="display:none;"></div>
+    <!-- 扫码验货（js/admin-biz.js） -->
+    <div id="tab-qcscan" style="display:none;"></div>
+
     <!-- 评价返图管理 -->
     <div id="tab-reviews" style="display:none;">
       <div class="card">
         <h3>评价返图</h3>
-        <p style="font-size:15px;color:var(--muted);margin:0 0 14px;">小可爱们在<a href="/shop/?sec=reviews" target="_blank" style="color:var(--accent);">小铺页面</a>提交的评价都收在这里 · 不想留的那条点卡片里的「删除」</p>
+        <p style="font-size:15px;color:var(--muted);margin:0 0 14px;">小可爱们在<a href="/shop/?sec=reviews" target="_blank" style="color:var(--text,#604C57);">小铺页面</a>提交的评价都收在这里 · 不想留的那条点卡片里的「删除」</p>
         <div id="review-admin-list"><p class="empty">加载中…</p></div>
       </div>
     </div>
@@ -712,6 +1004,9 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
             <option value="wechat">微信图标</option>
             <option value="xhs">小红书图标</option>
             <option value="netease">网易云图标</option>
+            <option value="douyin">抖音图标</option>
+            <option value="tiktok">TikTok 图标</option>
+            <option value="youtube">YouTube 图标</option>
             <option value="link">通用链接图标</option>
           </select>
           <input id="lk-sort" type="number" placeholder="排序数字（小的在前，可留空）">
@@ -795,7 +1090,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         <div class="actions" style="flex-wrap:wrap;">
           <button class="btn-mini" id="btn-work-add">+ 新增稿件</button>
           <button class="btn-mini btn-save-tb" id="btn-work-save">保存稿件改动</button>
-          <span id="works-total" style="font-size:17px;font-weight:600;color:var(--accent);align-self:center;"></span>
+          <span id="works-total" style="font-size:17px;font-weight:600;color:var(--text,#604C57);align-self:center;"></span>
         </div>
       </div>
     </div>
@@ -831,7 +1126,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           <button type="button" class="sel-btn" id="bjd-sort-btn">排序：默认</button>
           <span style="flex:1;"></span>
           <button class="btn-mini" id="btn-bjd-add">+ 新增 BJD</button>
-          <span id="bjd-total" style="font-size:17px;font-weight:600;color:var(--accent);"></span>
+          <span id="bjd-total" style="font-size:17px;font-weight:600;color:var(--text,#604C57);"></span>
         </div>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
           <span style="font-size:16px;color:var(--muted);flex-shrink:0;">尺寸 / 种类管理</span>
@@ -856,7 +1151,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           <span style="flex:1;"></span>
           <button class="btn-mini" id="btn-sc-add">+ 新建色卡</button>
           <button class="btn-mini btn-save-tb" id="btn-sc-save">保存色卡改动</button>
-          <span id="sc-total" style="font-size:17px;font-weight:600;color:var(--accent);"></span>
+          <span id="sc-total" style="font-size:17px;font-weight:600;color:var(--text,#604C57);"></span>
         </div>
         <div id="sc-artist-list"></div>
       </div>
@@ -874,11 +1169,51 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   var ACCESS = null, REFRESH = null;
   // 从其它页面菜单跳转过来时（admin.html#shop 等），登录后直接开到对应标签页
   var PENDING_TAB = null;
+  // 主题颜色：与前台同一套（site_settings.theme_colors → :root 变量），后台同步变（她 2026-10-26）
+  (function () {
+    try { var __t = JSON.parse(localStorage.getItem('yuki-theme-colors-v2') || 'null');
+      if (__t && typeof __t === 'object') { var __m = { text: '--text', muted: '--muted', bg: '--bg', card: '--card', accent: '--accent', accentSoft: '--accent-soft', accentStrong: '--accent-strong', price: '--price', success: '--success', warning: '--warning', danger: '--danger' }, __r = document.documentElement.style; Object.keys(__m).forEach(function (k) { if (__t[k]) __r.setProperty(__m[k], __t[k]); }); } } catch (e) {}
+    fetch(SUPABASE_URL + '/rest/v1/site_settings?select=value&key=eq.theme_colors', { headers: { apikey: SUPABASE_ANON_KEY } })
+      .then(function (r) { return r.ok ? r.json() : []; })
+      .then(function (rows) { var raw = rows && rows[0] && rows[0].value; if (!raw) return;
+        try { var v = typeof raw === 'string' ? JSON.parse(raw) : raw; if (v && typeof v === 'object') {
+          var __r = document.documentElement.style; var __m = { text: '--text', muted: '--muted', bg: '--bg', card: '--card', accent: '--accent', accentSoft: '--accent-soft', accentStrong: '--accent-strong', price: '--price', success: '--success', warning: '--warning', danger: '--danger' };
+          Object.keys(__m).forEach(function (k) { if (v[k]) __r.setProperty(__m[k], v[k]); });
+          try { localStorage.setItem('yuki-theme-colors-v2', JSON.stringify(v)); } catch (e) {} } } catch (e) {} })
+      .catch(function () {});
+  })();
   (function () {
     var h = location.hash.replace('#', '');
     if (h === 'records') h = 'cards'; // 兼容旧链接 admin.html#records
-    if (['messages', 'shop', 'reviews', 'photos', 'home', 'profile', 'works', 'cards', 'days', 'bjd', 'ai'].indexOf(h) !== -1) PENDING_TAB = h;
+    // 直达名单改为动态判断：只要有对应页签按钮就允许（旧写死名单漏掉了 mailtpl/theme 等新页签）
+    if (h && document.querySelector('.tab-btn[data-tab="' + h + '"]')) PENDING_TAB = h;
+    else if (h && document.getElementById('tab-' + h)) PENDING_TAB = h; // 整合后子页（#units 等）也允许直达
   })();
+  // 语言切换（她 20261026 最终合并版 §1.1）：与前台同一存储键 yuki-lang；切换后重载让 t() 动态文案生效
+  (function () {
+    var cur = 'zh';
+    try { cur = localStorage.getItem('yuki-lang') === 'en' ? 'en' : 'zh'; } catch (e) {}
+    window.LANG = cur;
+    var box = document.getElementById('admin-lang');
+    if (!box) return;
+    function paint() { box.querySelectorAll('.lang-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.lang === window.LANG); }); }
+    paint();
+    box.addEventListener('click', function (e) {
+      var b = e.target && e.target.closest ? e.target.closest('.lang-btn') : null;
+      if (!b || b.dataset.lang === window.LANG) return;
+      try { localStorage.setItem('yuki-lang', b.dataset.lang); } catch (err) {}
+      window.LANG = b.dataset.lang;
+      location.reload();
+    });
+  })();
+  // 后台开着时点带 hash 的链接（如单件二维码 admin.html#qcscan?code=…）：同文档跳转不会重跑脚本，这里补一个 hashchange 切页
+  window.addEventListener('hashchange', function () {
+    var h2 = location.hash.replace('#', '').split('?')[0];
+    if (h2 === 'records') h2 = 'cards';
+    var pb2 = h2 && document.querySelector('.tab-btn[data-tab="' + h2 + '"]');
+    if (pb2 && !pb2.classList.contains('active')) pb2.click();
+    else if (h2 && !pb2 && document.getElementById('tab-' + h2)) switchTab(h2); // 整合后子页（如 #units/#workbench）不再有菜单按钮，直达也安全
+  });
 
   function toast(msg) {
     var el = document.getElementById('toast');
@@ -906,7 +1241,27 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   // ===== 认证 =====
   function saveSession(data) {
     ACCESS = data.access_token; REFRESH = data.refresh_token;
-    try { localStorage.setItem('yuki-admin-session', JSON.stringify({ r: REFRESH })); } catch (e) {}
+    var prev = null;
+    try { prev = JSON.parse(localStorage.getItem('yuki-admin-session') || 'null'); } catch (e) {}
+    // 全站统一会话源：完整会话（含 a/email）只存后台键，并清掉买家键，避免同一 refresh token 双拷贝互踩
+    try {
+      localStorage.setItem('yuki-admin-session', JSON.stringify({
+        a: ACCESS, r: REFRESH,
+        email: (prev && prev.email) || (data.user && data.user.email) || null,
+        t: (prev && prev.t) || Date.now()
+      }));
+    } catch (e) {}
+    try { localStorage.removeItem('yuki-user-session'); } catch (e) {}
+  }
+  // 带超时的 fetch：请求卡死 20 秒就主动放弃走降级/重试，不再永远「加载中」（根因加固，她 2026-10-25）
+  function fetchT(url, opts, ms) {
+    opts = opts || {}; ms = ms || 20000;
+    var ctrl = ('AbortController' in window) ? new AbortController() : null;
+    var t = setTimeout(function () { if (ctrl) ctrl.abort(); }, ms);
+    opts.signal = ctrl ? ctrl.signal : opts.signal;
+    var p = fetch(url, opts);
+    if (p.finally) return p.finally(function () { clearTimeout(t); });
+    return p.then(function (r) { clearTimeout(t); return r; }, function (e) { clearTimeout(t); throw e; });
   }
   function api(path, options) {
     options = options || {};
@@ -922,7 +1277,14 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       headers: { 'apikey': SUPABASE_ANON_KEY, 'Content-Type': 'application/json' },
       body: JSON.stringify({ refresh_token: REFRESH })
     }).then(function (r) { if (!r.ok) throw new Error(); return r.json(); })
-      .then(function (data) { saveSession(data); });
+      .then(function (data) { saveSession(data); })
+      .catch(function () {
+        // 并发刷新竞态：别的页面可能刚把 r 换新，重读最新存档重试一次
+        var s = null;
+        try { s = JSON.parse(localStorage.getItem('yuki-admin-session') || 'null'); } catch (e) {}
+        if (s && s.r && s.r !== REFRESH) { REFRESH = s.r; if (s.a) ACCESS = s.a; return tryRefresh(); }
+        throw new Error('refresh failed');
+      });
   }
   // 带鉴权的 fetch：token 过期（401）时自动续期并重试一次，避免登录久了保存静默失败
   function authedFetch(url, options) {
@@ -930,7 +1292,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     var headers = Object.assign({}, options.headers || {});
     if (ACCESS) headers['Authorization'] = 'Bearer ' + ACCESS;
     var opts = Object.assign({}, options, { headers: headers });
-    return fetch(url, opts).then(function (r) {
+    return fetchT(url, opts).then(function (r) {
       if (r.status !== 401 || !REFRESH) return r;
       return tryRefresh().then(function () {
         var h = Object.assign({}, opts.headers, { 'Authorization': 'Bearer ' + ACCESS });
@@ -942,9 +1304,24 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   setInterval(function () { if (REFRESH) tryRefresh().catch(function () {}); }, 20 * 60 * 1000); // 挂着不动也自动续期，不会掉登录
   document.addEventListener('visibilitychange', function () { if (!document.hidden && REFRESH) tryRefresh().catch(function () {}); }); // 切回页面时顺手续期：离开一小时再回来还是登录状态
   window.addEventListener('focus', function () { if (REFRESH) tryRefresh().catch(function () {}); });
+  // 后台权限以数据库为准：RPC shop_is_admin（Security Definer，读 shop_admins），前端邮箱判断只作快路提示
+  function checkAdminPerm() {
+    if (!ACCESS) return Promise.resolve(false);
+    return fetch(SUPABASE_URL + '/rest/v1/rpc/shop_is_admin', {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + ACCESS, 'Content-Type': 'application/json' },
+      body: '{}'
+    }).then(function (r) { return r.ok ? r.json() : false; }).catch(function () { return false; });
+  }
+  function denyAdmin() { // 非管理员：清会话留在登录门，不展示后台壳
+    ACCESS = REFRESH = null;
+    try { localStorage.removeItem('yuki-admin-session'); } catch (e) {}
+    try { localStorage.removeItem('yuki-user-session'); } catch (e) {}
+    toast('这个账号没有后台权限');
+  }
   function enterAdmin() {
     document.getElementById('gate').style.display = 'none';
-    document.getElementById('admin-body').style.display = 'block';
+    document.getElementById('admin-body').style.display = '';
     document.getElementById('btn-logout').style.display = 'inline';
     if (window.SiteMenu) SiteMenu.refresh(); // 登录后菜单里的柚子专属变成可展开分组
     loadMessages(); loadProducts(); loadHome();
@@ -953,20 +1330,35 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     if (PENDING_TAB) {
       var pb = document.querySelector('.tab-btn[data-tab="' + PENDING_TAB + '"]');
       if (pb) pb.click();
+      else switchTab(PENDING_TAB); // 整合后子页（#units/#workbench 等）直达
       PENDING_TAB = null;
     }
   }
   document.getElementById('btn-login').addEventListener('click', function () {
+    if (window.__loginBusy) return; // Enter/按钮防重复提交（她 2026-10-26 任务书 §7）
     var email = document.getElementById('email').value.trim();
     var pw = document.getElementById('password').value;
     if (!email || !pw) { toast('邮箱和密码都要填哦'); return; }
+    window.__loginBusy = true;
     fetch(SUPABASE_URL + '/auth/v1/token?grant_type=password', {
       method: 'POST',
       headers: { 'apikey': SUPABASE_ANON_KEY, 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: email, password: pw })
     }).then(function (r) { if (!r.ok) throw new Error(); return r.json(); })
-      .then(function (data) { saveSession(data); enterAdmin(); toast('欢迎回来，柚子！'); })
-      .catch(function () { toast('登录失败，检查邮箱密码'); });
+      .then(function (data) {
+        saveSession(data);
+        return checkAdminPerm().then(function (ok) {
+          if (!ok) { denyAdmin(); return; }
+          enterAdmin(); toast('欢迎回来，柚子！');
+        });
+      })
+      .catch(function () { toast('登录失败，检查邮箱密码'); })
+      .then(function () { window.__loginBusy = false; }); // 无论成败都解锁，失败可重试
+  });
+  // Enter 提交：标准 form submit（密码框/邮箱框回车原生触发），等价于点登录按钮
+  document.getElementById('gate').addEventListener('submit', function (e) {
+    e.preventDefault();
+    document.getElementById('btn-login').click();
   });
   document.getElementById('btn-logout').addEventListener('click', function () {
     document.getElementById('lo-mask').classList.add('open');
@@ -979,6 +1371,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     document.getElementById('lo-yes').addEventListener('click', function () {
       ACCESS = REFRESH = null;
       try { localStorage.removeItem('yuki-admin-session'); } catch (e) {}
+      try { localStorage.removeItem('yuki-user-session'); } catch (e) {}
       location.reload();
     });
     // 通用删除确认小弹窗（统一替代原生 confirm，视觉与退出登录弹窗一致）
@@ -993,18 +1386,33 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     });
   });
   var CF_CB = null;
-  function uiConfirm(msg, cb) {
+  function uiConfirm(msg, cb, okLabel) {
+    // okLabel 可选：删除场景默认「删除」，其它确认场景传自定义文案（如「确认」）
     CF_CB = cb;
+    var okBtn = document.getElementById('cf-ok');
+    okBtn.textContent = okLabel || '删除';
+    okBtn.className = okLabel ? 'btn-ok' : 'btn-del';
     document.getElementById('cf-msg').textContent = msg;
     document.getElementById('cf-mask').classList.add('open');
   }
   (function () {
     var saved = null;
     try { saved = JSON.parse(localStorage.getItem('yuki-admin-session') || 'null'); } catch (e) {}
+    if (!saved || !saved.r) { try { saved = JSON.parse(localStorage.getItem('yuki-user-session') || 'null'); } catch (e) {} } // 旧版兼容
     if (saved && saved.r) {
+      // 保险丝：不是专属邮箱的会话不自动进后台（防普通买家会话误入）
+      if (saved.email && saved.email.toLowerCase() !== 'chengyuki119@gmail.com') return;
       REFRESH = saved.r;
-      tryRefresh().then(enterAdmin).catch(function () {
+      var bootIn = function () {
+        return checkAdminPerm().then(function (ok) {
+          if (ok) enterAdmin();
+          else { try { localStorage.removeItem('yuki-admin-session'); } catch (e) {} try { localStorage.removeItem('yuki-user-session'); } catch (e) {} }
+        });
+      };
+      if (saved.a) { ACCESS = saved.a; bootIn(); return; } // token 还新鲜就直接验权限进，不额外旋转 r
+      tryRefresh().then(bootIn).catch(function () {
         try { localStorage.removeItem('yuki-admin-session'); } catch (e) {}
+        try { localStorage.removeItem('yuki-user-session'); } catch (e) {}
       });
     }
   })();
@@ -1019,50 +1427,153 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     if (!e.target.closest('#pp-wrap')) ppClose();
   });
   document.querySelectorAll('.tab-btn').forEach(function (b) {
-    b.addEventListener('click', function () {
-      document.querySelectorAll('.tab-btn').forEach(function (x) { x.classList.remove('active'); });
-      b.classList.add('active');
-      document.getElementById('pp-cur').textContent = b.textContent;
-      ppClose();
-      ['messages', 'shop', 'reviews', 'photos', 'home', 'profile', 'works', 'cards', 'bjd', 'days', 'ai'].forEach(function (name) {
-        var panel = document.getElementById('tab-' + name);
-        if (panel) panel.style.display = b.dataset.tab === name ? '' : 'none';
-      });
-      if (b.dataset.tab === 'works') renderWorks();
-      if (b.dataset.tab === 'reviews') loadReviewsAdmin();
-      try { history.replaceState(null, '', '#' + b.dataset.tab); } catch (e) {} // 把当前 tab 写进地址：刷新后停留在原页
-    });
+    b.addEventListener('click', function () { switchTab(b.dataset.tab); });
   });
+  document.querySelectorAll('.adm-subtab').forEach(function (s) {
+    s.addEventListener('click', function () { switchTab(s.dataset.sub); });
+  });
+  // 菜单整合映射（她 20261026t 任务书 §三）：编码/验货/成本归小铺上架，工作台/导出/打印归订单管理；子页签条随宿主显隐
+  var TAB_ALIAS = { units: 'shop', qcscan: 'shop', cost: 'shop', workbench: 'shopmgr', export: 'shopmgr', print: 'shopmgr', crm: 'shopmgr' };
+  var SUBTABS = { shop: ['shop', 'units', 'qcscan', 'cost'], shopmgr: ['shopmgr', 'crm', 'workbench', 'export', 'print'] };
+  function switchTab(name) {
+    var main = TAB_ALIAS[name] || name;
+    document.querySelectorAll('.tab-btn').forEach(function (x) { x.classList.remove('active'); });
+    var btn = document.querySelector('.tab-btn[data-tab="' + main + '"]');
+    if (btn) btn.classList.add('active');
+    ['messages', 'shop', 'shopmgr', 'crm', 'vip', 'pos', 'mailsync', 'mailtpl', 'theme', 'workbench', 'export', 'print', 'cost', 'units', 'qcscan', 'reviews', 'photos', 'home', 'profile', 'works', 'cards', 'bjd', 'days', 'ai', 'system'].forEach(function (n) {
+      var panel = document.getElementById('tab-' + n);
+      if (panel) panel.style.display = (n === name) ? '' : 'none';
+    });
+    Object.keys(SUBTABS).forEach(function (host) {
+      var bar = document.getElementById(host + '-subtabs');
+      if (bar) bar.style.display = (main === host) ? 'flex' : 'none';
+    });
+    document.querySelectorAll('.adm-subtab').forEach(function (s) {
+      s.classList.toggle('active', s.dataset.sub === name);
+    });
+    var subBtn = document.querySelector('.adm-subtab[data-sub="' + name + '"]');
+    document.getElementById('pp-cur').textContent = subBtn ? subBtn.textContent : (btn ? btn.textContent : name);
+    ppClose();
+    // §1.2 左侧导航内部滚动位置保留（她第三轮任务书：切页不能把菜单跳回顶部）；仅当选中项不可见时在导航内部轻微滚动到可见
+    try { if (btn) btn.scrollIntoView({ block: 'nearest' }); } catch (e) {}
+    try { window.scrollTo(0, 0); } catch (e) {} // §1.1 右侧新页面主体从顶部显示
+    setTimeout(function () { try { window.scrollTo(0, 0); } catch (e) {} }, 80); // 异步渲染后再次确认（不刷新页面、不清表单）
+    if (name === 'works') renderWorks();
+    if (name === 'reviews') loadReviewsAdmin();
+    if (name === 'system') loadEmailLog();
+    if (name === 'days') renderDays(); // 每次切到重要日子都重渲染，避免 settings 迟到导致自动列表空白
+    if (name === 'crm' && window.CRM) CRM.bootCrm();
+    if (name === 'pos' && window.CRM) CRM.bootPos();
+    if (name === 'mailsync' && window.CRM) CRM.bootMailsync();
+    if (name === 'vip' && window.bootVip) window.bootVip();
+    if (name === 'mailtpl' && window.CRM) CRM.bootMailtpl();
+    if (name === 'theme' && window.CRM) CRM.bootTheme();
+    if (name === 'workbench' && window.WB) WB.bootWorkbench();
+    if (name === 'export' && window.EXPORT) EXPORT.bootExport();
+    if (name === 'print' && window.EXPORT) EXPORT.bootPrint();
+    if (name === 'cost' && window.BIZ) BIZ.bootCost();
+    if (name === 'units' && window.BIZ) BIZ.bootUnits();
+    if (name === 'qcscan' && window.BIZ) BIZ.bootQcscan();
+    try { history.replaceState(null, '', '#' + name); } catch (e) {} // 把当前 tab 写进地址：刷新后停留在原页（含子页如 #units）
+  }
 
-  // ===== 留言管理 =====
+  // ===== 联系与留言管理（原匿名留言）：主题/状态/称呼/Email/备注/搜索/回复 =====
+  var MSG = { search: '', status: '', list: [] };
+  var E_NL = '\n';
+  var MSG_STATUS_ZH = { pending: '未处理', processing: '处理中', replied: '已回复', closed: '已关闭' };
+  var MSG_TOPIC_ZH = { product: '商品咨询', order: '订单问题', aftersale: '售后与退款', site: '网站问题', other: '其他' };
+  var MSG_BADGE = { pending: '', processing: 'warn', replied: 'ok', closed: 'off' };
+  function msgStatusBadge(s) {
+    var zh = MSG_STATUS_ZH[s] || MSG_STATUS_ZH.pending;
+    return '<span class="msg-badge ' + (MSG_BADGE[s] || '') + '">' + esc(zh) + '</span>';
+  }
   function loadMessages() {
     Promise.all([
-      api('questions?select=id,content,reply,created_at,replied_at&order=created_at.desc&limit=200').then(function (r) { return r.json(); }),
-      api('contacts?select=question_id,contact').then(function (r) { return r.json(); })
+      api('questions?select=id,content,topic,reply,status,created_at,replied_at&order=created_at.desc&limit=200').then(function (r) { return r.json(); }),
+      api('contacts?select=question_id,contact,nickname,email,other_contact,note').then(function (r) { return r.json(); })
     ]).then(function (res) {
-      var questions = res[0] || [];
+      MSG.list = res[0] || [];
       var cmap = {};
-      (res[1] || []).forEach(function (c) { cmap[c.question_id] = c.contact; });
-      var list = document.getElementById('qa-list');
-      if (!questions.length) { list.innerHTML = '<p class="empty">还没有留言</p>'; return; }
-      list.innerHTML = questions.map(function (q) {
-        var contact = cmap[q.id];
-        var contactHtml = contact ? '<div class="qa-contact">联系方式：' + esc(contact) + '</div>' : '';
-        return '<div class="card" data-id="' + q.id + '" data-reply="' + escAttr(q.reply || '') + '">' +
-          '<div class="qa-q">' + esc(q.content) + '</div>' +
-          '<div class="qa-meta">' + fmtTime(q.created_at) + (q.replied_at ? ' · 已回复' : ' · 待回复') + '</div>' +
-          contactHtml +
-          '<textarea placeholder="写下你的回复…（会公开显示在提问箱）">' + esc(q.reply || '') + '</textarea>' +
-          '<div class="actions">' +
-          '<button class="btn-del">删除</button>' +
-          '<button class="btn-cancel btn-cancel-reply">取消</button>' +
-          '<button class="btn-save">保存回复</button>' +
-          '</div></div>';
-      }).join('');
+      (res[1] || []).forEach(function (c) { cmap[c.question_id] = c; });
+      MSG.cmap = cmap;
+      msgRender();
     }).catch(function () {
       document.getElementById('qa-list').innerHTML = '<p class="empty">加载失败，刷新重试</p>';
     });
   }
+  function msgRender() {
+    var list = document.getElementById('qa-list');
+    var kw = MSG.search.trim().toLowerCase();
+    var rows = MSG.list.filter(function (q) {
+      if (MSG.status && (q.status || 'pending') !== MSG.status) return false;
+      if (!kw) return true;
+      var c = (MSG.cmap || {})[q.id] || {};
+      var hay = [q.content, c.nickname, c.email, c.other_contact, c.contact].map(function (x) { return String(x || '').toLowerCase(); }).join('\n');
+      return hay.indexOf(kw) !== -1;
+    });
+    if (!rows.length) { list.innerHTML = '<p class="empty">' + (MSG.list.length ? '没有符合条件的留言' : '还没有留言') + '</p>'; return; }
+    list.innerHTML = rows.map(function (q) {
+      var c = (MSG.cmap || {})[q.id] || {};
+      var status = q.status || (q.reply ? 'replied' : 'pending'); // 旧数据无状态列时按回复存在性推断
+      var contactBits = [];
+      if (c.nickname) contactBits.push('称呼：<b>' + esc(c.nickname) + '</b>');
+      if (c.email) contactBits.push('Email：<b>' + esc(c.email) + '</b>');
+      if (c.other_contact) contactBits.push('其他：<b>' + esc(c.other_contact) + '</b>');
+      if (!c.nickname && !c.email && !c.other_contact && c.contact) contactBits.push('联系方式：<b>' + esc(c.contact) + '</b>'); // 旧版只存了一个联系字段
+      if (!contactBits.length) contactBits.push('匿名留言（未留联系方式）');
+      var sel = '<select class="msg-status" data-id="' + q.id + '">' +
+        ['pending', 'processing', 'replied', 'closed'].map(function (s) {
+          return '<option value="' + s + '"' + (s === status ? ' selected' : '') + '>' + MSG_STATUS_ZH[s] + '</option>';
+        }).join('') + '</select>';
+      return '<div class="card" data-id="' + q.id + '" data-reply="' + escAttr(q.reply || '') + '">' +
+        '<div class="qa-badges"><span class="msg-badge">' + esc(MSG_TOPIC_ZH[q.topic] || MSG_TOPIC_ZH.other) + '</span>' + msgStatusBadge(status) + '</div>' +
+        '<div class="qa-q">' + esc(q.content) + '</div>' +
+        '<div class="qa-meta">' + fmtTime(q.created_at) + (q.replied_at ? ' · 已于 ' + fmtTime(q.replied_at) + ' 回复' : ' · 尚未回复') + '</div>' +
+        '<div class="qa-contact">' + contactBits.join(' · ') + '</div>' +
+        '<div class="qa-status-row"><span class="lbl">状态：</span>' + sel + '</div>' +
+        '<textarea placeholder="写下你的回复…（会公开显示在联系我们页留言墙）">' + esc(q.reply || '') + '</textarea>' +
+        '<textarea class="note-in" placeholder="内部备注（不会公开显示）">' + esc(c.note || '') + '</textarea>' +
+        '<div class="actions">' +
+        '<button class="btn-del">删除</button>' +
+        '<button class="btn-cancel btn-cancel-reply">取消</button>' +
+        '<button class="btn-save-note">保存备注</button>' +
+        (c.email ? '<button class="btn-mail-send" title="将当前回复内容通过官方邮箱发给客户">邮件发送此回复</button>' : '') +
+        '<button class="btn-save">保存回复</button>' +
+        '</div></div>';
+    }).join('');
+  }
+  document.getElementById('msg-search').addEventListener('input', function () {
+    MSG.search = this.value;
+    document.getElementById('msg-search-clear').classList.toggle('show', !!this.value);
+    msgRender();
+  });
+  document.getElementById('msg-search-clear').addEventListener('click', function () {
+    MSG.search = '';
+    var inp = document.getElementById('msg-search');
+    inp.value = '';
+    this.classList.remove('show');
+    inp.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  document.getElementById('msg-status-filters').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    MSG.status = b.getAttribute('data-v') || '';
+    Array.prototype.forEach.call(this.children, function (x) { x.classList.toggle('active', x === b); });
+    msgRender();
+  });
+  document.getElementById('qa-list').addEventListener('change', function (e) {
+    if (!e.target.classList.contains('msg-status')) return;
+    var id = e.target.getAttribute('data-id');
+    var status = e.target.value;
+    api('questions?id=eq.' + id, { method: 'PATCH', body: JSON.stringify({ status: status }) })
+      .then(function (r) {
+        if (!r.ok) throw new Error();
+        var q = MSG.list.find(function (x) { return String(x.id) === String(id); });
+        if (q) q.status = status;
+        toast('状态已改为「' + (MSG_STATUS_ZH[status] || status) + '」');
+        msgRender();
+      })
+      .catch(function () { toast('状态保存失败，再试一次'); });
+  });
   document.getElementById('qa-list').addEventListener('click', function (e) {
     var card = e.target.closest('.card');
     if (!card) return;
@@ -1071,14 +1582,69 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       var reply = card.querySelector('textarea').value.trim();
       if (!reply) { toast('回复不能为空哦'); return; }
       e.target.disabled = true;
+      var q = MSG.list.find(function (x) { return String(x.id) === String(id); });
+      var nextStatus = (q && (q.status === 'pending' || q.status === 'processing' || !q.status)) ? 'replied' : (q ? q.status : 'replied');
       api('questions?id=eq.' + id, {
         method: 'PATCH',
-        body: JSON.stringify({ reply: reply, replied_at: new Date().toISOString() })
+        body: JSON.stringify({ reply: reply, replied_at: new Date().toISOString(), status: nextStatus })
       }).then(function (r) {
         if (!r.ok) throw new Error();
-        toast('回复已保存，提问箱里能看到啦');
+        if (q) { q.reply = reply; q.status = nextStatus; q.replied_at = new Date().toISOString(); }
+        toast('回复已保存，联系我们页留言墙能看到啦');
+        msgRender();
       }).catch(function () { toast('保存失败，再试一次'); })
         .finally(function () { e.target.disabled = false; });
+    }
+    if (e.target.classList.contains('btn-save-note')) {
+      var note = card.querySelector('textarea.note-in').value.trim();
+      e.target.disabled = true;
+      // 备注在 contacts 表（仅登录后台可读）；旧留言可能没有 contacts 行，先补一行
+      api('contacts?question_id=eq.' + id + '&select=question_id').then(function (r) { return r.json(); }).then(function (rows) {
+        if (rows && rows.length) {
+          return api('contacts?question_id=eq.' + id, { method: 'PATCH', body: JSON.stringify({ note: note || null }) });
+        }
+        return api('contacts', { method: 'POST', body: JSON.stringify({ question_id: Number(id) || id, note: note || null }) });
+      }).then(function (r) {
+        if (!r.ok) throw new Error();
+        var c = (MSG.cmap || {})[id] || {};
+        c.note = note;
+        MSG.cmap[id] = c;
+        toast('备注已保存（不会公开）');
+      }).catch(function () { toast('备注保存失败，再试一次'); })
+        .finally(function () { e.target.disabled = false; });
+    }
+    if (e.target.classList.contains('btn-mail-send')) {
+      // 通过官方邮箱 snowyuzustudio@gmail.com 真实发信：先入队，email-worker 每分钟拉起发送
+      var mailReply = card.querySelector('textarea').value.trim();
+      if (!mailReply) { toast('先写下要发送的回复内容'); return; }
+      e.target.disabled = true;
+      var replyTo = (MSG.cmap[id] || {}).email;
+      // 语言判定：收件邮箱在客户管理里有英文档案 → 英文版回复邮件
+      api('shop_customers?email=eq.' + encodeURIComponent(replyTo || '') + '&select=pref_lang').then(function (r) { return r.json(); }).then(function (cs) {
+        var isEn = !!(cs && cs[0] && cs[0].pref_lang === 'en');
+        var q = MSG.list.find(function (x) { return String(x.id) === String(id); });
+        var qText = q ? q.content : '';
+        var subject = isEn ? 'You\u2019ve Got a Reply! \u2661 \u00b7 Snow Yuzu' : '你的留言有回复啦 ♡ · Snow Yuzu';
+        var body = isEn
+          ? 'Hi! Your message got a reply! (\u02b6\u1d54 \u1d55 \u1d54\u02b6)\u2661' + E_NL + E_NL + 'You wrote:' + E_NL + qText + E_NL + E_NL + 'Yuki\u2019s reply:' + E_NL + mailReply + E_NL + E_NL + 'Feel free to leave another message anytime~' + E_NL + '\u2014 Snow Yuzu\u2019s little shopkeeper \u2661 [lang:en]'
+          : '嗨嗨，你的留言有回复啦！(˶ᵔ ᵕ ᵔ˶)♡' + E_NL + E_NL + '当时你留言说：' + E_NL + qText + E_NL + E_NL + '柚子的回复：' + E_NL + mailReply + E_NL + E_NL + '如果还有想聊的，随时再来留言呀～' + E_NL + '— Snow Yuzu 的小店主 ♡';
+        return api('email_log', {
+          method: 'POST',
+          headers: { 'Prefer': 'return=representation' },
+          body: JSON.stringify({
+            kind: 'reply',
+            ref_id: id + '#r' + new Date().toISOString(),
+            to_email: replyTo,
+            subject: subject,
+            body: body
+          })
+        });
+      }).then(function (r) {
+        if (!r.ok) throw new Error();
+        toast('已加入邮件发送队列，约 1 分钟内发出（系统状态可查记录）');
+      }).catch(function () { toast('加入发送队列失败，再试一次'); })
+        .finally(function () { e.target.disabled = false; });
+      return;
     }
     if (e.target.classList.contains('btn-cancel-reply')) {
       card.querySelector('textarea').value = card.getAttribute('data-reply') || ''; // 改回原来的回复内容，不动数据库
@@ -1136,7 +1702,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     box.innerHTML = pendingFiles.map(function (f, idx) {
       return '<div class="pv ph-tile' + (idx === 0 ? ' ph-cover' : '') + '" draggable="true" data-idx="' + idx + '" title="拖动可调整顺序" style="cursor:grab;position:relative;">' +
         '<img src="' + URL.createObjectURL(f) + '" alt="">' +
-        (idx === 0 ? '<span style="position:absolute;left:3px;bottom:3px;background:var(--accent);color:#fff;border-radius:999px;padding:0 6px;font-size:10px;line-height:14px;">封面</span>' : '') +
+        (idx === 0 ? '<span style="position:absolute;left:3px;bottom:3px;background:var(--accent-strong,#A04A68);color:#fff;border-radius:999px;padding:0 6px;font-size:10px;line-height:14px;">封面</span>' : '') +
         '</div>';
     }).join('');
   }
@@ -1147,8 +1713,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       if (!src) return '';
       return '<div class="ph-tile' + (idx === 0 ? ' ph-cover' : '') + '" draggable="true" data-idx="' + idx + '" title="拖动可调整顺序" style="width:64px;height:64px;border-radius:10px;overflow:hidden;position:relative;background:var(--card);flex-shrink:0;cursor:grab;">' +
         '<img src="' + escAttr(src) + '" style="width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;">' +
-        (idx === 0 ? '<span style="position:absolute;left:3px;bottom:3px;background:var(--accent);color:#fff;border-radius:999px;padding:0 7px;font-size:11px;line-height:16px;">封面</span>'
-                   : '<button type="button" class="ph-del" data-idx="' + idx + '" title="删除照片" style="position:absolute;top:3px;right:3px;width:20px;height:20px;font-size:13px;line-height:1;border:none;border-radius:50%;background:rgba(255,255,255,.92);cursor:pointer;color:#5d6780;">⋮</button>') +
+        (idx === 0 ? '<span style="position:absolute;left:3px;bottom:3px;background:var(--accent-strong,#A04A68);color:#fff;border-radius:999px;padding:0 7px;font-size:11px;line-height:16px;">封面</span>'
+                   : '<button type="button" class="ph-del" data-idx="' + idx + '" title="删除照片" style="position:absolute;top:3px;right:3px;width:20px;height:20px;font-size:13px;line-height:1;border:none;border-radius:50%;background:rgba(255,255,255,.92);cursor:pointer;color:var(--text,#604C57);">⋮</button>') +
         '</div>';
     }).join('') + '</div>';
   }
@@ -1186,6 +1752,96 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         .then(function (res) { return SUPABASE_URL + '/storage/v1/object/public/shop/' + res.Key.split('/').slice(1).join('/'); });
     }));
   }
+  var pCur = 'USD'; // 新增商品的货币选择（每件商品独立，不换算）
+  document.getElementById('tab-shop').addEventListener('click', function (e) {
+    var chip = e.target.closest('.cur-chip');
+    if (!chip || !chip.closest('.form-grid')) return; // 只响应上架表单里的胶囊
+    pCur = chip.getAttribute('data-cur') || 'USD';
+    chip.parentNode.querySelectorAll('.cur-chip').forEach(function (x) { x.classList.toggle('on', x === chip); });
+  });
+  // ── 新商品草稿：存文本字段，图片需重新选（文件没法存浏览器）──
+  var DRAFT_KEY = 'yuki-newprod-draft';
+  function collectDraft() {
+    return {
+      name: document.getElementById('p-name').value.trim(),
+      price: document.getElementById('p-price').value.trim(),
+      stock: document.getElementById('p-stock').value.trim(),
+      cost: document.getElementById('p-cost').value.trim(),
+      tag: document.getElementById('p-tag').value.trim(),
+      desc: document.getElementById('p-desc').value.trim(),
+      descEn: document.getElementById('p-desc-en').value.trim()
+    };
+  }
+  function fillDraft(d) {
+    if (!d) return;
+    document.getElementById('p-name').value = d.name || '';
+    document.getElementById('p-price').value = d.price || '';
+    document.getElementById('p-stock').value = d.stock || '';
+    document.getElementById('p-cost').value = d.cost || '';
+    document.getElementById('p-tag').value = d.tag || '';
+    document.getElementById('p-desc').value = d.desc || '';
+    document.getElementById('p-desc-en').value = d.descEn || '';
+  }
+  document.getElementById('btn-prod-draft').addEventListener('click', function () {
+    var d = collectDraft();
+    if (!d.name && !d.desc) { toast('什么都还没填，不用存草稿哦'); return; }
+    try { localStorage.setItem(DRAFT_KEY, JSON.stringify(d)); } catch (e) { toast('草稿保存失败'); return; }
+    toast('草稿已保存，下次打开会自动恢复');
+  });
+  (function () { // 打开表单时自动恢复草稿
+    var w = document.getElementById('newprod-wrap');
+    var obs = new MutationObserver(function () {
+      if (w.style.display !== 'none' && !w.dataset.draftDone) {
+        w.dataset.draftDone = '1';
+        try {
+          var d = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
+          if (d && (d.name || d.desc)) { fillDraft(d); toast('已恢复上次保存的草稿（图片要重新选哦）'); }
+        } catch (e) {}
+      }
+    });
+    obs.observe(w, { attributes: true, attributeFilter: ['style'] });
+  })();
+  document.getElementById('btn-prod-bulk-toggle').addEventListener('click', function () {
+    var w = document.getElementById('bulk-wrap');
+    var open = w.style.display !== 'none';
+    w.style.display = open ? 'none' : '';
+    this.textContent = open ? '批量导入商品' : '收起批量导入';
+  });
+  document.getElementById('btn-bulk-import').addEventListener('click', function () {
+    var btn = this;
+    var raw = document.getElementById('bulk-text').value.trim();
+    if (!raw) { toast('先粘贴商品清单'); return; }
+    var rows = raw.split(/\n+/).map(function (line) {
+      var parts = line.split(/[,，]/).map(function (x) { return x.trim(); });
+      if (!parts[0]) return null;
+      return { name: parts[0], price: parts[1] || '', stock: parts[2] || '', tag: parts[3] || '手作' };
+    }).filter(Boolean);
+    if (!rows.length) { toast('没有解析到商品，检查一下格式'); return; }
+    btn.disabled = true;
+    var i = 0, okN = 0, failN = 0;
+    var next = function () {
+      if (i >= rows.length) {
+        btn.disabled = false;
+        if (okN) document.getElementById('bulk-text').value = '';
+        toast('导入完成：成功 ' + okN + ' 个' + (failN ? '，失败 ' + failN + ' 个（保留在框里可重试）' : ''));
+        if (okN && typeof window.renderShopList === 'function') window.renderShopList();
+        return;
+      }
+      var r = rows[i];
+      btn.textContent = '导入中 ' + (i + 1) + '/' + rows.length + '…';
+      api('products', { method: 'POST', body: JSON.stringify({ name: r.name, price: r.price, stock: r.stock === '' ? 0 : r.stock, tag: r.tag, description: '' }) }).then(function (res) {
+        if (res.ok) { okN++; rememberTag(r.tag); } else failN++;
+        i++; next();
+      }).catch(function () { failN++; i++; next(); });
+    };
+    next();
+  });
+  document.getElementById('btn-toggle-newprod').addEventListener('click', function () { // 她 2026-10-25：新商品表单默认收起，点按钮再展开
+    var w = document.getElementById('newprod-wrap');
+    var open = w.style.display !== 'none';
+    w.style.display = open ? 'none' : '';
+    this.textContent = open ? '＋ 添加新商品' : '收起表单';
+  });
   document.getElementById('btn-add-product').addEventListener('click', function () {
     var btn = this;
     var name = document.getElementById('p-name').value.trim();
@@ -1198,33 +1854,46 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     btn.disabled = true; btn.textContent = '上架中…';
 
     uploadShopFiles(pendingFiles).then(function (urls) {
-      var body = { name: name, price: price, description: desc, tag: tag, image_url: urls[0] || null, stock: stock === '' ? 1 : parseInt(stock, 10), cost: cost === '' ? null : parseFloat(cost) };
+      var body = { name: name, price: price, description: desc, description_en: document.getElementById('p-desc-en').value.trim(), tag: tag, image_url: urls[0] || null, stock: stock === '' ? 1 : parseInt(stock, 10), cost: cost === '' ? null : parseFloat(cost), currency: pCur };
+      var av = window.smAddVarCollect ? window.smAddVarCollect() : []; // 上架时一并提交规格（她 2026-10-25 要求上架页也能加规格）
+      if (av.length) body.variants = av;
       if (urls.length > 1) body.images = urls; // 多图：images 列还没建时下面会自动降级为只存主图
-      return api('products', { method: 'POST', body: JSON.stringify(body) }).then(function (r) {
-        if (r.ok) return r;
-        if (body.images) {
-          delete body.images;
-          return api('products', { method: 'POST', body: JSON.stringify(body) }).then(function (r2) {
-            if (!r2.ok) throw new Error();
-            toast('多图列还没建，已先存主图；跑「小铺多图.sql」后重传即可');
-            return r2;
-          });
-        }
-        throw new Error();
-      });
+      var tryPost = function (b, triedCur) {
+        return api('products', { method: 'POST', body: JSON.stringify(b) }).then(function (r) {
+          if (r.ok) return r;
+          if (b.currency && !triedCur) { // currency 列还没建（未跑 SQL9）：去掉货币字段重试，价格照常入库
+            var b2 = Object.assign({}, b); delete b2.currency;
+            return tryPost(b2, true);
+          }
+          if (b.images) {
+            delete b.images;
+            return tryPost(b, true).then(function (r2) {
+              if (!r2.ok) throw new Error();
+              toast('多图列还没建，已先存主图；跑「小铺多图.sql」后重传即可');
+              return r2;
+            });
+          }
+          throw new Error();
+        });
+      };
+      return tryPost(body, false);
     }).then(function () {
       toast('上架成功！小铺页面已经能看到啦');
+      document.getElementById('newprod-wrap').style.display = 'none';
+      document.getElementById('btn-toggle-newprod').textContent = '＋ 添加新商品';
       document.getElementById('p-name').value = '';
       document.getElementById('p-price').value = '';
       document.getElementById('p-stock').value = '';
       document.getElementById('p-cost').value = '';
       document.getElementById('p-tag').value = '';
       document.getElementById('p-desc').value = '';
+      document.getElementById('p-desc-en').value = '';
       document.getElementById('p-file').value = '';
       pendingFiles = [];
       renderPendingPreview();
       document.getElementById('p-file-name').textContent = '未选择图片';
       rememberTag(tag); // 新标签存起来，下次直接选
+      if (window.smAddVarReset) window.smAddVarReset();
       loadProducts();
     }).catch(function () { toast('上架失败，重试一下'); })
       .finally(function () { btn.disabled = false; btn.textContent = '上架这个商品'; });
@@ -1285,12 +1954,14 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     }).catch(function () { toast('保存失败'); });
   });
   function loadProducts() {
-    var tryLoad = function (withImages) {
-      return api('products?select=id,name,price,description,tag,image_url' + (withImages ? ',images' : '') + ',sold,stock,cost,display_only,created_at&order=created_at.desc&limit=200')
+    var tryLoad = function (withImages, withCur) {
+      return api('products?select=id,name,price' + (withCur ? ',currency' : '') + ',description,tag,image_url' + (withImages ? ',images' : '') + ',sold,stock,cost,display_only,created_at&order=created_at.desc&limit=200')
         .then(function (r) { return r.json(); })
         .then(function (rows) { if (!Array.isArray(rows)) throw new Error(); return rows; });
     };
-    tryLoad(true).catch(function () { return tryLoad(false); })
+    // currency 列还没建（未跑 SQL9）时逐层降级：多图 → 单图 → 无货币列
+    tryLoad(true, true).catch(function () { return tryLoad(false, true); })
+      .catch(function () { return tryLoad(false, false); })
       .then(function (rows) {
         var list = document.getElementById('product-list');
         PRODUCT_CACHE = {};
@@ -1316,7 +1987,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
             '<div class="thumb">' + thumb + '</div>' +
             '<div class="info">' +
             '<h3>' + esc(p.name) + '<span class="sold-badge ' + st[1] + '">' + st[0] + '</span></h3>' +
-            '<p>' + esc(p.price ? '¥' + p.price + ' · ' : '') + esc(p.description || '') + '</p>' +
+            '<p>' + esc(p.price ? (p.currency === 'USD' ? '$' : '¥') + p.price + ' · ' : '') + esc(p.description || '') + '</p>' +
             '<div class="private-line">' + stockInfo + ' · ' + costInfo + '（成本只有你自己能看到）</div>' +
             '<div class="actions" style="justify-content:flex-start;">' +
             '<button class="btn-mini btn-display">' + (p.display_only ? '恢复在售' : '设为仅展示') + '</button>' +
@@ -1377,6 +2048,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       if (!p) return;
       var base0 = (Array.isArray(p.images) && p.images.length) ? p.images.filter(Boolean) : (p.image_url ? [p.image_url] : []);
       card.__imgItems = base0.map(function (u) { return { u: u }; }); // 全部图：第一张=封面，可拖动排序
+      card.__cur = (p.currency === 'CNY') ? 'CNY' : 'USD'; // 编辑中货币（无 currency 数据时默认美元：小铺统一 $）
       var thumbHtml = p.image_url ? '<img src="' + esc(p.image_url) + '">' : '';
       card.innerHTML =
         '<div class="thumb">' + thumbHtml + '</div>' +
@@ -1385,17 +2057,28 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         '<div class="edit-grid">' +
         '<input class="e-name" value="' + escAttr(p.name) + '" placeholder="商品名称">' +
         '<input class="e-price" value="' + escAttr(p.price) + '" placeholder="价格">' +
+        '<div style="grid-column:1/-1;" class="cur-row"><div class="cur-line"><span style="font-size:14px;color:var(--muted);">货币</span>' +
+          '<button type="button" class="cur-chip' + (card.__cur !== 'USD' ? ' on' : '') + '" data-cur="CNY">¥ 人民币</button>' +
+          '<button type="button" class="cur-chip' + (card.__cur === 'USD' ? ' on' : '') + '" data-cur="USD">$ 美元</button></div>' +
+          '<p class="cur-hint">规格价格跟商品同一货币</p></div>' +
         '<input class="e-tag" value="' + escAttr(p.tag) + '" placeholder="标签（点输入框可选已有标签）">' +
         '<input class="e-stock" type="number" min="0" value="' + (p.stock == null ? '' : p.stock) + '" placeholder="库存">' +
         '<input class="e-cost" type="number" step="0.01" value="' + (p.cost == null ? '' : p.cost) + '" placeholder="成本（仅自己可见）">' +
         '<div class="fld-inline" style="grid-column:1/-1;"><label class="btn-mini hm-file-btn">选择图片<input type="file" class="e-file" accept="image/*" multiple hidden></label><span class="hm-file-name e-file-name">未选择图片</span></div>' +
         '<textarea class="e-desc" placeholder="商品描述">' + esc(p.description) + '</textarea>' +
+        '<textarea class="e-desc-en" placeholder="英文描述 Description in English（切到 English 时显示，可留空）">' + esc(p.description_en || '') + '</textarea>' +
         '</div>' +
         '<div class="private-line">原图会保留；选了新图会自动替换</div>' +
         '<div class="actions" style="justify-content:flex-start;">' +
         '<button class="btn-save btn-save-edit">保存修改</button>' +
         '<button class="btn-mini btn-cancel-edit">取消</button>' +
         '</div></div>';
+      card.querySelectorAll('.cur-chip').forEach(function (chip) {
+        chip.addEventListener('click', function () {
+          card.__cur = chip.getAttribute('data-cur') || 'CNY';
+          card.querySelectorAll('.cur-chip').forEach(function (x) { x.classList.toggle('on', x === chip); });
+        });
+      });
       card.querySelector('.e-file').addEventListener('change', function () {
         var fs = Array.prototype.slice.call(this.files || []);
         if (!fs.length) return;
@@ -1416,17 +2099,23 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         tag: card.querySelector('.e-tag').value.trim(),
         stock: card.querySelector('.e-stock').value === '' ? null : parseInt(card.querySelector('.e-stock').value, 10),
         cost: card.querySelector('.e-cost').value === '' ? null : parseFloat(card.querySelector('.e-cost').value),
-        description: card.querySelector('.e-desc').value.trim()
+        description: card.querySelector('.e-desc').value.trim(),
+        description_en: (card.querySelector('.e-desc-en') || { value: '' }).value.trim(),
+        currency: card.__cur || 'CNY'
       };
       if (!body.name) { toast('名称不能为空'); return; }
       e.target.disabled = true; e.target.textContent = '保存中…';
       var items2 = Array.isArray(card.__imgItems) ? card.__imgItems : null;
-      var tryPatch = function (b) {
+      var tryPatch = function (b, triedCur) {
         return api('products?id=eq.' + id, { method: 'PATCH', body: JSON.stringify(b) }).then(function (r) {
           if (r.ok) return r;
+          if (b.currency && !triedCur) { // currency 列还没建：去掉货币字段重试，其余照常保存
+            var b2 = Object.assign({}, b); delete b2.currency;
+            return tryPatch(b2, true);
+          }
           if (b.images) { // images 列还没建：降级为只存主图
             delete b.images;
-            return tryPatch(b);
+            return tryPatch(b, true);
           }
           throw new Error();
         });
@@ -1460,7 +2149,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         .then(function () { toast(willHide ? '已下架（店里看不到了，随时能上架回来）' : '已重新上架'); loadProducts(); })
         .catch(function () { toast('操作失败，重试一下'); });
     }
-    if (e.target.classList.contains('btn-del')) {
+    if (e.target.classList.contains('btn-del-product')) { // 精确匹配：只认商品卡的删除按钮，不能让「删除此规格」（btn-del sm-var-del）冒泡误触（她 2026-10-25：删规格≠删商品）
       uiConfirm('确定删除这个商品吗？删了就找不回来了。想从店里拿掉的话，用「下架」就好。', function () {
         api('products?id=eq.' + id, { method: 'DELETE' })
           .then(function (r) { if (!r.ok) throw new Error(); toast('已删除'); loadProducts(); })
@@ -1490,7 +2179,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           '<div class="sc-card-img">' + (rv.image_url ? '<img src="' + escAttr(rv.image_url) + '" alt="返图">' : '<div class="sc-img-empty">没有返图</div>') + '</div>' +
           '<div class="sc-info">' +
           '<span class="sc-name">' + esc(rv.name || '小可爱') + '</span>' +
-          '<div class="sc-shop" style="color:var(--accent);letter-spacing:2px;">' + starsStr(rv.rating) + '</div>' +
+          '<div class="sc-shop" style="color:var(--text,#604C57);letter-spacing:2px;">' + starsStr(rv.rating) + '</div>' +
           '<div class="rv-text">' + esc(rv.content || '') + '</div>' +
           '<div class="sc-meta">' + fmtTime(rv.created_at) + '</div>' +
           '<div class="actions" style="justify-content:flex-start;margin-top:8px;"><button class="btn-del rv-del">删除</button></div>' +
@@ -1521,7 +2210,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     var s = SECTIONS.filter(function (x) { return x.key === key; })[0];
     return s ? s.name_zh : key;
   }
-  // 每分区「每行显示」（1..4）：存 site_settings.photo_grid（{ 分区key: N }），按分区独立保存
+  // 每分区「每行显示」（1..5）：存 site_settings.photo_grid（{ 分区key: N }），按分区独立保存
   function photoGridParse() {
     try { return JSON.parse(SETTINGS['photo_grid'] || '{}') || {}; } catch (e) { return {}; }
   }
@@ -1536,8 +2225,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     saveSetting('photo_grid', pg);
   }
   function prPickerHtml(val) {
-    val = val || 4;
-    return '<div class="pr-picker" data-value="' + val + '">' + [1, 2, 3, 4].map(function (n) {
+    val = val || 5;
+    return '<div class="pr-picker" data-value="' + val + '">' + [1, 2, 3, 4, 5].map(function (n) {
       var cells = '';
       for (var i = 0; i < n * 2; i++) cells += '<i></i>';
       return '<button type="button" class="pr-opt' + (n === val ? ' active' : '') + '" data-n="' + n + '">' +
@@ -1554,7 +2243,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   });
   (function initSecPr() {
     var el = document.getElementById('sec-pr');
-    if (el && !el.innerHTML) el.innerHTML = prPickerHtml(4); // 新增分区默认 4 个一排
+    if (el && !el.innerHTML) el.innerHTML = prPickerHtml(5); // 新增分区默认 5 个一排
   })();
 
   function loadSections(done) {
@@ -1731,11 +2420,11 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     return ({ '生日': 'birthday', '纪念日': 'anniversary', '重要日': 'event' }[s]) || s;
   }
   // 自动事件：从 BJD/色卡日期派生（与前台日历 genAutoEvents 同一链路：出生→买入→弄好；色卡 bought）
-  // 「前台展示」开关：统一存 site_settings.cal_hide，键 d:<id> 手动重要日子 / b:<i> BJD / c:<i> 色卡
+  // 「前台展示」开关键：bn:/cn: 按名字（排序/删除后不错位）；d:<id> 手动重要日子；旧 b:<i>/c:<i> 下标键仍兼容读取
   function calHideList() {
     try { var v = JSON.parse(SETTINGS['cal_hide'] || '[]'); return Array.isArray(v) ? v.filter(function (x) { return typeof x === 'string'; }) : []; } catch (e) { return []; }
   }
-  function calHidden(key) { return calHideList().indexOf(key) !== -1; }
+  function calHidden(key, oldKey) { var l = calHideList(); return l.indexOf(key) !== -1 || (oldKey ? l.indexOf(oldKey) !== -1 : false); }
   function setCalHidden(key, hidden) {
     var list = calHideList();
     var i = list.indexOf(key);
@@ -1745,12 +2434,12 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     saveSetting('cal_hide', list).then(function (r) { if (!r.ok) throw new Error(); toast(hidden ? '前台不展示了' : '前台会展示'); })
       .catch(function () { toast('保存失败，重试一下'); loadHome(); renderDays(); });
   }
-  function calTgl(key) {
-    return '<button type="button" class="tgl cal-toggle' + (calHidden(key) ? '' : ' on') + '" data-cal="' + escAttr(key) + '" aria-pressed="' + (!calHidden(key)) + '" aria-label="前台展示"><span class="tgl-knob"></span></button>';
+  function calTgl(key, oldKey) {
+    return '<button type="button" class="tgl cal-toggle' + (calHidden(key, oldKey) ? '' : ' on') + '" data-cal="' + escAttr(key) + '" aria-pressed="' + (!calHidden(key, oldKey)) + '" aria-label="前台展示"><span class="tgl-knob"></span></button>';
   }
   function autoDayRows() {
     var out = [];
-    var push = function (kind, i, name, day, label) { if (name && day) out.push({ kind: kind, i: i, key: kind + ':' + i, name: name, day: day, label: label }); };
+    var push = function (kind, i, name, day, label) { if (name && day) out.push({ kind: kind, i: i, key: kind + 'n:' + name, oldKey: kind + ':' + i, name: name, day: day, label: label }); };
     try { (JSON.parse(SETTINGS['bjds'] || '[]')).forEach(function (b, i) {
       var birth = b.birth || ''; var buy = (b.purchase && b.purchase.date) || ''; var done = (b.faceup && b.faceup.date) || '';
       if (birth) push('b', i, b.name, birth, '出生 → 自动生成生日 / 百天系列');
@@ -1765,17 +2454,17 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   function renderDays() {
     var box = document.getElementById('days-list');
     var autoRows = autoDayRows();
-    var autoHtml = autoRows.length ? '<div class="card" style="padding:12px 14px;margin-bottom:14px;"><b style="font-size:16px;">自动生成（来自 BJD / 色卡，前台日历已同步展示）</b>' +
-      autoRows.map(function (r) {
-        return '<div class="auto-row" data-cal="' + escAttr(r.key) + '" data-kind="' + r.kind + '" data-i="' + r.i + '" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:9px 0;border-top:1px solid var(--card-hover);margin-top:9px;">' +
-          '<div style="flex:1;min-width:150px;">' +
-          '<b style="font-size:17px;">' + esc(r.name) + '</b>' +
-          '<div style="font-size:15px;color:var(--muted);margin-top:2px;">' + toDispDayAdmin(r.day) + ' · ' + (r.kind === 'b' ? 'BJD' : '色卡') + ' · ' + r.label + '</div>' +
-          '</div>' +
-          '<span class="tgl-label">' + calTgl(r.key) + '前台展示</span>' +
-          '<button class="btn-mini cal-edit">编辑</button>' +
-          '</div>';
-      }).join('') + '<div style="font-size:14px;color:var(--muted);margin-top:10px;">日期跟着 BJD / 色卡档案走；点「编辑」会跳到对应档案里改；不想出现在日历就把右边的「前台展示」关掉</div></div>' : '';
+    var autoHtml = autoRows.map(function (r) {
+      // 展示方式与下面的自定义纪念日完全一致（同一套卡片行样式）；编辑跳到对应档案改日期
+      return '<div class="card day-item auto-row" data-cal="' + escAttr(r.key) + '" data-kind="' + r.kind + '" data-i="' + r.i + '" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 14px;margin-bottom:10px;">' +
+        '<div style="flex:1;min-width:150px;">' +
+        '<b style="font-size:17px;">' + esc(r.name) + '</b>' +
+        '<div style="font-size:15px;color:var(--muted);margin-top:2px;">' + toDispDayAdmin(r.day) + ' · ' + (r.kind === 'b' ? 'BJD' : '色卡') + ' · 每年重复</div>' +
+        '</div>' +
+        '<span class="tgl-label">' + calTgl(r.key, r.oldKey) + '前台展示</span>' +
+        '<button class="btn-mini cal-edit">编辑</button>' +
+        '</div>';
+    }).join('');
     box.innerHTML = autoHtml + DAYS.map(function (d) {
       if (d.id === DAY_EDIT) {
         return '<div class="card day-item editing" data-id="' + d.id + '" style="padding:12px 14px;margin-bottom:10px;">' +
@@ -1838,8 +2527,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     var req = DAYS_EDIT
       ? api('important_days?id=eq.' + DAYS_EDIT, { method: 'PATCH', body: JSON.stringify(v) })
       : api('important_days', { method: 'POST', body: JSON.stringify(v) });
-    req.then(function (r) { if (!r.ok) throw new Error(); toast('已保存'); DAYS_EDIT = null; setDayForm(null); loadDays(); })
-      .catch(function () { toast('保存失败'); });
+    req.then(function (r) { if (!r.ok) throw new Error(); toast('已保存，已从数据库重新读取'); DAYS_EDIT = null; setDayForm(null); loadDays(); })
+      .catch(function () { toast('保存失败：数据库没连上或权限不够，内容还在输入框里'); });
   });
   document.getElementById('days-list').addEventListener('change', function (e) {
     if (e.target.type !== 'radio') return;
@@ -1897,8 +2586,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       if (!v2.name || !v2.day) { toast('名称和日期都要填哦（日期格式 YYYY/MM/DD）'); return; }
       saveDayCatAdmin(v2.type);
       api('important_days?id=eq.' + id, { method: 'PATCH', body: JSON.stringify(v2) })
-        .then(function (r2) { if (!r2.ok) throw new Error(); toast('已保存'); DAY_EDIT = null; loadDays(); })
-        .catch(function () { toast('保存失败'); });
+        .then(function (r2) { if (!r2.ok) throw new Error(); toast('已保存，已从数据库重新读取'); DAY_EDIT = null; loadDays(); })
+        .catch(function () { toast('保存失败：数据库没连上或权限不够'); });
       return;
     }
     if (e.target.classList.contains('de-cancel')) {
@@ -2128,7 +2817,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           }).join('');
           var st = photoStyles()[p.id] || 'normal';
           var stName = (PH_STYLE_OPTS.filter(function (o) { return o[0] === st; })[0] || PH_STYLE_OPTS[0])[1];
-          var badges = (p.pinned ? '<span class="sold-badge" style="background:var(--accent);margin-left:0;">置顶</span>' : '') +
+          var badges = (p.pinned ? '<span class="sold-badge" style="background:var(--accent,#ffd9e6);margin-left:0;">置顶</span>' : '') +
             (p.home ? '<span class="sold-badge" style="background:#8fb8a0;' + (p.pinned ? '' : 'margin-left:0;') + '">主页展示</span>' : '');
           return '<div class="card photo-item' + (p.pinned ? ' pinned' : '') + '" data-id="' + p.id + '">' +
             '<button class="kebab ph-kebab" title="菜单">⋮</button>' +
@@ -2201,12 +2890,15 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   var LINK_ICONS = {
     gmail: '<svg viewBox="0 0 24 24" fill="none" stroke="#ea8c7b" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m2 7 10 6L22 7"/></svg>',
     instagram: '<svg viewBox="0 0 24 24" fill="none" stroke="#e073a8" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="#e073a8" stroke="none"/></svg>',
-    x: '<svg viewBox="0 0 24 24" fill="#d5d7de"><path d="M18.9 2H22l-6.8 7.8L23.2 22h-6.3l-4.9-6.4L6.4 22H3.3l7.3-8.3L1.2 2h6.4l4.4 5.9L18.9 2Zm-1.1 18h1.7L7 3.7H5.2L17.8 20Z"/></svg>',
+    x: '<svg viewBox="-2.5 -2.5 29 29" fill="var(--text,#604C57)"><path d="M18.9 2H22l-6.8 7.8L23.2 22h-6.3l-4.9-6.4L6.4 22H3.3l7.3-8.3L1.2 2h6.4l4.4 5.9L18.9 2Zm-1.1 18h1.7L7 3.7H5.2L17.8 20Z"/></svg>',
     discord: '<svg viewBox="0 0 24 24" fill="#5865f2"><path d="M20.32 4.37a19.8 19.8 0 0 0-4.89-1.52.07.07 0 0 0-.08.04c-.21.38-.44.87-.6 1.25a18.3 18.3 0 0 0-5.5 0 12.6 12.6 0 0 0-.61-1.25.08.08 0 0 0-.08-.04 19.7 19.7 0 0 0-4.88 1.52.07.07 0 0 0-.04.03C.53 9.05-.32 13.58.1 18.06a.08.08 0 0 0 .03.05 19.9 19.9 0 0 0 6 3.03.08.08 0 0 0 .08-.03c.46-.63.87-1.3 1.22-2a.08.08 0 0 0-.04-.11 13.1 13.1 0 0 1-1.87-.9.08.08 0 0 1-.01-.13c.13-.09.25-.19.37-.29a.07.07 0 0 1 .08 0 14.2 14.2 0 0 0 12.06 0 .07.07 0 0 1 .08 0c.12.1.25.2.38.29a.08.08 0 0 1-.01.13c-.6.35-1.22.64-1.87.9a.08.08 0 0 0-.04.11c.36.7.77 1.37 1.22 2a.08.08 0 0 0 .08.03 19.8 19.8 0 0 0 6.02-3.03.08.08 0 0 0 .03-.05c.5-5.18-.84-9.68-3.55-13.66a.06.06 0 0 0-.03-.03ZM8.02 15.33c-1.18 0-2.16-1.08-2.16-2.42 0-1.33.96-2.42 2.16-2.42 1.21 0 2.18 1.1 2.16 2.42 0 1.34-.96 2.42-2.16 2.42Zm7.97 0c-1.18 0-2.16-1.08-2.16-2.42 0-1.33.95-2.42 2.16-2.42 1.21 0 2.18 1.1 2.16 2.42 0 1.34-.95 2.42-2.16 2.42Z"/></svg>',
     wechat: '<svg viewBox="0 0 24 24" fill="#57bb6a"><path d="M9.3 4C5.3 4 2 6.7 2 10.1c0 1.9 1 3.5 2.7 4.7l-.7 2.1 2.4-1.2c.7.2 1.4.4 2.2.4h.4a5.5 5.5 0 0 1-.2-1.5c0-3.2 3-5.8 6.7-5.8h.4C15.3 6 12.6 4 9.3 4ZM7 7.4a.9.9 0 1 1 0 1.8.9.9 0 0 1 0-1.8Zm4.6 0a.9.9 0 1 1 0 1.8.9.9 0 0 1 0-1.8ZM15.5 10c-3.2 0-5.8 2.1-5.8 4.8 0 2.6 2.6 4.8 5.8 4.8.6 0 1.2-.1 1.8-.3l2 1-.6-1.7c1.4-.9 2.3-2.2 2.3-3.8 0-2.6-2.6-4.8-5.5-4.8Zm-2 2.3a.8.8 0 1 1 0 1.6.8.8 0 0 1 0-1.6Zm4 0a.8.8 0 1 1 0 1.6.8.8 0 0 1 0-1.6Z"/></svg>',
     xhs: '<svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="6" fill="#ff2442"/><text x="12" y="16.5" text-anchor="middle" font-size="11" font-weight="bold" fill="#ffffff">红</text></svg>',
-    netease: '<svg viewBox="0 0 24 24" fill="none" stroke="#e35d5d" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>',
-    link: '<svg viewBox="0 0 24 24" fill="none" stroke="#b9a7b3" stroke-width="2"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1.5 1.5"/><path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7L12.5 19"/></svg>'
+    netease: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#C20C0C"/><path fill="#ffffff" d="M9.4 16.6a2.2 2.2 0 1 1-1.5-2.1V8.4l7.6-2v7.2a2.2 2.2 0 1 1-1.5-2.1V8.1l-4.6 1.2v7.3Z"/></svg>',
+    douyin: '<svg viewBox="0 0 24 24" fill="#5ad7d0"><path d="M16.6 3c.4 2.3 1.9 3.8 4.4 4v3c-1.7 0-3.2-.5-4.4-1.4v6.6c0 3.5-2.6 5.8-5.9 5.8-3.1 0-5.7-2.4-5.7-5.6 0-3.3 2.9-5.8 6.3-5.4v3.1c-1.7-.5-3.2.5-3.2 2.2 0 1.5 1.2 2.6 2.6 2.6 1.6 0 2.8-1.1 2.8-3.2V3h3.1Z"/></svg>',
+    tiktok: '<svg viewBox="0 0 24 24" fill="#1c1c1e"><path d="M16.6 3c.4 2.3 1.9 3.8 4.4 4v3c-1.7 0-3.2-.5-4.4-1.4v6.6c0 3.5-2.6 5.8-5.9 5.8-3.1 0-5.7-2.4-5.7-5.6 0-3.3 2.9-5.8 6.3-5.4v3.1c-1.7-.5-3.2.5-3.2 2.2 0 1.5 1.2 2.6 2.6 2.6 1.6 0 2.8-1.1 2.8-3.2V3h3.1Z"/></svg>',
+    youtube: '<svg viewBox="0 0 24 24" fill="#ff0000"><path d="M23 12s0-3.8-.5-5.6c-.3-1-1-1.7-2-2C18.7 4 12 4 12 4s-6.7 0-8.5.4c-1 .3-1.7 1-2 2C1 8.2 1 12 1 12s0 3.8.5 5.6c.3 1 1 1.7 2 2 1.8.4 8.5.4 8.5.4s6.7 0 8.5-.4c1-.3 1.7-1 2-2 .5-1.8.5-5.6.5-5.6ZM9.8 15.5v-7l6.2 3.5-6.2 3.5Z"/></svg>',
+    link: '<svg viewBox="0 0 24 24" fill="none" stroke="var(--muted,#A88E9B)" stroke-width="2"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1.5 1.5"/><path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7L12.5 19"/></svg>'
   };
   var SETTINGS = {};
   var LINKS = [];
@@ -2215,16 +2907,25 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     { key: 'cards', title_zh: '色卡展示', title_en: 'Color Cards' },
     { key: 'works', title_zh: '稿件展示', title_en: 'Works' },
     { key: 'shop', title_zh: '我的小铺', title_en: 'My Shop' },
-    { key: 'anon', title_zh: '匿名提问箱', title_en: 'Ask Box' },
     { key: 'links', title_zh: '找到我', title_en: 'Find Me' }
   ];
-  var AREA_CANON = { gallery: 0, cards: 1, works: 2, shop: 3, anon: 4, links: 5 };
+  // （key 'anon' 已移除：主页不再有提问箱区块，留言功能移至 /askbox/ 联系我们页）
+  var AREA_CANON = { gallery: 0, cards: 1, works: 2, shop: 3, links: 4 };
   var AREAS = [];
   var AREA_EDIT = -1; // 当前编辑中的区域（-1 = 都是展示态）
   function parseSetting(key, fallback) {
     try { var v = JSON.parse(SETTINGS[key] || 'null'); return v == null ? fallback : v; } catch (e) { return fallback; }
   }
   function saveSetting(key, obj) {
+    // 柚子专属数据源同步（yuki_exclusive 表；失败不影响主保存，仅提示）
+    if (key === 'bjds' || key === 'cards' || key === 'works') {
+      api('yuki_exclusive', {
+        method: 'POST',
+        headers: { 'Prefer': 'resolution=merge-duplicates' },
+        body: JSON.stringify({ kind: key, payload: obj })
+      }).then(function (r) { if (!r.ok) toast('专属数据源未同步（需要跑 SQL2）'); })
+        .catch(function () { toast('专属数据源未同步（需要跑 SQL2）'); });
+    }
     return api('site_settings', {
       method: 'POST',
       headers: { 'Prefer': 'resolution=merge-duplicates' },
@@ -2237,6 +2938,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       .then(function (rows) {
         SETTINGS = {};
         (rows || []).forEach(function (r) { SETTINGS[r.key] = r.value; });
+        var dt = document.getElementById('tab-days'); if (dt && dt.style.display !== 'none') renderDays(); // 修复：进重要日子页时设置还没加载完，自动列表不显示；设置到位后立即补渲染
         var hero = parseSetting('hero', {});
         ['name', 'line1', 'line2', 'name_en', 'line1_en', 'line2_en'].forEach(function (k) { // 永远回填全部六项（空也回填，避免残留旧值）
           var el = document.getElementById('hm-' + k.replace('_', '-'));
@@ -2426,7 +3128,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           '<div style="flex:1;min-width:0;">' +
           '<div style="font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(a.title_zh || '未命名区域') +
           (a.title_en ? ' <span style="color:var(--muted);font-size:15px;">' + esc(a.title_en) + '</span>' : '') +
-          (isTpl ? '<span style="display:inline-block;font-size:14px;color:#fff;background:var(--accent-soft);border-radius:8px;padding:1px 8px;margin-left:6px;vertical-align:1px;">模板</span>' : '') + '</div>' +
+          (isTpl ? '<span style="display:inline-block;font-size:14px;color:var(--text,#604C57);background:var(--accent-soft);border-radius:8px;padding:1px 8px;margin-left:6px;vertical-align:1px;">模板</span>' : '') + '</div>' +
           (custom && (a.content_zh || a.content_en) ? '<div style="font-size:15px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(a.content_zh || a.content_en) + '</div>' : '') +
           '</div>' +
           '<button type="button" class="area-kebab" title="菜单">⋮</button>' +
@@ -2739,7 +3441,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       var isC = idx === 0 && !!cover;
       return '<div class="ph-tile' + (isC ? ' ph-cover' : '') + '" draggable="true" data-idx="' + idx + '" title="拖动可调整顺序" style="width:64px;height:64px;border-radius:10px;overflow:hidden;position:relative;background:var(--card);flex-shrink:0;cursor:grab;">' +
         '<img src="' + escAttr(u) + '" style="width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;">' +
-        (isC ? '<span style="position:absolute;left:3px;bottom:3px;background:var(--accent);color:#fff;border-radius:999px;padding:0 7px;font-size:11px;line-height:16px;">封面</span>'
+        (isC ? '<span style="position:absolute;left:3px;bottom:3px;background:var(--accent-strong,#A04A68);color:#fff;border-radius:999px;padding:0 7px;font-size:11px;line-height:16px;">封面</span>'
              : '<button type="button" class="kebab ' + cls + '" data-pi="' + (idx - (cover ? 1 : 0)) + '" title="菜单" style="position:absolute;top:3px;right:3px;width:20px;height:20px;font-size:14px;">⋮</button>') +
         '</div>';
     }).join('') + '</div>';
@@ -3049,16 +3751,16 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           '<div class="sc-shop">' + esc(c.shop || '') + '</div>' +
           '<div class="sc-meta">画师 ' + c.artists.length + ' 位 · 共 ' + cardCount(c) + ' 张</div>' +
           '<div class="tgl-label" style="margin-top:7px;"><button type="button" class="tgl c-home-toggle' + (c.homeShow !== false ? ' on' : '') + '" aria-pressed="' + (c.homeShow !== false) + '" aria-label="主页展示"><span class="tgl-knob"></span></button>主页展示</div>' +
-          (c.origPrice ? '<div class="sc-bd-line">收卡价格 <b>¥' + fmtMoney(c.origPrice) + '</b></div>' : '') +
+          (c.origPrice ? '<div class="sc-bd-line">收卡价格 <b style="color:var(--price,#ff6fa5);">¥' + fmtMoney(c.origPrice) + '</b></div>' : '') +
           '<div class="sc-bd">' +
           c.artists.map(function (a, ai) {
             a = normArtist(a);
             var bdRows = a.rows.filter(function (r) { return r.label || (r.price != null && r.price !== ''); });
             return '<div class="sc-bd-a"><b>' + esc(a.name || ('画师 ' + (ai + 1))) + '</b>' +
               (bdRows.length ? bdRows.map(function (r) { return '<span>' + esc(r.label || '项目') + ' ¥' + fmtMoney(r.price) + '×' + (parseInt(r.qty, 10) || 0) + ' = ¥' + fmtMoney(rowTotal(r)) + '</span>'; }).join('') : '<span>暂无项目</span>') +
-              '<i>小计 ¥' + fmtMoney(artistSub(a)) + '</i></div>';
+              '<i>小计 <span style="color:var(--price,#ff6fa5);">¥' + fmtMoney(artistSub(a)) + '</span>' + '</i></div>';
           }).join('') +
-          '<div class="sc-bd-final">色卡总价 <b>¥' + fmtMoney(cardFinal(c)) + '</b></div>' +
+          '<div class="sc-bd-final">色卡总价 <b style="color:var(--price,#ff6fa5);">¥' + fmtMoney(cardFinal(c)) + '</b></div>' +
           '</div>' +
           '</div>' +
           '</div>';
@@ -3087,7 +3789,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           '<button class="btn-mini sc-add-row">+ 添加项目</button>' +
           '</div>' +
           '<div class="a-stats" style="margin-top:6px;font-size:15px;color:var(--muted);">张数统计（自动）：' + labelAgg(a) + ' · 共 ' + artistCount(a) + ' 张</div>' +
-          '<div class="a-sub" style="margin-top:2px;font-size:15px;color:var(--muted);">画师 ' + (ai + 1) + ' 小计：<b class="a-sub-v" style="color:var(--accent);">¥' + fmtMoney(artistSub(a)) + '</b></div>' +
+          '<div class="a-sub" style="margin-top:2px;font-size:15px;color:var(--muted);">画师 ' + (ai + 1) + ' 小计：<b class="a-sub-v" style="color:var(--price,#ff6fa5);">¥' + fmtMoney(artistSub(a)) + '</b></div>' +
           '</div>';
       }).join('');
       return '<div class="card sc-artist editing" data-i="' + i + '" style="position:relative;">' +
@@ -3101,6 +3803,11 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         (c.image ? '<img src="' + escAttr(c.image) + '" style="width:44px;height:44px;object-fit:cover;border-radius:8px;flex-shrink:0;">' : '') +
         '<label class="btn-mini hm-file-btn">上传图片<input type="file" class="sc-photos" accept="image/*" multiple hidden></label>' +
         '</div>' +
+        '<div style="margin-top:12px;">' +
+          '<div style="font-size:16px;font-weight:600;">日历事项 <span style="font-size:14px;color:var(--muted);font-weight:400;">（可选：如入手纪念日，保存后是独立日历记录）</span></div>' +
+          '<div class="c-cal-list">' + (c.cal_events || []).map(calRowHtml).join('') + '</div>' +
+          '<button type="button" class="btn-mini c-cal-add" style="margin-top:6px;">＋ 添加日历事项</button>' +
+        '</div>' +
         photoStrip(c.image, c.photos, 'c-photo-kebab', 'card', i) +
         '<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:16px;">' +
         '<label style="display:flex;align-items:center;gap:6px;flex-shrink:0;">购入日期<input type="text" class="c-bought date-pick" readonly value="' + escAttr(c.bought || '') + '" placeholder="选择日期" style="width:100px;padding:7px 10px;font-size:16px;cursor:pointer;"></label>' +
@@ -3110,7 +3817,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         '<span style="color:var(--muted);font-size:15px;">保存时自动更新</span>' +
         '</div>' +
         '<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:17px;">' +
-        '<span>色卡总价 <b class="sc-card-total" style="color:var(--accent);font-size:19px;">¥' + fmtMoney(cardFinal(c)) + '</b></span>' +
+        '<span>色卡总价 <b class="sc-card-total" style="color:var(--price,#ff6fa5);font-size:19px;">¥' + fmtMoney(cardFinal(c)) + '</b></span>' +
         '<span style="color:var(--muted);">总张数 <b class="sc-card-count">' + cardCount(c) + '</b> 张</span>' +
         '</div>' +
         '<div class="sc-artists" style="margin-top:4px;">' + blocks + '</div>' +
@@ -3133,7 +3840,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     var sum = 0;
     CARDS.forEach(function (c) { sum += cardFinal(normCard(c)); });
     var el = document.getElementById('sc-total');
-    el.textContent = CARDS.length ? '总额：' + fmtMoney(sum) : '';
+    el.innerHTML = CARDS.length ? '总额：<span style="color:var(--price,#ff6fa5);">' + fmtMoney(sum) + '</span>' : '';
   }
   function saveCardsQuiet(done, keepArchive) {
     if (CARDS_EDIT >= 0 && CARDS[CARDS_EDIT]) CARDS[CARDS_EDIT].lastRec = todayStr(); // 最后一次记录色卡日期：保存时自动当天
@@ -3141,6 +3848,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       if (!r.ok) throw new Error();
       if (!keepArchive) CARDS_SAVED = JSON.parse(JSON.stringify(CARDS)); // 点「保存」才更新画师价格档案；自动保存不更新
       if (done) done(); else toast('已保存');
+      syncCalEvents('cards', CARDS, function () { saveSetting('cards', JSON.parse(JSON.stringify(CARDS))).catch(function () {}); }); // 回写 _dbid
     }).catch(function () { toast('保存失败'); });
   }
   function toolbarSave(kind) { // kind：'bjd' / 'cards'；不给就按当前在编辑的东西，没在编辑就两个都存
@@ -3686,12 +4394,20 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       if (opt === 'up' && ctx.i > 0) { var u = BJDS[ctx.i - 1]; BJDS[ctx.i - 1] = BJDS[ctx.i]; BJDS[ctx.i] = u; if (BJDS_EDIT === ctx.i) BJDS_EDIT = ctx.i - 1; else if (BJDS_EDIT === ctx.i - 1) BJDS_EDIT = ctx.i; }
       if (opt === 'down' && ctx.i < BJDS.length - 1) { var dn = BJDS[ctx.i + 1]; BJDS[ctx.i + 1] = BJDS[ctx.i]; BJDS[ctx.i] = dn; if (BJDS_EDIT === ctx.i) BJDS_EDIT = ctx.i + 1; else if (BJDS_EDIT === ctx.i + 1) BJDS_EDIT = ctx.i; }
       if (opt === 'del') {
-        uiConfirm('确定删除这个娃娃档案吗？', function () {
+        var evCount = ((BJDS[ctx.i] || {}).cal_events || []).filter(function (ce) { return ce._dbid; }).length;
+        var doDelBjd = function (alsoDel) {
+          if (alsoDel) {
+            (BJDS[ctx.i].cal_events || []).forEach(function (ce) {
+              if (ce._dbid) api('important_days?id=eq.' + ce._dbid, { method: 'DELETE' }).catch(function () {});
+            });
+          }
           BJDS.splice(ctx.i, 1);
           if (BJDS_EDIT === ctx.i) BJDS_EDIT = -1; else if (BJDS_EDIT > ctx.i) BJDS_EDIT -= 1;
           saveBjdsQuiet();
           renderBjds();
-        });
+        };
+        if (evCount) uiConfirm('这个娃娃带着 ' + evCount + ' 条日历事项。「确定」= 事项一起删掉；「取消」= 保留事项只删娃娃。', function (withEvents) { doDelBjd(withEvents); });
+        else uiConfirm('确定删除这个娃娃档案吗？', function () { doDelBjd(false); });
       }
       if (opt === 'collapse') BJDS_EDIT = -1;
       saveBjdsQuiet();
@@ -4049,6 +4765,11 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         '<label class="btn-mini hm-file-btn">上传图片<input type="file" class="b-photos" accept="image/*" multiple hidden></label>' +
         '</div>' +
         photoStrip(b.image, b.photos, 'b-photo-kebab', 'bjd', i) +
+        '<div style="margin-top:12px;">' +
+          '<div style="font-size:16px;font-weight:600;">日历事项 <span style="font-size:14px;color:var(--muted);font-weight:400;">（可选：标题和日期自己写，保存后是独立日历记录，可单独改/删）</span></div>' +
+          '<div class="b-cal-list">' + (b.cal_events || []).map(calRowHtml).join('') + '</div>' +
+          '<button type="button" class="btn-mini b-cal-add" style="margin-top:6px;">＋ 添加日历事项</button>' +
+        '</div>' +
         '<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:12px;">' +
         bjdField('尺寸 / 种类', '<select class="b-head-size">' + opts(BJD_SIZES, b.head.size) + '</select>') +
         '</div>' +
@@ -4104,11 +4825,77 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     enhanceSelects();
     syncToolbarSaveLabel();
   }
+  // ===== BJD/色卡 → 日历事项联动（独立 important_days 记录，_dbid 存在商品数据里做关联） =====
+  function calRowHtml(ce) {
+    ce = ce || {};
+    return '<div class="cal-row" data-eid="' + escAttr(ce.eid || '') + '" data-dbid="' + escAttr(ce._dbid || '') + '" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px;background:var(--card);border-radius:10px;padding:6px 8px;">' +
+      '<input class="cal-name" placeholder="事项名称（自己写，如：到家纪念日）" value="' + escAttr(ce.name || '') + '" style="width:190px;">' +
+      '<input class="cal-day" type="date" value="' + escAttr(ce.day || '') + '" style="width:150px;">' +
+      '<input class="cal-cat" placeholder="分类，如：纪念日" value="' + escAttr(ce.type || '') + '" style="width:120px;">' +
+      '<span class="tgl-label" style="font-size:15px;"><button type="button" class="tgl cal-repeat' + (ce.repeat !== 'none' ? ' on' : '') + '" aria-pressed="' + (ce.repeat !== 'none') + '"><span class="tgl-knob"></span></button>每年</span>' +
+      '<button type="button" class="btn-del cal-row-del">删除</button>' +
+      '</div>';
+  }
+  function collectCalRows(card, listSel) {
+    var box = card.querySelector(listSel);
+    if (!box) return [];
+    return Array.prototype.map.call(box.querySelectorAll('.cal-row'), function (row) {
+      return { eid: row.getAttribute('data-eid') || '', _dbid: row.getAttribute('data-dbid') || '',
+        name: row.querySelector('.cal-name').value.trim(), day: row.querySelector('.cal-day').value,
+        type: row.querySelector('.cal-cat').value.trim(),
+        repeat: row.querySelector('.cal-repeat').classList.contains('on') ? 'yearly' : 'none' };
+    });
+  }
+  var CAL_SYNCING = false;
+  function syncCalEvents(kind, list, afterSaved) {
+    if (CAL_SYNCING) return Promise.resolve();
+    var targets = [];
+    (list || []).forEach(function (item, idx) {
+      (item.cal_events || []).forEach(function (ce) {
+        if (ce.name && ce.day) targets.push({ ce: ce, idx: idx, name: item.name || '' });
+      });
+    });
+    if (!targets.length) return Promise.resolve();
+    CAL_SYNCING = true;
+    var changed = false;
+    var chain = Promise.resolve();
+    targets.forEach(function (t) {
+      chain = chain.then(function () {
+        var body = { name: t.ce.name, day: t.ce.day, type: t.ce.type || '纪念日', repeat: t.ce.repeat || 'yearly' };
+        var p;
+        if (t.ce._dbid) {
+          p = api('important_days?id=eq.' + t.ce._dbid, { method: 'PATCH', body: JSON.stringify(body) }).then(function (r) {
+            if (!r.ok) toast('日历事项「' + t.ce.name + '」保存失败：数据库没连上或权限不够');
+          });
+        } else {
+          p = api('important_days', { method: 'POST', headers: { 'Prefer': 'return=representation' }, body: JSON.stringify(body) })
+            .then(function (r) { return r.json ? r.json().catch(function () { return null; }) : null; })
+            .then(function (rows) {
+              if (Array.isArray(rows) && rows[0] && rows[0].id) { t.ce._dbid = rows[0].id; changed = true; return; }
+              // representation 没拿回 id：按 名称+日期 回读，拿不到就明确提示，不静默假成功
+              return api('important_days?select=id,name,day&name=eq.' + encodeURIComponent(t.ce.name) + '&day=eq.' + encodeURIComponent(t.ce.day) + '&order=id.desc&limit=1')
+                .then(function (r2) { return r2.json(); })
+                .then(function (back) {
+                  if (Array.isArray(back) && back[0] && back[0].id) { t.ce._dbid = back[0].id; changed = true; }
+                  else toast('日历事项「' + t.ce.name + '」可能没存上，请到「重要日子」页检查');
+                }).catch(function () { toast('日历事项「' + t.ce.name + '」保存状态未知，请到「重要日子」页检查'); });
+            }).catch(function () { toast('日历事项「' + t.ce.name + '」保存失败：数据库没连上或权限不够'); });
+        }
+        return p.catch(function () {});
+      });
+    });
+    return chain.then(function () {
+      CAL_SYNCING = false;
+      if (changed && afterSaved) afterSaved(); // 把拿回的 _dbid 存回商品数据
+    }).catch(function () { CAL_SYNCING = false; });
+  }
+
   function saveBjdsQuiet(done) {
     saveSetting('bjds', JSON.parse(JSON.stringify(BJDS))).then(function (r) {
       if (!r.ok) throw new Error();
       BJDS_SAVED = JSON.parse(JSON.stringify(BJDS));
       if (done) done();
+      syncCalEvents('bjd', BJDS, function () { saveSetting('bjds', JSON.parse(JSON.stringify(BJDS))).catch(function () {}); }); // 回写 _dbid
     }).catch(function () { toast('保存失败'); });
   }
   var bjdSaveTimer = null;
@@ -4350,7 +5137,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           '<div class="sc-info">' +
           '<b class="sc-name">' + esc(w.name || '未命名稿件') + '</b>' +
           '<div class="sc-shop">' + [w.cat, w.artist].filter(Boolean).map(esc).join(' · ') + '</div>' +
-          '<div class="sc-shop">' + esc(w.date || '') + (parseFloat(w.price) ? ' · ¥' + fmtMoney(w.price) : '') + '</div>' +
+          '<div class="sc-shop">' + esc(w.date || '') + (parseFloat(w.price) ? ' · <span style="color:var(--price,#ff6fa5);">¥' + fmtMoney(w.price) + '</span>' : '') + '</div>' +
           '<span class="tgl-label" style="margin-top:7px;"><button type="button" class="tgl w-vis-toggle' + (w.visible !== false ? ' on' : '') + '" aria-pressed="' + (w.visible !== false) + '" aria-label="展示中"><span class="tgl-knob"></span></button>展示中</span>' +
           '</div>' +
           '</div>';
@@ -4509,6 +5296,37 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     if (i !== BJDS_EDIT && e.target.closest('.sc-name')) {
       window.open('/bjd/?id=' + i, '_blank'); return; // 点娃娃名 → 打开前台检视页
     }
+    if (e.target.classList.contains('b-cal-add')) { // 添加一条日历事项
+      var b0 = normBjd(BJDS[i]);
+      b0.cal_events = (b0.cal_events || []).concat([{ eid: 'e' + Date.now() + Math.floor(Math.random() * 1000), name: '', day: '', type: '', repeat: 'yearly' }]);
+      BJDS[i] = b0;
+      renderBjds();
+      return;
+    }
+    if (e.target.classList.contains('cal-row-del')) { // 删除一条（已落库的连日历记录一起删）
+      var calRow = e.target.closest('.cal-row');
+      var calDbid = calRow ? calRow.getAttribute('data-dbid') : '';
+      var doCalRemove = function () {
+        var b1 = normBjd(BJDS[i]);
+        b1.cal_events = collectCalRows(card, '.b-cal-list').filter(function (ce) { return ce.eid !== (calRow ? calRow.getAttribute('data-eid') : ''); });
+        BJDS[i] = b1;
+        scheduleBjdSave();
+        renderBjds();
+      };
+      if (calDbid) {
+        uiConfirm('同时删除日历里的这条事项？', function () {
+          api('important_days?id=eq.' + calDbid, { method: 'DELETE' }).catch(function () {});
+          doCalRemove();
+        });
+      } else doCalRemove();
+      return;
+    }
+    if (e.target.classList.contains('cal-repeat')) { // 每年开关拨动后回存
+      var b2 = normBjd(BJDS[i]);
+      b2.cal_events = collectCalRows(card, '.b-cal-list');
+      BJDS[i] = b2;
+      scheduleBjdSave();
+    }
     if (SC_POP) { popClose(); return; }
   });
   document.getElementById('bjd-list').addEventListener('input', function (e) {
@@ -4533,6 +5351,10 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           if (ti) { ti.value = String(parseFloat(t.toFixed(2))); b.price.total = ti.value; }
         }
       }
+      scheduleBjdSave();
+    }
+    if (/^cal-/.test(e.target.className)) { // 日历事项行内编辑
+      b.cal_events = collectCalRows(card, '.b-cal-list');
       scheduleBjdSave();
     }
   });
@@ -4604,7 +5426,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       card.innerHTML =
         '<div class="edit-grid">' +
         '<select data-f="icon">' +
-        ['gmail','instagram','x','discord','wechat','xhs','netease','link'].map(function (k) {
+        ['gmail','instagram','x','discord','wechat','xhs','netease','douyin','tiktok','youtube','link'].map(function (k) {
           return '<option value="' + k + '"' + (l.icon === k ? ' selected' : '') + '>' + k + '</option>';
         }).join('') +
         '</select>' +
@@ -4653,14 +5475,15 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
 </script>
 
 <script>
-/* ═══ AI 对话（测试版：模拟数据 + 主页本地记录 + 知识库，未接数据库）═══ */
+/* ═══ AI 对话（数据库版：知识库存 ai_kb 表、对话副本存 ai_chat_msgs；版本更新/换浏览器不丢。
+    未跑 SQL10 或断网时退回本地旧数据并明确提示。模拟数据只作「示例」徽章展示，不冒充真实）═══ */
 (function () {
   var DAY = 86400000;
   var FALLBACK = '我现在还是测试版本，暂时只回答少量网站相关问题。';
   var PAGE_SIZE = 10, KB_PAGE_SIZE = 5;
   var ST_KEY = 'yuki-ai-admin-state';
 
-  // ── 模拟会话（待补充 = AI 回了兜底文案的提问）──
+  // ── 模拟会话（示例数据，带「示例」徽章，不冒充真实对话）──
   var now = Date.now();
   var MOCK = [
     { id: 'm1', time: now - 2 * 3600000, msgs: [
@@ -4675,7 +5498,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     ]},
     { id: 'm3', time: now - 26 * 3600000, msgs: [
       { role: 'user', text: '这个网站是做什么的呀', time: now - 26 * 3600000 },
-      { role: 'ai', text: '这是柚子的个人小世界：有照片墙、BJD 档案、色卡展示、小铺和匿名提问箱，欢迎随便逛逛。', time: now - 26 * 3600000 + 4000 },
+      { role: 'ai', text: '这是柚子的个人小世界：有照片墙、BJD 档案、色卡展示、小铺和联系我们页（留言与咨询），欢迎随便逛逛。', time: now - 26 * 3600000 + 4000 },
       { role: 'user', text: '色卡可以定制吗', time: now - 26 * 3600000 + 30000 },
       { role: 'ai', text: FALLBACK, time: now - 26 * 3600000 + 34000 }
     ]},
@@ -4695,7 +5518,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     ]},
     { id: 'm7', time: now - 20 * DAY, msgs: [
       { role: 'user', text: '网站功能有哪些', time: now - 20 * DAY },
-      { role: 'ai', text: '现在网站有这些功能：主页（含日历和重要日子）、照片墙、BJD 档案、色卡展示、小铺、匿名提问箱，还有中英文切换。', time: now - 20 * DAY + 5000 }
+      { role: 'ai', text: '现在网站有这些功能：主页（含日历和重要日子）、照片墙、BJD 档案、色卡展示、小铺、联系我们页（可以留言咨询），还有中英文切换。', time: now - 20 * DAY + 5000 }
     ]},
     { id: 'm8', time: now - 45 * DAY, msgs: [
       { role: 'user', text: '你好', time: now - 45 * DAY },
@@ -4703,39 +5526,122 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     ]}
   ];
 
-  // ── 主页真实会话（localStorage，含标准回复命中记录）──
+  // ── 主页真实会话：从 ai_chat_msgs 表聚合（真实访客提问）；未建表/失败退回本机旧记录 ──
   var LIVE = [];
-  try {
-    LIVE = (JSON.parse(localStorage.getItem('yuki-ai-log') || '[]') || [])
-      .filter(function (s) { return s && s.msgs && s.msgs.length; })
-      .map(function (s, i) {
-        return { id: 'live-' + i + '-' + s.start, time: s.start, live: true, msgs: s.msgs.map(function (m) {
-          return { role: m.role === 'me' ? 'user' : 'ai', text: m.text, time: m.time };
-        }) };
-      });
-  } catch (e) {}
+  function localLive() {
+    try {
+      return (JSON.parse(localStorage.getItem('yuki-ai-log') || '[]') || [])
+        .filter(function (s) { return s && s.msgs && s.msgs.length; })
+        .map(function (s, i) {
+          return { id: 'live-' + i + '-' + s.start, time: s.start, live: true, msgs: s.msgs.map(function (m) {
+            return { role: m.role === 'me' ? 'user' : 'ai', text: m.text, time: m.time };
+          }) };
+        });
+    } catch (e) { return []; }
+  }
+  function loadSessions() {
+    return api('ai_chat_msgs?select=session_key,role,text,created_at&order=id.asc&limit=500')
+      .then(function (r) { return r.json(); })
+      .then(function (rows) {
+        if (!Array.isArray(rows)) throw new Error('bad');
+        var byK = {};
+        rows.forEach(function (m) {
+          var arr = byK[m.session_key] = byK[m.session_key] || [];
+          arr.push({ role: m.role, text: m.text, time: new Date(m.created_at).getTime() });
+        });
+        LIVE = Object.keys(byK).map(function (k) {
+          return { id: 'live-' + k, time: byK[k][0].time, live: true, msgs: byK[k] };
+        }).filter(function (s) { return s.msgs.length; });
+      })
+      .catch(function () { LIVE = localLive(); });
+  }
 
+  MOCK.forEach(function (m) { m.demo = true; });
   var SESSIONS = LIVE.concat(MOCK).sort(function (a, b) { return b.time - a.time; });
 
-  // ── 知识库 ──
-  function kbAll() {
+  // ── 知识库（数据库 ai_kb 表；uses 从 ai_kb_uses 日志聚合；未建表/失败退回本地旧数据并提示）──
+  var KB = [];
+  var KB_DB_OK = false;
+  function localKb() {
     try { return JSON.parse(localStorage.getItem('yuki-ai-kb') || '[]') || []; } catch (e) { return []; }
   }
-  function kbSave(kb) {
-    try { localStorage.setItem('yuki-ai-kb', JSON.stringify(kb)); } catch (e) {}
+  function loadKb() {
+    return api('ai_kb?select=id,q,a,created_at&order=id.desc&limit=200')
+      .then(function (r) { return r.json(); })
+      .then(function (rows) {
+        if (!Array.isArray(rows)) throw new Error('bad');
+        var ids = rows.map(function (x) { return x.id; });
+        var usesP = ids.length
+          ? api('ai_kb_uses?select=kb_id&kb_id=in.(' + ids.join(',') + ')').then(function (r2) { return r2.json(); }).catch(function () { return []; })
+          : Promise.resolve([]);
+        return usesP.then(function (usesRows) {
+          var cnt = {};
+          (Array.isArray(usesRows) ? usesRows : []).forEach(function (u) { cnt[u.kb_id] = (cnt[u.kb_id] || 0) + 1; });
+          KB = rows.map(function (x) {
+            return { id: 'kb-' + x.id, dbId: x.id, q: x.q, a: x.a, createdAt: new Date(x.created_at).getTime(), uses: cnt[x.id] || 0 };
+          });
+          KB_DB_OK = true;
+        });
+      })
+      .catch(function () {
+        KB = localKb();
+        KB_DB_OK = false;
+      });
   }
-  function kbAdd(q, a) {
-    var kb = kbAll();
-    kb.push({ id: 'kb-' + Date.now(), q: q, a: a, uses: 0, createdAt: Date.now() });
-    kbSave(kb);
+  function kbAll() { return KB; }
+  function kbAdd(q, a, done) {
+    if (!KB_DB_OK) { toast('数据库没连上（SQL10 还没跑或网络问题），先不要保存'); done && done(false); return; }
+    api('ai_kb', { method: 'POST', body: JSON.stringify({ q: q, a: a }) }).then(function (r) {
+      if (!r.ok) { toast('保存失败：数据库没连上或权限不够，内容还在输入框里'); done && done(false); return; }
+      toast('已保存，以后遇到类似问题 AI 会用这条回复');
+      loadKb().then(function () { done && done(true); });
+    }).catch(function () { toast('保存失败：数据库没连上'); done && done(false); });
   }
-  function kbUpdate(id, q, a) {
-    var kb = kbAll();
-    kb.forEach(function (k) { if (k.id === id) { k.q = q; k.a = a; k.updatedAt = Date.now(); } });
-    kbSave(kb);
+  function kbUpdate(id, q, a, done) {
+    if (!KB_DB_OK) { toast('数据库没连上（SQL10 还没跑或网络问题）'); done && done(false); return; }
+    var k = kbAll().filter(function (x) { return x.id === id; })[0];
+    if (!k || !k.dbId) { toast('这条是本地旧数据，数据库里没有，重新添加一条即可'); done && done(false); return; }
+    api('ai_kb?id=eq.' + k.dbId, { method: 'PATCH', body: JSON.stringify({ q: q, a: a, updated_at: new Date().toISOString() }) }).then(function (r) {
+      if (!r.ok) { toast('保存失败：数据库没连上或权限不够'); done && done(false); return; }
+      toast('已保存');
+      loadKb().then(function () { done && done(true); });
+    }).catch(function () { toast('保存失败：数据库没连上'); done && done(false); });
   }
-  function kbDel(id) {
-    kbSave(kbAll().filter(function (k) { return k.id !== id; }));
+  function kbDel(id, done) {
+    if (!KB_DB_OK) { toast('数据库没连上，删除没有生效'); done && done(false); return; }
+    var k = kbAll().filter(function (x) { return x.id === id; })[0];
+    if (!k || !k.dbId) { toast('这条是本地旧数据，数据库里没有'); done && done(false); return; }
+    api('ai_kb?id=eq.' + k.dbId, { method: 'DELETE' }).then(function (r) {
+      if (!r.ok) { toast('删除失败：数据库没连上或权限不够'); done && done(false); return; }
+      loadKb().then(function () { done && done(true); });
+    }).catch(function () { toast('删除失败：数据库没连上'); done && done(false); });
+  }
+  // 一次性迁移：把这台浏览器 localStorage 里的旧知识库导入数据库（按问题去重；原数据保留作备份）
+  function migrateLocalKb() {
+    var local = localKb();
+    var done = false;
+    try { done = !!localStorage.getItem('yuki-ai-kb-imported'); } catch (e) {}
+    if (!local.length || done || !KB_DB_OK) return Promise.resolve();
+    var exist = {};
+    KB.forEach(function (k) { exist[normQ(k.q)] = 1; });
+    var todo = local.filter(function (k) { return k.q && k.a && !exist[normQ(k.q)]; });
+    if (!todo.length) { try { localStorage.setItem('yuki-ai-kb-imported', '1'); } catch (e) {} return Promise.resolve(); }
+    var chain = Promise.resolve();
+    var fail = 0;
+    todo.forEach(function (k) {
+      chain = chain.then(function () {
+        return api('ai_kb', { method: 'POST', body: JSON.stringify({ q: k.q, a: k.a }) }).then(function (r) { if (!r.ok) fail++; }).catch(function () { fail++; });
+      });
+    });
+    return chain.then(function () {
+      if (fail) { // 失败不写标志：下次进 AI tab 还会重试，不会悄悄丢数据
+        toast('旧知识库迁移有 ' + fail + ' 条没存上，下次再进 AI 对话页会自动重试');
+        return loadKb();
+      }
+      try { localStorage.setItem('yuki-ai-kb-imported', '1'); } catch (e) {}
+      toast('本机旧知识库 ' + todo.length + ' 条已迁入数据库，以后不会丢了');
+      return loadKb();
+    });
   }
   function normQ(s) { return String(s || '').toLowerCase().replace(/[\s，。？！?!,.'\"“”‘’、~～·：:;；]/g, ''); }
   function similar(a, b) {
@@ -4814,6 +5720,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     var t0 = today.getTime(), nowT = Date.now();
     var c = { today: 0, d7: 0, d30: 0, all: 0 };
     SESSIONS.forEach(function (s) {
+      if (s.demo) return; // 示例数据不算进统计
       var q = s.msgs.filter(function (m) { return m.role === 'user'; }).length;
       c.all += q;
       if (s.time >= t0) c.today += q;
@@ -4907,6 +5814,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       return '<div class="aix-session' + (activeId === s.id ? ' active' : '') + '" data-id="' + s.id + '">' +
         '<div class="aix-s-top">' +
         (pend.length ? '<span class="aix-badge warn">待补充答案 ×' + pend.length + '</span>' : '') +
+        (s.demo ? '<span class="aix-badge" style="background:var(--card-hover);color:var(--muted);">示例</span>' : '') +
         (s.live ? '<span class="aix-badge">主页实时</span>' : '') +
         '<span class="aix-s-time">' + fmtTime(s.time) + '</span>' +
         '<span class="aix-s-q">' + esc(firstUser(s)) + '</span>' +
@@ -5010,13 +5918,19 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       var q = form.querySelector('.fx-q').value.trim();
       var a = form.querySelector('.fx-a').value.trim();
       if (!q || !a) { toast('问题和回复都要填'); return; }
-      if (form.dataset.mode === 'edit') { kbUpdate(form.dataset.id, q, a); toast('已保存'); }
-      else { kbAdd(q, a); toast('已保存，以后遇到类似问题 AI 会用这条回复'); }
-      formQ = null; kbEditId = null;
-      stSave(); render(); return;
+      var finish = function (ok) { if (!ok) return; formQ = null; kbEditId = null; stSave(); render(); };
+      if (form.dataset.mode === 'edit') kbUpdate(form.dataset.id, q, a, finish);
+      else kbAdd(q, a, finish);
+      return;
     }
     if (t.classList.contains('fx-cancel')) { formQ = null; kbEditId = null; render(); return; }
-    if (t.classList.contains('fx-del-yes')) { kbDel(t.dataset.id); kbDelArm = null; toast('已删除这条标准回复'); stSave(); render(); return; }
+    if (t.classList.contains('fx-del-yes')) {
+      kbDel(t.dataset.id, function (ok) {
+        if (!ok) return;
+        kbDelArm = null; toast('已删除这条标准回复'); stSave(); render();
+      });
+      return;
+    }
     if (t.classList.contains('fx-del-no')) { kbDelArm = null; render(); return; }
     if (t.classList.contains('aix-add')) { formQ = t.dataset.q; render(); return; }
     if (t.classList.contains('ke-edit')) { kbEditId = t.dataset.id; kbDelArm = null; render(); return; }
@@ -5051,7 +5965,170 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     x.classList.toggle('active', x.getAttribute('data-f') === filter);
   });
 
-  render();
+  render(); // 先渲染（用本地旧数据，不打断浏览）
+  var aiLoaded = false;
+  function refreshAiData() {
+    if (aiLoaded) return;
+    aiLoaded = true;
+    loadSessions().then(render); // 登录态下拉数据库真实会话
+    loadKb().then(function () { return migrateLocalKb(); }).then(render);
+  }
+  // AI tab 首次被点开时再拉数据库（此时登录态已就绪）；若当前已在此 tab（直达）则立即拉
+  if (document.getElementById('tab-ai') && document.getElementById('tab-ai').style.display !== 'none') refreshAiData();
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.tab-btn');
+    if (b && b.textContent.trim() === 'AI 对话') refreshAiData();
+  }, true);
+})();
+</script>
+
+<!-- 系统状态 -->
+<div id="tab-system" style="display:none;">
+  <div class="card" style="max-width:none;">
+    <h3 style="margin:0 0 12px;">邮件发送记录（最近 30 封）</h3>
+    <div id="email-log-list" style="font-size:15px; line-height:1.9; max-height:420px; overflow-y:auto;"><p class="empty">加载中…</p></div>
+    <p style="color:var(--muted); font-size:14px; line-height:1.8; margin:12px 0 0;">
+      发件邮箱：snowyuzustudio@gmail.com（需在 Supabase 配置 SMTP_USER / SMTP_PASS 后才会真实发信，未配置前队列保留不丢弃）。
+    </p>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px;align-items:start;margin-top:14px;">
+  <div class="card" style="max-width:none;margin:0;">
+    <h3 style="margin:0 0 12px;">系统状态</h3>
+    <div style="font-size:16px; line-height:2;">
+      <div>数据库连接：<b id="sys-db">检测中…</b></div>
+      <div>照片登录权限：<b id="sys-photo">检测中…</b></div>
+      <div>柚子专属数据：<b id="sys-yk">检测中…</b></div>
+    </div>
+    <p style="color:var(--muted); font-size:14px; line-height:1.8; margin:12px 0 0;">
+      照片登录权限未生效时，请先在 Supabase 执行「照片权限 SQL3」。<br>
+      柚子专属数据未同步时，请执行「商城升级 SQL2」。
+    </p>
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;">
+      <a class="btn-mini" href="/" target="_blank" rel="noopener">打开前台</a>
+      <a class="btn-mini" href="/shop/" target="_blank" rel="noopener">打开商城</a>
+      <a class="btn-mini" href="/photos/" target="_blank" rel="noopener">打开照片页</a>
+    </div>
+  </div>
+  <div class="card" style="max-width:none;margin:0;">
+    <h3 style="margin:0 0 12px;">专属权限自检</h3>
+    <div id="yk-self-check" style="font-size:16px; line-height:2; color:var(--muted);">检测中…</div>
+    <p style="color:var(--muted); font-size:13px; line-height:1.8; margin:10px 0 0;">
+      这里显示的是本浏览器当前真实登录的账号。如果「当前登录邮箱」不是 chengyuki119@gmail.com，
+      说明本机还留着另一个账号的登录（比如商城测试账号），前台会按这个账号判断权限；
+      退出登录或切换账号后前台即恢复正确。
+    </p>
+  </div>
+  </div>
+</div>
+
+<script>
+/* ── 系统状态 tab：真实探测，不模拟 ── */
+function loadEmailLog() {
+  var box = document.getElementById('email-log-list');
+  if (!box) return;
+  api('email_log?select=kind,to_email,subject,status,attempts,last_error,created_at,sent_at&order=created_at.desc&limit=30').then(function (r) { return r.json(); }).then(function (rows) {
+    if (!rows || !rows.length) { box.innerHTML = '<p class="empty">还没有发送记录</p>'; return; }
+    var ST = { pending: ['待发送', 'warn'], sending: ['发送中', ''], sent: ['已发送', 'ok'], failed: ['失败（将重试）', 'warn'], dead: ['失败（已停）', 'off'] };
+    box.innerHTML = rows.map(function (m) {
+      var st = ST[m.status] || ST.pending;
+      var t = m.sent_at ? new Date(m.sent_at).toLocaleString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+        : new Date(m.created_at).toLocaleString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      return '<div style="padding:8px 0; border-bottom:1px dashed var(--card-hover);display:flex;align-items:center;gap:8px;flex-wrap:wrap;">' +
+        '<span style="flex:1;min-width:200px;"><b>' + esc(m.subject) + '</b> <span style="color:var(--muted);">→ ' + esc(m.to_email) + '</span></span>' +
+        '<span style="white-space:nowrap;font-size:13px;color:#fff;background:' + (st[1] === 'ok' ? 'var(--success,#5FA777)' : st[1] === 'warn' ? 'var(--warning,#E0A458)' : st[1] === 'off' ? '#c6cddb' : 'var(--accent-soft)') + ';border-radius:999px;padding:2px 10px;display:inline-block;">' + st[0] + '</span>' +
+        '<span style="white-space:nowrap;color:var(--muted);font-size:14px;min-width:86px;text-align:right;">' + t + '</span>' +
+        (m.last_error ? '<div style="color:var(--danger,#D96570);font-size:14px;width:100%;">' + esc(m.last_error) + '</div>' : '') +
+        '</div>';
+    }).join('');
+  }).catch(function () { box.innerHTML = '<p class="empty">加载失败，刷新重试</p>'; });
+}
+(function () {
+  var URLBASE = 'https://vmmmuyxrsiufzurwbydg.supabase.co/rest/v1/';
+  var ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtbW11eXhyc2l1Znp1cndieWRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI4NzM2NTAsImV4cCI6MjEwODQ0OTY1MH0.SbdbAJV5hP3MtyZxf7DQUAD9Fm-XNlVC5PaYf47lzsw';
+  function probe(table, el, okText, anonBlockedText, missingText) {
+    fetch(URLBASE + table + '?select=*&limit=1', { headers: { apikey: ANON } })
+      .then(function (r) {
+        if (!r.ok) {
+          if (r.status === 404 && missingText) {
+            document.getElementById(el).textContent = missingText;
+            document.getElementById(el).style.color = '#c98a2b';
+          }
+          throw 0;
+        }
+        return r.json();
+      })
+      .then(function (rows) {
+        if (rows && rows.length) {
+          document.getElementById(el).textContent = okText;
+          document.getElementById(el).style.color = '#3aa06a';
+        } else {
+          document.getElementById(el).textContent = anonBlockedText;
+          document.getElementById(el).style.color = '#3aa06a'; /* 匿名被拦截=权限生效，正常态用绿色（20261027p12 状态色语义统一） */
+        }
+      })
+      .catch(function () {
+        document.getElementById(el).textContent = '连接失败';
+        document.getElementById(el).style.color = 'var(--danger,#D96570)';
+      });
+  }
+  function jwtEmail(token) {
+    try {
+      var pl = JSON.parse(decodeURIComponent(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/').replace(/\s/g, ''))).replace(/[^\x00-\x7F]/g, ''));
+      return { email: pl.email || '(令牌里没有邮箱)', exp: pl.exp ? new Date(pl.exp * 1000).toLocaleString() : '' };
+    } catch (e) { return { email: '(令牌解析失败)', exp: '' }; }
+  }
+  function selfCheck() {
+    var box = document.getElementById('yk-self-check');
+    if (!box) return;
+    var u = null, m = null;
+    try { u = JSON.parse(localStorage.getItem('yuki-user-session') || 'null'); } catch (e) {}
+    try { m = JSON.parse(localStorage.getItem('yuki-admin-session') || 'null'); } catch (e) {}
+    var lines = [];
+    var describe = function (name, s) {
+      if (!s || (!s.a && !s.r)) return name + '：无登录';
+      var t0 = s.t ? new Date(s.t).toLocaleString() : '旧版（无时间戳）';
+      return name + '：' + (s.email || '(邮箱未记录)') + ' · 登录于 ' + t0;
+    };
+    lines.push(describe('商城买家会话', u));
+    lines.push(describe('后台专属会话', m));
+    box.innerHTML = lines.map(function (l) { return '<div>' + l + '</div>'; }).join('');
+    // 用当前 access token 实调 ping，拿权威邮箱与权限结果
+    var ping = function (token) {
+      return fetch(URLBASE.replace(/rest\/.*/, '') + 'rest/v1/rpc/yuki_exclusive_get', {
+        method: 'POST', headers: { apikey: ANON, Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ p_kind: 'ping' })
+      }).then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); });
+    };
+    if (typeof ACCESS === 'undefined' || !ACCESS) {
+      box.innerHTML += '<div style="color:#c98a2b;">后台 access token 尚未就绪，稍后再试</div>';
+      return;
+    }
+    var info = jwtEmail(ACCESS);
+    box.innerHTML += '<div>当前令牌邮箱：<b>' + info.email + '</b>' + (info.exp ? '（有效期至 ' + info.exp + '）' : '') + '</div>';
+    ping(ACCESS).then(function (res) {
+      if (res.status === 200 && res.body && res.body.ok) {
+        box.innerHTML += '<div style="color:#3aa06a;">专属权限：<b>已确认（ping 通过）</b> · 后台识别邮箱：' + (res.body.email || '') + '</div>';
+      } else {
+        box.innerHTML += '<div style="color:#d05a7a;">专属权限：<b>未通过</b>（' + ((res.body && res.body.message) || ('HTTP ' + res.status)) + '）</div>' +
+          '<div style="color:var(--muted); font-size:14px;">如果邮箱确为 chengyuki119@gmail.com 仍未通过，请把这段文字发给 Cola。</div>';
+      }
+    }).catch(function () {
+      box.innerHTML += '<div style="color:#d05a7a;">专属权限：检测请求失败（网络原因）</div>';
+    });
+  }
+  function boot() {
+    var t = document.getElementById('tab-system');
+    if (!t || t.dataset.booted) return;
+    t.dataset.booted = '1';
+    probe('site_settings', 'sys-db', '已连接', '已连接（暂无数据）', '连接失败');
+    selfCheck();
+    probe('photos', 'sys-photo', '未开启（照片对所有人可见）', '已开启（匿名不可见 · SQL3 已生效）', '照片表不存在');
+    probe('yuki_exclusive', 'sys-yk', '未同步（请执行 SQL2）', '已同步（SQL2 已生效 · 匿名被拦截属正常）', '未同步（请执行 SQL2）');
+  }
+  document.addEventListener('click', function (e) {
+    if (e.target.closest && e.target.closest('.tab-btn[data-tab="system"]')) setTimeout(function () { boot(); selfCheck(); }, 50);
+  });
+  if (location.hash === '#system') setTimeout(boot, 300);
 })();
 </script>
 
@@ -5076,6 +6153,31 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     </div>
   </div>
 </div>
+<style>
+  /* 非删除类确认按钮：浅粉底白字（与全站按钮规范一致） */
+  .lo-mask .btn-ok { background: var(--accent,#ffd9e6); color: var(--text, #604C57); }
+  .lo-mask .btn-ok:hover { background: #ffc9dc; }
+</style>
+
+<script>
+/* 桌面侧边导航布局：把导航以外的内容包进 #adm-content */
+(function () {
+  var body = document.getElementById('admin-body');
+  if (!body) return;
+  var wrap = document.createElement('div');
+  wrap.id = 'adm-content';
+  // 1) admin-body 里除导航以外的内容
+  Array.prototype.slice.call(body.children).forEach(function (ch) {
+    if (ch.id === 'pp-wrap') return;
+    wrap.appendChild(ch);
+  });
+  // 2) 历史 markup 中提前闭合导致散落在 body 层的 tab 面板，一并收编
+  Array.prototype.slice.call(document.body.children).forEach(function (ch) {
+    if (ch.id && ch.id.indexOf('tab-') === 0) wrap.appendChild(ch);
+  });
+  body.appendChild(wrap);
+})();
+</script>
 
 <script>
 /* ═══ 后台安全：1 小时无操作自动退出 ═══ */
@@ -5086,17 +6188,41 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   ['click', 'keydown', 'input', 'touchstart', 'mousemove', 'scroll'].forEach(function (ev) {
     document.addEventListener(ev, function () { last = Date.now(); }, { capture: true, passive: true });
   });
+  var idleWarned = false;
   setInterval(function () {
     var body = document.getElementById('admin-body');
-    if (body && body.style.display !== 'none' && Date.now() - last > IDLE_MS) {
+    if (!body || body.style.display === 'none') return;
+    if (Date.now() - last > IDLE_MS) {
       try { localStorage.removeItem('yuki-admin-session'); } catch (e) {}
+      try { localStorage.removeItem('yuki-user-session'); } catch (e) {}
       location.reload();
+      return;
     }
+    // 到期前 5 分钟提醒一次，给你留出保存的时间
+    if (!idleWarned && Date.now() - last > IDLE_MS - 300000) {
+      idleWarned = true;
+      var el = document.getElementById('toast');
+      if (el) {
+        el.textContent = '已经闲置很久啦，5 分钟后会自动退出，有没保存的内容先保存一下';
+        el.classList.add('show');
+        setTimeout(function () { el.classList.remove('show'); }, 6000);
+      }
+    }
+    if (Date.now() - last < IDLE_MS - 300000) idleWarned = false; // 恢复操作后撤回提醒状态
   }, 20000);
 })();
 </script>
 
 
-<footer>© 2026 Yuki · Made with Cola</footer>
+<script src="js/admin-shop.js?v=20261027p1"></script>
+<script src="js/admin-crm.js?v=20261027p1"></script>
+<script src="js/admin-vip.js?v=20261027p1"></script>
+<script src="js/vendor/jsQR.js?v=20261027p1"></script>
+<script src="js/vendor/qrcode-generator.js?v=20261027p1"></script>
+<script src="js/vendor/JsBarcode.all.min.js?v=20261027p1"></script>
+<script src="js/admin-workbench.js?v=20261027p1"></script>
+<script src="js/admin-biz.js?v=20261027p1"></script>
+<script src="js/admin-export.js?v=20261027p1"></script>
+<footer style="padding:18px 0 0; text-align:center;">© 2026 Yuki · Made with Cola</footer>
 </body>
 </html>

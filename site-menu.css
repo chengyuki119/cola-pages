@@ -5,12 +5,13 @@
   width: 42px; height: 42px;
   border: none;
   border-radius: 12px;
-  background: var(--card);
+  background: #ffffff; /* 未悬停不用粉底（她 17:46 要求），悬停才上粉色 */
   cursor: pointer;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   gap: 5px;
 }
+.burger:hover { background: var(--card-hover, #FCE4EC); }
 .burger span {
   width: 20px; height: 2px;
   background: var(--text);
@@ -33,7 +34,7 @@
   position: fixed;
   top: 60px; right: 0; bottom: 0;
   width: 250px;
-  background: #fffafc;
+  background: var(--bg,#FFFBFC);
   box-shadow: -4px 0 24px rgba(255,143,171,.18);
   transform: translateX(100%);
   transition: transform .25s;
@@ -69,22 +70,23 @@
   transition: background .2s;
 }
 .menu-toggle:hover, .menu-group.open .menu-toggle, .menu-group.active .menu-toggle { background: var(--card); }
+/* 父级统一向下箭头：展开时旋转 180°，不做其他装饰 */
 .menu-toggle .plus {
   margin-left: auto;
   color: var(--muted);
-  font-size:20px;
+  font-size:15px;
   line-height: 1;
+  transition: transform .25s ease;
 }
-.menu-toggle .plus::before { content: "+"; }
-.menu-group.open .menu-toggle .plus::before { content: "⌄"; }
+.menu-toggle .plus::before { content: "▾"; }
+.menu-group.open .menu-toggle .plus { transform: rotate(180deg); }
 .submenu {
   overflow: hidden;
   max-height: 0;
   transition: max-height .3s ease;
 }
 .menu-group.open .submenu { max-height: 70vh; overflow-y: auto; }
-.submenu a { padding-left: 40px; }
-.submenu .dash { color: var(--muted); }
+.submenu a { padding-left: 34px; font-size: 17px; color: var(--muted); }
 .menu-link {
   display: flex; align-items: center; gap: 12px;
   padding: 13px 16px;
@@ -108,9 +110,9 @@
 }
 .menu-owner:hover { background: var(--card-hover); }
 
-/* 当前所在页面：轻微高亮（所有页面统一，只标当前，不重排不隐藏） */
-.menu a.current, .menu-link.current { background: var(--card); font-weight: 600; }
-.menu-group.current > .menu-toggle { background: var(--card); font-weight: 600; }
+/* 当前所在页面：柔和粉色高亮（所有页面统一，只标当前，不重排不隐藏） */
+.menu a.current, .menu-link.current { background: var(--accent-soft,#FCE4EC); font-weight: 600; }
+.menu-group.current > .menu-toggle { background: var(--accent-soft,#FCE4EC); font-weight: 600; }
 
 /* 顶栏中间 logo：全站统一组件（只按高度等比缩放，永不拉伸/裁切/压扁） */
 .site-logo {
@@ -124,3 +126,53 @@
 @media (max-width: 400px) {
   .site-logo, .site-logo img { height: 40px; }
 }
+
+/* ═══ 顶部导航栏右侧：购物车（Logo 右、汉堡左）+ 菜单底部账户入口，全站同一套 ═══ */
+/* logo 本身绝对定位居中（site.css），右侧组用 flex 两端对齐即可 */
+.topbar-right {
+  display: flex; align-items: center; gap: 10px;
+}
+.topbar-cart {
+  position: relative;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 42px; height: 42px;
+  border-radius: 12px;
+  background: #ffffff; /* 未悬停不用粉底（她 17:46 要求），悬停才上粉色 */
+  color: var(--text, #604C57);
+  transition: background .2s;
+}
+.topbar-cart:hover { background: var(--card-hover, #FCE4EC); }
+.topbar-cart svg { display: block; }
+.topbar-cart-badge {
+  position: absolute; top: -5px; right: -5px;
+  min-width: 19px; height: 19px; border-radius: 999px;
+  background:var(--accent,#ffd9e6); color: var(--text, #604C57);
+  font-size: 12px; line-height: 19px; text-align: center; padding: 0 5px;
+  font-weight: 600; box-sizing: border-box;
+}
+.menu a.menu-acct-bottom {
+  margin-top: auto;
+  display: flex; align-items: center; justify-content: center;
+  min-height: 44px;
+  border-radius: 12px;
+  font-size: 17px;
+  text-decoration: none;
+  background: var(--accent,#ffd9e6); color: var(--text, #604C57); /* 登录按钮：粉底深字（她 2026-10-26 全站清浅底白字） */
+  transition: opacity .2s;
+}
+.menu-acct-bottom:hover { opacity: .88; }
+.menu a.menu-acct-bottom.is-in {
+  background: var(--accent-soft, #FCE4EC); color: var(--text, #604C57); /* 已登录态：浅粉底深字 */
+  box-shadow: none;
+}
+
+/* 身份确认中占位（登录后权限 RPC 未返回前的过渡态，不提前降级显示） */
+.menu-owner-pending {
+  padding: 11px 16px;
+  border-radius: 12px;
+  font-size: 15px;
+  color: var(--muted, #A88E9B);
+  background: var(--card, #FFFFFF);
+  text-align: center;
+}
+.menu-acct-bottom.acct-loading { pointer-events: none; opacity: .75; }

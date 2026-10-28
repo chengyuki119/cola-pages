@@ -5,7 +5,7 @@
     <link rel="preload" href="/fonts/Millo-RiceSoyMilk90.woff2" as="font" type="font/woff2" crossorigin>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>匿名提问箱 · Yuki / 柚子</title>
+<title>联系我们 · Yuki / 柚子</title>
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" sizes="180x180" href="/icon-yuki2-180.png">
 <link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki2-180.png">
@@ -18,13 +18,14 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   @font-face { font-family: "Millo Body"; src: url("/fonts/Millo-RiceSoyMilk80.woff2") format("woff2"), url("/fonts/Millo-RiceSoyMilk80.ttf") format("truetype"); font-display: swap; }
 
   :root {
-    --bg: #fffcfd;
-    --card: #fff2f7;
-    --card-hover: #ffe7f0;
-    --text: #5d6780;
-    --muted: #9aa5bd;
-    --accent: #ff6fa5;
-    --accent-soft: #ffc8d6;
+    --bg: #FFFBFC;
+    --card: #FFFFFF;
+    --card-hover: #FCE4EC;
+    --text: #604C57;
+    --muted: #A88E9B;
+    --accent: #ffd9e6;
+    --accent-soft: #FCE4EC;
+    --accent-strong: #A04A68;
     --radius: 16px;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -53,7 +54,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .lang-switch {
     display: flex;
     gap: 4px;
-    background: var(--card);
+    background: var(--accent-soft, #FCE4EC); /* 20261026s 她指定款：粉胶囊底座+白胶囊选中（全站同款） */
     padding: 4px;
     border-radius: 999px;
   }
@@ -65,9 +66,9 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     border-radius: 999px;
     cursor: pointer;
     color: var(--muted);
-    transition: background .2s, color .2s;
+    transition: background .2s, color .2s, box-shadow .2s;
   }
-  .lang-btn.active { background: var(--accent-soft); color: #fff; }
+  .lang-btn.active { background: #ffffff; color: var(--text, #604C57); font-weight: 600; box-shadow: 0 1px 4px rgba(180,120,150,.28); } /* 20261026s 白胶囊浮起（她截图指定，前台后台同款） */
   .wrap { max-width: 1000px; margin: 0 auto; padding: 48px 24px 64px; }
   .back-link {
     display: inline-flex; align-items: center; gap: 8px;
@@ -90,11 +91,11 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   }
   .ask-card textarea {
     width: 100%; min-height: 110px;
-    border: none; border-radius: 12px;
-    background: #fff; padding: 12px 14px;
+    border: 1px solid #FFD9E6; border-radius: 12px;
+    background: #FFF8FA; padding: 12px 14px;
     font-family: inherit; font-size:17px;
     color: var(--text); line-height: 1.6;
-    resize: none; outline: none;
+    resize: none; outline: none; box-sizing: border-box;
   }
   .ask-card textarea::placeholder { color: var(--muted); }
   .ask-card input {
@@ -105,18 +106,30 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     color: var(--text); outline: none;
   }
   .ask-card input::placeholder { color: var(--muted); }
-  .contact-hint { font-size:15px; color: var(--muted); margin-top: 6px; }
+  .f-label { display: block; font-size: 14px; color: var(--muted); margin: 14px 0 0; }
+  .f-label:first-of-type { margin-top: 0; }
+  .topic-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .ask-card .topic-chips button {
+    border: none; border-radius: 999px;
+    background: #fff; color: var(--text, #604C57);
+    font-family: inherit; font-size:16px; padding: 7px 16px;
+    cursor: pointer; transition: background .15s, color .15s;
+  }
+  .ask-card .topic-chips button.active { background: var(--accent-soft); color: var(--accent-strong); }
+  .f-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+  @media (max-width: 560px) { .f-grid { grid-template-columns: 1fr; } }
+  .contact-hint { font-size:15px; color: var(--muted); margin-top: 10px; line-height: 1.6; }
   .ask-card button {
     align-self: flex-end; margin-top: 12px;
-    border: none; background: var(--accent-soft); color: #fff;
+    border: none; background: var(--accent-soft); color: var(--accent-strong);
     font-size:17px; padding: 9px 22px; border-radius: 999px;
-    cursor: pointer; transition: opacity .2s;
+    cursor: pointer; transition: background .2s;
   }
-  .ask-card button:hover { opacity: .85; }
+  .ask-card button:hover { background: var(--accent, #FFD9E6); }
   .ask-card button:disabled { opacity: .5; cursor: default; }
 
   h2 { font-size:21px; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
-  h2::before { content: ""; width: 4px; height: 18px; background: var(--accent); border-radius: 2px; }
+  h2::before { content: ""; width: 4px; height: 18px; background: var(--accent-soft, #FCE4EC); border-radius: 2px; }
 
   .qa {
     background: #fff;
@@ -129,13 +142,14 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .qa-meta { font-size:15px; color: var(--muted); margin-top: 8px; }
   .qa-reply {
     margin-top: 12px;
-    background: var(--card);
+    background: #FFF8FA;
+    border: 1px solid #FFD9E6;
     border-radius: 12px;
     padding: 12px 14px;
     font-size:17px;
     white-space: pre-wrap; word-break: break-word;
   }
-  .qa-reply .reply-label { font-size:15px; color: var(--accent); font-weight: 600; display: block; margin-bottom: 4px; }
+  .qa-reply .reply-label { font-size:15px; color:var(--text,#604C57); font-weight: 600; display: block; margin-bottom: 4px; }
   .qa-pending { margin-top: 12px; font-size:16px; color: var(--muted); font-style: italic; }
   .empty { text-align: center; color: var(--muted); font-size:17px; padding: 30px 0; }
 
@@ -160,12 +174,19 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     .lang-btn { padding: 4px 8px; }
     .topbar { padding: 0 10px; }
   }
+
+
 h1::after { content: " ♥"; font-size: .75em; }
 h2::after { content: " ♥"; font-size: .75em; }
+  /* 统一横幅 header（她 20261027 02:24）：banner 顶格全宽，标题对齐内容列（本页不加载 site.css，样式内联） */
+  .subpage-header { background: var(--accent-soft,#FCE4EC); padding: 84px 0 40px; width: 100vw; margin-left: calc(50% - 50vw); }
+  .subpage-header h1, .subpage-header p.sub { max-width: 1000px; margin-left: auto; margin-right: auto; padding-left: 24px; padding-right: 24px; box-sizing: border-box; }
 </style>
-  <link rel="stylesheet" href="/site-menu.css">
+  <link rel="stylesheet" href="/site-menu.css?v=20261027p1">
   <script src="/site-menu.js" defer></script>
   <style>a { color: inherit; text-decoration: none; }</style>
+<script>/* 主题色本地快照（无 site-common 页）；完整主题来自 site_settings.theme_colors */
+try { var __t = JSON.parse(localStorage.getItem('yuki-theme-colors') || 'null'); if (__t && typeof __t === 'object') { var __m = { text: '--text', muted: '--muted', bg: '--bg', card: '--card', accent: '--accent', accentSoft: '--accent-soft', accentStrong: '--accent-strong', price: '--price', success: '--success', warning: '--warning', danger: '--danger' }, __r = document.documentElement.style; Object.keys(__m).forEach(function (k) { if (__t[k]) __r.setProperty(__m[k], __t[k]); }); } } catch (e) {}</script>
 </head>
 <body>
 <header class="topbar">
@@ -174,26 +195,62 @@ h2::after { content: " ♥"; font-size: .75em; }
     <button class="lang-btn" data-lang="en">English</button>
   </div>
   <a class="site-logo" href="/" aria-label="回主页"><img src="/logo.png" alt="logo"></a>
-  <button class="burger" id="burger" aria-label="菜单">
-    <span></span><span></span><span></span>
-  </button>
+  <div class="topbar-right">
+    <a class="topbar-cart" id="topbar-cart" href="/shop/?sec=cart" aria-label="购物车">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3.5h2.2l2.3 11.2a1.8 1.8 0 0 0 1.8 1.4h8.5a1.8 1.8 0 0 0 1.8-1.4l1.5-8.2H6"/></svg>
+      <span class="topbar-cart-badge" id="topbar-cart-badge" style="display:none;">0</span>
+    </a>
+    <button class="burger" id="burger" aria-label="菜单">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
 </header>
 <div class="menu-mask" id="menu-mask"></div>
 <nav class="menu" id="menu"></nav>
 
+  <header class="subpage-header">
+    <h1><span data-zh="联系我们" data-en="Contact Us">联系我们</span></h1>
+    <p class="sub"><span data-zh="商品咨询、订单问题、售后与退款，或者想对我说的话，都可以在这里留言 · 柚子的回复会显示在下方" data-en="Product questions, order issues, after-sales, or just a hello — leave a message here · Yuki's replies are posted below">商品咨询、订单问题、售后与退款，或者想对我说的话，都可以在这里留言 · 柚子的回复会显示在下方</span></p>
+  </header>
 <div class="wrap">
-  <a class="back-link" href="/" data-zh="← 返回主页" data-en="← Back to Home">← 返回主页</a>
-  <h1><span data-zh="匿名提问箱" data-en="Anonymous Q&A Box">匿名提问箱</span></h1>
-  <p class="sub"><span data-zh="悄悄问我任何话，完全匿名 · 柚子的回复会显示在下面" data-en="Ask me anything, totally anonymous · Yuki's replies are posted below">悄悄问我任何话，完全匿名 · 柚子的回复会显示在下面</span></p>
+  <a class="back-link page-back" href="/" style="margin:8px 0 24px 2px;"><span data-zh="← 返回主页" data-en="← Back to Home">← 返回主页</span></a>
 
   <div class="ask-card">
-    <textarea id="q-text" maxlength="1000" data-ph-zh="在这里写下想问的、想说的…（完全匿名哦）" data-ph-en="Write whatever you want to ask or say… (totally anonymous)"></textarea>
-    <input id="q-contact" maxlength="200" data-ph-zh="想被回复到的话，可以留个联系方式（选填，只有柚子能看到）" data-ph-en="Leave a contact if you want a reply back (optional, only Yuki can see it)">
-    <p class="contact-hint"><span data-zh="联系方式不会公开显示，只有柚子本人在后台能看到" data-en="Your contact is never shown publicly — only Yuki can see it in her dashboard">联系方式不会公开显示，只有柚子本人在后台能看到</span></p>
-    <button id="q-send"><span data-zh="匿名投递" data-en="Send anonymously">匿名投递</span></button>
+    <span class="f-label" data-zh="联系主题" data-en="Topic">联系主题</span>
+    <div class="topic-chips" id="topic-chips" style="margin-top:8px;">
+      <button type="button" class="active" data-v="product" data-zh="商品咨询" data-en="Product">商品咨询</button>
+      <button type="button" data-v="order" data-zh="订单问题" data-en="Order">订单问题</button>
+      <button type="button" data-v="aftersale" data-zh="售后与退款" data-en="After-sales">售后与退款</button>
+      <button type="button" data-v="site" data-zh="网站问题" data-en="Website">网站问题</button>
+      <button type="button" data-v="other" data-zh="其他" data-en="Other">其他</button>
+    </div>
+    <span class="f-label" data-zh="留言内容 *" data-en="Message *">留言内容 *</span>
+    <textarea id="q-text" maxlength="1000" style="margin-top:8px;" data-ph-zh="写下想咨询的、想说的…" data-ph-en="Write your message…"></textarea>
+    <span class="f-label" data-zh="回复方式" data-en="Reply Method">回复方式</span>
+    <div class="topic-chips" id="mode-chips" style="margin-top:8px;">
+      <button type="button" class="active" data-v="anon" data-zh="匿名留言" data-en="Anonymous">匿名留言</button>
+      <button type="button" data-v="contact" data-zh="留下联系方式" data-en="Leave Contact Info">留下联系方式</button>
+    </div>
+    <div id="contact-fields" style="display:none;">
+      <div class="f-grid">
+        <div>
+          <span class="f-label" data-zh="称呼（选填）" data-en="Name (optional)">称呼（选填）</span>
+          <input id="q-nickname" maxlength="60" data-ph-zh="怎么称呼你？" data-ph-en="Your name">
+        </div>
+        <div>
+          <span class="f-label" data-zh="Email（选填）" data-en="Email (optional)">Email（选填）</span>
+          <input id="q-email" type="email" maxlength="120" data-ph-zh="name@example.com" data-ph-en="name@example.com">
+        </div>
+      </div>
+      <span class="f-label" data-zh="其他联系方式（选填）" data-en="Other contact (optional)">其他联系方式（选填）</span>
+      <input id="q-other" maxlength="200" data-ph-zh="微信 / Instagram / Discord 等" data-ph-en="WeChat / Instagram / Discord etc.">
+    </div>
+    <p class="contact-hint" id="mode-hint"><span data-zh="匿名留言不会记录任何联系方式；柚子的回复会显示在下方留言墙。" data-en="Anonymous messages record no contact info; Yuki's replies are posted on the wall below.">匿名留言不会记录任何联系方式；柚子的回复会显示在下方留言墙。</span></p>
+    <input id="q-honey" maxlength="0" aria-hidden="true" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;top:-9999px;height:0;width:0;opacity:0;" data-ph-zh="" data-ph-en="">
+    <button id="q-send"><span data-zh="提交留言" data-en="Send Message">提交留言</span></button>
   </div>
 
-  <h2><span data-zh="柚子的回答墙" data-en="Yuki's Answer Wall">柚子的回答墙</span></h2>
+  <h2><span data-zh="留言与回复" data-en="Messages & Replies">留言与回复</span></h2>
   <div id="qa-list"><p class="empty">加载中…</p></div>
 </div>
 
@@ -263,44 +320,95 @@ h2::after { content: " ♥"; font-size: .75em; }
 
   // 汉堡菜单：全站统一组件 site-menu.js 负责渲染与交互
 
-  // 投递提问
+  // 联系主题切换（站内自定义胶囊，不用原生 select）
+  var TOPIC = 'product';
+  var TOPIC_ZH = { product: '商品咨询', order: '订单问题', aftersale: '售后与退款', site: '网站问题', other: '其他' };
+  var TOPIC_EN = { product: 'Product', order: 'Order', aftersale: 'After-sales', site: 'Website', other: 'Other' };
+  document.getElementById('topic-chips').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    TOPIC = b.getAttribute('data-v') || 'product';
+    Array.prototype.forEach.call(this.children, function (x) { x.classList.toggle('active', x === b); });
+  });
+
+  // 回复方式切换：匿名 / 留下联系方式
+  var REPLY_MODE = 'anon';
+  var MODE_HINTS = {
+    anon: { zh: '匿名留言不会记录任何联系方式；柚子的回复会显示在下方留言墙。', en: "Anonymous messages record no contact info; Yuki's replies are posted on the wall below." },
+    contact: { zh: '你提供的联系方式仅用于处理和回复这条留言，不会公开展示。', en: 'Your contact info is only used to handle and reply to this message and is never shown publicly.' }
+  };
+  document.getElementById('mode-chips').addEventListener('click', function (e) {
+    var btn = e.target.closest('button');
+    if (!btn) return;
+    this.querySelectorAll('button').forEach(function (b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    REPLY_MODE = btn.getAttribute('data-v');
+    document.getElementById('contact-fields').style.display = (REPLY_MODE === 'contact') ? '' : 'none';
+    var h = MODE_HINTS[REPLY_MODE];
+    document.getElementById('mode-hint').innerHTML = '<span data-zh="' + h.zh + '" data-en="' + h.en + '">' + t(h.zh, h.en) + '</span>';
+  });
+  // 提交留言
   document.getElementById('q-send').addEventListener('click', function () {
     var btn = this;
+    if (document.getElementById('q-honey').value) { return; } // 蜜罐字段：机器人填了就静默丢弃，不提示不写库
     var text = document.getElementById('q-text').value.trim();
-    var contact = document.getElementById('q-contact').value.trim();
-    if (!text) { toast(t('先写点什么再投递哦', 'Write something first')); return; }
+    var nickname = REPLY_MODE === 'contact' ? document.getElementById('q-nickname').value.trim() : '';
+    var email = REPLY_MODE === 'contact' ? document.getElementById('q-email').value.trim() : '';
+    var other = REPLY_MODE === 'contact' ? document.getElementById('q-other').value.trim() : '';
+    if (!text) { toast(t('先写点什么再提交哦', 'Write something first')); return; }
+    if (REPLY_MODE === 'contact' && !nickname && !email && !other) {
+      toast(t('选了留下联系方式的话，至少填一种哦；不想留可以切回匿名留言', 'Pick “Leave Contact Info”? Fill in at least one — or switch back to Anonymous')); return;
+    }
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast(t('Email 格式好像不太对', 'That email looks invalid')); return; }
+    try { // 防刷：30 秒内只允许提交一次
+      var last = parseInt(localStorage.getItem('yuki-last-ask') || '0', 10);
+      if (Date.now() - last < 30000) { toast(t('刚刚已经提交过啦，稍等一下再发', 'Just sent one — please wait a moment')); return; }
+    } catch (err) {}
+    var hasContact = !!(nickname || email || other);
     btn.disabled = true;
-    btn.textContent = t('投递中…', 'Sending…');
-    api('questions?select=id', {
+    btn.textContent = t('提交中…', 'Sending…');
+    // 走服务端 RPC（security definer）：一次事务写留言+联系方式，并返回新留言 id；
+    // 不能用 REST 直插 + Prefer:return=representation（公开读策略只放行已回复行，新行回读会被拒，这是旧提问箱“提交失败”的老 bug）
+    api('rpc/askbox_submit', {
       method: 'POST',
-      headers: { 'Prefer': 'return=representation' },
-      body: JSON.stringify({ content: text })
+      body: JSON.stringify({
+        p_content: text,
+        p_topic: TOPIC,
+        p_nickname: nickname || null,
+        p_email: email || null,
+        p_other_contact: other || null
+      })
     }).then(function (r) {
-      if (!r.ok) throw new Error('insert failed');
+      if (!r.ok) throw new Error('rpc failed');
       return r.json();
-    }).then(function (rows) {
-      if (contact && rows && rows[0] && rows[0].id) {
-        return api('contacts', {
-          method: 'POST',
-          body: JSON.stringify({ question_id: rows[0].id, contact: contact })
-        });
-      }
+    }).then(function (newId) {
+      // 记住本机发出去的留言（匿名不绑账号，只在本机「发出去的留言」里展示）
+      try {
+        if (newId) {
+          var ids = JSON.parse(localStorage.getItem('yuki-my-questions') || '[]');
+          if (Array.isArray(ids) && ids.indexOf(newId) === -1) { ids.push(newId); localStorage.setItem('yuki-my-questions', JSON.stringify(ids.slice(-100))); }
+        }
+      } catch (e) {}
     }).then(function () {
-      toast(t('投递成功！柚子会看到你的悄悄话', 'Sent! Yuki will see your message'));
+      try { localStorage.setItem('yuki-last-ask', String(Date.now())); } catch (err) {}
+      toast(hasContact
+        ? t('提交成功！柚子会尽快回复你', 'Sent! Yuki will get back to you soon')
+        : t('提交成功！由于没有留联系方式，回复会显示在下方留言墙', 'Sent! Replies will be posted on the wall below'));
       document.getElementById('q-text').value = '';
-      document.getElementById('q-contact').value = '';
+      document.getElementById('q-nickname').value = '';
+      document.getElementById('q-email').value = '';
+      document.getElementById('q-other').value = '';
       loadWall();
     }).catch(function () {
-      toast(t('投递失败，稍后再试试', 'Failed to send, please try again later'));
+      toast(t('提交失败，稍后再试试', 'Failed to send, please try again later'));
     }).finally(function () {
       btn.disabled = false;
-      btn.innerHTML = '<span data-zh="匿名投递" data-en="Send anonymously">' + t('匿名投递', 'Send anonymously') + '</span>';
+      btn.innerHTML = '<span data-zh="提交留言" data-en="Send Message">' + t('提交留言', 'Send Message') + '</span>';
     });
   });
 
   // 回答墙
   function loadWall() {
-    api('questions?select=id,content,reply,created_at,replied_at&order=created_at.desc&limit=100')
+    api('questions?select=id,content,topic,reply,created_at,replied_at&order=created_at.desc&limit=100')
       .then(function (r) { return r.json(); })
       .then(function (rows) {
         var list = document.getElementById('qa-list');
@@ -309,12 +417,13 @@ h2::after { content: " ♥"; font-size: .75em; }
           return;
         }
         list.innerHTML = rows.map(function (q) {
+          var topic = t(TOPIC_ZH[q.topic] || TOPIC_ZH.other, TOPIC_EN[q.topic] || TOPIC_EN.other);
           var replyHtml = q.reply
             ? '<div class="qa-reply"><span class="reply-label">' + t('柚子 回复：', 'Yuki replied:') + '</span>' + esc(q.reply) + '</div>'
             : '<div class="qa-pending">' + t('已收到，等柚子回复哦～', 'Received! Yuki will reply soon~') + '</div>';
           return '<div class="qa">' +
             '<div class="qa-q">' + esc(q.content) + '</div>' +
-            '<div class="qa-meta">' + t('匿名', 'Anonymous') + ' · ' + fmtTime(q.created_at) + '</div>' +
+            '<div class="qa-meta">' + t('主题：', 'Topic: ') + esc(topic) + ' · ' + t('匿名', 'Anonymous') + ' · ' + fmtTime(q.created_at) + '</div>' +
             replyHtml + '</div>';
         }).join('');
       })
@@ -327,5 +436,12 @@ h2::after { content: " ♥"; font-size: .75em; }
   loadWall();
 </script>
 <footer>© 2026 Yuki · Made with Cola</footer>
+<script src="/js/site-footer.js?v=20261027p1"></script>
+<script>
+  // 统一 Footer（已有 <footer> 则替换其内容，不新建第二个）
+  function initSiteFooter() { renderSiteFooter(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initSiteFooter);
+  else initSiteFooter();
+</script>
 </body>
 </html>

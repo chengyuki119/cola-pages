@@ -26,8 +26,8 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/icon-yuki2-180.png">
 <link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki2-180.png">
 <meta name="apple-mobile-web-app-title" content="小柚的小世界">
-<link rel="stylesheet" href="/css/site.css?v=20261024a">
-  <link rel="stylesheet" href="/site-menu.css">
+<link rel="stylesheet" href="/css/site.css?v=20261027p1">
+  <link rel="stylesheet" href="/site-menu.css?v=20261027p1">
     <script src="/site-menu.js" defer></script>
 </head>
 <body>
@@ -39,20 +39,26 @@
     <button class="lang-btn" data-lang="en">English</button>
   </div>
   <a class="site-logo" href="/" aria-label="回主页"><img src="/logo.png" alt="logo"></a>
-  <button class="burger" id="burger" aria-label="菜单">
-    <span></span><span></span><span></span>
-  </button>
+  <div class="topbar-right">
+    <a class="topbar-cart" id="topbar-cart" href="/shop/?sec=cart" aria-label="购物车">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3.5h2.2l2.3 11.2a1.8 1.8 0 0 0 1.8 1.4h8.5a1.8 1.8 0 0 0 1.8-1.4l1.5-8.2H6"/></svg>
+      <span class="topbar-cart-badge" id="topbar-cart-badge" style="display:none;">0</span>
+    </a>
+    <button class="burger" id="burger" aria-label="菜单">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
 </header>
 <div class="menu-mask" id="menu-mask"></div>
 <nav class="menu" id="menu"></nav>
 
 <div class="page active" id="page-color-card">
   <div id="cards-list-page">
-  <div class="subpage-header">
-    <a class="back-link" href="/"><span data-zh="← 返回主页" data-en="← Back to Home">← 返回主页</span></a>
+<div class="subpage-header">
     <h1 class="subpage-title" data-zh="色卡" data-en="Color Cards">色卡</h1>
     <p class="subpage-sub" data-zh="原创圈我的色卡宝宝们" data-en="My color card babies">原创圈我的色卡宝宝们</p>
   </div>
+  <a class="back-link page-back" href="/" style="margin:8px 0 24px 2px;"><span data-zh="← 返回主页" data-en="← Back to Home">← 返回主页</span></a>
   <div class="page-body album-body" style="padding-top:0;">
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;">
       <span style="font-size:16px;color:var(--muted);" data-zh="筛选与排序" data-en="Filter & Sort">筛选与排序</span>
@@ -71,8 +77,9 @@
     </div>
     <style>
       /* 手机端与 BJD 页卡片完全同套尺寸逻辑（bjd-size-grid：minmax(170px,1fr) + gap 10px）；桌面保持 200px */
-      #cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; }
-      @media (max-width:640px) { #cards-grid { grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:10px; } }
+      #cards-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:12px; } /* §6.1 每行 5 个 */
+      @media (max-width:1100px) { #cards-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+      @media (max-width:640px) { #cards-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; } }
     </style>
     <div id="cards-grid"></div>
   </div>
@@ -90,7 +97,7 @@
 </div>
 <div id="share-pop"></div>
 <div class="toast" id="toast"></div>
-<script src="/js/site-common.js?v=20261024a"></script>
+<script src="/js/site-common.js?v=20261027p1"></script>
 <script>
   // ===== 色卡：独立子页（列表 + 详情 /color-card/?card=N）=====
   var CURRENT_CARD = -1;
@@ -145,7 +152,7 @@
         (c.shop ? '<div style="font-size:15px;color:var(--muted);margin-top:2px;">' + escDb(c.shop) + '</div>' : '') +
         '<div style="font-size:15px;color:var(--muted);margin-top:3px;">' + (LANG === 'en' ? cardCountV(c) + ' cards · ' + c.artists.length + ' artists' : '画师 ' + c.artists.length + ' 位 · 共 ' + cardCountV(c) + ' 张') + '</div>' +
         '<div style="display:flex;align-items:center;gap:8px;margin-top:4px;">' +
-        '<span style="flex:1;font-size:17px;color:var(--accent);font-weight:600;">' + t('色卡总价', 'Total price') + ' ¥' + fmtMoney(cardFinalV(c)) + '</span>' +
+        '<span style="flex:1;font-size:17px;color:var(--text,#604C57);font-weight:600;">' + t('色卡总价', 'Total price') + ' <span style="color:var(--price,#ff6fa5);">¥' + fmtMoney(cardFinalV(c)) + '</span></span>' +
         cardEditBtn(i) +
         '</div>' +
         '</div></div>';
@@ -166,18 +173,18 @@
       var rows = a.rows.map(function (r) {
         return '<div class="sc-row">' +
           '<span>' + escDb(r.label || t('其他', 'Other')) + '</span>' +
-          '<span style="text-align:right;">¥' + (r.price == null ? '' : escDb(r.price)) + '</span>' +
+          '<span style="text-align:right;color:var(--price,#ff6fa5);">¥' + (r.price == null ? '' : escDb(r.price)) + '</span>' +
           '<span class="r-x">×</span>' +
           '<span style="text-align:right;">' + (parseInt(r.qty, 10) || 0) + '</span>' +
           '<span class="r-eq">=</span>' +
-          '<b class="r-total">¥' + fmtMoney(rowTotalV(r)) + '</b>' +
+          '<b class="r-total" style="color:var(--price,#ff6fa5);">¥' + fmtMoney(rowTotalV(r)) + '</b>' +
           '</div>';
       }).join('');
       return '<div style="margin-bottom:' + (i === c.artists.length - 1 ? '0' : '16px') + ';">' +
         '<div style="font-size:15px;color:var(--muted);margin-bottom:4px;">画师 ' + (i + 1) + '</div>' +
         '<b style="font-size:17px;display:block;margin-bottom:8px;">' + escDb(a.name || (t('画师 ', 'Artist ') + (i + 1))) + '</b>' +
         rows +
-        '<div style="border-top:1px solid var(--card-hover);margin-top:8px;padding-top:8px;font-size:16px;color:var(--muted);">' + labelAggV(a) + ' · ' + (LANG === 'en' ? 'Total ' + artistCountV(a) + ' cards · Subtotal ' : '共 ' + artistCountV(a) + ' 张 · 小计 ') + '<b style="color:var(--accent);">¥' + fmtMoney(artistSubV(a)) + '</b></div>' +
+        '<div style="border-top:1px solid var(--card-hover);margin-top:8px;padding-top:8px;font-size:16px;color:var(--muted);">' + labelAggV(a) + ' · ' + (LANG === 'en' ? 'Total ' + artistCountV(a) + ' cards · Subtotal ' : '共 ' + artistCountV(a) + ' 张 · 小计 ') + '<b style="color:var(--price,#ff6fa5);">¥' + fmtMoney(artistSubV(a)) + '</b></div>' +
         '</div>';
     }).join('');
     body.innerHTML =
@@ -189,28 +196,41 @@
       '<span style="font-size:21px;font-weight:700;">' + escDb(c.name || t('未命名色卡', 'Unnamed card')) + '</span>' +
       (c.shop ? '<span style="color:var(--muted);font-size:17px;">　|　' + escDb(c.shop) + '</span>' : '') +
       '</div>' +
-      '<div style="text-align:center;margin-bottom:18px;"><span style="font-size:25px;font-weight:700;color:var(--accent);">' + t('色卡总价', 'Total price') + ' ¥' + fmtMoney(cardFinalV(c)) + '</span><span style="color:var(--muted);font-size:17px;margin-left:14px;">' + (LANG === 'en' ? 'Total ' + cardCountV(c) + ' cards' : '共 ' + cardCountV(c) + ' 张') + '</span></div>' +
+      '<div style="text-align:center;margin-bottom:18px;"><span style="font-size:25px;font-weight:700;color:var(--text,#604C57);">' + t('色卡总价', 'Total price') + ' <span style="color:var(--price,#ff6fa5);">¥' + fmtMoney(cardFinalV(c)) + '</span><span style="color:var(--muted);font-size:17px;margin-left:14px;">' + (LANG === 'en' ? 'Total ' + cardCountV(c) + ' cards' : '共 ' + cardCountV(c) + ' 张') + '</span></div>' +
       '<div class="card" style="padding:18px 20px;margin-bottom:14px;">' +
       '<h2 style="font-size:19px;">' + t('私调明细', 'Custom Details') + '</h2>' +
       (c.origPrice != null && c.origPrice !== '' ?
         '<div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--card-hover);padding:10px 0;margin-bottom:14px;">' +
         '<span style="font-size:17px;color:var(--muted);">' + t('收卡价格', 'Purchase price') + '</span>' +
-        '<b style="font-size:18px;">¥' + fmtMoney(c.origPrice) + '</b>' +
+        '<b style="font-size:18px;color:var(--price,#ff6fa5);">¥' + fmtMoney(c.origPrice) + '</b>' +
         '</div>' : '') +
       priceLines +
       '<div style="border-top:1px solid var(--card-hover);margin-top:12px;padding-top:10px;display:flex;align-items:center;justify-content:space-between;">' +
       '<span style="font-size:18px;font-weight:700;">' + t('色卡总价', 'Total price') + '</span>' +
-      '<b style="font-size:20px;color:var(--accent);">¥' + fmtMoney(cardFinalV(c)) + '</b>' +
+      '<b style="font-size:20px;color:var(--price,#ff6fa5);">¥' + fmtMoney(cardFinalV(c)) + '</b>' +
       '</div>' +
       '</div>';
   }
 
-  // 数据：与后台同一份
-  dbFetch('site_settings?select=key,value&limit=100').then(function (rows) {
+  // 数据：柚子专属门禁（契约见 js/site-common.js ykGatePage / ykExclusiveData）
+  function ykStartLoad(kind, fn) {
+    if (!window.ykGatePage) { fn(); return; } // 旧缓存 site-common 无门禁模块时按 pending 放行
+    ykGatePage().then(function (ok) {
+      if (!ok) return;
+      if (window.ykExclusiveCheck && window.ykExclusiveData) {
+        ykExclusiveCheck().then(function (res) {
+          if (res.ok !== true) { fn(); return; }
+          ykExclusiveData(kind).then(function (v) { window.YK_RPC_DATA = v; fn(); }, function () { fn(); });
+        }).catch(function () { fn(); });
+      } else fn();
+    }).catch(function () {});
+  }
+  function ykLoadData() {
+  ykAuthFetch('site_settings?select=key,value&limit=100') /* 私有键走登录态 */.then(function (rows) {
     var S = {};
     (rows || []).forEach(function (r) { S[r.key] = r.value; });
-    var cardsRaw = null;
-    try { cardsRaw = JSON.parse(S['cards'] || 'null'); } catch (e) {}
+    var cardsRaw = (window.YK_RPC_DATA !== undefined) ? window.YK_RPC_DATA : null;
+    if (window.YK_RPC_DATA === undefined) { try { cardsRaw = JSON.parse(S['cards'] || 'null'); } catch (e) {} }
     var cardsList = Array.isArray(cardsRaw) ? cardsRaw : (cardsRaw && cardsRaw.artists ? cardsRaw.artists : []);
     CARDS_CACHE = cardsList.map(function (c) { return normCardView(c); });
     // 筛选选项：按画师（现有数据无分类/标签字段，只做全部/按画师）
@@ -243,8 +263,17 @@
     var pc = e.target.closest('.sc-product');
     if (pc) location.href = '/color-card/?card=' + pc.getAttribute('data-i');
   });
+  }
+  ykStartLoad('cards', ykLoadData);
   if (window.SiteMenu) SiteMenu.notify('cards');
   applyLang(LANG);
+</script>
+<script src="/js/site-footer.js?v=20261027p1"></script>
+<script>
+  // 统一 Footer（页面没有 <footer> 时自动在页尾新建）
+  function initSiteFooter() { renderSiteFooter(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initSiteFooter);
+  else initSiteFooter();
 </script>
 
 </body>

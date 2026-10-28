@@ -25,11 +25,10 @@
     { key: 'works', zh: '稿件展示', en: 'Works', page: 'works', url: '/works/' },
     { key: 'shop', group: true, nav: 'shop', zh: '我的小铺', en: 'My Shop', items: [
       { key: 'shop', zh: '逛小铺', en: 'Shop', page: 'shop', url: '/shop/' },
-      { key: 'reviews', zh: '评价返图', en: 'Review', page: 'shop', url: '/shop/?sec=reviews', sec: 'reviews' },
-      { key: 'pay', zh: '付款方式', en: 'Payment', page: 'shop', url: '/shop/?sec=pay', sec: 'pay' }
+      { key: 'reviews', zh: '评价返图', en: 'Review', page: 'shop', url: '/shop/?sec=reviews', sec: 'reviews' }
     ]},
-    { key: 'anon', zh: '匿名留言', en: 'Ask Box', page: 'askbox', url: '/askbox/' },
-    { key: 'links', zh: '找到我', en: 'Find Me', page: 'index', url: '/', scrollTo: 'links', scroll: true }
+    { key: 'anon', zh: '联系我们', en: 'Contact Us', page: 'askbox', url: '/askbox/' },
+    { key: 'about', zh: '关于 Snow Yuzu', en: 'About', page: 'about', url: '/about/' }
   ];
 
   // 当前页面 / 当前子区（?sec= / ?id= / ?card=）
@@ -42,6 +41,7 @@
     if (p.indexOf('/works/') === 0) return 'works';
     if (p.indexOf('/shop/') === 0 || p.indexOf('/shop.html') === 0) return 'shop';
     if (p.indexOf('/askbox/') === 0) return 'askbox';
+    if (p.indexOf('/about/') === 0) return 'about';
     if (p.indexOf('/admin.html') === 0) return 'admin';
     return 'index';
   })();
@@ -69,6 +69,46 @@
     return '<span data-zh="' + zh + '" data-en="' + en + '">' + t(zh, en) + '</span>';
   }
 
+  // ── 顶部导航栏购物车（Logo 右侧、汉堡左侧）+ 菜单底部账户入口 ──
+  function readSession() {
+    var u = null, m = null;
+    try { u = JSON.parse(localStorage.getItem('yuki-user-session') || 'null'); } catch (e) {}
+    try { m = JSON.parse(localStorage.getItem('yuki-admin-session') || 'null'); } catch (e) {}
+    var ok = function (v) { return v && (v.a || v.r); };
+    if (ok(u) && ok(m)) return (m.t && (!u.t || m.t > u.t)) ? m : u;
+    return ok(u) ? u : (ok(m) ? m : null);
+  }
+  function buildAcctBottom() {
+    var s = readSession();
+    if (s) return el('<a class="menu-acct-bottom is-in" href="/account/" data-acct="account">' + span('我的账户', 'My Account') + '</a>');
+    return el('<a class="menu-acct-bottom" href="/account/?next=' + encodeURIComponent(location.pathname + location.search) + '" data-acct="account">' + span('登录', 'Log in') + '</a>');
+  }
+  // 已登录点「我的账户」：按真实专属身份（RPC）决定去向——专属→后台、买家→普通账户页；验证中保持加载态不误跳
+  function routeAccount(link) {
+    if (typeof window.ykExclusiveCheck !== 'function') { location.href = '/account/'; return; }
+    var restore = link.innerHTML;
+    link.classList.add('acct-loading');
+    link.innerHTML = span('身份确认中…', 'Checking…');
+    var go = function (exclusive) {
+      if (exclusive) { location.href = '/admin.html'; return; }
+      if (curPage === 'shop' && typeof window.__shopNav === 'function') { location.href = '/account/'; return; }
+      location.href = '/account/';
+    };
+    var fail = function () { link.classList.remove('acct-loading'); link.innerHTML = restore; };
+    window.ykExclusiveCheck().then(function (res) {
+      if (res && res.ok === 'pending') {
+        setTimeout(function () {
+          try { window.YK_EXCLUSIVE_MEMO = null; } catch (e) {}
+          window.ykExclusiveCheck().then(function (r2) {
+            if (r2 && r2.ok === 'pending') { fail(); return; } // 仍未就绪：回原样，不误跳
+            go(!!(r2 && r2.ok === true));
+          }).catch(fail);
+        }, 2500);
+        return;
+      }
+      go(!!(res && res.ok === true));
+    }).catch(function () { fail(); go(false); });
+  }
   function buildMenu(nav) {
     var frag = document.createDocumentFragment();
     nav.forEach(function (item) {
@@ -77,13 +117,13 @@
         var tg = el('<button class="menu-toggle" type="button">' + span(item.zh, item.en) + '<span class="plus"></span></button>');
         var sub = el('<div class="submenu"></div>');
         item.items.forEach(function (s) {
-          sub.appendChild(el('<a href="' + hrefOf(s) + '" data-key="' + s.key + '"><span class="dash">-</span>' + span(s.zh, s.en) + '</a>'));
+          sub.appendChild(el('<a href="' + hrefOf(s) + '" data-key="' + s.key + '">' + span(s.zh, s.en) + '</a>'));
         });
         g.appendChild(tg); g.appendChild(sub);
         frag.appendChild(g);
       } else {
         var attrs = [];
-        if (item.scroll && curPage === item.page) attrs.push('data-scroll="' + item.scrollTo + '"');
+        if (item.scroll) attrs.push('data-scroll="' + item.scrollTo + '"'); // 跨页也带上：不在主页时点菜单会带 ?scroll= 回主页定位
         frag.appendChild(el('<a class="menu-link" data-key="' + item.key + '" href="' + hrefOf(item) + '" ' + attrs.join(' ') + '>' + span(item.zh, item.en) + '</a>'));
       }
     });
@@ -93,27 +133,48 @@
     return itemMatchesCurrent(item);
   }
 
-  // 柚子专属：登录后是可展开分组（管理后台），没登录是普通链接
+  // 柚子专属：没登录是普通链接（后台登录入口）；专属账号登录后是可展开分组；普通买家登录后隐藏
   function buildOwner() {
-    var logged = false;
-    try { logged = !!localStorage.getItem('yuki-admin-session'); } catch (e) {}
-    if (logged) {
-      var g = el('<div class="menu-group" id="menu-owner-group" style="margin-top:auto;"></div>');
+    var s = readSession();
+    // 前台/商城（有权限模块）：未登录与普通买家一律不显示专属后台入口，仅专属确认后显示
+    if (window.ykExclusiveCheck) {
+      if (window.__YK_MENU_OK !== true) {
+        // 已登录但权限确认未完成：显示「身份确认中」占位，不提前降级成普通用户
+        if (s) return el('<div class="menu-owner-pending">' + span('身份确认中…', 'Checking identity…') + '</div>');
+        return el('<div style="display:none;"></div>');
+      }
+    } else if (!s) {
+      return el('<div style="display:none;"></div>'); // 后台自身未登录也不显示
+    }
+    if (s) {
+      var g = el('<div class="menu-group" id="menu-owner-group"></div>');
       g.appendChild(el('<button class="menu-toggle" type="button">' + span('柚子专属', 'Yuki\'s Personal') + '<span class="plus"></span></button>'));
       var sub = el('<div class="submenu"></div>');
       sub.appendChild(el('<a class="menu-link" data-key="admin" href="/admin.html">' + span('管理后台', 'Admin') + '</a>'));
       g.appendChild(sub);
       return g;
     }
-    return el('<a class="menu-owner" id="menu-owner-link" href="/admin.html" style="margin-top:auto;">' + span('柚子专属', 'Yuki\'s Personal') + '</a>');
+    return el('<a class="menu-owner" id="menu-owner-link" href="/admin.html">' + span('柚子专属', 'Yuki\'s Personal') + '</a>');
   }
 
-  function render() {
+  // 权限过滤：照片=任意登录可见；BJD/色卡/稿件=柚子专属（未确认前先隐藏，确认后自动出现）
+  function permFilter(list) {
+    var s = null;
+    try { s = JSON.parse(localStorage.getItem('yuki-user-session') || 'null') || JSON.parse(localStorage.getItem('yuki-admin-session') || 'null'); } catch (e) {}
+    var logged = !!(s && (s.a || s.r));
+    return (list || []).filter(function (item) {
+      if (item.key === 'gallery') return logged;
+      if (item.key === 'cal' || item.key === 'bjd' || item.key === 'cards' || item.key === 'works') return window.__YK_MENU_OK === true;
+      return true;
+    });
+  }
+  function render(list) {
     var menu = document.getElementById('menu');
     if (!menu) return;
     menu.innerHTML = '';
-    menu.appendChild(buildMenu(NAV));
+    menu.appendChild(buildMenu(permFilter(list || NAV)));
     menu.appendChild(buildOwner());
+    menu.appendChild(buildAcctBottom());
   }
 
   // ── 数据库同步（全站同一份数据：照片分区 / 区域标题与显隐 / BJD 名单 / 色卡名单）──
@@ -129,7 +190,7 @@
     render();
     Promise.all([
       dbFetch('photo_sections?select=id,key,name_zh,name_en,sort&order=sort.asc,created_at.asc&limit=100'),
-      dbFetch('site_settings?select=key,value&key=in.(areas,bjds,cards)&limit=10')
+      (typeof window.ykAuthFetch === 'function' ? window.ykAuthFetch : dbFetch)('site_settings?select=key,value&key=in.(areas,bjds,cards)&limit=10') /* 私有键走登录态（无 site-common 的页面回退匿名）*/
     ]).then(function (res) {
       var sections = res[0] || [];
       var settings = {};
@@ -158,28 +219,19 @@
         var ga = areas.gallery;
         if (ga && ga.title_zh) { gal.zh = ga.title_zh; gal.en = ga.title_en || ga.title_zh; }
       }
-      // BJD 名单 → BJD 分组（有娃娃才展开成组，没有就是普通入口）
-      var bjdIdx = -1;
-      nav.forEach(function (item, i) { if (item.key === 'bjd') bjdIdx = i; });
-      if (bjdIdx > -1 && bjds.length) {
-        nav[bjdIdx] = { key: 'bjd', group: true, nav: 'bjd', zh: 'BJD', en: 'BJD', items: bjds.map(function (b, i) {
-          var nm = b.name || '未命名娃娃';
-          return { key: 'bjd-' + i, zh: nm, en: nm, page: 'bjd', url: '/bjd/?id=' + i, sub: String(i) };
-        })};
-      }
-      // 色卡名单 → 色卡分组（同一套数据）
-      var cardsIdx = -1;
-      nav.forEach(function (item, i) { if (item.key === 'cards') cardsIdx = i; });
-      if (cardsIdx > -1 && cards.length) {
-        nav[cardsIdx] = { key: 'cards', group: true, nav: 'cards', zh: '色卡', en: 'Color Cards', items: cards.map(function (c, i) {
-          var nm = c.name || '未命名色卡';
-          return { key: 'card-' + i, zh: nm, en: nm, page: 'cards', url: '/color-card/?card=' + i, sub: String(i) };
-        })};
-      }
-      render();
+      // BJD/色卡（她 20261027 02:16：只要一个按钮，点进去就是列表页）——不再按名单展开成子项分组，一律保持单链接直达
+      // 权限过滤照旧：permFilter 控制未授权时隐藏
+      render(nav);
       applyCurrent();
       document.dispatchEvent(new CustomEvent('sitemenu:rendered'));
     });
+    // 柚子专属权限异步确认：确认后重建菜单（BJD/色卡/稿件入口自动出现）
+    if (window.ykExclusiveCheck && !window.__YK_MENU_CHECKED) {
+      window.__YK_MENU_CHECKED = true;
+      window.ykExclusiveCheck().then(function (res) {
+        if (res.ok === true) { window.__YK_MENU_OK = true; refresh(); }
+      }).catch(function () {});
+    }
   }
 
   // ── 交互：开合 / 手风琴 / 点击后收起（全站同一套）──
@@ -202,14 +254,41 @@
     return mask;
   }
   document.addEventListener('click', function (e) {
+    var tc = e.target.closest('.topbar-cart');
+    if (tc) {
+      setMenu(false);
+      if (curPage === 'shop' && typeof window.__shopNav === 'function') { e.preventDefault(); window.__shopNav('cart'); }
+      return;
+    }
     var burger = e.target.closest('.burger');
     if (burger) { setMenu(!document.getElementById('menu').classList.contains('open')); return; }
     var toggle = e.target.closest('.menu-toggle');
     if (toggle && toggle.closest('#menu')) { toggle.closest('.menu-group').classList.toggle('open'); return; }
+    var aa = e.target.closest('#menu a[data-acct]');
+    if (aa) {
+      setMenu(false);
+      if (aa.classList.contains('menu-acct-bottom') && readSession()) {
+        // 已登录：先过真实专属身份验证再决定去向（专属→后台 / 买家→账户页）
+        e.preventDefault();
+        routeAccount(aa);
+        return;
+      }
+      if (curPage === 'shop' && typeof window.__shopNav === 'function') {
+        e.preventDefault();
+        window.__shopNav(aa.getAttribute('data-acct'));
+      }
+      return;
+    }
     var a = e.target.closest('#menu a');
     if (a) {
       var sc = a.getAttribute('data-scroll');
       setMenu(false);
+      if (sc && curPage !== 'index') {
+        // 子页点「日历/找到我」：先回主页再精准定位到区块（含顶栏偏移，主页端统一处理）
+        e.preventDefault();
+        location.href = '/?scroll=' + encodeURIComponent(sc);
+        return;
+      }
       if (sc && typeof window.__menuScroll === 'function') {
         e.preventDefault();
         window.__menuScroll(sc);
@@ -260,7 +339,15 @@
     refresh: refresh,
     close: function () { setMenu(false); },
     notify: notify,
-    applyCurrent: applyCurrent
+    applyCurrent: applyCurrent,
+    setCartCount: function (n) {
+      [['topbar-cart-badge', 'topbar-cart'], ['menu-cart-badge', null]].forEach(function (pair) {
+        var b = document.getElementById(pair[0]);
+        if (!b) return;
+        b.textContent = n;
+        b.style.display = n ? 'inline-flex' : 'none';
+      });
+    }
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', refresh);
   else refresh();

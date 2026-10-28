@@ -21,26 +21,70 @@ function dbFetch(path) {
   return fetch(DB_BASE + path, { headers: DB_HEADERS }).then(function (r) { return r.ok ? r.json() : []; });
 }
 var AUTH_TOKEN = null;
-function getAuthToken() { // 用后台登录态（refresh token）换 access token，让前台写入走 authenticated
-  if (AUTH_TOKEN) return Promise.resolve(AUTH_TOKEN);
-  var s = null;
-  try { s = JSON.parse(localStorage.getItem('yuki-admin-session') || 'null'); } catch (e) {}
+function ykSessionKey() { // 与 ykSession 同判，返回命中的键名（刷新后写回同一把，避免双拷贝互踩）
+  var u = ykReadKey('yuki-user-session'), m = ykReadKey('yuki-admin-session');
+  if (u && m) return (m.t && (!u.t || m.t > u.t)) ? 'yuki-admin-session' : 'yuki-user-session';
+  return u ? 'yuki-user-session' : 'yuki-admin-session';
+}
+function ykWriteSession(s, prefer) {
+  // 全站唯一会话写入点：会话只存一把钥匙，写入时清掉另一把，
+  // 杜绝同一 refresh token 的两份拷贝互相作废（身份在不同页面不一致的根因）
+  try {
+    if (!s) { localStorage.removeItem('yuki-user-session'); localStorage.removeItem('yuki-admin-session'); AUTH_TOKEN = null; return; }
+    var k = prefer || ykSessionKey();
+    localStorage.setItem(k, JSON.stringify(s));
+    localStorage.removeItem(k === 'yuki-user-session' ? 'yuki-admin-session' : 'yuki-user-session');
+    AUTH_TOKEN = null;
+  } catch (e) {}
+}
+var YK_REFRESHING = null; // 页内单飞：多处同时要刷新时只发一次请求
+function ykATFresh(s) { // access token 还新鲜（余量 >120s）就不旋转 refresh token，避免多页/多标签无谓互踩
+  if (!s || !s.a) return false;
+  try {
+    var p = JSON.parse(atob(s.a.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+    return !!(p && p.exp && p.exp > Date.now() / 1000 + 120);
+  } catch (e) { return false; }
+}
+function ykRefreshSession() { // 统一续期：a 新鲜直接复用；否则刷新并写回原键；并发/竞态时重读最新 r 重试一次
+  if (YK_REFRESHING) return YK_REFRESHING;
+  var key = ykSessionKey();
+  var s = ykReadKey(key);
   if (!s || !s.r) return Promise.resolve(null);
-  return fetch('https://vmmmuyxrsiufzurwbydg.supabase.co/auth/v1/token?grant_type=refresh_token', {
-    method: 'POST',
-    headers: { 'apikey': DB_HEADERS.apikey, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ refresh_token: s.r })
-  }).then(function (r) { return r.ok ? r.json() : null; }).then(function (data) {
-    if (data && data.access_token) {
-      AUTH_TOKEN = data.access_token;
-      if (data.refresh_token) {
-        s.r = data.refresh_token;
-        try { localStorage.setItem('yuki-admin-session', JSON.stringify(s)); } catch (e) {}
-      }
-      return AUTH_TOKEN;
+  if (ykATFresh(s)) return Promise.resolve(s);
+  var triedR = s.r;
+  var callRefresh = function (r) {
+    return fetch('https://vmmmuyxrsiufzurwbydg.supabase.co/auth/v1/token?grant_type=refresh_token', {
+      method: 'POST',
+      headers: { 'apikey': DB_HEADERS.apikey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: r })
+    }).then(function (resp) { return resp.json().then(function (j) { return { ok: resp.ok, j: j }; }); });
+  };
+  var apply = function (res, base, k) {
+    if (res && res.ok && res.j && res.j.access_token) {
+      var s2 = { a: res.j.access_token, r: res.j.refresh_token || base.r, email: base.email || (res.j.user && res.j.user.email) || null, t: base.t || Date.now() };
+      ykWriteSession(s2, k);
+      AUTH_TOKEN = s2.a;
+      return s2;
     }
     return null;
-  }).catch(function () { return null; });
+  };
+  YK_REFRESHING = callRefresh(triedR).then(function (res) {
+    var done = apply(res, s, key);
+    if (done) return done;
+    // 失败先别下结论：别的页面可能刚把 r 换新（并发刷新），重读重试一次
+    var sNow = ykReadKey(key);
+    if (sNow && sNow.r && sNow.r !== triedR) return callRefresh(sNow.r).then(function (res2) { return apply(res2, sNow, key); });
+    // r 没变还被拒：会话真失效了（含 refresh token 被旋转后超窗），清干净避免半死状态
+    var err = (res.j && (res.j.error || res.j.error_code || res.j.msg)) || '';
+    if (res.j && res.j.error_description && res.j.error_description.indexOf('invalid') !== -1) err = 'invalid';
+    if (err === 'invalid_grant' || err === 'refresh_token_not_found' || err === 'invalid' || res.j && res.j.error === 'invalid_grant') ykWriteSession(null);
+    return null;
+  }).catch(function () { return null; /* 网络抖动：保会话，下次再试 */ }).then(function (v) { YK_REFRESHING = null; return v; });
+  return YK_REFRESHING;
+}
+function getAuthToken() { // 用登录态（refresh token）换 access token，让前台写入走 authenticated
+  if (AUTH_TOKEN) return Promise.resolve(AUTH_TOKEN);
+  return ykRefreshSession().then(function (s) { return s ? s.a : null; });
 }
 function dbSend(path, method, body) {
   return getAuthToken().then(function (tk) {
@@ -57,9 +101,9 @@ function dbSend(path, method, body) {
 function fmtMoney(v) {
   return (parseFloat(v) || 0).toFixed(2); // 金额统一两位小数，避免浮点长尾
 }
-// 兼容纯文本价格：能提取到数字就统一两位小数，纯文字备注原样保留
+// 兼容纯文本价格：能提取到数字就统一两位小数，纯文字备注原样保留（兼容带 $/¥ 符号的旧数据）
 function fmtPriceText(s) {
-  var str = String(s == null ? '' : s).trim().replace(/^¥+/, '');
+  var str = String(s == null ? '' : s).trim().replace(/^[¥$]+/, '');
   if (str === '') return '';
   var num = parseFloat(str.replace(/[,\s]/g, ''));
   return isFinite(num) && /^\d+(\.\d+)?$/.test(str.replace(/[,\s]/g, '')) ? fmtMoney(num) : str;
@@ -136,25 +180,29 @@ function pagerWrapHtml(urls, alt) {
   urls = urls || [];
   if (!urls.length) return '<div style="width:100%;aspect-ratio:1/1;background:var(--card);"></div>';
   var multi = urls.length > 1;
-  return '<div class="pg-wrap" data-i="0" style="position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--card);">' +
-    '<img class="pg-img" src="' + escAttrDb(urls[0]) + '" data-urls="' + escAttrDb(JSON.stringify(urls)) + '" style="width:100%;height:100%;object-fit:contain;display:block;" alt="' + escAttrDb(alt || '') + '" loading="lazy">' +
+  // 圆点 + 缩略图条放在图片下方（不覆盖在图片上），箭头保留在图两侧
+  return '<div class="pg-holder">' +
+    '<div class="pg-wrap" data-i="0" style="position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--card);">' +
+      '<img class="pg-img" src="' + escAttrDb(urls[0]) + '" data-urls="' + escAttrDb(JSON.stringify(urls)) + '" style="width:100%;height:100%;object-fit:contain;display:block;" alt="' + escAttrDb(alt || '') + '" loading="lazy">' +
+      (multi ? '<button type="button" class="pg-btn pg-prev" aria-label="上一张">‹</button><button type="button" class="pg-btn pg-next" aria-label="下一张">›</button>' : '') +
+    '</div>' +
     (multi ?
-      '<button type="button" class="pg-btn pg-prev" aria-label="上一张">‹</button><button type="button" class="pg-btn pg-next" aria-label="下一张">›</button>' +
       '<div class="pg-dots">' + urls.map(function (_, k) { return '<span class="pg-dot' + (k === 0 ? ' on' : '') + '"></span>'; }).join('') + '</div>' +
       '<div class="pg-thumbs">' + urls.map(function (u, k) { return '<img class="pg-thumb' + (k === 0 ? ' on' : '') + '" src="' + escAttrDb(u) + '" data-k="' + k + '" alt="" loading="lazy">'; }).join('') + '</div>'
       : '') +
     '</div>';
 }
-function pgSet(wrap, i) { // 统一切换：大图 + 极简圆点（当前是长条） + 底部小图预览（自动滚到当前，也可手动左右划、点小图跳转）
+function pgSet(wrap, i) { // 统一切换：大图 + 下方圆点（当前长条） + 图下小图预览（自动滚到当前，也可点小图跳转）
   var img = wrap.querySelector('.pg-img');
+  var holder = wrap.closest('.pg-holder') || wrap;
   var urls = [];
   try { urls = JSON.parse(img.getAttribute('data-urls') || '[]'); } catch (err) {}
   if (!urls.length) return;
   i = (i + urls.length) % urls.length;
   wrap.setAttribute('data-i', String(i));
   img.src = urls[i];
-  wrap.querySelectorAll('.pg-dot').forEach(function (d, k) { d.classList.toggle('on', k === i); });
-  wrap.querySelectorAll('.pg-thumb').forEach(function (t, k) {
+  holder.querySelectorAll('.pg-dot').forEach(function (d, k) { d.classList.toggle('on', k === i); });
+  holder.querySelectorAll('.pg-thumb').forEach(function (t, k) {
     t.classList.toggle('on', k === i);
     if (k === i) { try { t.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); } catch (err) { t.scrollIntoView(); } } // 小图条自动滑到当前张
   });
@@ -163,7 +211,9 @@ document.addEventListener('click', function (e) { // 捕获阶段拦下箭头/�
   var t = e.target.closest ? e.target.closest('.pg-btn, .pg-thumb') : null;
   if (!t) return;
   e.preventDefault(); e.stopPropagation();
-  var wrap = t.closest('.pg-wrap');
+  var holder = t.closest('.pg-holder');
+  var wrap = holder ? holder.querySelector('.pg-wrap') : t.closest('.pg-wrap');
+  if (!wrap) return;
   var urls = [];
   try { urls = JSON.parse(wrap.querySelector('.pg-img').getAttribute('data-urls') || '[]'); } catch (err) {}
   if (urls.length < 2) return;
@@ -440,7 +490,8 @@ var I18N_EN = {
   '我的小铺': 'My Shop',
   '全部照片': 'All Photos',
   '全部娃照': 'All Doll Photos',
-  '匿名留言': 'Ask Box',
+  '匿名留言': 'Contact & Messages',
+  '联系我们': 'Contact Us',
   'Instax Picture Collection Display 拍立得展示': 'Instax Picture Display',
   'Film Camera Pictures 胶卷相机': 'Film Camera Pictures',
   'ᜊ ·̩͙ Hello~ Welcome to My Little Word! ·̩͙ ᜊ｜ᜊ ·̩͙ Hello~ 欢迎来到小柚世界の指南 ·̩͙ ᜊ': 'ᜊ ·̩͙ Hello~ Welcome to My Little World! ·̩͙ ᜊ',
@@ -456,7 +507,7 @@ var I18N_EN = {
   '看全部娃照 →': 'See all doll photos →',
   '小柚的小铺': "Yuki's Shop",
   '自制小物上架中 · 点进去逛逛': 'Handmade goodies inside · Take a look',
-  '匿名提问箱': 'Anonymous Q&A Box',
+  '匿名提问箱': 'Contact Us',
   '悄悄问我任何话，完全匿名 · 我的回答在这里可以看到': 'Ask me anything, totally anonymous · My replies are posted here',
   '给我递个小纸条吧': 'Send me a little note',
   '匿名提问 · 我会在这里回复 · 点进去可以看所有回答': 'Anonymous · I reply here · Tap to see all answers',
@@ -522,6 +573,21 @@ document.querySelectorAll('.lang-btn').forEach(function (b) {
     location.reload(); // 保存后整页刷新：从已存语言状态重新初始化，URL 保持不变
   });
 });
+/* 兼容 site-common 在 <head> 引入的页面（about/brand/service/policies）：load 时按钮还不存在，用事件委托兜底，同一套逻辑不重复绑 */
+document.addEventListener('click', function (e) {
+  var b = e.target && e.target.closest ? e.target.closest('.lang-btn') : null;
+  if (!b || b._langBound) return;
+  b._langBound = true;
+  var lang = b.getAttribute('data-lang') === 'en' ? 'en' : 'zh';
+  try { localStorage.setItem('yuki-lang', lang); } catch (err) {}
+  location.reload();
+});
+/* 语言选中态自动初始化：任何页面刷新/跳转后恢复 yuki-lang（她 20261026 总任务书 §1.3） */
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', function () { applyLang(LANG); });
+} else {
+  applyLang(LANG);
+}
 
 // ===== 灯箱：全屏展示 + 可选下载 =====
 function closeLightbox() {
@@ -768,3 +834,216 @@ if ('serviceWorker' in navigator && location.protocol === 'https:') {
     navigator.serviceWorker.register('/sw.js').catch(function () {});
   });
 }
+
+// ═══════════ 柚子专属权限（白名单邮箱 chengyuki119@gmail.com；权威判断在后端 RPC yuki_exclusive_get）═══════════
+// 三态：true 白名单已登录 / false 无权限 / 'pending' 后端 RPC 未部署（SQL 未跑），页面自行决定放行与否
+var YK_EXCLUSIVE_MEMO = null; // 会话内缓存，避免每页多次 ping
+function ykReadKey(k) {
+  try { var v = JSON.parse(localStorage.getItem(k) || 'null'); return (v && (v.a || v.r)) ? v : null; } catch (e) { return null; }
+}
+function ykSession() {
+  // 支持两种形态：商城 {a,r,email} / 后台 {r}（仅 refresh token，access token 需换取）
+  // 双键共存（商城账号 + 后台账号）时，取最近登录的那个（t 时间戳），保证「切换账号」全站判断一致
+  var u = ykReadKey('yuki-user-session'), m = ykReadKey('yuki-admin-session');
+  if (u && m) return (m.t && (!u.t || m.t > u.t)) ? m : u;
+  return u || m;
+}
+function ykHasAT() { var s = ykSession(); return !!(s && s.a); }
+function ykToken() {
+  var s = ykSession();
+  if (!s) return Promise.resolve(null);
+  if (s.a) return Promise.resolve(s.a);
+  return getAuthToken(); // 后台 {r} 形态：用现有刷新逻辑换 access token（内部已缓存并回写）
+}
+function ykStoreKey() {
+  var u = ykReadKey('yuki-user-session'), m = ykReadKey('yuki-admin-session');
+  if (u && m) return (m.t && (!u.t || m.t > u.t)) ? 'yuki-admin-session' : 'yuki-user-session';
+  return u ? 'yuki-user-session' : 'yuki-admin-session';
+}
+function ykRpc(p_kind) {
+  return ykToken().then(function (at) {
+    if (!at) { var e0 = new Error('请先登录'); e0.ykCode = 'nosession'; throw e0; }
+    var call = function (token) {
+      return fetch(DB_BASE + 'rpc/yuki_exclusive_get', {
+        method: 'POST',
+        headers: { 'apikey': DB_HEADERS.apikey, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ p_kind: p_kind })
+      }).then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); });
+    };
+    return call(at).then(function (res) {
+      if (res.status !== 401) return res;
+      // access token 过期 → 走统一续期（单飞+竞态重试）再试一次
+      AUTH_TOKEN = null;
+      return ykRefreshSession().then(function (s2) {
+        if (!s2 || !s2.a) { var e1 = new Error('登录过期'); e1.ykCode = 'expired'; throw e1; }
+        return call(s2.a);
+      });
+    });
+  }).then(function (res) {
+    var code = res.body && res.body.code;
+    if (res.status === 404 || code === 'PGRST202') { var e3 = new Error('RPC 未部署'); e3.ykCode = 'pending'; throw e3; }
+    if (res.status !== 200) {
+      var msg = (res.body && (res.body.message || res.body.msg)) || '查询失败';
+      if (msg.indexOf('仅限柚子专属') !== -1) { var e4 = new Error(msg); e4.ykCode = 'denied'; throw e4; }
+      var e5 = new Error(msg); e5.ykCode = 'error'; throw e5;
+    }
+    return res.body;
+  });
+}
+function ykExclusiveCheck() {
+  if (!ykSession()) return Promise.resolve({ ok: false, email: null });
+  if (YK_EXCLUSIVE_MEMO) return Promise.resolve({ ok: YK_EXCLUSIVE_MEMO, email: ykSession().email || null });
+  var run = function (isRetry) {
+    return ykRpc('ping').then(function (j) {
+      YK_EXCLUSIVE_MEMO = true;
+      var s = ykSession();
+      if (s && !s.email && j && j.email) { // 后台 {r} 形态补记邮箱，提示卡/菜单都能用
+        s.email = j.email;
+        try { localStorage.setItem(ykStoreKey(), JSON.stringify(s)); } catch (e) {}
+      }
+      return { ok: true, email: (j && j.email) || null };
+    }).catch(function (e) {
+      if (e && e.ykCode === 'pending') { YK_EXCLUSIVE_MEMO = 'pending'; return { ok: 'pending', email: null }; }
+      // 明确拒绝（非白名单）才算降级；网络/服务抖动（error/expired）不算——返回 retry 并自动重试一次
+      var transient = e && (e.ykCode === 'error' || e.ykCode === 'expired');
+      if (transient && !isRetry) {
+        return new Promise(function (res) { setTimeout(res, 2500); }).then(function () { return run(true); });
+      }
+      if (transient) return { ok: 'retry', email: null }; // 不写 memo，下页/手动重试仍会再试
+      YK_EXCLUSIVE_MEMO = false;
+      var sNow = ykSession();
+      return { ok: false, email: (sNow && sNow.email) || null };
+    });
+  };
+  return run(false);
+}
+function ykExclusiveData(kind) {
+  return ykRpc(kind); // 返回 payload 原样（数组或对象，由调用方按 site_settings 同型处理）
+}
+function ykExclusiveLogout() {
+  try { localStorage.removeItem('yuki-user-session'); } catch (e) {}
+  try { localStorage.removeItem('yuki-admin-session'); } catch (e) {}
+  YK_EXCLUSIVE_MEMO = null;
+  location.reload();
+}
+// 跨标签页会话同步：任何一处登录/登出，其他页面的菜单与权限立即重建
+window.addEventListener('storage', function (e) {
+  if (e.key !== 'yuki-user-session' && e.key !== 'yuki-admin-session') return;
+  YK_EXCLUSIVE_MEMO = null;
+  window.__YK_MENU_OK = false;
+  window.__YK_MENU_CHECKED = false;
+  try { if (window.SiteMenu) SiteMenu.refresh(); } catch (err) {}
+  try { document.dispatchEvent(new CustomEvent('yk-session-changed')); } catch (err) {}
+});
+// 页面门禁：mode 'exclusive'（默认，柚子专属白名单）| 'photos'（任意登录用户可看）
+// resolve(true) = 可渲染；false = 已渲染权限提示页（调用方必须停止数据加载）
+function ykGatePage(mode) {
+  mode = mode || 'exclusive';
+  var check = (mode === 'photos')
+    ? Promise.resolve({ ok: ykSession() ? true : false, email: (ykSession() || {}).email || null })
+    : ykExclusiveCheck();
+  return check.then(function (res) {
+    if (res.ok === 'pending') {
+      var bar = document.createElement('div');
+      bar.style.cssText = 'position:sticky;top:0;z-index:99;background:var(--card,#FFFFFF);color:var(--text,#604C57);text-align:center;font-size:14px;padding:7px 12px;border-bottom:1px solid var(--accent-soft,#FCE4EC);';
+      bar.textContent = (window.LANG === 'en' ? 'Permission layer not active yet (waiting for SQL).' : '专属权限层尚未启用（等待 SQL），当前仅前端临时放行。');
+      document.body.insertBefore(bar, document.body.firstChild);
+      return true;
+    }
+    if (res.ok === 'retry') {
+      // 网络/服务抖动：不下「普通用户」的结论，给重试入口
+      var wrapR = document.createElement('div');
+      wrapR.style.cssText = 'min-height:62vh;display:flex;align-items:center;justify-content:center;padding:30px 16px;';
+      wrapR.innerHTML = '<div style="background:var(--card,#FFFFFF);border-radius:22px;padding:44px 34px;max-width:480px;width:100%;text-align:center;">' +
+        '<div style="font-size:34px;color:var(--text,#604C57);line-height:1;">♥</div>' +
+        '<h2 style="font-size:20px;color:var(--text,#604C57);margin:14px 0 8px;">' + (en ? 'Checking your identity…' : '身份确认没成功') + '</h2>' +
+        '<p style="font-size:15px;color:var(--muted,#A88E9B);margin:0 0 22px;">' + (en ? 'Network hiccup — your login is safe. Tap to retry.' : '刚才网络抖了一下，你的登录还在，点下面重试就好。') + '</p>' +
+        '<button id="yk-retry" style="background:var(--accent,#ffd9e6);color:var(--text,#604C57);border:0;border-radius:999px;padding:11px 26px;font-size:16px;cursor:pointer;">' + (en ? 'Retry' : '重试') + '</button>' +
+        '</div>';
+      document.body.insertBefore(wrapR, document.body.firstChild);
+      var othersR = document.querySelectorAll('body > *:not(:first-child)');
+      for (var jR = 0; jR < othersR.length; jR++) othersR[jR].style.display = 'none';
+      document.getElementById('yk-retry').addEventListener('click', function () { YK_EXCLUSIVE_MEMO = null; location.reload(); });
+      return false;
+    }
+    if (res.ok === true) return true;
+    // 权限提示页（与 404 页同款风格：粉色卡居中）
+    var en = window.LANG === 'en';
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'min-height:62vh;display:flex;align-items:center;justify-content:center;padding:30px 16px;';
+    var logged = !!ykSession();
+    var title = (mode === 'photos') ? (en ? 'Photos are for logged-in visitors' : '照片展示要登录后才能看哦') : (en ? 'Yuki Members Only' : '此内容仅限柚子专属账号查看');
+    var btns = '';
+    if (!logged) {
+      btns = '<a href="/account/?next=' + encodeURIComponent(location.pathname + location.search) + '" style="display:inline-block;background:var(--accent,#ffd9e6);color:var(--text,#604C57);border-radius:999px;padding:11px 26px;font-size:16px;text-decoration:none;">' + (en ? 'Go to Login' : '去登录') + '</a>';
+    } else {
+      btns = '<button id="yk-logout" style="background:var(--accent,#ffd9e6);color:var(--text,#604C57);border:0;border-radius:999px;padding:11px 26px;font-size:16px;cursor:pointer;">' + (en ? 'Log Out' : '退出登录') + '</button>' +
+             ' <a href="/" style="display:inline-block;margin-left:10px;color:var(--muted,#A88E9B);text-decoration:none;">' + (en ? 'Back to Home' : '返回主页') + '</a>';
+    }
+    wrap.innerHTML = '<div style="background:var(--card,#FFFFFF);border-radius:22px;padding:44px 34px;max-width:480px;width:100%;text-align:center;">' +
+      '<div style="font-size:34px;color:var(--text,#604C57);line-height:1;">♥</div>' +
+      '<h2 style="font-size:20px;color:var(--text,#604C57);margin:14px 0 8px;">' + title + '</h2>' +
+      '<p style="font-size:15px;color:var(--muted,#A88E9B);margin:0 0 22px;">' +
+        (logged
+          ? (mode === 'photos'
+              ? (en ? 'You are logged in — enjoying the photos~' : '你已登录，慢慢看照片～')
+              : (en ? 'Current account: ' + escDb(res.email || '') + '. This area is only for Yuki\'s own account.' : '当前登录：' + escDb(res.email || '') + '，这里只有柚子的专属账号能进来哦'))
+          : (mode === 'photos'
+              ? (en ? 'Please log in first.' : '请先登录再来看照片哦')
+              : (en ? 'Please log in with the Yuki exclusive account first.' : '请先用柚子的专属账号登录再来哦'))) +
+      '</p>' + btns + '</div>';
+    document.body.insertBefore(wrap, document.body.firstChild);
+    var others = document.querySelectorAll('body > *:not(:first-child)');
+    for (var i = 0; i < others.length; i++) others[i].style.display = 'none';
+    var lo = document.getElementById('yk-logout');
+    if (lo) lo.addEventListener('click', ykExclusiveLogout);
+    return false;
+  });
+}
+window.ykExclusiveCheck = ykExclusiveCheck;
+window.ykExclusiveData = ykExclusiveData;
+window.ykGatePage = ykGatePage;
+window.ykRefreshSession = ykRefreshSession;
+window.ykWriteSession = ykWriteSession;
+window.ykSessionKey = ykSessionKey;
+// 登录态取数：有会话用 access token，否则 anon（照片页等登录可见数据用）
+function ykAuthFetch(path) {
+  return ykToken().then(function (at) {
+    var h = at ? { 'apikey': DB_HEADERS.apikey, 'Authorization': 'Bearer ' + at } : DB_HEADERS;
+    return fetch(DB_BASE + path, { headers: h }).then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; });
+  });
+}
+window.ykAuthFetch = ykAuthFetch;
+
+/* ═══ 主题颜色：全站单一数据源（她 2026-10-26）═══
+   库 site_settings.key='theme_colors'，后台「主题颜色」页签可改；
+   所有页面引用的都是 var(--text/--muted/--bg/--card/--accent/--accent-soft/--accent-strong/--price)，
+   这里读库后覆写 :root 变量 → 全站同步，无需改任何页面代码。 */
+function ykApplyTheme(v) {
+  if (!v || typeof v !== 'object') return;
+  var map = { text: '--text', muted: '--muted', bg: '--bg', card: '--card', accent: '--accent', accentSoft: '--accent-soft', accentStrong: '--accent-strong', price: '--price', success: '--success', warning: '--warning', danger: '--danger' };
+  var r = document.documentElement.style;
+  Object.keys(map).forEach(function (k) { if (v[k]) r.setProperty(map[k], v[k]); });
+}
+window.ykApplyTheme = ykApplyTheme;
+(function () {
+  try {
+    var saved = null;
+    try { saved = JSON.parse(localStorage.getItem('yuki-theme-colors-v2') || 'null'); } catch (e) {}
+    if (saved) ykApplyTheme(saved); // 先用本地快照免闪烁，再拉库校准
+  } catch (e) {}
+  fetch(DB_BASE + 'site_settings?select=value&key=eq.theme_colors', { headers: DB_HEADERS })
+    .then(function (r) { return r.ok ? r.json() : []; })
+    .then(function (rows) {
+      var raw = rows && rows[0] && rows[0].value;
+      if (!raw) return;
+      try {
+        var v = typeof raw === 'string' ? JSON.parse(raw) : raw;
+        if (v && typeof v === 'object') {
+          ykApplyTheme(v);
+          try { localStorage.setItem('yuki-theme-colors-v2', JSON.stringify(v)); } catch (e) {}
+        }
+      } catch (e) {}
+    })
+    .catch(function () {});
+})();
