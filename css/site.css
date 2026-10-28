@@ -510,10 +510,11 @@
   /* ===== 子页面（她 20261027 02:24：全部页面统一成小铺同款粉横幅 header）===== */
   .subpage-header {
     background: var(--accent-soft,#FCE4EC);
-    padding: 84px 0 40px;
+    padding: 52px 0 36px; /* 收紧顶部大空白（她 20261028 01:06：手机端不要异常大块空白） */
     position: relative;
     width: 100vw; margin-left: calc(50% - 50vw); /* 全宽出血：banner 在限宽容器内也铺满视口（她 20261027 02:24 统一小铺同款） */
   }
+  @media (max-width: 700px) { .subpage-header { padding: 32px 0 26px; } }
   .subpage-header > h1, .subpage-header > p {
     max-width: 1200px; margin-left: auto; margin-right: auto;
     padding-left: 24px; padding-right: 24px; box-sizing: border-box;
@@ -528,7 +529,9 @@
     transition: background .2s;
   }
   .back-link:hover { background: var(--card-hover); }
-  .subpage-title { font-size:31px; margin: 20px auto 6px; }
+  /* 返回链接与横幅标题同轴（她 20261028 01:06：参考前台 PC 布局，不再悬在视口最左） */
+  .back-link.page-back { margin-left: max(2px, calc((100% - 1200px) / 2 + 10px)) !important; }
+  .subpage-title { font-size:31px; margin: 0 auto 6px; }
   .subpage-sub { color: var(--muted); font-size:17px; margin-bottom: 0; } /* 横幅自身 padding-bottom 提供空隙 */
   .album-body { max-width: 1200px; } /* 与页头同宽，照片和返回按钮左边对齐 */
 
