@@ -218,7 +218,7 @@
       .then(function (rows) { SM.payRecords = arr(rows); })
       .catch(function () { SM.payRecords = []; });
   }
-  var KIND_LABEL = { deposit: '订金', final: '尾款', installment: '分期', other: '其他' }; // 收款类型（shop_pay_record_add 合法值，她 2026-10-28 任务书 6.4）
+  var KIND_LABEL = { deposit: '订金', final: '尾款', installment: '分期', full: '全款', other: '其他' }; // 收款类型（shop_pay_record_add 白名单，含 2026-10-28 扩展的 full）
   function payNet(o) { // 人工收款台账汇总：非退款=累计实收，refund=退款
     var ps = arr(SM.payRecords).filter(function (x) { return String(x.order_id) === String(o.id); });
     var paid = ps.filter(function (x) { return x.kind !== 'refund'; }).reduce(function (t, x) { return t + num(x.amount); }, 0);
@@ -447,7 +447,7 @@
         '<input class="sm-ship-note" placeholder="备注" value="' + escAttr(o.ship_note || '') + '"></div>' +
         '<button type="button" class="btn-save sm-act-ship" style="padding:10px 26px;font-size:16px;">确认发货</button>' +
         '</div>' +
-        // 20261028p82：虚拟物流 6 状态推进（仅 TEST- 测试单号；加载当前进度后可点击切换）
+        // 20261028p92：虚拟物流 6 状态推进（仅 TEST- 测试单号；加载当前进度后可点击切换）
         ((o.tracking || '').indexOf('TEST-') === 0 ?
           '<div class="sm-act sm-act-v"><span class="sm-vlabel">虚拟物流状态（测试单号专用，点击切换 · 不会发给真实客户）</span>' +
           '<div class="sm-track-steps" data-no="' + escAttr(o.tracking) + '" style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0;"><span style="font-size:13px;color:var(--muted);">加载中…</span></div>' +
@@ -1019,11 +1019,12 @@
         });
       return;
     }
-    if (e.target.classList.contains('sm-pmethod')) { // 收款渠道：与线下开单渠道一致的人工方式
-      pickPop(e.target, [['cash', '现金'], ['zelle', 'Zelle'], ['venmo', 'Venmo'], ['cashapp', 'CashApp'], ['paypal', 'PayPal'], ['bank', '银行转账'], ['other', '其他']].map(function (m) { return { v: m[0], label: m[1] }; }),
+    if (e.target.classList.contains('sm-pmethod')) { // 收款渠道：含微信/支付宝（whitelist 未扩展前自动降级 other）
+      pickPop(e.target, [['cash', '现金'], ['zelle', 'Zelle'], ['venmo', 'Venmo'], ['cashapp', 'CashApp'], ['paypal', 'PayPal'], ['bank', '银行转账'], ['wechat', '微信支付'], ['alipay', '支付宝'], ['other', '其他']].map(function (m) { return { v: m[0], label: m[1] }; }),
         e.target.getAttribute('data-v') || 'cash', function (v) {
+          var L = { cash: '现金', bank: '银行转账', other: '其他' };
           e.target.setAttribute('data-v', v);
-          e.target.querySelector('.pick-btn-label').textContent = v === 'cash' ? '现金' : v === 'bank' ? '银行转账' : v === 'other' ? '其他' : v;
+          e.target.querySelector('.pick-btn-label').textContent = L[v] || v;
         });
       return;
     }
@@ -1033,11 +1034,14 @@
       var method = (card.querySelector('.sm-pmethod').getAttribute('data-v')) || 'cash';
       if (!isFinite(amt) || amt <= 0) { toast('收款金额要大于 0'); return; }
       var svBtn = e.target; svBtn.disabled = true;
-      api('rpc/shop_pay_record_add', { method: 'POST', body: JSON.stringify({
-        p_order_id: id, p_kind: kind, p_amount: amt, p_method: method,
-        p_txn_ref: card.querySelector('.sm-recpay-ref').value.trim(), p_note: ''
-      }) })
-        .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('rpc')); })
+      function callPay(k, m) {
+        return api('rpc/shop_pay_record_add', { method: 'POST', body: JSON.stringify({
+          p_order_id: id, p_kind: k, p_amount: amt, p_method: m,
+          p_txn_ref: card.querySelector('.sm-recpay-ref').value.trim(), p_note: ''
+        }) }).then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('rpc')); });
+      }
+      callPay(kind, method)
+        .catch(function () { return callPay(kind === 'full' ? 'other' : kind, (method === 'wechat' || method === 'alipay') ? 'other' : method); }) // 兼容未跑扩展脚本时的旧白名单
         .then(function (res) {
           toast('已记录' + (KIND_LABEL[kind] || '收款') + ' $' + fmtMoney(amt) + (res && res.outstanding > 0.005 ? '，待收 $' + fmtMoney(res.outstanding) : '，已结清'));
           return loadPayRecords();
@@ -1813,17 +1817,23 @@
         return;
       }
       var PAY = { pending: '待付款', reviewing: '待审核付款', rejected: '凭证有误', paid: '已付款', shipped: '已付款', completed: '已付款', cancelled: '已取消', refunding: '退款处理中', refunded: '已退款' };
-      var head = ['Order ID', 'Order Number', 'Order Date', 'Order Status', 'Payment Status', 'Refund Amount', 'Refund Status', 'Tax', 'Order Source', 'Currency', 'Subtotal', 'Discount', 'Shipping Fee', 'Service Fee', 'Total Amount', 'Admin Notes', 'Customer Notes', 'Customer ID', 'Customer Name', 'Email', 'Phone', 'Recipient Name', 'Shipping Address', 'City', 'State', 'ZIP Code', 'Country', 'Product ID', 'SKU', 'Product Name', 'Variant', 'Quantity', 'Unit Price', 'Line Total'];
+      var head = ['Order ID', 'Order Number', 'Order Date', 'Order Status', 'Payment Status', 'Refund Amount', 'Refund Status', 'Received (Stripe+Manual)', 'Outstanding', 'Tax', 'Order Source', 'Currency', 'Subtotal', 'Discount', 'Shipping Fee', 'Service Fee', 'Total Amount', 'Admin Notes', 'Customer Notes', 'Customer ID', 'Customer Name', 'Email', 'Phone', 'Recipient Name', 'Shipping Address', 'City', 'State', 'ZIP Code', 'Country', 'Product ID', 'SKU', 'Product Name', 'Variant', 'Quantity', 'Unit Price', 'Line Total'];
       var lines = [head.map(csvCell).join(',')];
       rows.forEach(function (o) {
         var a = o.address || {};
         var pi = payInfo(o);
-        var refundAmt = pi.refunded > 0 ? fmtMoney(pi.refunded) : '';
-        var refundSt = pi.refunded <= 0 ? '' : (pi.refunded >= num(o.total) - 0.005 ? '已全额退款' : '部分退款');
+        var mn = payNet(o); // 人工收款台账（订金/尾款/分期/全款，她 2026-10-28 补充需求 5：导出含实收与待收）
+        var paidAll = pi.paid + mn.paid, refAll = pi.refunded + mn.refunded;
+        var outstanding = num(o.total) - paidAll + refAll;
+        var refundAmt = refAll > 0 ? fmtMoney(refAll) : '';
+        var refundSt = refAll <= 0 ? '' : (refAll >= num(o.total) - 0.005 ? '已全额退款' : '部分退款');
         var payL = payLabel(o);
         var base = [
           o.id, o.order_no, o.created_at, o.status, payL,
-          refundAmt, refundSt, '', // 税费：系统不收税，留空（她 2026-10-25）
+          refundAmt, refundSt,
+          fmtMoney(paidAll) + (mn.paid > 0 ? '（含人工 ' + fmtMoney(mn.paid) + '）' : ''),
+          fmtMoney(outstanding > 0.005 ? outstanding : 0),
+          '', // 税费：系统不收税，留空（她 2026-10-25）
           SOURCE_LABEL[o.order_source || 'online'] || (o.order_source || 'online'),
           o.currency || 'USD', fmtMoney(o.subtotal), fmtMoney(o.discount),
           fmtMoney(o.shipping_actual != null && o.shipping_actual !== '' ? o.shipping_actual : o.shipping_est),

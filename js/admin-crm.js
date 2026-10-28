@@ -211,7 +211,7 @@
   }
 
   /* ═══════════ 线下开单 ═══════════ */
-  var POS = { items: [], prods: [], custs: [], customerId: null, channel: 'cash', test: true };
+  var POS = { items: [], prods: [], custs: [], customerId: null, channel: 'cash', test: true, payPlan: 'full' }; // payPlan: full=全款 / deposit=定金＋尾款 / split=分次付款（她 2026-10-28 补充需求）
 
   CRM.bootPos = function () {
     var panel = document.getElementById('tab-pos');
@@ -243,6 +243,13 @@
           '<h3 style="margin:0 0 10px;font-size:16px;color:var(--text,#604C57);">' + t('收款', 'Payment') + ' · <span id="pos-no" style="color:var(--price,#ff6fa5);">—</span></h3>' +
           '<div id="pos-chans" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;"></div>' +
           '<input id="pos-note" placeholder="' + t('订单备注（客户要求／定制说明／收款说明，可选）', 'Order note (requests / custom specs / payment notes, optional)') + '" style="width:100%;margin-bottom:10px;box-sizing:border-box;" />' + // 订单备注：写入 shop_orders.note（她 20261028 总任务书 5.2）
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px;">' + // 收款安排：全款/定金＋尾款/分次付款（她 2026-10-28 补充需求 1）
+            '<span style="font-size:13px;color:var(--muted,#A88E9B);">' + t('收款安排', 'Payment plan') + '</span>' +
+            '<span class="paytab' + (POS.payPlan === 'full' ? ' on' : '') + '" data-plan="full">' + t('全款', 'Full') + '</span>' +
+            '<span class="paytab' + (POS.payPlan === 'deposit' ? ' on' : '') + '" data-plan="deposit">' + t('定金＋尾款', 'Deposit + final') + '</span>' +
+            '<span class="paytab' + (POS.payPlan === 'split' ? ' on' : '') + '" data-plan="split">' + t('分次付款', 'Installments') + '</span>' +
+            '<input id="pos-paynow" type="number" min="0" step="0.01" placeholder="' + t('本次实收 $（选填）', 'Received now $ (optional)') + '" style="width:140px;">' +
+          '</div>' +
           '<div style="font-size:13px;color:#8a6d3b;background:#fff7f0;border:1px solid #f0d9c0;border-radius:10px;padding:8px 12px;margin-bottom:10px;">' + t('现金 / 转账需实际收到钱后再点「确认收款」——只保存记录不代表已收款。', 'Cash/transfers: confirm only after money actually received.') + '</div>' +
           '<div id="pos-cart"></div>' +
           '<div id="pos-sum"></div>' +
@@ -253,11 +260,17 @@
         '</div>' +
       '</div>' +
       '<div style="margin-top:14px;font-size:13px;color:var(--muted,#A88E9B);">' + t('编号规则：正式 SY-POS-001…，测试 SY-POS-TEST-001…，与线上订单独立计数；重复点击保存不会产生重复记录。', 'POS numbering is independent from online orders; duplicate submits are protected.') + '</div>';
-    var chans = [['cash', t('现金', 'Cash')], ['zelle', 'Zelle'], ['venmo', 'Venmo'], ['paypal', 'PayPal'], ['stripe', t('Stripe 扫码', 'Stripe QR')], ['wechat', t('微信支付', 'WeChat Pay')], ['other', t('＋ 其他', 'Other')]]; // 微信支付：人工记录收款方式（未接在线 API，她 20261028 总任务书 5.1）
+    var chans = [['cash', t('现金', 'Cash')], ['zelle', 'Zelle'], ['venmo', 'Venmo'], ['paypal', 'PayPal'], ['stripe', t('Stripe 扫码', 'Stripe QR')], ['wechat', t('微信支付', 'WeChat Pay')], ['alipay', t('支付宝', 'Alipay')], ['other', t('＋ 其他', 'Other')]]; // 微信/支付宝：人工记录收款方式（未接在线 API）
     var chansEl = panel.querySelector('#pos-chans');
     chansEl.innerHTML = chans.map(function (c) { return '<span class="paytab' + (POS.channel === c[0] ? ' on' : '') + '" data-ch="' + c[0] + '">' + c[1] + '</span>'; }).join('');
     chansEl.querySelectorAll('.paytab').forEach(function (el) {
       el.addEventListener('click', function () { POS.channel = el.getAttribute('data-ch'); renderPos(); });
+    });
+    panel.querySelectorAll('[data-plan]').forEach(function (el) { // 收款安排切换（她 2026-10-28 补充需求）
+      el.addEventListener('click', function () {
+        POS.payPlan = el.getAttribute('data-plan');
+        panel.querySelectorAll('[data-plan]').forEach(function (x) { x.classList.toggle('on', x === el); });
+      });
     });
     panel.querySelector('#pos-anon').addEventListener('click', function () { POS.customerId = null; renderPos(); });
     // §4 单号模式切换：测试=SY-POS-TEST-xxx，正式=SY-POS-00x（两套序列均在库端 shop_order_seq 行级计数，与线上订单独立，不会撞号）
@@ -361,10 +374,43 @@
         toast(t('已保存：', 'Saved: ') + j.order_no);
         POS.lastSale = j;
         renderPosAfter(j);
+        posRecordPayIfAny(j); // 收款安排：本次实收 > 0 时立即落收款台账（全款/定金/分次首笔）
         if (window.loadShopOrders) loadShopOrders();
         POS.items = []; renderPosCart();
       })
       .catch(function () { btn.disabled = false; btn.textContent = t('保存失败，再试', 'Save failed'); });
+  }
+
+  function posRecordPayIfAny(j) { // 收款安排落地：本次实收 > 0 时写 shop_pay_record_add（她 2026-10-28 补充需求 2）
+    var inp = document.getElementById('pos-paynow');
+    var payNow = inp ? parseFloat(inp.value) : NaN;
+    if (!isFinite(payNow) || payNow <= 0) return;
+    if (j.total && payNow > j.total + 0.005) { toast(t('本次实收超过应收，改不了账，请核对金额', 'Received exceeds total, check the amount')); return; }
+    var kindMap = { full: 'full', deposit: 'deposit', split: 'installment' };
+    posRecordPay(j.order_id, j.order_no, j.total, kindMap[POS.payPlan] || 'other', payNow, POS.channel);
+  }
+  var PLAN_LABEL = { full: '全款', deposit: '定金', split: '分次付款' };
+  function posRecordPay(orderId, orderNo, total, kind, amount, method) { // 落台账+回显；whitelist 未扩展前自动降级（full→other、wechat/alipay→other）
+    var line = document.getElementById('pos-pay-line');
+    if (line) line.innerHTML = '<span style="color:var(--muted,#A88E9B);">' + t('收款记录保存中…', 'Recording payment…') + '</span>';
+    function call(k, m) {
+      return api('rpc/shop_pay_record_add', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ p_order_id: orderId, p_kind: k, p_amount: amount, p_method: m, p_note: PLAN_LABEL[kind] || '' }) })
+        .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('rpc')); });
+    }
+    call(kind, method)
+      .catch(function () { return call(kind === 'full' ? 'other' : kind, (method === 'wechat' || method === 'alipay') ? 'other' : method); }) // 兼容未跑扩展脚本时的旧白名单
+      .then(function (res) {
+        var rem = res && res.outstanding != null ? res.outstanding : null;
+        toast(t('已记录' + (PLAN_LABEL[kind] || '收款') + ' $' + fmtMoney(amount) + (rem != null && rem > 0.005 ? '，待收 $' + fmtMoney(rem) : '，已结清'), 'Recorded payment'));
+        if (line) line.innerHTML = '<span style="color:var(--text,#604C57);">' + t('已记录', 'Recorded') + ' ' + (PLAN_LABEL[kind] || '收款') + ' <b style="color:var(--price,#ff6fa5);">$' + fmtMoney(amount) + '</b>' +
+          (rem != null && rem > 0.005 ? ' · ' + t('待收', 'Outstanding') + ' <b style="color:#f3b96d;">$' + fmtMoney(rem) + '</b>（' + t('后续收款去订单管理该订单卡里继续记', 'record the rest in order manager') + '）' : ' · <b style="color:var(--price,#ff6fa5);">' + t('已结清', 'Settled') + '</b>') + '</span>';
+        if (window.loadShopOrders) loadShopOrders();
+      })
+      .catch(function () {
+        toast(t('收款记录保存失败，可稍后在订单管理里补记', 'Save failed, record later in order manager'));
+        if (line) line.innerHTML = '<span style="color:#8a6d3b;">' + t('收款记录没存上（可稍后在订单管理补记）', 'Payment not saved (retry in order manager)') + '</span>';
+      });
   }
 
   function renderPosAfter(j) {
@@ -372,7 +418,8 @@
     box.innerHTML =
       '<div class="card" style="padding:14px 16px;border:1.5px solid var(--accent-soft,#FCE4EC);">' +
         '<div style="font-size:15px;font-weight:700;color:var(--text,#604C57);">' + t('销售编号', 'Sale No.') + '：<span style="color:var(--price,#ff6fa5);">' + esc(j.order_no) + '</span>' + (POS.test ? ' <span style="font-size:12px;padding:2px 10px;border-radius:999px;background:#fff7f0;border:1px solid #f0d9c0;color:#8a6d3b;">TEST 测试模式</span>' : '') + '</div>' +
-        '<div style="font-size:14px;color:var(--muted,#A88E9B);margin:4px 0 10px;">' + t('应收', 'Total') + ' $' + fmtMoney(j.total) + ' · ' + t('付款方式', 'Channel') + ' ' + POS.channel + '</div>' +
+        '<div style="font-size:14px;color:var(--muted,#A88E9B);margin:4px 0 10px;">' + t('应收', 'Total') + ' $' + fmtMoney(j.total) + ' · ' + t('付款方式', 'Channel') + ' ' + POS.channel + ' · ' + t('收款安排', 'Plan') + ' ' + (PLAN_LABEL[POS.payPlan] || '全款') + '</div>' +
+        '<div id="pos-pay-line" style="margin:0 0 10px;font-size:14px;"></div>' +
         '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
           '<button class="btn-save-tb pos-confirm">' + t('✓ 确认已收款', 'Confirm received') + '</button>' +
           (POS.channel === 'stripe' ? '<button class="btn-mini pos-stripe">' + t('生成 Stripe 测试付款链接 + 二维码', 'Stripe test link + QR') + '</button>' : '') +
@@ -691,7 +738,7 @@
     if (panel.dataset.booted) return;
     panel.dataset.booted = '1';
     panel.innerHTML =
-      // 20261028p8：生日邮件总开关 + 测试发送（发到官方邮箱）
+      // 20261028p9：生日邮件总开关 + 测试发送（发到官方邮箱）
       '<div class="card" style="padding:16px 20px;margin-bottom:14px;border:1.5px solid var(--accent-soft,#FCE4EC);">' +
         '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">' +
           '<h3 style="margin:0;font-size:17px;color:var(--text,#604C57);">' + t('生日邮件 ♡', 'Birthday emails ♡') + '</h3>' +
