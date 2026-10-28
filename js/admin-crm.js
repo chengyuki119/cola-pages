@@ -768,7 +768,7 @@
     if (panel.dataset.booted) return;
     panel.dataset.booted = '1';
     panel.innerHTML =
-      // 20261028p10：生日邮件总开关 + 测试发送（发到官方邮箱）
+      // 20261028p11：生日邮件总开关 + 测试发送（发到官方邮箱）
       '<div class="card" style="padding:16px 20px;margin-bottom:14px;border:1.5px solid var(--accent-soft,#FCE4EC);">' +
         '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">' +
           '<h3 style="margin:0;font-size:17px;color:var(--text,#604C57);">' + t('生日邮件 ♡', 'Birthday emails ♡') + '</h3>' +

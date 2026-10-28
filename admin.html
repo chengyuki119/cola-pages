@@ -642,7 +642,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       <div class="pp-menu" id="pp-menu">
         <div class="pp-group">主页设置</div>
         <button class="tab-btn active" data-tab="profile">Profile 编辑</button>
-        <button class="tab-btn" data-tab="home">主页管理</button>
+        <!-- 2026-10-28 她指示隐藏：主页管理/主题颜色两个页签（没啥用；功能代码保留，删注释即可恢复） -->
+        <!-- <button class="tab-btn" data-tab="home">主页管理</button> -->
         <div class="pp-group">内容管理</div>
         <button class="tab-btn" data-tab="days">重要日子</button>
         <button class="tab-btn" data-tab="photos">照片管理</button>
@@ -661,7 +662,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         <div class="pp-group">系统设置</div>
         <button class="tab-btn" data-tab="mailsync">邮件与联系人同步</button>
         <button class="tab-btn" data-tab="mailtpl">邮件模板管理</button>
-        <button class="tab-btn" data-tab="theme">主题颜色</button>
+        <!-- <button class="tab-btn" data-tab="theme">主题颜色</button> -->
         <button class="tab-btn" data-tab="system">系统状态</button>
       </div>
     </div>
@@ -2482,7 +2483,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           [['none','不重复'],['daily','每天重复'],['weekly','每周重复'],['monthly','每月重复'],['yearly','每年重复']].map(function (o) {
             return '<label class="dy-chip' + ((d.repeat || 'none') === o[0] ? ' active' : '') + '"><input type="radio" name="de-repeat" value="' + o[0] + '"' + ((d.repeat || 'none') === o[0] ? ' checked' : '') + '>' + o[1] + '</label>';
           }).join('') +
-          '<button class="btn-mini de-save" style="margin-left:auto;">保存</button>' +
+          '<button class="btn-mini de-save">保存</button>' +
           '<button class="btn-mini de-cancel">取消</button>' +
           '</div></div>';
       }
@@ -6099,7 +6100,7 @@ function loadEmailLog() {
           document.getElementById(el).style.color = '#3aa06a';
         } else {
           document.getElementById(el).textContent = anonBlockedText;
-          document.getElementById(el).style.color = '#3aa06a'; /* 匿名被拦截=权限生效，正常态用绿色（20261028p102 状态色语义统一） */
+          document.getElementById(el).style.color = '#3aa06a'; /* 匿名被拦截=权限生效，正常态用绿色（20261028p112 状态色语义统一） */
         }
       })
       .catch(function () {
@@ -6250,15 +6251,15 @@ function loadEmailLog() {
 </script>
 
 
-<script src="js/admin-shop.js?v=20261028p10"></script>
-<script src="js/admin-crm.js?v=20261028p10"></script>
-<script src="js/admin-vip.js?v=20261028p10"></script>
-<script src="js/vendor/jsQR.js?v=20261028p10"></script>
-<script src="js/vendor/qrcode-generator.js?v=20261028p10"></script>
-<script src="js/vendor/JsBarcode.all.min.js?v=20261028p10"></script>
-<script src="js/admin-workbench.js?v=20261028p10"></script>
-<script src="js/admin-biz.js?v=20261028p10"></script>
-<script src="js/admin-export.js?v=20261028p10"></script>
+<script src="js/admin-shop.js?v=20261028p11"></script>
+<script src="js/admin-crm.js?v=20261028p11"></script>
+<script src="js/admin-vip.js?v=20261028p11"></script>
+<script src="js/vendor/jsQR.js?v=20261028p11"></script>
+<script src="js/vendor/qrcode-generator.js?v=20261028p11"></script>
+<script src="js/vendor/JsBarcode.all.min.js?v=20261028p11"></script>
+<script src="js/admin-workbench.js?v=20261028p11"></script>
+<script src="js/admin-biz.js?v=20261028p11"></script>
+<script src="js/admin-export.js?v=20261028p11"></script>
 <footer style="padding:18px 0 0; text-align:center;">© 2026 Yuki · Made with Cola</footer>
 </body>
 </html>
