@@ -23,7 +23,7 @@ const SMTP_PASS = Deno.env.get('SMTP_PASS') ?? '';
 
 const MAX_ATTEMPTS = 3;
 const BATCH = 10;
-const SITE = 'https://chengyuki119.github.io';
+const SITE = 'https://yukicheng.com'; // 正式域名（她 2026-10-28 任务书：邮件链接不得指向已停用测试站）
 const BRAND = 'Snow Yuzu';
 const OFFICIAL_MAIL = 'snowyuzustudio@gmail.com';
 
