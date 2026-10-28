@@ -296,7 +296,7 @@
         '</div>' +
         '<div class="d-desc"><p style="color:var(--muted);font-size:17px;line-height:1.8;margin:12px 0;">' + esc((window.LANG === 'en' && p.description_en) ? p.description_en : (p.description || '')) + '</p></div>' +
       '</div>' +
-      // 20261028p16：键帽商品购买须知（手工/气泡/色差/兼容性/定制/规格；仅键帽类商品显示）
+      // 20261028p17：键帽商品购买须知（手工/气泡/色差/兼容性/定制/规格；仅键帽类商品显示）
       (isKeycapProduct(p) ? '<div class="keycap-notes-wrap" id="keycap-notes"></div>' : '') +
       '<div id="d-group-form" style="display:none;margin-top:16px;" class="card"></div>';
     return el;

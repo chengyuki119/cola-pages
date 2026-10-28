@@ -284,7 +284,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .btn-del:hover { background: #f0c3da; }
   .btn-save:hover { opacity: .85; }
   .dy-chips { display: flex; gap: 6px; flex-wrap: wrap; }
-  .dy-chip { display: inline-flex; align-items: center; border: 1.5px solid var(--border,#FFD9E6); background: #fff; color: var(--muted); border-radius: 999px; padding: 5px 12px; font-size:15px; cursor: pointer; transition: background .2s, color .2s; white-space: nowrap; flex: none; }
+  /* 她 2026-10-28 16:02：重复选项改成和「保存」按钮同款实底粉胶囊（去描边），选中态深玫瑰底白字（白字只配深玫瑰底的既定规则） */
+  .dy-chip { display: inline-flex; align-items: center; border: none; background: var(--accent,#FFD9E6); color: var(--text,#604C57); border-radius: 999px; padding: 7px 16px; font-size:15px; cursor: pointer; transition: background .2s, color .2s; white-space: nowrap; flex: none; }
   #dy-cat, .de-cat { border: 1px solid var(--accent,#FFD9E6); border-radius: 8px; padding: 6px 10px; font-size:15px; font-family: inherit; color: var(--text); background: #fff; outline: none; }
   #dy-cat:focus, .de-cat:focus { border-color:var(--text,#604C57); }
   #dy-cat-list, .dy-cat-list { display: none; position: absolute; z-index: 1399; background: #fff; border-radius: 10px; box-shadow: 0 6px 20px rgba(180,120,150,.18); padding: 4px; min-width: 170px; max-height: 168px; overflow-y: auto; }
@@ -293,8 +294,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   #days-form-card .cat-opt, .day-item .cat-opt { display: block; width: 100%; box-sizing: border-box; border: none; background: none; text-align: left; padding: 8px 12px; font-size:16px; cursor: pointer; border-radius: 8px; color: var(--text); font-family: inherit; line-height: 1.4; }
   #days-form-card .cat-opt:hover, .day-item .cat-opt:hover { background: var(--card-hover); }
   #days-form-card .cat-opt.cat-new, .day-item .cat-opt.cat-new { color:var(--text,#604C57); font-weight: 600; }
-  .dy-chip:hover { color: var(--text); }
-  .dy-chip.active { background: var(--accent-soft); color: var(--accent-strong); }
+  .dy-chip:hover { background: #f0c3da; color: var(--text); }
+  .dy-chip.active { background: var(--accent-strong,#A04A68); color: #fff; }
   /* ── 原生 select 外观对齐设计系统（仅样式：字体/边框/圆角/配色，行为与选项不变 · 20261026k） ── */
   select { font-family: inherit; font-size: 15px; color: var(--text, #604C57); background: #fff; border: 1.5px solid var(--border, #FFD9E6); border-radius: 10px; padding: 7px 10px; outline: none; max-width: 100%; cursor: pointer; box-sizing: border-box; }
   select:focus { border-color: var(--text, #604C57); }
@@ -315,7 +316,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   #combo-pop { position: fixed; z-index: 1000; background: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(180,120,150,.18); padding: 6px; min-width: 200px; max-width: 320px; max-height: 240px; overflow-y: auto; display: none; box-sizing: border-box; animation: scPopIn .16s ease; }
   .combo-opt { display: block; width: 100%; border: none; background: none; text-align: left; padding: 9px 12px; font-size:16px; cursor: pointer; border-radius: 8px; color: var(--text); font-family: inherit; line-height: 1.4; }
   .combo-opt:hover { background: var(--card-hover); }
-  .dy-chip input { position: absolute; opacity: 0; pointer-events: none; }
+  .dy-chip input { display: none; } /* radio 只当状态用，彻底不占布局（原先 position:absolute 会撑宽滚动区） */
   .btn-mini { border: none; background: var(--card); color: var(--text); font-family: inherit; cursor: pointer; }
   /* 头像 / 主页背景图上传区：两行对齐，隐藏原生 file 控件 */
   .hm-upload-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -6101,7 +6102,7 @@ function loadEmailLog() {
           document.getElementById(el).style.color = '#3aa06a';
         } else {
           document.getElementById(el).textContent = anonBlockedText;
-          document.getElementById(el).style.color = '#3aa06a'; /* 匿名被拦截=权限生效，正常态用绿色（20261028p162 状态色语义统一） */
+          document.getElementById(el).style.color = '#3aa06a'; /* 匿名被拦截=权限生效，正常态用绿色（20261028p172 状态色语义统一） */
         }
       })
       .catch(function () {
@@ -6252,15 +6253,15 @@ function loadEmailLog() {
 </script>
 
 
-<script src="js/admin-shop.js?v=20261028p16"></script>
-<script src="js/admin-crm.js?v=20261028p16"></script>
-<script src="js/admin-vip.js?v=20261028p16"></script>
-<script src="js/vendor/jsQR.js?v=20261028p16"></script>
-<script src="js/vendor/qrcode-generator.js?v=20261028p16"></script>
-<script src="js/vendor/JsBarcode.all.min.js?v=20261028p16"></script>
-<script src="js/admin-workbench.js?v=20261028p16"></script>
-<script src="js/admin-biz.js?v=20261028p16"></script>
-<script src="js/admin-export.js?v=20261028p16"></script>
+<script src="js/admin-shop.js?v=20261028p17"></script>
+<script src="js/admin-crm.js?v=20261028p17"></script>
+<script src="js/admin-vip.js?v=20261028p17"></script>
+<script src="js/vendor/jsQR.js?v=20261028p17"></script>
+<script src="js/vendor/qrcode-generator.js?v=20261028p17"></script>
+<script src="js/vendor/JsBarcode.all.min.js?v=20261028p17"></script>
+<script src="js/admin-workbench.js?v=20261028p17"></script>
+<script src="js/admin-biz.js?v=20261028p17"></script>
+<script src="js/admin-export.js?v=20261028p17"></script>
 <footer style="padding:18px 0 0; text-align:center;">© 2026 Yuki · Made with Cola</footer>
 </body>
 </html>
