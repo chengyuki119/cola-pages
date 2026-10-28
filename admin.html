@@ -316,7 +316,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   #combo-pop { position: fixed; z-index: 1000; background: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(180,120,150,.18); padding: 6px; min-width: 200px; max-width: 320px; max-height: 240px; overflow-y: auto; display: none; box-sizing: border-box; animation: scPopIn .16s ease; }
   .combo-opt { display: block; width: 100%; border: none; background: none; text-align: left; padding: 9px 12px; font-size:16px; cursor: pointer; border-radius: 8px; color: var(--text); font-family: inherit; line-height: 1.4; }
   .combo-opt:hover { background: var(--card-hover); }
-  .dy-chip input { display: none; } /* radio 只当状态用，彻底不占布局（原先 position:absolute 会撑宽滚动区） */
+  .dy-chip input { display: none !important; } /* radio 只当状态用，彻底不占布局；!important 压过后方 input[type=radio] 全局规则的 display:inline-block（同等优先级靠后胜出，p17 没压住导致白圈露出来） */
   .btn-mini { border: none; background: var(--card); color: var(--text); font-family: inherit; cursor: pointer; }
   /* 头像 / 主页背景图上传区：两行对齐，隐藏原生 file 控件 */
   .hm-upload-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -6102,7 +6102,7 @@ function loadEmailLog() {
           document.getElementById(el).style.color = '#3aa06a';
         } else {
           document.getElementById(el).textContent = anonBlockedText;
-          document.getElementById(el).style.color = '#3aa06a'; /* 匿名被拦截=权限生效，正常态用绿色（20261028p172 状态色语义统一） */
+          document.getElementById(el).style.color = '#3aa06a'; /* 匿名被拦截=权限生效，正常态用绿色（20261028p182 状态色语义统一） */
         }
       })
       .catch(function () {
@@ -6253,15 +6253,15 @@ function loadEmailLog() {
 </script>
 
 
-<script src="js/admin-shop.js?v=20261028p17"></script>
-<script src="js/admin-crm.js?v=20261028p17"></script>
-<script src="js/admin-vip.js?v=20261028p17"></script>
-<script src="js/vendor/jsQR.js?v=20261028p17"></script>
-<script src="js/vendor/qrcode-generator.js?v=20261028p17"></script>
-<script src="js/vendor/JsBarcode.all.min.js?v=20261028p17"></script>
-<script src="js/admin-workbench.js?v=20261028p17"></script>
-<script src="js/admin-biz.js?v=20261028p17"></script>
-<script src="js/admin-export.js?v=20261028p17"></script>
+<script src="js/admin-shop.js?v=20261028p18"></script>
+<script src="js/admin-crm.js?v=20261028p18"></script>
+<script src="js/admin-vip.js?v=20261028p18"></script>
+<script src="js/vendor/jsQR.js?v=20261028p18"></script>
+<script src="js/vendor/qrcode-generator.js?v=20261028p18"></script>
+<script src="js/vendor/JsBarcode.all.min.js?v=20261028p18"></script>
+<script src="js/admin-workbench.js?v=20261028p18"></script>
+<script src="js/admin-biz.js?v=20261028p18"></script>
+<script src="js/admin-export.js?v=20261028p18"></script>
 <footer style="padding:18px 0 0; text-align:center;">© 2026 Yuki · Made with Cola</footer>
 </body>
 </html>
