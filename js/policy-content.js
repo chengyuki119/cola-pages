@@ -1,5 +1,5 @@
 /* ═══════════ 政策内容唯一数据源 + 渲染器（FAQ / 退货退款 / 配送 / 隐私 / 条款 / 键帽购买须知）
-   20261028p6 版：任务书《Snow Yuzu 商品说明及全部网站政策改版》全文；品牌统一 Snow Yuzu。
+   20261028p7 版：任务书《Snow Yuzu 商品说明及全部网站政策改版》全文；品牌统一 Snow Yuzu。
    渲染规则：每个小标题在独立圆角内容框上方（.pol-sec = 标题 + .pol-card 正文框）。
    FAQ：每个问题独立成组（问题标题突出，答案在下方独立浅粉框内）。
    site_settings 覆盖：若库里有 policy_<key>_zh / policy_<key>_en（简单 HTML 字符串），优先渲染它；
@@ -393,7 +393,7 @@
       });
   }
 
-  // ===== 结构化内容 → HTML（20261028p6：每个小标题 + 独立圆角文本框）=====
+  // ===== 结构化内容 → HTML（20261028p7：每个小标题 + 独立圆角文本框）=====
   function renderBlocks(blocks) {
     var out = [], cur = null;
     function flush() {

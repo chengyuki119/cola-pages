@@ -242,6 +242,7 @@
         '<div class="card" style="padding:16px 20px;">' +
           '<h3 style="margin:0 0 10px;font-size:16px;color:var(--text,#604C57);">' + t('收款', 'Payment') + ' · <span id="pos-no" style="color:var(--price,#ff6fa5);">—</span></h3>' +
           '<div id="pos-chans" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;"></div>' +
+          '<input id="pos-note" placeholder="' + t('订单备注（客户要求／定制说明／收款说明，可选）', 'Order note (requests / custom specs / payment notes, optional)') + '" style="width:100%;margin-bottom:10px;box-sizing:border-box;" />' + // 订单备注：写入 shop_orders.note（她 20261028 总任务书 5.2）
           '<div style="font-size:13px;color:#8a6d3b;background:#fff7f0;border:1px solid #f0d9c0;border-radius:10px;padding:8px 12px;margin-bottom:10px;">' + t('现金 / 转账需实际收到钱后再点「确认收款」——只保存记录不代表已收款。', 'Cash/transfers: confirm only after money actually received.') + '</div>' +
           '<div id="pos-cart"></div>' +
           '<div id="pos-sum"></div>' +
@@ -252,7 +253,7 @@
         '</div>' +
       '</div>' +
       '<div style="margin-top:14px;font-size:13px;color:var(--muted,#A88E9B);">' + t('编号规则：正式 SY-POS-001…，测试 SY-POS-TEST-001…，与线上订单独立计数；重复点击保存不会产生重复记录。', 'POS numbering is independent from online orders; duplicate submits are protected.') + '</div>';
-    var chans = [['cash', t('现金', 'Cash')], ['zelle', 'Zelle'], ['venmo', 'Venmo'], ['paypal', 'PayPal'], ['stripe', t('Stripe 扫码', 'Stripe QR')], ['other', t('＋ 其他', 'Other')]];
+    var chans = [['cash', t('现金', 'Cash')], ['zelle', 'Zelle'], ['venmo', 'Venmo'], ['paypal', 'PayPal'], ['stripe', t('Stripe 扫码', 'Stripe QR')], ['wechat', t('微信支付', 'WeChat Pay')], ['other', t('＋ 其他', 'Other')]]; // 微信支付：人工记录收款方式（未接在线 API，她 20261028 总任务书 5.1）
     var chansEl = panel.querySelector('#pos-chans');
     chansEl.innerHTML = chans.map(function (c) { return '<span class="paytab' + (POS.channel === c[0] ? ' on' : '') + '" data-ch="' + c[0] + '">' + c[1] + '</span>'; }).join('');
     chansEl.querySelectorAll('.paytab').forEach(function (el) {
@@ -339,6 +340,9 @@
   function posSave() {
     if (!POS.items.length) { toast(t('先选商品', 'Pick some products first')); return; }
     var note = '线下开单 · ' + POS.channel;
+    var noteInput = panel.querySelector('#pos-note');
+    var userNote = (noteInput && noteInput.value.trim()) || '';
+    if (userNote) note += '\n' + userNote; // 备注写入 shop_orders.note，不与姓名/商品/付款字段混用
     var body = {
       p_items: POS.items.map(function (x) { return { id: x.id, name: x.name, price: x.price, qty: x.qty, image: x.image, sku: x.sku }; }),
       p_pay_channel: POS.channel,
@@ -687,7 +691,7 @@
     if (panel.dataset.booted) return;
     panel.dataset.booted = '1';
     panel.innerHTML =
-      // 20261028p6：生日邮件总开关 + 测试发送（发到官方邮箱）
+      // 20261028p7：生日邮件总开关 + 测试发送（发到官方邮箱）
       '<div class="card" style="padding:16px 20px;margin-bottom:14px;border:1.5px solid var(--accent-soft,#FCE4EC);">' +
         '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">' +
           '<h3 style="margin:0;font-size:17px;color:var(--text,#604C57);">' + t('生日邮件 ♡', 'Birthday emails ♡') + '</h3>' +
