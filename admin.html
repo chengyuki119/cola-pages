@@ -640,7 +640,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     <div class="pp-wrap" id="pp-wrap">
       <button class="pp-btn" id="pp-btn" type="button">当前页面：<span id="pp-cur">Profile 编辑</span> <span class="pp-arrow">▼</span></button>
       <div class="pp-menu" id="pp-menu">
-        <div class="pp-group">主页设置</div>
+        <!-- 2026-10-28 随主页管理/主题颜色隐藏：分组只剩 Profile 编辑，组标题一并去掉 -->
+        <!-- <div class="pp-group">主页设置</div> -->
         <button class="tab-btn active" data-tab="profile">Profile 编辑</button>
         <!-- 2026-10-28 她指示隐藏：主页管理/主题颜色两个页签（没啥用；功能代码保留，删注释即可恢复） -->
         <!-- <button class="tab-btn" data-tab="home">主页管理</button> -->
@@ -6100,7 +6101,7 @@ function loadEmailLog() {
           document.getElementById(el).style.color = '#3aa06a';
         } else {
           document.getElementById(el).textContent = anonBlockedText;
-          document.getElementById(el).style.color = '#3aa06a'; /* 匿名被拦截=权限生效，正常态用绿色（20261028p112 状态色语义统一） */
+          document.getElementById(el).style.color = '#3aa06a'; /* 匿名被拦截=权限生效，正常态用绿色（20261028p122 状态色语义统一） */
         }
       })
       .catch(function () {
@@ -6251,15 +6252,15 @@ function loadEmailLog() {
 </script>
 
 
-<script src="js/admin-shop.js?v=20261028p11"></script>
-<script src="js/admin-crm.js?v=20261028p11"></script>
-<script src="js/admin-vip.js?v=20261028p11"></script>
-<script src="js/vendor/jsQR.js?v=20261028p11"></script>
-<script src="js/vendor/qrcode-generator.js?v=20261028p11"></script>
-<script src="js/vendor/JsBarcode.all.min.js?v=20261028p11"></script>
-<script src="js/admin-workbench.js?v=20261028p11"></script>
-<script src="js/admin-biz.js?v=20261028p11"></script>
-<script src="js/admin-export.js?v=20261028p11"></script>
+<script src="js/admin-shop.js?v=20261028p12"></script>
+<script src="js/admin-crm.js?v=20261028p12"></script>
+<script src="js/admin-vip.js?v=20261028p12"></script>
+<script src="js/vendor/jsQR.js?v=20261028p12"></script>
+<script src="js/vendor/qrcode-generator.js?v=20261028p12"></script>
+<script src="js/vendor/JsBarcode.all.min.js?v=20261028p12"></script>
+<script src="js/admin-workbench.js?v=20261028p12"></script>
+<script src="js/admin-biz.js?v=20261028p12"></script>
+<script src="js/admin-export.js?v=20261028p12"></script>
 <footer style="padding:18px 0 0; text-align:center;">© 2026 Yuki · Made with Cola</footer>
 </body>
 </html>
