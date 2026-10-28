@@ -214,7 +214,7 @@
       .catch(function () { SM.payments = arr(window.SHOP_PAYMENTS); });
   }
   function loadPayRecords() { // 人工收款台账（订金/尾款/分期/退款，生产库已有表+RPC，2026-10-28 接线）
-    return restGet('shop_order_pay_records?select=order_id,kind,amount,method,txn_ref,paid_at&order=created_at.desc&limit=1000')
+    return restGet('shop_order_pay_records?select=id,order_id,kind,amount,method,txn_ref,paid_at&order=created_at.desc&limit=1000')
       .then(function (rows) { SM.payRecords = arr(rows); })
       .catch(function () { SM.payRecords = []; });
   }
@@ -408,6 +408,14 @@
             if (refAll > 0) out += '<div class="sm-line"><span class="lbl">退款</span>' +
               (refAll >= num(o.total) - 0.005 ? '已全额退款 <span style="color:var(--price,#ff6fa5);">$' + fmtMoney(refAll) + '</span>' : '<b style="color:#f3b96d;">部分退款 $' + fmtMoney(refAll) + '</b>') + '</div>';
           }
+          if (!dead) { // 定金/尾款勾选态：已记=粉底✓（点击可撤销），未记=白底（点击展开记录表单并预选，她 15:01 补充）
+            var hasDep = mn.rows.some(function (x) { return x.kind === 'deposit'; });
+            var hasFin = mn.rows.some(function (x) { return x.kind === 'final'; });
+            out += '<div class="sm-line"><span class="lbl">付款进度</span>' +
+              '<button type="button" class="chip sm-pflag' + (hasDep ? ' on' : '') + '" data-kind="deposit">定金' + (hasDep ? ' ✓' : '') + '</button> ' +
+              '<button type="button" class="chip sm-pflag' + (hasFin ? ' on' : '') + '" data-kind="final">尾款' + (hasFin ? ' ✓' : '') + '</button>' +
+              '<span style="font-size:12px;color:var(--muted,#A88E9B);margin-left:6px;">' + (hasDep || hasFin ? '点已勾的可撤销' : '点未勾的记一笔') + '</span></div>';
+          }
           if (!dead) { // 多次收款：订金/尾款/分期分笔记录（人工收款，走 shop_pay_record_add RPC，幂等）
             out += '<div class="sm-act"><button type="button" class="btn-mini sm-recpay-toggle">＋ 记录收款</button>' +
               '<span class="sm-recpay" style="display:none;gap:8px;align-items:center;flex-wrap:wrap;">' +
@@ -447,7 +455,7 @@
         '<input class="sm-ship-note" placeholder="备注" value="' + escAttr(o.ship_note || '') + '"></div>' +
         '<button type="button" class="btn-save sm-act-ship" style="padding:10px 26px;font-size:16px;">确认发货</button>' +
         '</div>' +
-        // 20261028p92：虚拟物流 6 状态推进（仅 TEST- 测试单号；加载当前进度后可点击切换）
+        // 20261028p102：虚拟物流 6 状态推进（仅 TEST- 测试单号；加载当前进度后可点击切换）
         ((o.tracking || '').indexOf('TEST-') === 0 ?
           '<div class="sm-act sm-act-v"><span class="sm-vlabel">虚拟物流状态（测试单号专用，点击切换 · 不会发给真实客户）</span>' +
           '<div class="sm-track-steps" data-no="' + escAttr(o.tracking) + '" style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0;"><span style="font-size:13px;color:var(--muted);">加载中…</span></div>' +
@@ -1009,6 +1017,35 @@
     if (e.target.classList.contains('sm-recpay-toggle')) { // 记录收款表单展开/收起
       var rf = card.querySelector('.sm-recpay');
       if (rf) rf.style.display = rf.style.display === 'none' ? 'inline-flex' : 'none';
+      return;
+    }
+    if (e.target.classList.contains('sm-pflag')) { // 定金/尾款勾选态（她 15:01：勾选=已付，点击切换）
+      var pkind = e.target.getAttribute('data-kind');
+      var rows = payNet(o).rows.filter(function (x) { return x.kind === pkind; }); // 该类已记台账
+      var wasOn = e.target.classList.contains('on');
+      if (!wasOn) { // 未勾 → 展开记录表单并预选类型（尾款预填待收金额）
+        var tg = card.querySelector('.sm-recpay-toggle');
+        if (tg && card.querySelector('.sm-recpay').style.display === 'none') tg.click();
+        var kb = card.querySelector('.sm-pkind');
+        if (kb) { kb.setAttribute('data-v', pkind); kb.querySelector('.pick-btn-label').textContent = KIND_LABEL[pkind] || pkind; }
+        var amt = card.querySelector('.sm-recpay-amt');
+        if (amt) {
+          var pi0 = payInfo(o), mn1 = payNet(o);
+          var out0 = num(o.total) - (pi0.paid + mn1.paid) + (pi0.refunded + mn1.refunded);
+          if (pkind === 'final' && out0 > 0.005) amt.value = (Math.round(out0 * 100) / 100).toString();
+          else if (pkind === 'final') amt.value = '';
+        }
+        var am2 = amt || card.querySelector('.sm-recpay-amt'); if (am2) am2.focus();
+      } else { // 已勾 → 撤销：删掉该类台账（逐条 RPC，需确认）
+        var tot = rows.reduce(function (t, x) { return t + num(x.amount); }, 0);
+        uiConfirm('撤销「' + (KIND_LABEL[pkind] || pkind) + '」标记？会从收款台账删掉 ' + rows.length + ' 笔记录（合计 $' + fmtMoney(tot) + '），订单待收金额会随之增加。', function () {
+          var dels = rows.map(function (x) { return api('rpc/shop_pay_record_delete', { method: 'POST', body: JSON.stringify({ p_id: x.id }) }); });
+          Promise.all(dels).then(function () {
+            toast('已撤销' + (KIND_LABEL[pkind] || pkind) + '标记，台账已删除');
+            return loadPayRecords();
+          }).then(function () { renderOrders(); renderStats(); }).catch(function () { toast('撤销失败，重试一下'); });
+        }, '撤销');
+      }
       return;
     }
     if (e.target.classList.contains('sm-pkind')) { // 收款类型：订金/尾款/分期/其他（站内弹层）

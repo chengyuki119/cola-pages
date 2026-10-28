@@ -248,7 +248,7 @@
             '<span class="paytab' + (POS.payPlan === 'full' ? ' on' : '') + '" data-plan="full">' + t('全款', 'Full') + '</span>' +
             '<span class="paytab' + (POS.payPlan === 'deposit' ? ' on' : '') + '" data-plan="deposit">' + t('定金＋尾款', 'Deposit + final') + '</span>' +
             '<span class="paytab' + (POS.payPlan === 'split' ? ' on' : '') + '" data-plan="split">' + t('分次付款', 'Installments') + '</span>' +
-            '<input id="pos-paynow" type="number" min="0" step="0.01" placeholder="' + t('本次实收 $（选填）', 'Received now $ (optional)') + '" style="width:140px;">' +
+            '<span id="pos-plan-inputs" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;"></span>' +
           '</div>' +
           '<div style="font-size:13px;color:#8a6d3b;background:#fff7f0;border:1px solid #f0d9c0;border-radius:10px;padding:8px 12px;margin-bottom:10px;">' + t('现金 / 转账需实际收到钱后再点「确认收款」——只保存记录不代表已收款。', 'Cash/transfers: confirm only after money actually received.') + '</div>' +
           '<div id="pos-cart"></div>' +
@@ -270,8 +270,10 @@
       el.addEventListener('click', function () {
         POS.payPlan = el.getAttribute('data-plan');
         panel.querySelectorAll('[data-plan]').forEach(function (x) { x.classList.toggle('on', x === el); });
+        renderPlanInputs();
       });
     });
+    renderPlanInputs();
     panel.querySelector('#pos-anon').addEventListener('click', function () { POS.customerId = null; renderPos(); });
     // §4 单号模式切换：测试=SY-POS-TEST-xxx，正式=SY-POS-00x（两套序列均在库端 shop_order_seq 行级计数，与线上订单独立，不会撞号）
     var tChip = panel.querySelector('#pos-mode-test'), fChip = panel.querySelector('#pos-mode-formal');
@@ -381,35 +383,63 @@
       .catch(function () { btn.disabled = false; btn.textContent = t('保存失败，再试', 'Save failed'); });
   }
 
-  function posRecordPayIfAny(j) { // 收款安排落地：本次实收 > 0 时写 shop_pay_record_add（她 2026-10-28 补充需求 2）
-    var inp = document.getElementById('pos-paynow');
-    var payNow = inp ? parseFloat(inp.value) : NaN;
-    if (!isFinite(payNow) || payNow <= 0) return;
-    if (j.total && payNow > j.total + 0.005) { toast(t('本次实收超过应收，改不了账，请核对金额', 'Received exceeds total, check the amount')); return; }
-    var kindMap = { full: 'full', deposit: 'deposit', split: 'installment' };
-    posRecordPay(j.order_id, j.order_no, j.total, kindMap[POS.payPlan] || 'other', payNow, POS.channel);
+  function renderPlanInputs() { // 收款安排输入区：全款自动记、定金+尾款各一框（她 15:01 补充）、分次收本次实收
+    var box = document.getElementById('pos-plan-inputs');
+    if (!box) return;
+    if (POS.payPlan === 'full') {
+      box.innerHTML = '<span style="font-size:13px;color:var(--muted,#A88E9B);">' + t('保存即记全款（应收全额）', 'full amount recorded on save') + '</span>';
+    } else if (POS.payPlan === 'deposit') {
+      box.innerHTML =
+        '<input id="pos-deposit" type="number" min="0" step="0.01" placeholder="' + t('定金 $（现在收）', 'Deposit $ (now)') + '" style="width:120px;">' +
+        '<input id="pos-final" type="number" min="0" step="0.01" placeholder="' + t('尾款 $（如当场收清，否则留空）', 'Final $ (or leave empty)') + '" style="width:150px;">';
+    } else {
+      box.innerHTML = '<input id="pos-paynow" type="number" min="0" step="0.01" placeholder="' + t('本次实收 $（选填）', 'Received now $ (optional)') + '" style="width:140px;">';
+    }
   }
-  var PLAN_LABEL = { full: '全款', deposit: '定金', split: '分次付款' };
+  function posRecordPayIfAny(j) { // 收款安排落地：按模式写 shop_pay_record_add（定金/尾款两框→分别落账，她 15:01 补充）
+    var chain = Promise.resolve();
+    var total = j.total;
+    function over(k, amt) { if (total && amt > total + 0.005) { toast(t('金额超过应收，请核对：' + k + ' $' + fmtMoney(amt), 'Exceeds total')); return true; } return false; }
+    if (POS.payPlan === 'full') {
+      chain = chain.then(function () { return posRecordPay(j.order_id, j.order_no, total, 'full', total, POS.channel); });
+    } else if (POS.payPlan === 'deposit') {
+      var dep = parseFloat((document.getElementById('pos-deposit') || {}).value);
+      var fin = parseFloat((document.getElementById('pos-final') || {}).value);
+      if (isFinite(dep) && dep > 0 && !over('定金', dep)) {
+        chain = chain.then(function () { return posRecordPay(j.order_id, j.order_no, total, 'deposit', dep, POS.channel); });
+      }
+      if (isFinite(fin) && fin > 0 && !over('尾款', fin)) {
+        chain = chain.then(function () { return posRecordPay(j.order_id, j.order_no, total, 'final', fin, POS.channel); });
+      }
+    } else {
+      var payNow = parseFloat((document.getElementById('pos-paynow') || {}).value);
+      if (isFinite(payNow) && payNow > 0 && !over('本次实收', payNow)) {
+        chain = chain.then(function () { return posRecordPay(j.order_id, j.order_no, total, 'installment', payNow, POS.channel); });
+      }
+    }
+    return chain;
+  }
+  var PLAN_LABEL = { full: '全款', deposit: '定金', final: '尾款', installment: '分次付款' };
   function posRecordPay(orderId, orderNo, total, kind, amount, method) { // 落台账+回显；whitelist 未扩展前自动降级（full→other、wechat/alipay→other）
     var line = document.getElementById('pos-pay-line');
-    if (line) line.innerHTML = '<span style="color:var(--muted,#A88E9B);">' + t('收款记录保存中…', 'Recording payment…') + '</span>';
+    function payMsg(html) { if (line) { var d = document.createElement('div'); d.innerHTML = html; line.appendChild(d); } }
     function call(k, m) {
       return api('rpc/shop_pay_record_add', { method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ p_order_id: orderId, p_kind: k, p_amount: amount, p_method: m, p_note: PLAN_LABEL[kind] || '' }) })
         .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('rpc')); });
     }
-    call(kind, method)
+    return call(kind, method)
       .catch(function () { return call(kind === 'full' ? 'other' : kind, (method === 'wechat' || method === 'alipay') ? 'other' : method); }) // 兼容未跑扩展脚本时的旧白名单
       .then(function (res) {
         var rem = res && res.outstanding != null ? res.outstanding : null;
         toast(t('已记录' + (PLAN_LABEL[kind] || '收款') + ' $' + fmtMoney(amount) + (rem != null && rem > 0.005 ? '，待收 $' + fmtMoney(rem) : '，已结清'), 'Recorded payment'));
-        if (line) line.innerHTML = '<span style="color:var(--text,#604C57);">' + t('已记录', 'Recorded') + ' ' + (PLAN_LABEL[kind] || '收款') + ' <b style="color:var(--price,#ff6fa5);">$' + fmtMoney(amount) + '</b>' +
-          (rem != null && rem > 0.005 ? ' · ' + t('待收', 'Outstanding') + ' <b style="color:#f3b96d;">$' + fmtMoney(rem) + '</b>（' + t('后续收款去订单管理该订单卡里继续记', 'record the rest in order manager') + '）' : ' · <b style="color:var(--price,#ff6fa5);">' + t('已结清', 'Settled') + '</b>') + '</span>';
+        payMsg('<span style="color:var(--text,#604C57);">' + t('已记录', 'Recorded') + ' ' + (PLAN_LABEL[kind] || '收款') + ' <b style="color:var(--price,#ff6fa5);">$' + fmtMoney(amount) + '</b>' +
+          (rem != null && rem > 0.005 ? ' · ' + t('待收', 'Outstanding') + ' <b style="color:#f3b96d;">$' + fmtMoney(rem) + '</b>（' + t('后续收款去订单管理该订单卡里继续记', 'record the rest in order manager') + '）' : ' · <b style="color:var(--price,#ff6fa5);">' + t('已结清', 'Settled') + '</b>') + '</span>');
         if (window.loadShopOrders) loadShopOrders();
       })
       .catch(function () {
         toast(t('收款记录保存失败，可稍后在订单管理里补记', 'Save failed, record later in order manager'));
-        if (line) line.innerHTML = '<span style="color:#8a6d3b;">' + t('收款记录没存上（可稍后在订单管理补记）', 'Payment not saved (retry in order manager)') + '</span>';
+        payMsg('<span style="color:#8a6d3b;">' + t((PLAN_LABEL[kind] || '收款') + '记录没存上（可稍后在订单管理补记）', 'Payment not saved (retry in order manager)') + '</span>');
       });
   }
 
@@ -738,7 +768,7 @@
     if (panel.dataset.booted) return;
     panel.dataset.booted = '1';
     panel.innerHTML =
-      // 20261028p9：生日邮件总开关 + 测试发送（发到官方邮箱）
+      // 20261028p10：生日邮件总开关 + 测试发送（发到官方邮箱）
       '<div class="card" style="padding:16px 20px;margin-bottom:14px;border:1.5px solid var(--accent-soft,#FCE4EC);">' +
         '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">' +
           '<h3 style="margin:0;font-size:17px;color:var(--text,#604C57);">' + t('生日邮件 ♡', 'Birthday emails ♡') + '</h3>' +
