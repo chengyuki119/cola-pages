@@ -1110,7 +1110,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           <span style="color:var(--muted);">分类</span>
           <input id="dy-cat" placeholder="输入分类，如：纪念日" autocomplete="off" style="width:170px;">
           <div id="dy-cat-list"></div>
-          <span style="color:var(--muted);margin-left:8px;">重复</span>
+          <span style="color:var(--muted);">重复</span>
           <label class="dy-chip"><input type="radio" name="dy-repeat" value="none" checked>不重复</label>
           <label class="dy-chip"><input type="radio" name="dy-repeat" value="daily">每天重复</label>
           <label class="dy-chip"><input type="radio" name="dy-repeat" value="weekly">每周重复</label>
@@ -2480,7 +2480,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           '<span style="color:var(--muted);">分类</span>' +
           '<input class="de-cat" value="' + escAttr(dayTypeLabel(d.type)) + '" placeholder="输入分类" autocomplete="off" style="width:170px;">' +
           '<div class="dy-cat-list"></div>' +
-          '<span style="color:var(--muted);margin-left:8px;">重复</span>' +
+          '<span style="color:var(--muted);">重复</span>' +
           [['none','不重复'],['daily','每天重复'],['weekly','每周重复'],['monthly','每月重复'],['yearly','每年重复']].map(function (o) {
             return '<label class="dy-chip' + ((d.repeat || 'none') === o[0] ? ' active' : '') + '"><input type="radio" name="de-repeat" value="' + o[0] + '"' + ((d.repeat || 'none') === o[0] ? ' checked' : '') + '>' + o[1] + '</label>';
           }).join('') +
@@ -6101,7 +6101,7 @@ function loadEmailLog() {
           document.getElementById(el).style.color = '#3aa06a';
         } else {
           document.getElementById(el).textContent = anonBlockedText;
-          document.getElementById(el).style.color = '#3aa06a'; /* 匿名被拦截=权限生效，正常态用绿色（20261028p142 状态色语义统一） */
+          document.getElementById(el).style.color = '#3aa06a'; /* 匿名被拦截=权限生效，正常态用绿色（20261028p152 状态色语义统一） */
         }
       })
       .catch(function () {
@@ -6252,15 +6252,15 @@ function loadEmailLog() {
 </script>
 
 
-<script src="js/admin-shop.js?v=20261028p14"></script>
-<script src="js/admin-crm.js?v=20261028p14"></script>
-<script src="js/admin-vip.js?v=20261028p14"></script>
-<script src="js/vendor/jsQR.js?v=20261028p14"></script>
-<script src="js/vendor/qrcode-generator.js?v=20261028p14"></script>
-<script src="js/vendor/JsBarcode.all.min.js?v=20261028p14"></script>
-<script src="js/admin-workbench.js?v=20261028p14"></script>
-<script src="js/admin-biz.js?v=20261028p14"></script>
-<script src="js/admin-export.js?v=20261028p14"></script>
+<script src="js/admin-shop.js?v=20261028p15"></script>
+<script src="js/admin-crm.js?v=20261028p15"></script>
+<script src="js/admin-vip.js?v=20261028p15"></script>
+<script src="js/vendor/jsQR.js?v=20261028p15"></script>
+<script src="js/vendor/qrcode-generator.js?v=20261028p15"></script>
+<script src="js/vendor/JsBarcode.all.min.js?v=20261028p15"></script>
+<script src="js/admin-workbench.js?v=20261028p15"></script>
+<script src="js/admin-biz.js?v=20261028p15"></script>
+<script src="js/admin-export.js?v=20261028p15"></script>
 <footer style="padding:18px 0 0; text-align:center;">© 2026 Yuki · Made with Cola</footer>
 </body>
 </html>
