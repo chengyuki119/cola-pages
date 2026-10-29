@@ -1310,6 +1310,15 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   document.addEventListener('visibilitychange', function () { if (!document.hidden && REFRESH) tryRefresh().catch(function () {}); }); // 切回页面时顺手续期：离开一小时再回来还是登录状态
   window.addEventListener('focus', function () { if (REFRESH) tryRefresh().catch(function () {}); });
   // 后台权限以数据库为准：RPC shop_is_admin（Security Definer，读 shop_admins），前端邮箱判断只作快路提示
+  // 只读管理员辅助：带会话调 RPC（2026-10-28）
+  function rpcAdmin(fn, bodyObj) {
+    if (!ACCESS) return Promise.resolve(false);
+    return fetch(SUPABASE_URL + '/rest/v1/rpc/' + fn, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + ACCESS, 'Content-Type': 'application/json' },
+      body: JSON.stringify(bodyObj || {})
+    }).then(function (r) { return r.ok ? r.json() : false; }).catch(function () { return false; });
+  }
   function checkAdminPerm() {
     if (!ACCESS) return Promise.resolve(false);
     return fetch(SUPABASE_URL + '/rest/v1/rpc/shop_is_admin', {
@@ -1318,6 +1327,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       body: '{}'
     }).then(function (r) { return r.ok ? r.json() : false; }).catch(function () { return false; });
   }
+  function showForcePw() { document.getElementById('fp-mask').classList.add('open'); }
+  function showRoBadge() { document.getElementById('ro-badge').style.display = 'inline'; }
   function denyAdmin() { // 非管理员：清会话留在登录门，不展示后台壳
     ACCESS = REFRESH = null;
     try { localStorage.removeItem('yuki-admin-session'); } catch (e) {}
@@ -1353,8 +1364,15 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       .then(function (data) {
         saveSession(data);
         return checkAdminPerm().then(function (ok) {
-          if (!ok) { denyAdmin(); return; }
-          enterAdmin(); toast('欢迎回来，柚子！');
+          if (ok) { enterAdmin(); toast('欢迎回来，柚子！'); return; }
+          // 首次登录强制改密（2026-10-28 只读管理员任务书）
+          return rpcAdmin('shop_admin_password_pending').then(function (pending) {
+            if (pending === true) { showForcePw(); return; }
+            return rpcAdmin('shop_is_admin_readonly').then(function (ro) {
+              if (ro === true) { enterAdmin(); showRoBadge(); toast('已进入只读后台'); return; }
+              denyAdmin();
+            });
+          });
         });
       })
       .catch(function () { toast('登录失败，检查邮箱密码'); })
@@ -1378,6 +1396,37 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       try { localStorage.removeItem('yuki-admin-session'); } catch (e) {}
       try { localStorage.removeItem('yuki-user-session'); } catch (e) {}
       location.reload();
+    });
+    document.getElementById('fp-cancel').addEventListener('click', function () {
+      document.getElementById('fp-mask').classList.remove('open');
+      ACCESS = REFRESH = null;
+      try { localStorage.removeItem('yuki-admin-session'); } catch (e) {}
+      try { localStorage.removeItem('yuki-user-session'); } catch (e) {}
+    });
+    document.getElementById('fp-ok').addEventListener('click', function () {
+      var pw1 = document.getElementById('fp-new').value.trim();
+      var pw2 = document.getElementById('fp-new2').value.trim();
+      if (!/^\d{6}$/.test(pw1)) { toast('新密码必须是六位数字'); return; }
+      if (pw1 === '111111') { toast('新密码不能是 111111'); return; }
+      if (pw1 !== pw2) { toast('两次输入的密码不一样'); return; }
+      if (!ACCESS) { toast('登录已失效，请重新登录'); return; }
+      fetch(SUPABASE_URL + '/auth/v1/user', {
+        method: 'PUT',
+        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + ACCESS, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pw1 })
+      }).then(function (r) { if (!r.ok) throw new Error(); return r.json(); })
+        .then(function () { return rpcAdmin('shop_admin_finish_password', { p_new: pw1 }); })
+        .then(function (res) {
+          if (res !== 'OK') { toast(res || '设置失败，请重试'); return; }
+          document.getElementById('fp-mask').classList.remove('open');
+          document.getElementById('fp-new').value = '';
+          document.getElementById('fp-new2').value = '';
+          return checkAdminPerm().then(function (ok) {
+            if (ok) { enterAdmin(); showRoBadge(); toast('密码设置成功！'); }
+            else { toast('密码已保存，请重新登录'); ACCESS = REFRESH = null; }
+          });
+        })
+        .catch(function () { toast('设置失败，检查网络后重试'); });
     });
     // 通用删除确认小弹窗（统一替代原生 confirm，视觉与退出登录弹窗一致）
     document.getElementById('cf-cancel').addEventListener('click', function () {
@@ -6170,6 +6219,22 @@ function loadEmailLog() {
   if (location.hash === '#system') setTimeout(boot, 300);
 })();
 </script>
+
+<!-- 首登强制改密浮层（只读管理员，2026-10-28） -->
+<div class="lo-mask" id="fp-mask">
+  <div class="lo-box">
+    <p>首次登录请设置新的六位数字密码</p>
+    <input type="password" id="fp-new" maxlength="6" inputmode="numeric" autocomplete="new-password" placeholder="新六位密码" style="width:100%;box-sizing:border-box;margin:10px 0 8px;padding:10px 12px;border:1px solid #FFD9E6;border-radius:10px;font-size:16px;color:#604C57;">
+    <input type="password" id="fp-new2" maxlength="6" inputmode="numeric" autocomplete="new-password" placeholder="再输一遍" style="width:100%;box-sizing:border-box;margin:0 0 12px;padding:10px 12px;border:1px solid #FFD9E6;border-radius:10px;font-size:16px;color:#604C57;">
+    <div class="lo-actions">
+      <button class="btn-ok" id="fp-ok" type="button">保存并进入</button>
+      <button class="btn-mini" id="fp-cancel" type="button">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- 只读模式徽章（2026-10-28） -->
+<span id="ro-badge" style="display:none;position:fixed;left:14px;bottom:14px;z-index:1900;background:#FCE4EC;color:#A04A68;border:1px solid #FFD9E6;border-radius:999px;padding:4px 12px;font-size:12px;">只读模式</span>
 
 <!-- 退出登录确认小弹窗 -->
 <div class="lo-mask" id="lo-mask">
