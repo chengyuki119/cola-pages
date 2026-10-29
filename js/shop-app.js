@@ -1472,11 +1472,13 @@
     }
     menu.innerHTML = inn;
   }
-  function doLogout() { // 退出登录：侧栏常驻显眼按钮，清空双键即全站退出
+  function doLogout() { // 退出登录：侧栏常驻显眼按钮；先吊销服务端会话再清本地（她 20261029 任务书 §1.2）
+    var at = USER && USER.a;
     USER = null; UID = null; saveUser();
     try { localStorage.setItem('yuki-cart-merge-done', '0'); } catch (e) {}
     window.__YK_MENU_OK = false; window.__YK_MENU_CHECKED = false;
     try { window.YK_EXCLUSIVE_MEMO = null; } catch (e) {}
+    if (at) { try { fetch(SUPABASE_URL + '/auth/v1/logout', { method: 'POST', headers: { 'apikey': ANON, 'Authorization': 'Bearer ' + at } }).catch(function () {}); } catch (e) {} }
     try { if (window.SiteMenu) SiteMenu.refresh(); } catch (e) {}
     loadFavsLocal(); paintFavs(); paintAcctIcon(); paintNav();
     paintAccountMenu();

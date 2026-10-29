@@ -1424,10 +1424,17 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       document.getElementById('lo-mask').classList.remove('open');
     });
     document.getElementById('lo-yes').addEventListener('click', function () {
+      // 真实吊销服务端会话：只清本地不够，旧 refresh token 还能换新 access（她 20261029 任务书 §1.2）
+      var at = ACCESS;
       ACCESS = REFRESH = null;
       try { localStorage.removeItem('yuki-admin-session'); } catch (e) {}
       try { localStorage.removeItem('yuki-user-session'); } catch (e) {}
-      location.reload();
+      if (at) {
+        try {
+          fetch(SUPABASE_URL + '/auth/v1/logout', { method: 'POST', headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + at } })
+            .catch(function () {}).finally(function () { location.reload(); });
+        } catch (e) { location.reload(); }
+      } else location.reload();
     });
     document.getElementById('fp-cancel').addEventListener('click', function () {
       document.getElementById('fp-mask').classList.remove('open');
