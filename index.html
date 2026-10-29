@@ -519,11 +519,13 @@
   if (calTodayBtn) {
     var fabDodging = false;
     var dodgeCheck = function () {
-      // 用 offset*（不含 transform 的静止位）判定，避免 dodge 后 rect 变化造成抖动回弹
+      // 用 offset*（不含 transform 的静止位）判定，避免 dodge 后 rect 变化造成抖动回弹。
+      // 判据 = 按钮中心点落在小助手静止区内（与手指点击同判据）；首屏只搭到几px边时不避让，小助手仍在。
       var fl = fab.offsetLeft, ft = fab.offsetTop;
-      var fr2 = { left: fl, right: fl + fab.offsetWidth, top: ft, bottom: ft + fab.offsetHeight };
       var tr = calTodayBtn.getBoundingClientRect();
-      var hit = !(tr.right < fr2.left || tr.left > fr2.right || tr.bottom < fr2.top || tr.top > fr2.bottom);
+      if (!tr.width && !tr.height) { if (fabDodging) { fabDodging = false; fab.classList.remove('dodge'); } return; }
+      var cx = tr.left + tr.width / 2, cy = tr.top + tr.height / 2;
+      var hit = cx >= fl && cx <= fl + fab.offsetWidth && cy >= ft && cy <= ft + fab.offsetHeight;
       if (hit !== fabDodging) { fabDodging = hit; fab.classList.toggle('dodge', hit); }
     };
     window.addEventListener('scroll', dodgeCheck, { passive: true });
