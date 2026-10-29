@@ -1614,20 +1614,13 @@
     var mask = document.createElement('div');
     mask.id = 'mo-mask';
     mask.style.cssText = 'position:fixed;inset:0;background:rgba(90,80,90,.45);z-index:9998;overflow:auto;padding:30px 10px;';
-    // 订单编号改用服务端生成的 SY-YYYYMMDD-NNN（她 2026-10-25）；拿不到时先用旧格式占位，保存时再兜底重试
-    api('rpc/shop_next_order_no', { method: 'POST', headers: { 'Prefer': 'params=single-object' }, body: '{}' })
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (no) {
-        if (!no) return;
-        var el = document.querySelector('#mo-form .mo-no');
-        if (el && el.value.indexOf('SY-') !== 0) el.value = no; // 已被用户改过就不覆盖
-      }).catch(function () {});
+    // 订单编号改为保存时才向服务端申请（20261029 她反馈：打开弹窗就预占号，不开单号码也一直变/被烧掉）
     mask.innerHTML =
-      '<div id="mo-form" style="max-width:640px;margin:0 auto;background:#fff;border-radius:18px;padding:22px;box-shadow:0 10px 40px rgba(120,80,100,.25);">' +
+      '<div id="mo-form" style="max-width:800px;margin:0 auto;background:#fff;border-radius:18px;padding:22px;box-shadow:0 10px 40px rgba(120,80,100,.25);">' +
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><h3 style="margin:0;font-size:19px;">手动创建订单</h3>' +
       '<button type="button" class="btn-mini mo-close">关闭</button></div>' +
       '<div class="form-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">' +
-        '<input class="mo-no" value="' + genOrderNo() + '">' +
+        '<input class="mo-no" value="" readonly placeholder="订单编号：保存时自动生成" style="color:var(--muted,#A88E9B);background:#FFF8FA;">' +
         '<input class="mo-time" type="datetime-local" value="' + local + '">' +
         '<button type="button" class="sel-btn mo-status" data-v="pending"><span class="pick-btn-label">状态：待付款</span></button>' +
         '<button type="button" class="sel-btn mo-cur" data-v="USD"><span class="pick-btn-label">货币：USD</span></button>' +
