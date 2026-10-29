@@ -1087,9 +1087,45 @@
         setTimeout(function () { location.href = '/admin.html'; }, 500);
         return;
       }
-      toast(t('欢迎回来～', 'Welcome back~'));
-      afterLogin();
+      // 只读管理员（20261029 她指定）：登录后弹仅观看通知页，去后台操作
+      var AT2 = res.j.access_token;
+      function roRpc(fn) {
+        return fetch(SUPABASE_URL + '/rest/v1/rpc/' + fn, { method: 'POST', headers: { 'apikey': ANON, 'Authorization': 'Bearer ' + AT2, 'Content-Type': 'application/json' }, body: '{}' })
+          .then(function (r) { return r.ok ? r.json() : false; }).catch(function () { return false; });
+      }
+      roRpc('shop_admin_password_pending').then(function (pending) {
+        if (pending === true) { showRoNotice(true); return; }
+        return roRpc('shop_is_admin_readonly').then(function (ro) {
+          if (ro === true) { showRoNotice(false); return; }
+          toast(t('欢迎回来～', 'Welcome back~'));
+          afterLogin();
+        });
+      }).catch(function () { toast(t('欢迎回来～', 'Welcome back~')); afterLogin(); });
     });
+  }
+  function showRoNotice(pending) {
+    // 仅观看通知页（20261029）：JS 动态建，账号页/商城页通用，不改动页面自身结构
+    var old = document.getElementById('ro-notice-mask'); if (old) old.remove();
+    var mask = document.createElement('div');
+    mask.id = 'ro-notice-mask';
+    mask.style.cssText = 'position:fixed;inset:0;background:rgba(90,80,90,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+    var isP = pending === true;
+    mask.innerHTML =
+      '<div style="background:#fff;border-radius:18px;border:1.5px solid #FFD9E6;padding:26px 28px 20px;width:min(400px,calc(100vw - 40px));box-shadow:0 10px 40px rgba(120,80,100,.25);box-sizing:border-box;text-align:center;">' +
+        '<div style="font-size:34px;line-height:1;margin-bottom:10px;">ฅ՞•ﻌ•՞ฅ</div>' +
+        '<p style="margin:0 0 8px;font-weight:700;font-size:18px;color:#604C57;">' + (isP ? '首次登录，请先设置密码' : '仅观看模式') + '</p>' +
+        (isP
+          ? '<p style="margin:0 0 16px;font-size:14px;color:#A88E9B;line-height:1.7;">你的后台管理员账号还没有设置专属密码。<br>请先到后台用初始密码登录，页面会引导你设置新的六位数字密码。</p>'
+          : '<p style="margin:0 0 6px;font-size:14px;color:#A88E9B;line-height:1.7;">你已登录小柚小世界的后台管理员账号（只读权限）。<br>可以浏览后台的授权内容，但不能新增、修改或删除数据。</p>' +
+            '<p style="margin:0 0 16px;font-size:14px;color:#A88E9B;">如需修改内容，请联系小柚 ♡</p>') +
+        '<div style="display:flex;gap:8px;justify-content:center;">' +
+          '<button id="ro-go" type="button" style="border:none;background:#FCE4EC;color:#A04A68;border-radius:999px;padding:9px 24px;font-size:15px;cursor:pointer;font-family:inherit;">前往后台</button>' +
+          '<button id="ro-stay" type="button" style="border:none;background:none;color:#A88E9B;font-size:14px;cursor:pointer;font-family:inherit;padding:9px 12px;">' + (isP ? '取消' : '知道了') + '</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(mask);
+    mask.querySelector('#ro-go').addEventListener('click', function () { location.href = '/admin.html'; });
+    mask.querySelector('#ro-stay').addEventListener('click', function () { mask.remove(); });
   }
   function doRegister() {
     var name = document.getElementById('rg-name').value.trim();

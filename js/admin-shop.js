@@ -1658,6 +1658,29 @@
       '<span class="hint" style="margin-left:10px;">默认「待付款」，不会自动标成已付款；来源自动记为「后台手动创建」</span>' +
       '</div>';
     root.appendChild(mask);
+    // 收款安排（她 20261029：与 POS 同款全款/定金＋尾款/分次）
+    var moRenderPlanInputs = function () {
+      var onBtn = mask.querySelector('.mo-plan.on');
+      var plan = onBtn ? onBtn.getAttribute('data-v') : 'full';
+      var box = mask.querySelector('.mo-plan-inputs');
+      if (!box) return;
+      if (plan === 'deposit') {
+        box.innerHTML = '<input class="mo-deposit" type="number" min="0" step="0.01" placeholder="定金 $（现在收）" style="width:150px;">' +
+          '<input class="mo-final" type="number" min="0" step="0.01" placeholder="尾款 $（如当场收清，否则留空）" style="width:190px;">';
+      } else if (plan === 'split') {
+        box.innerHTML = '<input class="mo-paynow" type="number" min="0" step="0.01" placeholder="本次实收 $（选填）" style="width:150px;">';
+      } else {
+        box.innerHTML = '<span class="hint" style="margin:0;">保存即记全款（应收全额）</span>';
+      }
+    };
+    Array.prototype.forEach.call(mask.querySelectorAll('.mo-plan'), function (b) {
+      b.addEventListener('click', function () {
+        Array.prototype.forEach.call(mask.querySelectorAll('.mo-plan'), function (x) { x.classList.remove('on'); });
+        b.classList.add('on');
+        moRenderPlanInputs();
+      });
+    });
+    moRenderPlanInputs();
     moRenderItems(); moCalc();
     mask.addEventListener('click', function (e) {
       if (e.target === mask) { mask.remove(); return; }
@@ -1758,10 +1781,17 @@
       var c = moCalc();
       if (c.total < 0) { toast('总价不能是负数'); return; }
       if (c.disc < 0 || c.ship < 0 || c.fee < 0) { toast('折扣/运费/服务费不能填负数'); return; }
-      var orderNo = f.querySelector('.mo-no').value.trim() || genOrderNo();
+      // 收款安排校验（与 POS 同款：全款 / 定金＋尾款 / 分次付款）
+      var planBtn0 = mask.querySelector('.mo-plan.on');
+      var moPlan = planBtn0 ? planBtn0.getAttribute('data-v') : 'full';
+      var moDep = num(f.querySelector('.mo-deposit') ? f.querySelector('.mo-deposit').value : 0);
+      var moFin = num(f.querySelector('.mo-final') ? f.querySelector('.mo-final').value : 0);
+      var moNow = num(f.querySelector('.mo-paynow') ? f.querySelector('.mo-paynow').value : 0);
+      if (moPlan === 'deposit' && moDep + moFin > c.total + 0.005) { toast('定金＋尾款超过应收，请核对'); return; }
+      if (moPlan === 'split' && moNow > c.total + 0.005) { toast('本次实收超过应收，请核对'); return; }
       var created = f.querySelector('.mo-time').value;
       var body = {
-        order_no: orderNo,
+        order_no: '',
         email: f.querySelector('.mo-email').value.trim(),
         items: items,
         subtotal: fmtMoney(c.sub),
@@ -1795,15 +1825,35 @@
           });
         });
       };
-      submitOrder(0).then(function (res) {
+      // 订单编号只在保存时申请（20261029 她反馈：开弹窗就预占号，不开单号码也一直变/被烧掉）
+      api('rpc/shop_next_order_no', { method: 'POST', body: '{}' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (no) {
+        if (!no) throw new Error('拿不到订单编号');
+        body.order_no = no;
+        var noEl = f.querySelector('.mo-no'); if (noEl) noEl.value = no;
+        return submitOrder(0);
+      }).then(function (res) {
         btn.disabled = false; btn.textContent = '保存订单';
-        if (!res.ok) { toast('保存失败：' + (res.msg || '数据库拒绝，检查订单号是否重复')); return; }
+        if (!res || !res.ok) { toast('保存失败：' + ((res && res.msg) || '数据库拒绝，检查订单号是否重复')); return; }
         var newId = res.row && res.row.id;
         api('shop_order_logs', { method: 'POST', body: JSON.stringify({ order_id: newId || null, actor: 'admin', action: 'create', detail: '后台手动建单 ' + body.order_no }) }).catch(function () {});
-        toast('订单已保存：' + body.order_no);
-        mask.remove();
-        loadOrders().then(renderOrders);
-      }).catch(function () { btn.disabled = false; btn.textContent = '保存订单'; toast('保存失败：网络异常，重试一下'); });
+        // 收款台账：全款/定金+尾款/分次（同 POS，落 shop_pay_record_add）
+        var pays = [];
+        if (moPlan === 'full') pays.push(['full', c.total]);
+        else if (moPlan === 'deposit') { if (moDep > 0) pays.push(['deposit', moDep]); if (moFin > 0) pays.push(['final', moFin]); }
+        else if (moPlan === 'split' && moNow > 0) pays.push(['installment', moNow]);
+        var chain = Promise.resolve();
+        pays.forEach(function (pr) {
+          chain = chain.then(function () {
+            return api('rpc/shop_pay_record_add', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ p_order_id: newId, p_kind: pr[0], p_amount: pr[1], p_method: 'other', p_note: '手动创建订单' }) }).catch(function () {});
+          });
+        });
+        chain.then(function () {
+          toast('订单已保存：' + body.order_no + (pays.length ? '（已记收款）' : ''));
+          mask.remove();
+          loadOrders().then(renderOrders);
+        });
+      }).catch(function (e) { btn.disabled = false; btn.textContent = '保存订单'; toast('保存失败：' + (e && e.message ? e.message : '网络异常，重试一下')); });
     });
   }
 
