@@ -7,8 +7,8 @@
 (function () {
   'use strict';
 
-  var SUPABASE_URL = 'https://vmmmuyxrsiufzurwbydg.supabase.co';
-  var ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtbW11eXhyc2l1Znp1cndieWRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI4NzM2NTAsImV4cCI6MjEwODQ0OTY1MH0.SbdbAJV5hP3MtyZxf7DQUAD9Fm-XNlVC5PaYf47lzsw';
+  var SUPABASE_URL = 'https://ukxrvcptwhlwvdanovgd.supabase.co';
+  var ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVreHJ2Y3B0d2hsd3ZkYW5vdmdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyMzgyNDcsImV4cCI6MjEwODgxNDI0N30.Grdi23yToGPFF8e_kxFjf37JOOf51j-FW_FYQTUVu8E';
 
   // ===== FAQ（问题行双语同时显示，答案按当前语言）=====
   var FAQ = {

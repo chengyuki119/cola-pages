@@ -1169,8 +1169,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           <div id="date-pop"><div class="dp-head"><button class="dp-nav" id="dp-prev">‹</button><b class="dp-title" title="点击快速选择年月"></b><button class="dp-nav" id="dp-next">›</button><button class="dp-today" id="dp-today">今天</button></div><input type="text" class="dp-input" placeholder="YYYY/MM/DD"><div class="dp-hint"></div><div class="dp-ym"></div><div class="dp-grid"></div></div>
 
 <script>
-  var SUPABASE_URL = 'https://vmmmuyxrsiufzurwbydg.supabase.co';
-  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtbW11eXhyc2l1Znp1cndieWRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI4NzM2NTAsImV4cCI6MjEwODQ0OTY1MH0.SbdbAJV5hP3MtyZxf7DQUAD9Fm-XNlVC5PaYf47lzsw';
+  var SUPABASE_URL = 'https://ukxrvcptwhlwvdanovgd.supabase.co';
+  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVreHJ2Y3B0d2hsd3ZkYW5vdmdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyMzgyNDcsImV4cCI6MjEwODgxNDI0N30.Grdi23yToGPFF8e_kxFjf37JOOf51j-FW_FYQTUVu8E';
   var ACCESS = null, REFRESH = null;
   // 从其它页面菜单跳转过来时（admin.html#shop 等），登录后直接开到对应标签页
   var PENDING_TAB = null;
@@ -6082,8 +6082,8 @@ function loadEmailLog() {
   }).catch(function () { box.innerHTML = '<p class="empty">加载失败，刷新重试</p>'; });
 }
 (function () {
-  var URLBASE = 'https://vmmmuyxrsiufzurwbydg.supabase.co/rest/v1/';
-  var ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtbW11eXhyc2l1Znp1cndieWRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI4NzM2NTAsImV4cCI6MjEwODQ0OTY1MH0.SbdbAJV5hP3MtyZxf7DQUAD9Fm-XNlVC5PaYf47lzsw';
+  var URLBASE = 'https://ukxrvcptwhlwvdanovgd.supabase.co/rest/v1/';
+  var ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVreHJ2Y3B0d2hsd3ZkYW5vdmdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyMzgyNDcsImV4cCI6MjEwODgxNDI0N30.Grdi23yToGPFF8e_kxFjf37JOOf51j-FW_FYQTUVu8E';
   function probe(table, el, okText, anonBlockedText, missingText) {
     fetch(URLBASE + table + '?select=*&limit=1', { headers: { apikey: ANON } })
       .then(function (r) {
@@ -6102,7 +6102,7 @@ function loadEmailLog() {
           document.getElementById(el).style.color = '#3aa06a';
         } else {
           document.getElementById(el).textContent = anonBlockedText;
-          document.getElementById(el).style.color = '#3aa06a'; /* 匿名被拦截=权限生效，正常态用绿色（20261028p182 状态色语义统一） */
+          document.getElementById(el).style.color = '#3aa06a'; /* 匿名被拦截=权限生效，正常态用绿色（20261028p192 状态色语义统一） */
         }
       })
       .catch(function () {
@@ -6253,15 +6253,15 @@ function loadEmailLog() {
 </script>
 
 
-<script src="js/admin-shop.js?v=20261028p18"></script>
-<script src="js/admin-crm.js?v=20261028p18"></script>
-<script src="js/admin-vip.js?v=20261028p18"></script>
-<script src="js/vendor/jsQR.js?v=20261028p18"></script>
-<script src="js/vendor/qrcode-generator.js?v=20261028p18"></script>
-<script src="js/vendor/JsBarcode.all.min.js?v=20261028p18"></script>
-<script src="js/admin-workbench.js?v=20261028p18"></script>
-<script src="js/admin-biz.js?v=20261028p18"></script>
-<script src="js/admin-export.js?v=20261028p18"></script>
+<script src="js/admin-shop.js?v=20261028p19"></script>
+<script src="js/admin-crm.js?v=20261028p19"></script>
+<script src="js/admin-vip.js?v=20261028p19"></script>
+<script src="js/vendor/jsQR.js?v=20261028p19"></script>
+<script src="js/vendor/qrcode-generator.js?v=20261028p19"></script>
+<script src="js/vendor/JsBarcode.all.min.js?v=20261028p19"></script>
+<script src="js/admin-workbench.js?v=20261028p19"></script>
+<script src="js/admin-biz.js?v=20261028p19"></script>
+<script src="js/admin-export.js?v=20261028p19"></script>
 <footer style="padding:18px 0 0; text-align:center;">© 2026 Yuki · Made with Cola</footer>
 </body>
 </html>

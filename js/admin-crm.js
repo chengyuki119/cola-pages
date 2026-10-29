@@ -4,7 +4,7 @@
    数据：shop_customers + shop_orders(order_source pos) + RPC shop_customer_save/merge/shop_pos_create/shop_pos_confirm
    ══════════════════════════════════════════════════════════════════ */
 (function () {
-  var SUPA = (window.SUPABASE_URL || (window.SUPABASE_URL = 'https://vmmmuyxrsiufzurwbydg.supabase.co'));
+  var SUPA = (window.SUPABASE_URL || (window.SUPABASE_URL = 'https://ukxrvcptwhlwvdanovgd.supabase.co'));
   var CRM = window.CRM = {};
   function t(zh, en) { return (window.LANG === 'en') ? en : zh; }
 

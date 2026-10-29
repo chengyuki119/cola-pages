@@ -178,8 +178,8 @@
   }
 
   // ── 数据库同步（全站同一份数据：照片分区 / 区域标题与显隐 / BJD 名单 / 色卡名单）──
-  var DB_BASE = 'https://vmmmuyxrsiufzurwbydg.supabase.co/rest/v1/';
-  var DB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtbW11eXhyc2l1Znp1cndieWRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI4NzM2NTAsImV4cCI6MjEwODQ0OTY1MH0.SbdbAJV5hP3MtyZxf7DQUAD9Fm-XNlVC5PaYf47lzsw';
+  var DB_BASE = 'https://ukxrvcptwhlwvdanovgd.supabase.co/rest/v1/';
+  var DB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVreHJ2Y3B0d2hsd3ZkYW5vdmdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyMzgyNDcsImV4cCI6MjEwODgxNDI0N30.Grdi23yToGPFF8e_kxFjf37JOOf51j-FW_FYQTUVu8E';
   function dbFetch(path) {
     return fetch(DB_BASE + path, { headers: { 'apikey': DB_KEY, 'Authorization': 'Bearer ' + DB_KEY } })
       .then(function (r) { return r.ok ? r.json() : []; })

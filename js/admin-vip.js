@@ -8,7 +8,7 @@
    备注：复用 shop_customers.note + shop_customer_save（全参数回传，只改 note，不覆盖其它字段）
    ══════════════════════════════════════════════════════════════════ */
 (function () {
-  var SUPA = (window.SUPABASE_URL || (window.SUPABASE_URL = 'https://vmmmuyxrsiufzurwbydg.supabase.co'));
+  var SUPA = (window.SUPABASE_URL || (window.SUPABASE_URL = 'https://ukxrvcptwhlwvdanovgd.supabase.co'));
   function t(zh, en) { return (window.LANG === 'en') ? en : zh; }
   function num(v) { var n = parseFloat(v); return isNaN(n) ? 0 : n; }
   function money(v, cur) { return (cur || '$') + fmtMoney(v); }

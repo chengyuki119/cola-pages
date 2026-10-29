@@ -12,10 +12,10 @@ function escAttrDb(s) {
 }
 
 // ===== Supabase 数据层（全站同一份连接与登录态） =====
-var DB_BASE = 'https://vmmmuyxrsiufzurwbydg.supabase.co/rest/v1/';
+var DB_BASE = 'https://ukxrvcptwhlwvdanovgd.supabase.co/rest/v1/';
 var DB_HEADERS = {
-  'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtbW11eXhyc2l1Znp1cndieWRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI4NzM2NTAsImV4cCI6MjEwODQ0OTY1MH0.SbdbAJV5hP3MtyZxf7DQUAD9Fm-XNlVC5PaYf47lzsw',
-  'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtbW11eXhyc2l1Znp1cndieWRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI4NzM2NTAsImV4cCI6MjEwODQ0OTY1MH0.SbdbAJV5hP3MtyZxf7DQUAD9Fm-XNlVC5PaYf47lzsw'
+  'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVreHJ2Y3B0d2hsd3ZkYW5vdmdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyMzgyNDcsImV4cCI6MjEwODgxNDI0N30.Grdi23yToGPFF8e_kxFjf37JOOf51j-FW_FYQTUVu8E',
+  'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVreHJ2Y3B0d2hsd3ZkYW5vdmdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyMzgyNDcsImV4cCI6MjEwODgxNDI0N30.Grdi23yToGPFF8e_kxFjf37JOOf51j-FW_FYQTUVu8E'
 };
 function dbFetch(path) {
   return fetch(DB_BASE + path, { headers: DB_HEADERS }).then(function (r) { return r.ok ? r.json() : []; });
@@ -53,7 +53,7 @@ function ykRefreshSession() { // 统一续期：a 新鲜直接复用；否则刷
   if (ykATFresh(s)) return Promise.resolve(s);
   var triedR = s.r;
   var callRefresh = function (r) {
-    return fetch('https://vmmmuyxrsiufzurwbydg.supabase.co/auth/v1/token?grant_type=refresh_token', {
+    return fetch('https://ukxrvcptwhlwvdanovgd.supabase.co/auth/v1/token?grant_type=refresh_token', {
       method: 'POST',
       headers: { 'apikey': DB_HEADERS.apikey, 'Content-Type': 'application/json' },
       body: JSON.stringify({ refresh_token: r })
@@ -295,7 +295,7 @@ function toast(msg) {
 // ── R2 图片适配层（正式站版）─────────────────────────
 // 图片源：R2 镜像 → 正式库 Supabase（后台新传图；测试库已于 2026-10-28 删除，已移出回退链）
 var R2_BASE = 'https://img.yukicheng.com';
-var R2_FB = ['https://vmmmuyxrsiufzurwbydg.supabase.co/storage/v1/object/public/'];
+var R2_FB = ['https://ukxrvcptwhlwvdanovgd.supabase.co/storage/v1/object/public/'];
 function ykImgNext(src) { // 加载失败 → 返回下一个候选源（耗尽返回空）
   var p = null, idx = -1;
   if (src && src.indexOf(R2_BASE + '/') === 0) { p = src.slice(R2_BASE.length + 1).split('?')[0]; idx = 0; }
