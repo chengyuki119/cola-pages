@@ -1640,6 +1640,14 @@
       '<div class="mo-items" style="margin-top:10px;"></div>' +
       '<button type="button" class="btn-mini mo-additem" style="background:var(--accent,#ffd9e6);color:var(--text,#604C57);padding:9px 22px;font-size:15px;">＋ 添加商品</button>' +
       '<p class="hint" style="margin:6px 0 0;">从商品列表选，或选「自定义商品」录临时商品；单价留空自动用商品价</p></div>' +
+      '<div style="margin:14px 0 6px;"><b style="font-size:16px;">收款安排</b>' +
+      '<div style="display:flex;gap:8px;margin-top:8px;">' +
+        '<button type="button" class="paytab mo-plan on" data-v="full">全款</button>' +
+        '<button type="button" class="paytab mo-plan" data-v="deposit">定金＋尾款</button>' +
+        '<button type="button" class="paytab mo-plan" data-v="split">分次付款</button>' +
+      '</div>' +
+      '<div class="mo-plan-inputs" style="margin-top:8px;"></div>' +
+      '</div>' +
       '<div style="margin:14px 0 8px;"><b style="font-size:16px;">金额</b></div>' +
       '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;">' +
         '<div><span class="mo-flabel mo-flabel-inpop">折扣金额 $</span><input class="mo-discount" type="number" min="0" step="0.01" value="0"></div>' +
