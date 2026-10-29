@@ -35,8 +35,8 @@
 <meta name="twitter:title" content="小柚的小世界">
 <meta name="twitter:description" content="欢迎来到小柚的小世界">
 <meta name="twitter:image" content="https://yukicheng.com/og-image.jpg">
-<link rel="stylesheet" href="/css/site.css?v=20261028p19">
-  <link rel="stylesheet" href="/site-menu.css?v=20261028p19">
+<link rel="stylesheet" href="/css/site.css?v=20261029p22">
+  <link rel="stylesheet" href="/site-menu.css?v=20261029p22">
     <script src="/site-menu.js" defer></script>
 </head>
 <body class="home">
@@ -177,13 +177,15 @@
     box-shadow: inset 0 2px 3px rgba(255,255,255,.9), inset 0 -2px 4px rgba(220,170,190,.28), 0 4px 10px rgba(180,120,150,.16);
     cursor: pointer;
     z-index: 1150;
-    transition: transform .28s ease, box-shadow .18s ease;
+    transition: transform .28s ease, box-shadow .18s ease, opacity .2s ease;
     font-family: inherit;
   }
   .ai-fab .l1 { font-size:15px; font-weight: 600; line-height: 1.25; color: var(--muted,#A88E9B); }
   .ai-fab .l2 { font-size:14px; font-weight: 600; line-height: 1.25; color: var(--muted,#A88E9B); }
   .ai-fab:not(.docked):hover { background: var(--card, #FFFFFF); transform: translateY(-2px); box-shadow: inset 0 2px 3px rgba(255,255,255,.9), inset 0 -2px 4px rgba(220,170,190,.28), 0 7px 14px rgba(180,120,150,.20); }
   .ai-fab:not(.docked):active { transform: scale(.95); }
+  /* 「今天」避让（20261029）：日历的今天按钮滚到右下角与小助手重叠时，小助手临时滑出，错开即回；不再给内容加高层级 */
+  .ai-fab.dodge:not(.docked) { transform: translateY(calc(100% + 26px)); opacity: 0; pointer-events: none; }
 
   .ai-win {
     position: fixed;
@@ -511,6 +513,23 @@
   });
 
   if (!curSession) addMsg('ai', T('你好，我是小柚助手～现在还是测试版，可以先点下面的快捷问题试试。', "Hi, I'm Yuki's Assistant~ I'm still a test version — try a quick question below."), nowTime());
+
+  // 「今天」避让：日历的今天按钮与小助手圆形重叠时小助手滑出（20261029，替代旧 z-index hack）
+  var calTodayBtn = document.getElementById('cal-today');
+  if (calTodayBtn) {
+    var fabDodging = false;
+    var dodgeCheck = function () {
+      // 用 offset*（不含 transform 的静止位）判定，避免 dodge 后 rect 变化造成抖动回弹
+      var fl = fab.offsetLeft, ft = fab.offsetTop;
+      var fr2 = { left: fl, right: fl + fab.offsetWidth, top: ft, bottom: ft + fab.offsetHeight };
+      var tr = calTodayBtn.getBoundingClientRect();
+      var hit = !(tr.right < fr2.left || tr.left > fr2.right || tr.bottom < fr2.top || tr.top > fr2.bottom);
+      if (hit !== fabDodging) { fabDodging = hit; fab.classList.toggle('dodge', hit); }
+    };
+    window.addEventListener('scroll', dodgeCheck, { passive: true });
+    window.addEventListener('resize', dodgeCheck);
+    dodgeCheck();
+  }
 })();
 </script>
 <script>

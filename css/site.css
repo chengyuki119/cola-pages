@@ -393,8 +393,11 @@
   .cal-head { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
   .cal-head b { flex: 1; text-align: center; font-size:18px; }
   .cal-btn { border: none; background: var(--card-hover); color: var(--text); width: 26px; height: 26px; border-radius: 8px; cursor: pointer; font-size:17px; line-height: 1; padding: 0; }
-  .cal-btn.wide { width: auto; padding: 0 10px; font-size:15px; color: var(--muted); }
-  #cal-today { position: relative; z-index: 1160; /* 高于右下角悬浮小助手(z-1150)：手机端滚动到日历时「今天」不被盖住点不到 */ }
+  .cal-btn.wide { width: auto; padding: 0 12px; font-size:15px; color: var(--text, #604C57); background: var(--accent-soft, #FCE4EC); border-radius: 999px; font-weight: 600; transition: background .2s, transform .15s; }
+  .cal-btn.wide:hover { background: var(--accent, #FFD9E6); }
+  .cal-btn.wide:active { transform: scale(.96); }
+  @media (max-width: 400px) { .cal-head { gap: 4px; } .cal-btn.wide { padding: 0 9px; } }
+  /* 20261029 她反馈：旧版给 #cal-today 加 z-index:1160 压过顶栏/菜单，手机端滚动时按钮浮在内容上层——已删，改由小助手避让（见 ai-fab.dodge） */
   .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; font-size:15px; }
   .cal-wd { color: var(--muted); padding: 4px 0; font-size:14px; }
   .cal-day { position: relative; padding: 6px 0; border-radius: 8px; }
