@@ -71,18 +71,21 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
 
   .wrap { width: 100%; max-width: none; margin: 0; padding: 0; box-sizing: border-box; } /* 20261029 她任务书：不再限宽，改用统一的 50px 边距体系 */
   /* 后台标题行 + 侧栏宽度变量（她 20261026t 任务书 §1：标题与右侧内容面板左缘对齐；变量复用避免魔法数重复） */
-  :root { --adm-side-w: 190px; --adm-gap: 50px; --adm-edge: 50px; /* 她 20261029 03:02：屏左 50px | 控制台 | 50px | 工作台 | 50px */
+  :root { --adm-side-w: 190px; --adm-gap: 40px; --adm-edge: 40px; /* 她 20261029 03:22：屏左 40px | 控制台 | 40px | 工作台 | 40px */
           --adm-btn-home: #FCE1EA; --adm-btn-home-t: #A04A68; --adm-btn-exit: #EEE5F8; --adm-btn-exit-t: #6E5A73; }
   .adm-head { display: flex; align-items: center; gap: 14px; position: relative; }
+  .adm-head h1 { margin: 0; } /* 归零 h1 默认上下边距：标题文字顶与控制台顶齐平（否则低 20px） */
+  .adm-head-title { flex: 1 1 auto; min-width: 0; } /* 标题外层容器：允许收缩，断字省略在 h1 上做 */
   .adm-head .logout { float: none; flex-shrink: 0; margin-left: auto; }
   @media (min-width: 900px) {
     /* 标题行与工作台左缘对齐，顶部留白舒适（她 20261029 任务书 §二） */
-    .adm-head { margin: 0 var(--adm-edge) 22px calc(var(--adm-edge) + var(--adm-side-w) + var(--adm-gap)); padding: 38px 0 0; }
+    /* 顶部视觉空隙 40px：顶栏固定占 60px，标题行 padding 40 → 与控制台顶（60+40）对齐 */
+    .adm-head { margin: 0 var(--adm-edge) 22px calc(var(--adm-edge) + var(--adm-side-w) + var(--adm-gap)); padding: 40px 0 0; }
     .adm-head .adm-home-btn { position: static; margin: 0 14px 0 0; flex-shrink: 0; }
   }
   @media (max-width: 899px) {
-    .adm-head { margin-left: 0; padding: 22px 14px 0; box-sizing: border-box; } /* 手机端顶部留白 + 左右安全间距 */
-    .adm-head .adm-home-btn { display: inline-block; order: -1; margin: 0 0 10px 2px; }
+    .adm-head { margin-left: 0; padding: 18px 14px 0; box-sizing: border-box; } /* 手机端顶部留白 + 左右安全间距 */
+    .adm-head .adm-home-btn { display: inline-block; order: -1; margin: 0; flex-shrink: 0; } /* 靠左，与标题/登出一排（她 20261029 03:22） */
     .wrap { padding: 0 0 64px; }
     .wrap h1 { font-size: 22px; margin: 16px 0 4px; } /* 内容区变窄，标题同步缩小避免截断 */
     .wrap .sub { font-size: 14px; }
@@ -101,9 +104,11 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     display: flex; flex-direction: column; gap: 12px;
   }
   /* 登录页比例：内容区撑满视口高度，登录卡垂直居中，不再下方塌一大段空白（她 20261027 16:35）*/
-  .wrap:has(> form.gate) { min-height: calc(100vh - 200px); display: flex; flex-direction: column; }
-  .wrap:has(> form.gate) .adm-head { flex: none; }
-  .wrap:has(> form.gate) form.gate { margin: auto; width: 100%; }
+  /* 登录门样式只认 body.adm-in 缺席（登录后 JS 加上）：:has(> form.gate) 在 gate 隐藏后仍命中，
+     会把标题行左缩进覆盖掉、被固定侧栏盖住——她 20261029 03:18 实测踩坑，勿改回 :has */
+  body:not(.adm-in) .wrap { min-height: calc(100vh - 200px); display: flex; flex-direction: column; }
+  body:not(.adm-in) .wrap .adm-head { flex: none; }
+  body:not(.adm-in) .wrap form.gate { margin: auto; width: 100%; }
   .gate input {
     border: 1.5px solid var(--accent-soft); border-radius: 12px;
     background: #fff; padding: 11px 14px;
@@ -190,12 +195,12 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   @media (min-width: 900px) {
     #admin-body { display: block; }
     #pp-wrap {
-      position: fixed; left: var(--adm-edge); top: var(--adm-edge); bottom: var(--adm-edge); width: var(--adm-side-w);
-      margin-bottom: 0; overflow-y: auto; /* 控制台：左/上/下外边距 50px，内部自滚（她 20261029 任务书 §一） */
+      position: fixed; left: var(--adm-edge); top: calc(60px + var(--adm-edge)); bottom: var(--adm-edge); width: var(--adm-side-w);
+      margin-bottom: 0; overflow-y: auto; /* 控制台：左 40px、顶栏下 40px、底 40px，内部自滚（她 20261029 03:22 改 40px） */
       z-index: 90;
     }
     #pp-btn { display: none; }
-    #adm-content { margin: 0 var(--adm-edge) var(--adm-edge) calc(var(--adm-edge) + var(--adm-side-w) + var(--adm-gap)); padding: 0; box-sizing: border-box; min-height: 60vh; } /* 工作台：右/下 50px，占满剩余宽，不再 1200px 限宽 */
+    #adm-content { margin: 0 var(--adm-edge) var(--adm-edge) calc(var(--adm-edge) + var(--adm-side-w) + var(--adm-gap)); padding: 0; box-sizing: border-box; min-height: 60vh; } /* 工作台：右/下 40px，占满剩余宽，不再 1200px 限宽 */
     #pp-menu {
       position: static; display: block;
       box-shadow: none; border: 1px solid var(--card-hover);
@@ -207,13 +212,13 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
      「当前页面 ▾」按钮恢复显示，点开浮层选页；内容区全宽。桌面端不变。 ── */
   @media (max-width: 899px) {
     #admin-body { display: block; }
-    #pp-wrap { position: relative; width: auto; max-height: none; overflow: visible; margin: 0 14px 18px; box-sizing: border-box; }
+    #pp-wrap { position: relative; display: block; width: auto; max-height: none; overflow: visible; margin: 0 14px 18px; box-sizing: border-box; } /* display:block：脱掉 inline-block 收缩，选择器才能撑满整行 */
     #pp-btn {
-      display: inline-flex; height: 42px; padding: 0 16px; font-size: 15px; font-weight: 600;
+      display: flex; align-items: center; height: 42px; padding: 0 16px; font-size: 15px; font-weight: 600;
       background: var(--adm-btn-home); color: var(--adm-btn-home-t);
-      border-radius: 999px; white-space: nowrap; width: auto; box-sizing: border-box; /* 紧凑胶囊，不撑满整行（她 20261029 任务书 §三） */
+      border-radius: 999px; white-space: nowrap; width: 100%; box-sizing: border-box; /* 撑满整行，右侧不再大片空白（她 20261029 03:22 反馈） */
     }
-    #pp-btn .pp-arrow { color: var(--adm-btn-home-t); }
+    #pp-btn .pp-arrow { color: var(--adm-btn-home-t); margin-left: auto; } /* 箭头靠右，选择器观感 */
     #pp-btn:hover { background: #F8D3E2; }
     #adm-content { margin: 0; min-width: 0; padding: 0 14px 64px; box-sizing: border-box; } /* 内容区全宽（手机端） */
     #pp-menu {
@@ -225,8 +230,16 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     #pp-menu.open { display: block; }
     #pp-menu .tab-btn { font-size: 14px; padding: 8px 10px; }
     #pp-menu .pp-group { font-size: 12px; padding: 8px 10px 2px; }
-    .adm-head { margin-left: 0; padding: 0 10px; box-sizing: border-box; }
-    .adm-head h1, .adm-head .hint { word-break: keep-all; overflow-wrap: anywhere; } /* 标题不再逐字断行 */
+    .adm-head { margin-left: 0; padding: 18px 14px 0; box-sizing: border-box; align-items: center; }
+    .adm-head-title { flex: 1 1 auto; min-width: 0; }
+    .adm-head h1 { white-space: nowrap; margin: 0; font-size: 22px; overflow: hidden; text-overflow: ellipsis; } /* 一排居中不折行，字号比两个按钮大（她 20261029 03:22） */
+    .adm-head .hint { word-break: keep-all; overflow-wrap: anywhere; }
+    @media (max-width: 400px) { /* 小屏收一档，保证一排放得下 */
+      .adm-head { gap: 8px; }
+      .adm-head h1 { font-size: 19px; }
+      .adm-head .adm-home-btn { padding: 8px 12px; font-size: 14px; }
+      .adm-head .logout { padding: 8px 12px; font-size: 14px; }
+    }
   }
   /* 返回主页：粉色胶囊按钮，桌面端与「柚子的后台」标题同行（内容区左上角）；手机端在标题上方；点击进首页路由不依赖历史记录（她 20261026 21:50 任务书） */
   .adm-home-btn {
@@ -611,8 +624,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     @media (max-width: 899px) {
       .menu { width: min(250px, 80vw); }
     }
-    /* 登录门视图：标题行在 50px 边距内居中（不影响登录后布局，不改变 .wrap 自身 padding） */
-    .wrap:has(> form.gate) .adm-head { margin: 0 var(--adm-edge, 50px) 22px; justify-content: center; }
+    /* 登录门视图：标题行在 40px 边距内居中（仅登录前；登录后 body.adm-in 使其失效） */
+    body:not(.adm-in) .wrap .adm-head { margin: 0 var(--adm-edge, 40px) 22px; justify-content: center; }
   </style>
   <script src="site-menu.js" defer></script>
 </head>
@@ -639,8 +652,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
 <div class="wrap">
   <div class="adm-head">
     <a class="adm-home-btn" href="/">← 返回主页</a>
-    <div>
-      <h1 style="margin-bottom:4px;">柚子的后台</h1>
+    <div class="adm-head-title">
+      <h1>柚子的后台</h1>
     </div>
     <button class="logout" id="btn-logout" style="display:none;">退出登录</button>
   </div>
@@ -1354,6 +1367,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     toast('这个账号没有后台权限');
   }
   function enterAdmin() {
+    document.body.classList.add('adm-in'); /* 登录后置位：关掉登录门专属布局（:has 方案在 gate 隐藏后仍命中，勿改回） */
     document.getElementById('gate').style.display = 'none';
     document.getElementById('admin-body').style.display = '';
     document.getElementById('btn-logout').style.display = 'inline';
