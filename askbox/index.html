@@ -72,13 +72,16 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .wrap { max-width: 1000px; margin: 0 auto; padding: 48px 24px 64px; }
   .back-link {
     display: inline-flex; align-items: center; gap: 8px;
-    color: var(--text);
-    font-size:17px;
-    padding: 8px 14px; border-radius: 999px;
-    background: var(--card);
-    transition: background .2s;
+    color: #A04A68;
+    font-size:16px; font-weight:600;
+    padding: 9px 18px;
+    border-radius: 999px;
+    background: #FCE1EA; /* 与后台「返回主页」胶囊同款（她 20261029 03:39：全站统一） */
+    transition: filter .2s;
+    white-space: nowrap;
   }
-  .back-link:hover { background: var(--card-hover); }
+  .back-link:hover { background: #F8D3E2; }
+  .back-link:active { transform: scale(.97); }
   h1 { font-size:31px; margin: 20px 0 6px; }
   .sub { color: var(--muted); font-size:17px; margin-bottom: 24px; }
 
