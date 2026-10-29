@@ -69,20 +69,21 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .lang-btn { border: none; background: none; color: var(--muted); font-size:14px; font-family: inherit; padding: 5px 12px; border-radius: 999px; cursor: pointer; transition: background .2s, color .2s, box-shadow .2s; }
   .lang-btn.active { background: #fff; color: var(--text, #604C57); font-weight: 600; box-shadow: 0 1px 4px rgba(180,120,150,.28); }
 
-  .wrap { max-width: 1200px; width: 100%; margin: 0 auto; padding: 0; box-sizing: border-box; } /* 20261029 她指定：与正站同为 1200px 限宽居中 */
+  .wrap { width: 100%; max-width: none; margin: 0; padding: 0; box-sizing: border-box; } /* 20261029 她任务书：不再限宽，改用统一的 50px 边距体系 */
   /* 后台标题行 + 侧栏宽度变量（她 20261026t 任务书 §1：标题与右侧内容面板左缘对齐；变量复用避免魔法数重复） */
-  :root { --adm-side-w: 190px; --adm-gap: 22px; }
+  :root { --adm-side-w: 190px; --adm-gap: 50px; --adm-edge: 50px; /* 她 20261029 03:02：屏左 50px | 控制台 | 50px | 工作台 | 50px */
+          --adm-btn-home: #FCE1EA; --adm-btn-home-t: #A04A68; --adm-btn-exit: #EEE5F8; --adm-btn-exit-t: #6E5A73; }
   .adm-head { display: flex; align-items: center; gap: 14px; position: relative; }
   .adm-head .logout { float: none; flex-shrink: 0; margin-left: auto; }
   @media (min-width: 900px) {
-    /* 标题行整体推进内容列（侧栏 fixed 占左侧），返回主页按钮为行内首项：与「柚子的后台」同一行且在内容区左上，不再被侧栏盖住也不贴屏幕左缘（她 20261027 01:16） */
-    .adm-head { margin-left: calc(var(--adm-side-w) + var(--adm-gap)); }
+    /* 标题行与工作台左缘对齐，顶部留白舒适（她 20261029 任务书 §二） */
+    .adm-head { margin: 0 var(--adm-edge) 22px calc(var(--adm-edge) + var(--adm-side-w) + var(--adm-gap)); padding: 38px 0 0; }
     .adm-head .adm-home-btn { position: static; margin: 0 14px 0 0; flex-shrink: 0; }
   }
   @media (max-width: 899px) {
-    .adm-head { margin-left: 0; } /* 手机端无常驻侧栏，标题行全宽（B4 20261028，与下方媒体查询同规则） */
+    .adm-head { margin-left: 0; padding: 22px 14px 0; box-sizing: border-box; } /* 手机端顶部留白 + 左右安全间距 */
     .adm-head .adm-home-btn { display: inline-block; order: -1; margin: 0 0 10px 2px; }
-    .wrap { padding: 24px 10px 64px; } /* 两栏后手机端内容区变窄，内边距同步收紧 */
+    .wrap { padding: 0 0 64px; }
     .wrap h1 { font-size: 22px; margin: 16px 0 4px; } /* 内容区变窄，标题同步缩小避免截断 */
     .wrap .sub { font-size: 14px; }
   }
@@ -189,26 +190,32 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   @media (min-width: 900px) {
     #admin-body { display: block; }
     #pp-wrap {
-      position: fixed; left: 24px; top: 110px; width: var(--adm-side-w);
-      margin-bottom: 0; max-height: calc(100vh - 110px - 50px); overflow-y: auto; /* 左栏自己滚 */
+      position: fixed; left: var(--adm-edge); top: var(--adm-edge); bottom: var(--adm-edge); width: var(--adm-side-w);
+      margin-bottom: 0; overflow-y: auto; /* 控制台：左/上/下外边距 50px，内部自滚（她 20261029 任务书 §一） */
       z-index: 90;
     }
     #pp-btn { display: none; }
-    #adm-content { margin-left: calc(var(--adm-side-w) + var(--adm-gap)); padding: 40px 20px; box-sizing: border-box; } /* 工作台四周留白：上下 40 / 左右 20（她 20261027 14:41 验收口径），右侧不再贴边 */
-    .adm-head { padding: 0 20px; box-sizing: border-box; } /* 标题行与加留白后的内容左缘对齐 */
+    #adm-content { margin: 0 var(--adm-edge) var(--adm-edge) calc(var(--adm-edge) + var(--adm-side-w) + var(--adm-gap)); padding: 0; box-sizing: border-box; min-height: 60vh; } /* 工作台：右/下 50px，占满剩余宽，不再 1200px 限宽 */
     #pp-menu {
       position: static; display: block;
       box-shadow: none; border: 1px solid var(--card-hover);
       width: 100%; max-height: none; overflow: visible;
+      padding: 10px 6px; /* 首尾条目不贴控制台上下边（她 20261029 验收反馈） */
     }
   }
   /* ── 手机端：抽屉式导航（她 20261028 总任务书 B4：不再让完整侧栏常驻挤压内容）
      「当前页面 ▾」按钮恢复显示，点开浮层选页；内容区全宽。桌面端不变。 ── */
   @media (max-width: 899px) {
     #admin-body { display: block; }
-    #pp-wrap { position: relative; width: auto; max-height: none; overflow: visible; margin-bottom: 18px; }
-    #pp-btn { display: inline-flex; }
-    #adm-content { margin-left: 0; min-width: 0; padding: 20px 10px 64px; box-sizing: border-box; } /* 内容区全宽（手机端） */
+    #pp-wrap { position: relative; width: auto; max-height: none; overflow: visible; margin: 0 14px 18px; box-sizing: border-box; }
+    #pp-btn {
+      display: inline-flex; height: 42px; padding: 0 16px; font-size: 15px; font-weight: 600;
+      background: var(--adm-btn-home); color: var(--adm-btn-home-t);
+      border-radius: 999px; white-space: nowrap; width: auto; box-sizing: border-box; /* 紧凑胶囊，不撑满整行（她 20261029 任务书 §三） */
+    }
+    #pp-btn .pp-arrow { color: var(--adm-btn-home-t); }
+    #pp-btn:hover { background: #F8D3E2; }
+    #adm-content { margin: 0; min-width: 0; padding: 0 14px 64px; box-sizing: border-box; } /* 内容区全宽（手机端） */
     #pp-menu {
       position: absolute; top: calc(100% + 6px); left: 0;
       display: none; width: min(300px, calc(100vw - 40px)); padding: 6px; box-sizing: border-box;
@@ -224,11 +231,13 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   /* 返回主页：粉色胶囊按钮，桌面端与「柚子的后台」标题同行（内容区左上角）；手机端在标题上方；点击进首页路由不依赖历史记录（她 20261026 21:50 任务书） */
   .adm-home-btn {
     display: inline-block; margin-bottom: 10px; padding: 9px 18px;
-    background: var(--accent, #FFD9E6); color: var(--text, #604C57);
+    background: var(--adm-btn-home, #FCE1EA); color: var(--adm-btn-home-t, #A04A68);
     font-size: 16px; font-weight: 600; text-decoration: none;
     border-radius: 999px; transition: filter .2s; font-family: inherit;
+    white-space: nowrap; box-sizing: border-box; /* 单行不折断（她 20261029 任务书 §四） */
   }
-  .adm-home-btn:hover { filter: brightness(1.05); }
+  .adm-home-btn:hover { background: #F8D3E2; }
+  .adm-home-btn:active { transform: scale(.97); }
 
   .card {
     background: #fff;
@@ -346,18 +355,19 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .p-preview .pv img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .p-preview .pv-empty { font-size: 15px; color: var(--muted); }
   .logout {
-    background: var(--card);
-    border: 1px solid var(--card-hover);
-    color: var(--muted,#A88E9B);
+    background: var(--adm-btn-exit, #EEE5F8);
+    border: none;
+    color: var(--adm-btn-exit-t, #6E5A73);
     font-size:16px;
-    padding: 6px 14px;
+    padding: 8px 16px;
     border-radius: 999px;
     cursor: pointer;
     float: right;
     font-family: inherit;
-    transition: background .15s, color .15s;
+    white-space: nowrap;
+    transition: background .15s, color .15s; /* 退出登录：浅紫灰胶囊，全后台统一（她 20261029 任务书 §五） */
   }
-  .logout:hover { background: var(--card-hover); color: var(--text); }
+  .logout:hover { background: #E2D5F0; }
   /* 退出登录确认小弹窗 */
   .lo-mask { position: fixed; inset: 0; background: rgba(90,66,76,.25); z-index: 2000; display: none; align-items: center; justify-content: center; }
   .lo-mask.open { display: flex; }
@@ -596,6 +606,14 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   }
 </style>
   <link rel="stylesheet" href="site-menu.css">
+  <style>
+    /* 后台手机端抽屉：宽度适配小屏，不占满屏（她 20261029 任务书 §六） */
+    @media (max-width: 899px) {
+      .menu { width: min(250px, 80vw); }
+    }
+    /* 登录门视图：标题行在 50px 边距内居中（不影响登录后布局，不改变 .wrap 自身 padding） */
+    .wrap:has(> form.gate) .adm-head { margin: 0 var(--adm-edge, 50px) 22px; justify-content: center; }
+  </style>
   <script src="site-menu.js" defer></script>
 </head>
 <body>
@@ -623,7 +641,6 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     <a class="adm-home-btn" href="/">← 返回主页</a>
     <div>
       <h1 style="margin-bottom:4px;">柚子的后台</h1>
-      <p class="sub" style="margin-bottom:0;">回留言 · 上小铺新品，全都在这里自己搞定</p>
     </div>
     <button class="logout" id="btn-logout" style="display:none;">退出登录</button>
   </div>
@@ -6334,7 +6351,7 @@ function loadEmailLog() {
 </script>
 
 
-<script src="js/admin-shop.js?v=20261029p23"></script>
+<script src="js/admin-shop.js?v=20261029p24"></script>
 <script src="js/admin-crm.js?v=20261028p19"></script>
 <script src="js/admin-vip.js?v=20261028p19"></script>
 <script src="js/vendor/jsQR.js?v=20261028p19"></script>
