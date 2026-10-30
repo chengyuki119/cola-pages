@@ -1241,6 +1241,44 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       location.reload();
     });
   })();
+  // 静态框架双语层（她 20261029 任务书 §5）：侧栏页签/分组/登录门/标题/退出/页首下拉在 EN 模式下换文案。
+  // 只换 textContent，不改结构；动态面板文案由各 JS 模块的 t() 负责覆盖（未覆盖部分如实标注在验收报告）。
+  (function () {
+    if (window.LANG !== 'en') return;
+    var M = {
+      '← 返回主页': '← Back to Home', '柚子的后台': 'Yuki\'s Admin', '退出登录': 'Log out',
+      'Profile 编辑': 'Profile', '重要日子': 'Important Days', '照片管理': 'Photos',
+      '稿件管理': 'Works', 'BJD管理': 'BJD', '色卡管理': 'Color Cards',
+      '小铺上架': 'Shop Products', '订单管理': 'Orders', 'VIP 客户查询': 'VIP Customers',
+      '线下开单': 'Offline Orders', '联系与留言管理': 'Messages', '评价返图管理': 'Reviews & Photos',
+      'AI 对话': 'AI Chat', '邮件与联系人同步': 'Email & Contacts Sync', '邮件模板管理': 'Email Templates',
+      '主题颜色': 'Theme Colors', '系统状态': 'System Status', '主页管理': 'Home Page',
+      '内容管理': 'Content', '商城管理': 'Shop', '互动管理': 'Interaction', '系统设置': 'System',
+      '当前页面：': 'Page: ',
+      '邮箱': 'Email', '登录': 'Sign in'
+    };
+    var GATE_HINT_EN = 'Sign in with the account you created in the Supabase dashboard (first time: Supabase web → Authentication → Users → Add user → Create new user, then use that email and password here).';
+    function sw(tn) { return M[tn] || tn; }
+    function walk(root) {
+      root.querySelectorAll('.tab-btn, .pp-group, .adm-home-btn, .logout, .adm-head-title h1').forEach(function (el) {
+        var k = el.textContent.trim();
+        if (M[k]) el.textContent = M[k];
+      });
+      var pp = document.getElementById('pp-btn');
+      if (pp) {
+        var cur = document.getElementById('pp-cur');
+        pp.childNodes.forEach(function (n) { if (n.nodeType === 3 && M[n.textContent.trim()]) n.textContent = M[n.textContent.trim()]; });
+        if (cur && M[cur.textContent.trim()]) cur.textContent = M[cur.textContent.trim()];
+      }
+      var hint = document.querySelector('#gate .hint');
+      if (hint) hint.textContent = GATE_HINT_EN;
+      var em = document.getElementById('email'); if (em) em.placeholder = 'Email';
+      var pw = document.getElementById('password'); if (pw) pw.placeholder = 'Password';
+      var lg = document.getElementById('btn-login'); if (lg && M[lg.textContent.trim()]) lg.textContent = M[lg.textContent.trim()];
+    }
+    walk(document);
+    window.applyAdminStaticLang = walk; // 动态重建菜单后可重跑
+  })();
   // 后台开着时点带 hash 的链接（如单件二维码 admin.html#qcscan?code=…）：同文档跳转不会重跑脚本，这里补一个 hashchange 切页
   window.addEventListener('hashchange', function () {
     var h2 = location.hash.replace('#', '').split('?')[0];
