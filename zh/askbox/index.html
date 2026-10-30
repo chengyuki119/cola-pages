@@ -6,13 +6,13 @@
 <meta charset="UTF-8">
   <script src="/js/lang-path.js?v=20261031j"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>鑱旂郴鎴戜滑 路 Yuki / 鏌氬瓙</title>
+<title>联系我们 · Yuki / 柚子</title>
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" sizes="180x180" href="/icon-yuki2-180.png">
 <link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki2-180.png">
-<meta name="apple-mobile-web-app-title" content="灏忔煔鐨勫皬涓栫晫">
+<meta name="apple-mobile-web-app-title" content="小柚的小世界">
 <style>
-  /* ===== Millo 瀛椾綋锛堟祴璇曠増锛?===== */
+  /* ===== Millo 字体（测试版） ===== */
 h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; }
 
   @font-face { font-family: "Millo Body Heavy"; src: url("/fonts/Millo-RiceSoyMilk90.woff2") format("woff2"), url("/fonts/Millo-RiceSoyMilk90.ttf") format("truetype"); font-display: swap; }
@@ -35,11 +35,11 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     color: var(--text);
     font-family: "Millo Body", -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
     line-height: 1.6;
-    padding-top: 60px; /* 閬垮紑鍥哄畾椤舵爮 */
+    padding-top: 60px; /* 避开固定顶栏 */
   }
   button { font-family: inherit; }
 
-  /* ===== 椤堕儴鐧借壊闀挎潯 + 姹夊牎鑿滃崟锛堜笌涓婚〉涓€鑷达級===== */
+  /* ===== 顶部白色长条 + 汉堡菜单（与主页一致）===== */
   .topbar {
     position: fixed;
     top: 0; left: 0; right: 0;
@@ -55,7 +55,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .lang-switch {
     display: flex;
     gap: 4px;
-    background: var(--accent-soft, #FCE4EC); /* 20261026s 濂规寚瀹氭锛氱矇鑳跺泭搴曞骇+鐧借兌鍥婇€変腑锛堝叏绔欏悓娆撅級 */
+    background: var(--accent-soft, #FCE4EC); /* 20261026s 她指定款：粉胶囊底座+白胶囊选中（全站同款） */
     padding: 4px;
     border-radius: 999px;
   }
@@ -69,7 +69,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     color: var(--muted);
     transition: background .2s, color .2s, box-shadow .2s;
   }
-  .lang-btn.active { background: #ffffff; color: var(--text, #604C57); font-weight: 600; box-shadow: 0 1px 4px rgba(180,120,150,.28); } /* 20261026s 鐧借兌鍥婃诞璧凤紙濂规埅鍥炬寚瀹氾紝鍓嶅彴鍚庡彴鍚屾锛?*/
+  .lang-btn.active { background: #ffffff; color: var(--text, #604C57); font-weight: 600; box-shadow: 0 1px 4px rgba(180,120,150,.28); } /* 20261026s 白胶囊浮起（她截图指定，前台后台同款） */
   .wrap { max-width: 1000px; margin: 0 auto; padding: 48px 24px 64px; }
   .back-link {
     display: inline-flex; align-items: center; gap: 8px;
@@ -77,7 +77,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     font-size:16px; font-weight:600;
     padding: 9px 18px;
     border-radius: 999px;
-    background: #FCE1EA; /* 涓庡悗鍙般€岃繑鍥炰富椤点€嶈兌鍥婂悓娆撅紙濂?20261029 03:39锛氬叏绔欑粺涓€锛?*/
+    background: #FCE1EA; /* 与后台「返回主页」胶囊同款（她 20261029 03:39：全站统一） */
     transition: filter .2s;
     white-space: nowrap;
   }
@@ -180,32 +180,32 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   }
 
 
-h1::after { content: " 鈾?; font-size: .75em; }
-h2::after { content: " 鈾?; font-size: .75em; }
-  /* 缁熶竴妯箙 header锛堝ス 20261027 02:24锛夛細banner 椤舵牸鍏ㄥ锛屾爣棰樺榻愬唴瀹瑰垪锛堟湰椤典笉鍔犺浇 site.css锛屾牱寮忓唴鑱旓級 */
-  .subpage-header { background: var(--accent-soft,#FCE4EC); padding: 84px 0 40px; width: 100%; margin-left: 0; } /* 她 20261030 §10：100vw 含滚动条宽会溢出 8px，body 无内边距故 100% 即满宽 */
+h1::after { content: " ♥"; font-size: .75em; }
+h2::after { content: " ♥"; font-size: .75em; }
+  /* 统一横幅 header（她 20261027 02:24）：banner 顶格全宽，标题对齐内容列（本页不加载 site.css，样式内联） */
+  .subpage-header { background: var(--accent-soft,#FCE4EC); padding: 84px 0 40px; width: 100%; margin-left: 0; } /* 她 20261030 §10：100vw 含滚动条宽会溢出 8px；body 无内边距，100% 即满宽 */
   .subpage-header h1, .subpage-header p.sub { max-width: 1000px; margin-left: auto; margin-right: auto; padding-left: 24px; padding-right: 24px; box-sizing: border-box; }
 </style>
   <link rel="stylesheet" href="/site-menu.css?v=20261031j">
   <script src="/site-menu.js" defer></script>
   <style>a { color: inherit; text-decoration: none; }</style>
-<script>/* 涓婚鑹叉湰鍦板揩鐓э紙鏃?site-common 椤碉級锛涘畬鏁翠富棰樻潵鑷?site_settings.theme_colors */
+<script>/* 主题色本地快照（无 site-common 页）；完整主题来自 site_settings.theme_colors */
 try { var __t = JSON.parse(localStorage.getItem('yuki-theme-colors') || 'null'); if (__t && typeof __t === 'object') { var __m = { text: '--text', muted: '--muted', bg: '--bg', card: '--card', accent: '--accent', accentSoft: '--accent-soft', accentStrong: '--accent-strong', price: '--price', success: '--success', warning: '--warning', danger: '--danger' }, __r = document.documentElement.style; Object.keys(__m).forEach(function (k) { if (__t[k]) __r.setProperty(__m[k], __t[k]); }); } } catch (e) {}</script>
   <link rel="stylesheet" href="/css/button-theme.css?v=20261031j">
 </head>
 <body>
 <header class="topbar">
   <div class="lang-switch">
-    <button class="lang-btn" data-lang="zh">绠€浣撲腑鏂?/button>
+    <button class="lang-btn" data-lang="zh">简体中文</button>
     <button class="lang-btn" data-lang="en">English</button>
   </div>
-  <a class="site-logo" href="/zh/" aria-label="鍥炰富椤?><img src="/logo.png" alt="logo"></a>
+  <a class="site-logo" href="/zh/" aria-label="回主页"><img src="/logo.png" alt="logo"></a>
   <div class="topbar-right">
-    <a class="topbar-cart" id="topbar-cart" href="/zh/shop/?sec=cart" aria-label="璐墿杞?>
+    <a class="topbar-cart" id="topbar-cart" href="/zh/shop/?sec=cart" aria-label="购物车">
       <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3.5h2.2l2.3 11.2a1.8 1.8 0 0 0 1.8 1.4h8.5a1.8 1.8 0 0 0 1.8-1.4l1.5-8.2H6"/></svg>
       <span class="topbar-cart-badge" id="topbar-cart-badge" style="display:none;">0</span>
     </a>
-    <button class="burger" id="burger" aria-label="鑿滃崟">
+    <button class="burger" id="burger" aria-label="菜单">
       <span></span><span></span><span></span>
     </button>
   </div>
@@ -214,49 +214,49 @@ try { var __t = JSON.parse(localStorage.getItem('yuki-theme-colors') || 'null');
 <nav class="menu" id="menu"></nav>
 
   <header class="subpage-header">
-    <h1><span data-zh="鑱旂郴鎴戜滑" data-en="Contact Us">鑱旂郴鎴戜滑</span></h1>
-    <p class="sub"><span data-zh="鍟嗗搧鍜ㄨ銆佽鍗曢棶棰樸€佸敭鍚庝笌閫€娆撅紝鎴栬€呮兂瀵规垜璇寸殑璇濓紝閮藉彲浠ュ湪杩欓噷鐣欒█ 路 鏌氬瓙鐨勫洖澶嶄細鏄剧ず鍦ㄤ笅鏂? data-en="Product questions, order issues, after-sales, or just a hello 鈥?leave a message here 路 Yuki's replies are posted below">鍟嗗搧鍜ㄨ銆佽鍗曢棶棰樸€佸敭鍚庝笌閫€娆撅紝鎴栬€呮兂瀵规垜璇寸殑璇濓紝閮藉彲浠ュ湪杩欓噷鐣欒█ 路 鏌氬瓙鐨勫洖澶嶄細鏄剧ず鍦ㄤ笅鏂?/span></p>
+    <h1><span data-zh="联系我们" data-en="Contact Us">联系我们</span></h1>
+    <p class="sub"><span data-zh="商品咨询、订单问题、售后与退款，或者想对我说的话，都可以在这里留言 · 柚子的回复会显示在下方" data-en="Product questions, order issues, after-sales, or just a hello — leave a message here · Yuki's replies are posted below">商品咨询、订单问题、售后与退款，或者想对我说的话，都可以在这里留言 · 柚子的回复会显示在下方</span></p>
   </header>
 <div class="wrap">
-  <a class="back-link page-back" href="/zh/" style="margin:8px 0 24px 2px;"><span data-zh="鈫?杩斿洖涓婚〉" data-en="鈫?Back to Home">鈫?杩斿洖涓婚〉</span></a>
+  <a class="back-link page-back" href="/zh/" style="margin:8px 0 24px 2px;"><span data-zh="← 返回主页" data-en="← Back to Home">← 返回主页</span></a>
 
   <div class="ask-card">
-    <span class="f-label" data-zh="鑱旂郴涓婚" data-en="Topic">鑱旂郴涓婚</span>
+    <span class="f-label" data-zh="联系主题" data-en="Topic">联系主题</span>
     <div class="topic-chips" id="topic-chips" style="margin-top:8px;">
-      <button type="button" class="active" data-v="product" data-zh="鍟嗗搧鍜ㄨ" data-en="Product">鍟嗗搧鍜ㄨ</button>
-      <button type="button" data-v="order" data-zh="璁㈠崟闂" data-en="Order">璁㈠崟闂</button>
-      <button type="button" data-v="aftersale" data-zh="鍞悗涓庨€€娆? data-en="After-sales">鍞悗涓庨€€娆?/button>
-      <button type="button" data-v="site" data-zh="缃戠珯闂" data-en="Website">缃戠珯闂</button>
-      <button type="button" data-v="other" data-zh="鍏朵粬" data-en="Other">鍏朵粬</button>
+      <button type="button" class="active" data-v="product" data-zh="商品咨询" data-en="Product">商品咨询</button>
+      <button type="button" data-v="order" data-zh="订单问题" data-en="Order">订单问题</button>
+      <button type="button" data-v="aftersale" data-zh="售后与退款" data-en="After-sales">售后与退款</button>
+      <button type="button" data-v="site" data-zh="网站问题" data-en="Website">网站问题</button>
+      <button type="button" data-v="other" data-zh="其他" data-en="Other">其他</button>
     </div>
-    <span class="f-label" data-zh="鐣欒█鍐呭 *" data-en="Message *">鐣欒█鍐呭 *</span>
-    <textarea id="q-text" maxlength="1000" style="margin-top:8px;" data-ph-zh="鍐欎笅鎯冲挩璇㈢殑銆佹兂璇寸殑鈥? data-ph-en="Write your message鈥?></textarea>
-    <span class="f-label" data-zh="鍥炲鏂瑰紡" data-en="Reply Method">鍥炲鏂瑰紡</span>
+    <span class="f-label" data-zh="留言内容 *" data-en="Message *">留言内容 *</span>
+    <textarea id="q-text" maxlength="1000" style="margin-top:8px;" data-ph-zh="写下想咨询的、想说的…" data-ph-en="Write your message…"></textarea>
+    <span class="f-label" data-zh="回复方式" data-en="Reply Method">回复方式</span>
     <div class="topic-chips" id="mode-chips" style="margin-top:8px;">
-      <button type="button" class="active" data-v="anon" data-zh="鍖垮悕鐣欒█" data-en="Anonymous">鍖垮悕鐣欒█</button>
-      <button type="button" data-v="contact" data-zh="鐣欎笅鑱旂郴鏂瑰紡" data-en="Leave Contact Info">鐣欎笅鑱旂郴鏂瑰紡</button>
+      <button type="button" class="active" data-v="anon" data-zh="匿名留言" data-en="Anonymous">匿名留言</button>
+      <button type="button" data-v="contact" data-zh="留下联系方式" data-en="Leave Contact Info">留下联系方式</button>
     </div>
     <div id="contact-fields" style="display:none;">
       <div class="f-grid">
         <div>
-          <span class="f-label" data-zh="绉板懠锛堥€夊～锛? data-en="Name (optional)">绉板懠锛堥€夊～锛?/span>
-          <input id="q-nickname" maxlength="60" data-ph-zh="鎬庝箞绉板懠浣狅紵" data-ph-en="Your name">
+          <span class="f-label" data-zh="称呼（选填）" data-en="Name (optional)">称呼（选填）</span>
+          <input id="q-nickname" maxlength="60" data-ph-zh="怎么称呼你？" data-ph-en="Your name">
         </div>
         <div>
-          <span class="f-label" data-zh="Email锛堥€夊～锛? data-en="Email (optional)">Email锛堥€夊～锛?/span>
+          <span class="f-label" data-zh="Email（选填）" data-en="Email (optional)">Email（选填）</span>
           <input id="q-email" type="email" maxlength="120" data-ph-zh="name@example.com" data-ph-en="name@example.com">
         </div>
       </div>
-      <span class="f-label" data-zh="鍏朵粬鑱旂郴鏂瑰紡锛堥€夊～锛? data-en="Other contact (optional)">鍏朵粬鑱旂郴鏂瑰紡锛堥€夊～锛?/span>
-      <input id="q-other" maxlength="200" data-ph-zh="寰俊 / Instagram / Discord 绛? data-ph-en="WeChat / Instagram / Discord etc.">
+      <span class="f-label" data-zh="其他联系方式（选填）" data-en="Other contact (optional)">其他联系方式（选填）</span>
+      <input id="q-other" maxlength="200" data-ph-zh="微信 / Instagram / Discord 等" data-ph-en="WeChat / Instagram / Discord etc.">
     </div>
-    <p class="contact-hint" id="mode-hint"><span data-zh="鍖垮悕鐣欒█涓嶄細璁板綍浠讳綍鑱旂郴鏂瑰紡锛涙煔瀛愮殑鍥炲浼氭樉绀哄湪涓嬫柟鐣欒█澧欍€? data-en="Anonymous messages record no contact info; Yuki's replies are posted on the wall below.">鍖垮悕鐣欒█涓嶄細璁板綍浠讳綍鑱旂郴鏂瑰紡锛涙煔瀛愮殑鍥炲浼氭樉绀哄湪涓嬫柟鐣欒█澧欍€?/span></p>
+    <p class="contact-hint" id="mode-hint"><span data-zh="匿名留言不会记录任何联系方式；柚子的回复会显示在下方留言墙。" data-en="Anonymous messages record no contact info; Yuki's replies are posted on the wall below.">匿名留言不会记录任何联系方式；柚子的回复会显示在下方留言墙。</span></p>
     <input id="q-honey" maxlength="0" aria-hidden="true" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;top:-9999px;height:0;width:0;opacity:0;" data-ph-zh="" data-ph-en="">
-    <button id="q-send"><span data-zh="鎻愪氦鐣欒█" data-en="Send Message">鎻愪氦鐣欒█</span></button>
+    <button id="q-send"><span data-zh="提交留言" data-en="Send Message">提交留言</span></button>
   </div>
 
-  <h2><span data-zh="鐣欒█涓庡洖澶? data-en="Messages & Replies">鐣欒█涓庡洖澶?/span></h2>
-  <div id="qa-list"><p class="empty">鍔犺浇涓€?/p></div>
+  <h2><span data-zh="留言与回复" data-en="Messages & Replies">留言与回复</span></h2>
+  <div id="qa-list"><p class="empty">加载中…</p></div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -292,12 +292,13 @@ try { var __t = JSON.parse(localStorage.getItem('yuki-theme-colors') || 'null');
     if (!iso) return '';
     var d = new Date(iso);
     if (LANG === 'en') return (d.getMonth() + 1) + '/' + d.getDate();
-    return (d.getMonth() + 1) + '鏈? + d.getDate() + '鏃?;
+    return (d.getMonth() + 1) + '月' + d.getDate() + '日';
   }
 
-  // ===== 涓嫳鍙岃鍒囨崲锛堜笌涓婚〉鑱斿姩锛?====
+  // ===== 中英双语切换（与主页联动）=====
   var LANG = 'zh';
-  try { history.scrollRestoration = 'manual'; } catch (err) {} // 鍒锋柊/鍒囪瑷€/logo 鍥炰富椤甸兘浠庨〉闈㈤《閮ㄥ紑濮?  try { LANG = localStorage.getItem('yuki-lang') || 'zh'; } catch (err) {}
+  try { history.scrollRestoration = 'manual'; } catch (err) {} // 刷新/切语言/logo 回主页都从页面顶部开始
+  try { LANG = localStorage.getItem('yuki-lang') || 'zh'; } catch (err) {}
   function t(zh, en) { return LANG === 'en' ? en : zh; }
   function applyLang(lang) {
     LANG = lang;
@@ -306,9 +307,10 @@ try { var __t = JSON.parse(localStorage.getItem('yuki-theme-colors') || 'null');
       var _tx = (lang === 'en') ? (node.getAttribute('data-en') || node.getAttribute('data-zh')) : node.getAttribute('data-zh');
       if (_tx != null) node.textContent = _tx;
     });
-    // 鏃犻殰纰?鎻愮ず灞炴€ц窡闅忚瑷€锛堝ス 20261031 搂1锛夈€傛湰椤典笉鍔犺浇 site-common.js锛屾晠鑷甫涓€寮犲皬琛?    if (lang === 'en') {
-      var ATTR_EN = { '鍥炰富椤?: 'Back to home', '璐墿杞?: 'Cart', '鑿滃崟': 'Menu', '鍏抽棴': 'Close',
-                      '涓婁竴寮?: 'Previous', '涓嬩竴寮?: 'Next', '鍙戦€?: 'Send', '绠＄悊': 'Manage' };
+    // 无障碍/提示属性跟随语言（她 20261031 §1）。本页不加载 site-common.js，故自带一张小表
+    if (lang === 'en') {
+      var ATTR_EN = { '回主页': 'Back to home', '购物车': 'Cart', '菜单': 'Menu', '关闭': 'Close',
+                      '上一张': 'Previous', '下一张': 'Next', '发送': 'Send', '管理': 'Manage' };
       document.querySelectorAll('[aria-label],[title],[placeholder]').forEach(function (el) {
         ['aria-label', 'title', 'placeholder'].forEach(function (a) {
           var v = el.getAttribute(a);
@@ -329,13 +331,15 @@ try { var __t = JSON.parse(localStorage.getItem('yuki-theme-colors') || 'null');
     b.addEventListener('click', function () {
       var lang = b.getAttribute('data-lang') === 'en' ? 'en' : 'zh';
       try { localStorage.setItem('yuki-lang', lang); } catch (err) {}
-      location.reload(); // 淇濆瓨鍚庢暣椤靛埛鏂帮細浠庡凡瀛樿瑷€鐘舵€侀噸鏂板垵濮嬪寲锛孶RL 淇濇寔涓嶅彉
+      location.reload(); // 保存后整页刷新：从已存语言状态重新初始化，URL 保持不变
     });
   });
 
-  // 姹夊牎鑿滃崟锛氬叏绔欑粺涓€缁勪欢 site-menu.js 璐熻矗娓叉煋涓庝氦浜?
-  // 鑱旂郴涓婚鍒囨崲锛堢珯鍐呰嚜瀹氫箟鑳跺泭锛屼笉鐢ㄥ師鐢?select锛?  var TOPIC = 'product';
-  var TOPIC_ZH = { product: '鍟嗗搧鍜ㄨ', order: '璁㈠崟闂', aftersale: '鍞悗涓庨€€娆?, site: '缃戠珯闂', other: '鍏朵粬' };
+  // 汉堡菜单：全站统一组件 site-menu.js 负责渲染与交互
+
+  // 联系主题切换（站内自定义胶囊，不用原生 select）
+  var TOPIC = 'product';
+  var TOPIC_ZH = { product: '商品咨询', order: '订单问题', aftersale: '售后与退款', site: '网站问题', other: '其他' };
   var TOPIC_EN = { product: 'Product', order: 'Order', aftersale: 'After-sales', site: 'Website', other: 'Other' };
   document.getElementById('topic-chips').addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
@@ -343,11 +347,11 @@ try { var __t = JSON.parse(localStorage.getItem('yuki-theme-colors') || 'null');
     Array.prototype.forEach.call(this.children, function (x) { x.classList.toggle('active', x === b); });
   });
 
-  // 鍥炲鏂瑰紡鍒囨崲锛氬尶鍚?/ 鐣欎笅鑱旂郴鏂瑰紡
+  // 回复方式切换：匿名 / 留下联系方式
   var REPLY_MODE = 'anon';
   var MODE_HINTS = {
-    anon: { zh: '鍖垮悕鐣欒█涓嶄細璁板綍浠讳綍鑱旂郴鏂瑰紡锛涙煔瀛愮殑鍥炲浼氭樉绀哄湪涓嬫柟鐣欒█澧欍€?, en: "Anonymous messages record no contact info; Yuki's replies are posted on the wall below." },
-    contact: { zh: '浣犳彁渚涚殑鑱旂郴鏂瑰紡浠呯敤浜庡鐞嗗拰鍥炲杩欐潯鐣欒█锛屼笉浼氬叕寮€灞曠ず銆?, en: 'Your contact info is only used to handle and reply to this message and is never shown publicly.' }
+    anon: { zh: '匿名留言不会记录任何联系方式；柚子的回复会显示在下方留言墙。', en: "Anonymous messages record no contact info; Yuki's replies are posted on the wall below." },
+    contact: { zh: '你提供的联系方式仅用于处理和回复这条留言，不会公开展示。', en: 'Your contact info is only used to handle and reply to this message and is never shown publicly.' }
   };
   document.getElementById('mode-chips').addEventListener('click', function (e) {
     var btn = e.target.closest('button');
@@ -359,26 +363,29 @@ try { var __t = JSON.parse(localStorage.getItem('yuki-theme-colors') || 'null');
     var h = MODE_HINTS[REPLY_MODE];
     document.getElementById('mode-hint').innerHTML = '<span data-zh="' + h.zh + '" data-en="' + h.en + '">' + t(h.zh, h.en) + '</span>';
   });
-  // 鎻愪氦鐣欒█
+  // 提交留言
   document.getElementById('q-send').addEventListener('click', function () {
     var btn = this;
-    if (document.getElementById('q-honey').value) { return; } // 铚滅綈瀛楁锛氭満鍣ㄤ汉濉簡灏遍潤榛樹涪寮冿紝涓嶆彁绀轰笉鍐欏簱
+    if (document.getElementById('q-honey').value) { return; } // 蜜罐字段：机器人填了就静默丢弃，不提示不写库
     var text = document.getElementById('q-text').value.trim();
     var nickname = REPLY_MODE === 'contact' ? document.getElementById('q-nickname').value.trim() : '';
     var email = REPLY_MODE === 'contact' ? document.getElementById('q-email').value.trim() : '';
     var other = REPLY_MODE === 'contact' ? document.getElementById('q-other').value.trim() : '';
-    if (!text) { toast(t('鍏堝啓鐐逛粈涔堝啀鎻愪氦鍝?, 'Write something first')); return; }
+    if (!text) { toast(t('先写点什么再提交哦', 'Write something first')); return; }
     if (REPLY_MODE === 'contact' && !nickname && !email && !other) {
-      toast(t('閫変簡鐣欎笅鑱旂郴鏂瑰紡鐨勮瘽锛岃嚦灏戝～涓€绉嶅摝锛涗笉鎯崇暀鍙互鍒囧洖鍖垮悕鐣欒█', 'Pick 鈥淟eave Contact Info鈥? Fill in at least one 鈥?or switch back to Anonymous')); return;
+      toast(t('选了留下联系方式的话，至少填一种哦；不想留可以切回匿名留言', 'Pick “Leave Contact Info”? Fill in at least one — or switch back to Anonymous')); return;
     }
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast(t('Email 鏍煎紡濂藉儚涓嶅お瀵?, 'That email looks invalid')); return; }
-    try { // 闃插埛锛?0 绉掑唴鍙厑璁告彁浜や竴娆?      var last = parseInt(localStorage.getItem('yuki-last-ask') || '0', 10);
-      if (Date.now() - last < 30000) { toast(t('鍒氬垰宸茬粡鎻愪氦杩囧暒锛岀◢绛変竴涓嬪啀鍙?, 'Just sent one 鈥?please wait a moment')); return; }
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast(t('Email 格式好像不太对', 'That email looks invalid')); return; }
+    try { // 防刷：30 秒内只允许提交一次
+      var last = parseInt(localStorage.getItem('yuki-last-ask') || '0', 10);
+      if (Date.now() - last < 30000) { toast(t('刚刚已经提交过啦，稍等一下再发', 'Just sent one — please wait a moment')); return; }
     } catch (err) {}
     var hasContact = !!(nickname || email || other);
     btn.disabled = true;
-    btn.textContent = t('鎻愪氦涓€?, 'Sending鈥?);
-    // 璧版湇鍔＄ RPC锛坰ecurity definer锛夛細涓€娆′簨鍔″啓鐣欒█+鑱旂郴鏂瑰紡锛屽苟杩斿洖鏂扮暀瑷€ id锛?    // 涓嶈兘鐢?REST 鐩存彃 + Prefer:return=representation锛堝叕寮€璇荤瓥鐣ュ彧鏀捐宸插洖澶嶈锛屾柊琛屽洖璇讳細琚嫆锛岃繖鏄棫鎻愰棶绠扁€滄彁浜ゅけ璐モ€濈殑鑰?bug锛?    api('rpc/askbox_submit', {
+    btn.textContent = t('提交中…', 'Sending…');
+    // 走服务端 RPC（security definer）：一次事务写留言+联系方式，并返回新留言 id；
+    // 不能用 REST 直插 + Prefer:return=representation（公开读策略只放行已回复行，新行回读会被拒，这是旧提问箱“提交失败”的老 bug）
+    api('rpc/askbox_submit', {
       method: 'POST',
       body: JSON.stringify({
         p_content: text,
@@ -391,7 +398,8 @@ try { var __t = JSON.parse(localStorage.getItem('yuki-theme-colors') || 'null');
       if (!r.ok) throw new Error('rpc failed');
       return r.json();
     }).then(function (newId) {
-      // 璁颁綇鏈満鍙戝嚭鍘荤殑鐣欒█锛堝尶鍚嶄笉缁戣处鍙凤紝鍙湪鏈満銆屽彂鍑哄幓鐨勭暀瑷€銆嶉噷灞曠ず锛?      try {
+      // 记住本机发出去的留言（匿名不绑账号，只在本机「发出去的留言」里展示）
+      try {
         if (newId) {
           var ids = JSON.parse(localStorage.getItem('yuki-my-questions') || '[]');
           if (Array.isArray(ids) && ids.indexOf(newId) === -1) { ids.push(newId); localStorage.setItem('yuki-my-questions', JSON.stringify(ids.slice(-100))); }
@@ -400,53 +408,54 @@ try { var __t = JSON.parse(localStorage.getItem('yuki-theme-colors') || 'null');
     }).then(function () {
       try { localStorage.setItem('yuki-last-ask', String(Date.now())); } catch (err) {}
       toast(hasContact
-        ? t('鎻愪氦鎴愬姛锛佹煔瀛愪細灏藉揩鍥炲浣?, 'Sent! Yuki will get back to you soon')
-        : t('鎻愪氦鎴愬姛锛佺敱浜庢病鏈夌暀鑱旂郴鏂瑰紡锛屽洖澶嶄細鏄剧ず鍦ㄤ笅鏂圭暀瑷€澧?, 'Sent! Replies will be posted on the wall below'));
+        ? t('提交成功！柚子会尽快回复你', 'Sent! Yuki will get back to you soon')
+        : t('提交成功！由于没有留联系方式，回复会显示在下方留言墙', 'Sent! Replies will be posted on the wall below'));
       document.getElementById('q-text').value = '';
       document.getElementById('q-nickname').value = '';
       document.getElementById('q-email').value = '';
       document.getElementById('q-other').value = '';
       loadWall();
     }).catch(function () {
-      toast(t('鎻愪氦澶辫触锛岀◢鍚庡啀璇曡瘯', 'Failed to send, please try again later'));
+      toast(t('提交失败，稍后再试试', 'Failed to send, please try again later'));
     }).finally(function () {
       btn.disabled = false;
-      btn.innerHTML = '<span data-zh="鎻愪氦鐣欒█" data-en="Send Message">' + t('鎻愪氦鐣欒█', 'Send Message') + '</span>';
+      btn.innerHTML = '<span data-zh="提交留言" data-en="Send Message">' + t('提交留言', 'Send Message') + '</span>';
     });
   });
 
-  // 鍥炵瓟澧?  function loadWall() {
+  // 回答墙
+  function loadWall() {
     api('questions?select=id,content,topic,reply,created_at,replied_at&order=created_at.desc&limit=100')
       .then(function (r) { return r.json(); })
       .then(function (rows) {
         var list = document.getElementById('qa-list');
         if (!rows || !rows.length) {
-          list.innerHTML = '<p class="empty">' + t('杩樻病鏈変汉鎶曢€掞紝鏉ュ仛绗竴涓惂', 'No messages yet 鈥?be the first!') + '</p>';
+          list.innerHTML = '<p class="empty">' + t('还没有人投递，来做第一个吧', 'No messages yet — be the first!') + '</p>';
           return;
         }
         list.innerHTML = rows.map(function (q) {
           var topic = t(TOPIC_ZH[q.topic] || TOPIC_ZH.other, TOPIC_EN[q.topic] || TOPIC_EN.other);
           var replyHtml = q.reply
-            ? '<div class="qa-reply"><span class="reply-label">' + t('鏌氬瓙 鍥炲锛?, 'Yuki replied:') + '</span>' + esc(q.reply) + '</div>'
-            : '<div class="qa-pending">' + t('宸叉敹鍒帮紝绛夋煔瀛愬洖澶嶅摝锝?, 'Received! Yuki will reply soon~') + '</div>';
+            ? '<div class="qa-reply"><span class="reply-label">' + t('柚子 回复：', 'Yuki replied:') + '</span>' + esc(q.reply) + '</div>'
+            : '<div class="qa-pending">' + t('已收到，等柚子回复哦～', 'Received! Yuki will reply soon~') + '</div>';
           return '<div class="qa">' +
             '<div class="qa-q">' + esc(q.content) + '</div>' +
-            '<div class="qa-meta">' + t('涓婚锛?, 'Topic: ') + esc(topic) + ' 路 ' + t('鍖垮悕', 'Anonymous') + ' 路 ' + fmtTime(q.created_at) + '</div>' +
+            '<div class="qa-meta">' + t('主题：', 'Topic: ') + esc(topic) + ' · ' + t('匿名', 'Anonymous') + ' · ' + fmtTime(q.created_at) + '</div>' +
             replyHtml + '</div>';
         }).join('');
       })
       .catch(function () {
         document.getElementById('qa-list').innerHTML =
-          '<p class="empty">' + t('鍔犺浇澶辫触锛岃绋嶅悗鍒锋柊閲嶈瘯', 'Failed to load, please refresh') + '</p>';
+          '<p class="empty">' + t('加载失败，请稍后刷新重试', 'Failed to load, please refresh') + '</p>';
       });
   }
   applyLang(LANG);
   loadWall();
 </script>
-<footer>漏 2026 Yuki 路 Made with Cola</footer>
+<footer>© 2026 Yuki · Made with Cola</footer>
 <script src="/js/site-footer.js?v=20261031j"></script>
 <script>
-  // 缁熶竴 Footer锛堝凡鏈?<footer> 鍒欐浛鎹㈠叾鍐呭锛屼笉鏂板缓绗簩涓級
+  // 统一 Footer（已有 <footer> 则替换其内容，不新建第二个）
   function initSiteFooter() { renderSiteFooter(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initSiteFooter);
   else initSiteFooter();
