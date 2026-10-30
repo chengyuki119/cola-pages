@@ -516,7 +516,10 @@
     background: var(--accent-soft,#FCE4EC);
     padding: 52px 0 36px; /* 收紧顶部大空白（她 20261028 01:06：手机端不要异常大块空白） */
     position: relative;
-    width: 100vw; margin-left: calc(50% - 50vw); /* 全宽出血：banner 在限宽容器内也铺满视口（她 20261027 02:24 统一小铺同款） */
+    /* 她 20261030 §10：原来 width:100vw 会把滚动条宽度也算进去，桌面端 banner 左移、右侧多出约 8px 横向溢出。
+       本横幅是 <body> 直接子元素，body 本身无内边距、无 max-width，所以 width:100% 就等于可用视口宽（不含滚动条），
+       既保留满宽粉底，又不再溢出、不再左右错位。 */
+    width: 100%; margin-left: 0;
   }
   @media (max-width: 700px) { .subpage-header { padding: 32px 0 26px; } }
   .subpage-header > h1, .subpage-header > p {

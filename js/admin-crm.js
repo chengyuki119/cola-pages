@@ -24,12 +24,12 @@
     panel.innerHTML =
       '<div class="card" style="padding:16px 20px;margin-bottom:14px;">' +
         '<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">' +
-          '<input id="cust-q" placeholder="' + t('搜索姓名 / 邮箱 / 电话 / 客户编号', 'Search name / email / phone / no.') + '" style="flex:1;min-width:220px;padding:10px 16px;font-size:15px;border:1.5px solid var(--accent-soft,#FCE4EC);border-radius:12px;outline:none;font-family:inherit;color:var(--text,#604C57);background:#fff;box-sizing:border-box;">' +
+          '<input id="cust-q" placeholder="' + t('搜索姓名 / 邮箱 / 电话 / 客户编号', 'Search name / email / phone / no.') + '" style="flex:1;min-width:220px;padding:10px 16px;font-size:15px;border:1.5px solid var(--accent-soft,#FCE4EC);border-radius:12px;outline:none;font-family:inherit;color:var(--text,#62545B);background:#fff;box-sizing:border-box;">' +
           '<button class="btn-save-tb" id="cust-new">＋ ' + t('新建客户', 'New customer') + '</button>' +
         '</div>' +
         '<div id="cust-stats" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;"></div>' +
       '</div>' +
-      '<div id="cust-list"><p style="color:var(--muted,#A88E9B);text-align:center;padding:24px 0;">' + t('加载中…', 'Loading…') + '</p></div>';
+      '<div id="cust-list"><p style="color:var(--muted,#81717A);text-align:center;padding:24px 0;">' + t('加载中…', 'Loading…') + '</p></div>';
     panel.querySelector('#cust-q').addEventListener('input', function () { CUST.search = this.value.trim().toLowerCase(); renderCustRows(); });
     panel.querySelector('#cust-new').addEventListener('click', function () { custForm(null); });
   }
@@ -68,19 +68,19 @@
       '<span class="sm-stat"><b>' + CUST.list.length + '</b><span>' + t('客户总数', 'Customers') + '</span></span>' +
       '<span class="sm-stat"><b style="color:var(--price,#ff6fa5);">$' + fmtMoney(totalSum) + '</b><span>' + t('累计消费（已扣退款）', 'Total spent') + '</span></span>' +
       '<span class="sm-stat"><b>' + vipN + '</b><span>' + t('VIP 会员', 'VIP') + '</span></span>';
-    if (!rows.length) { box.innerHTML = '<p style="color:var(--muted,#A88E9B);text-align:center;padding:24px 0;">' + t('还没有客户档案', 'No customers yet') + '</p>'; return; }
+    if (!rows.length) { box.innerHTML = '<p style="color:var(--muted,#81717A);text-align:center;padding:24px 0;">' + t('还没有客户档案', 'No customers yet') + '</p>'; return; }
     box.innerHTML = rows.map(function (c) {
       var st = custStats(c);
       return '<div class="card cust-row" data-cid="' + escAttr(c.id) + '" style="padding:12px 16px;margin-bottom:10px;cursor:pointer;">' +
         '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">' +
-          '<span style="font-size:16px;font-weight:700;color:var(--text,#604C57);">' + esc(c.name || t('（未命名）', '(Unnamed)')) + '</span>' +
-          '<span style="font-size:13px;color:var(--muted,#A88E9B);">' + esc(c.c_no || '') + '</span>' +
+          '<span style="font-size:16px;font-weight:700;color:var(--text,#62545B);">' + esc(c.name || t('（未命名）', '(Unnamed)')) + '</span>' +
+          '<span style="font-size:13px;color:var(--muted,#81717A);">' + esc(c.c_no || '') + '</span>' +
           (c.vip ? '<span style="font-size:12px;font-weight:600;padding:2px 10px;border-radius:999px;background:var(--accent-soft,#FCE4EC);color:var(--accent-strong,#A98D96);">VIP' + (c.vip_until ? ' · ' + c.vip_until : '') + '</span>' : '') +
-          '<span style="font-size:12px;padding:2px 10px;border-radius:999px;background:#fff;border:1px solid var(--accent-soft,#FCE4EC);color:var(--muted,#A88E9B);">' + (c.source === 'online' ? t('线上', 'Online') : t('线下', 'Offline')) + '</span>' +
+          '<span style="font-size:12px;padding:2px 10px;border-radius:999px;background:#fff;border:1px solid var(--accent-soft,#FCE4EC);color:var(--muted,#81717A);">' + (c.source === 'online' ? t('线上', 'Online') : t('线下', 'Offline')) + '</span>' +
           '<span style="margin-left:auto;font-size:15px;color:var(--price,#ff6fa5);font-weight:700;">$' + fmtMoney(st.sum) + '</span>' +
-          '<span style="font-size:13px;color:var(--muted,#A88E9B);">' + st.count + ' ' + t('次', 'orders') + '</span>' +
+          '<span style="font-size:13px;color:var(--muted,#81717A);">' + st.count + ' ' + t('次', 'orders') + '</span>' +
         '</div>' +
-        '<div style="font-size:13px;color:var(--muted,#A88E9B);margin-top:4px;">' + esc(c.email || '—') + ' · ' + esc(c.phone || '—') + (st.last ? ' · ' + t('最近', 'Last') + ' ' + st.last.order_no : '') + '</div>' +
+        '<div style="font-size:13px;color:var(--muted,#81717A);margin-top:4px;">' + esc(c.email || '—') + ' · ' + esc(c.phone || '—') + (st.last ? ' · ' + t('最近', 'Last') + ' ' + st.last.order_no : '') + '</div>' +
       '</div>';
     }).join('');
     box.querySelectorAll('.cust-row').forEach(function (row) {
@@ -98,7 +98,7 @@
     div.className = 'card cust-form-card';
     div.style.cssText = 'padding:16px 20px;margin-bottom:14px;border:1.5px solid var(--accent-soft,#FCE4EC);';
     div.innerHTML =
-      '<h3 style="margin:0 0 12px;font-size:17px;color:var(--text,#604C57);">' + (c ? t('编辑客户', 'Edit customer') : t('新建客户', 'New customer')) + (c ? ' · ' + esc(c.c_no) : '') + '</h3>' +
+      '<h3 style="margin:0 0 12px;font-size:17px;color:var(--text,#62545B);">' + (c ? t('编辑客户', 'Edit customer') : t('新建客户', 'New customer')) + (c ? ' · ' + esc(c.c_no) : '') + '</h3>' +
       '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;">' +
         '<input id="cf-name" placeholder="' + t('姓名 / 称呼', 'Name') + '" value="' + escAttr(c ? c.name || '' : '') + '">' +
         '<input id="cf-email" placeholder="Email" value="' + escAttr(c ? c.email || '' : '') + '">' +
@@ -106,7 +106,7 @@
         '<input id="cf-note" placeholder="' + t('备注（来源、喜好等）', 'Note') + '" value="' + escAttr(c ? c.note || '' : '') + '">' +
         '<input id="cf-birthday" type="date" title="' + t('生日（当天自动发送生日邮件）', 'Birthday (birthday email auto-sends on the day)') + '" value="' + escAttr(c ? c.birthday || '' : '') + '">' +
       '</div>' +
-      '<div style="margin-top:10px;display:flex;gap:16px;flex-wrap:wrap;font-size:14px;color:var(--text,#604C57);">' +
+      '<div style="margin-top:10px;display:flex;gap:16px;flex-wrap:wrap;font-size:14px;color:var(--text,#62545B);">' +
         '<div style="display:flex;align-items:center;gap:8px;">' + t('邮件语言', 'Email language') +
           '<span class="chip' + (!c || (c.pref_lang || 'zh') === 'zh' ? ' on' : '') + '" id="cf-lang-zh">中文</span>' +
           '<span class="chip' + (c && c.pref_lang === 'en' ? ' on' : '') + '" id="cf-lang-en">English</span>' +
@@ -167,12 +167,12 @@
     div.style.cssText = 'padding:16px 20px;margin-bottom:14px;border:1.5px solid var(--accent-soft,#FCE4EC);';
     div.innerHTML =
       '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">' +
-        '<h3 style="margin:0;font-size:17px;color:var(--text,#604C57);">' + esc(c.name || '—') + ' <span style="font-size:13px;color:var(--muted,#A88E9B);font-weight:400;">' + esc(c.c_no) + '</span></h3>' +
+        '<h3 style="margin:0;font-size:17px;color:var(--text,#62545B);">' + esc(c.name || '—') + ' <span style="font-size:13px;color:var(--muted,#81717A);font-weight:400;">' + esc(c.c_no) + '</span></h3>' +
         '<button class="btn-mini cd-edit" style="margin-left:auto;">' + t('编辑', 'Edit') + '</button>' +
         '<button class="btn-mini cd-vip">' + (c.vip ? t('取消 VIP', 'Remove VIP') : t('设为 VIP', 'Set VIP')) + '</button>' +
         '<button class="btn-mini cd-merge">' + t('合并重复客户', 'Merge duplicate') + '</button>' +
       '</div>' +
-      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin:12px 0;font-size:14px;color:var(--text,#604C57);">' +
+      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin:12px 0;font-size:14px;color:var(--text,#62545B);">' +
         '<div>' + t('邮箱', 'Email') + '：' + esc(c.email || '—') + '</div>' +
         '<div>' + t('电话', 'Phone') + '：' + esc(c.phone || '—') + '</div>' +
         '<div>' + t('来源', 'Source') + '：' + (c.source === 'online' ? t('线上', 'Online') : t('线下', 'Offline')) + '</div>' +
@@ -180,16 +180,16 @@
         '<div>' + t('生日', 'Birthday') + '：' + (c.birthday ? esc(c.birthday) : t('未设置', 'Not set')) + (c.birthday ? (c.notify_birthday !== false ? ' · ' + t('生日邮件开', 'email on') : ' · ' + t('生日邮件关', 'email off')) : '') + '</div>' +
         '<div>' + t('邮件语言', 'Email language') + '：' + ((c.pref_lang || 'zh') === 'en' ? 'English' : '中文') + '</div>' +
       '</div>' +
-      (c.note ? '<div style="font-size:13px;color:var(--muted,#A88E9B);margin-bottom:10px;">' + t('备注', 'Note') + '：' + esc(c.note) + '</div>' : '') +
-      '<div style="font-size:14px;color:var(--text,#604C57);font-weight:600;margin-bottom:6px;">' + t('购买历史', 'Purchase history') + '</div>' +
+      (c.note ? '<div style="font-size:13px;color:var(--muted,#81717A);margin-bottom:10px;">' + t('备注', 'Note') + '：' + esc(c.note) + '</div>' : '') +
+      '<div style="font-size:14px;color:var(--text,#62545B);font-weight:600;margin-bottom:6px;">' + t('购买历史', 'Purchase history') + '</div>' +
       (st.ords.length ? st.ords.map(function (o) {
         var stl = { pending: '待付款', reviewing: '待审核', rejected: '凭证有误', paid: '已付款', shipped: '已发货', completed: '已完成', cancelled: '已取消', refunding: '退款中', refunded: '已退款' }[o.status] || o.status;
         var inc = ['paid', 'shipped', 'completed', 'refunding'].indexOf(o.status) >= 0;
         return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--accent-soft,#FCE4EC);font-size:14px;' + (inc ? '' : 'opacity:.55;') + '">' +
-          '<b style="color:var(--text,#604C57);">' + esc(o.order_no) + '</b>' +
-          '<span style="color:var(--muted,#A88E9B);font-size:13px;">' + stl + ' · ' + (o.order_source === 'pos' ? t('线下', 'POS') : t('线上', 'Online')) + '</span>' +
+          '<b style="color:var(--text,#62545B);">' + esc(o.order_no) + '</b>' +
+          '<span style="color:var(--muted,#81717A);font-size:13px;">' + stl + ' · ' + (o.order_source === 'pos' ? t('线下', 'POS') : t('线上', 'Online')) + '</span>' +
           '<span style="margin-left:auto;color:var(--price,#ff6fa5);font-weight:700;">$' + fmtMoney(o.total) + '</span></div>';
-      }).join('') : '<p style="color:var(--muted,#A88E9B);font-size:14px;">' + t('还没有购买记录', 'No purchases yet') + '</p>');
+      }).join('') : '<p style="color:var(--muted,#81717A);font-size:14px;">' + t('还没有购买记录', 'No purchases yet') + '</p>');
     panel.insertBefore(div, panel.children[0]);
     div.querySelector('.cd-edit').addEventListener('click', function () { custForm(c); });
     div.querySelector('.cd-vip').addEventListener('click', function () {
@@ -232,19 +232,19 @@
     panel.innerHTML =
       '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;">' +
         '<div class="card" style="padding:16px 20px;">' +
-          '<h3 style="margin:0 0 10px;font-size:16px;color:var(--text,#604C57);">' + t('选商品', 'Pick products') + '</h3>' +
-          '<input id="pos-q" placeholder="' + t('搜索商品，或直接添加临时自定义商品', 'Search products / add custom item') + '" style="width:100%;box-sizing:border-box;padding:10px 14px;font-size:15px;border:1.5px solid var(--accent-soft,#FCE4EC);border-radius:12px;outline:none;font-family:inherit;color:var(--text,#604C57);background:#fff;">' +
+          '<h3 style="margin:0 0 10px;font-size:16px;color:var(--text,#62545B);">' + t('选商品', 'Pick products') + '</h3>' +
+          '<input id="pos-q" placeholder="' + t('搜索商品，或直接添加临时自定义商品', 'Search products / add custom item') + '" style="width:100%;box-sizing:border-box;padding:10px 14px;font-size:15px;border:1.5px solid var(--accent-soft,#FCE4EC);border-radius:12px;outline:none;font-family:inherit;color:var(--text,#62545B);background:#fff;">' +
           '<div id="pos-picks" style="margin-top:10px;max-height:340px;overflow:auto;"></div>' +
-          '<div style="margin-top:10px;font-size:13px;color:var(--muted,#A88E9B);">' + t('关联客户（可匿名）', 'Customer (anonymous ok)') + '</div>' +
+          '<div style="margin-top:10px;font-size:13px;color:var(--muted,#81717A);">' + t('关联客户（可匿名）', 'Customer (anonymous ok)') + '</div>' +
           '<div style="margin-top:6px;"><span class="chip on" id="pos-anon">' + t('匿名销售', 'Anonymous') + '</span> <span class="chip" id="pos-pickcust">' + t('选已有客户', 'Pick customer') + '</span></div>' +
-          '<div id="pos-custpick" style="display:none;margin-top:8px;"><select id="pos-cust" style="width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid var(--accent-soft,#FCE4EC);font-family:inherit;color:var(--text,#604C57);background:#fff;"></select></div>' +
+          '<div id="pos-custpick" style="display:none;margin-top:8px;"><select id="pos-cust" style="width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid var(--accent-soft,#FCE4EC);font-family:inherit;color:var(--text,#62545B);background:#fff;"></select></div>' +
         '</div>' +
         '<div class="card" style="padding:16px 20px;">' +
-          '<h3 style="margin:0 0 10px;font-size:16px;color:var(--text,#604C57);">' + t('收款', 'Payment') + ' · <span id="pos-no" style="color:var(--price,#ff6fa5);">—</span></h3>' +
+          '<h3 style="margin:0 0 10px;font-size:16px;color:var(--text,#62545B);">' + t('收款', 'Payment') + ' · <span id="pos-no" style="color:var(--price,#ff6fa5);">—</span></h3>' +
           '<div id="pos-chans" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;"></div>' +
           '<input id="pos-note" placeholder="' + t('订单备注（客户要求／定制说明／收款说明，可选）', 'Order note (requests / custom specs / payment notes, optional)') + '" style="width:100%;margin-bottom:10px;box-sizing:border-box;" />' + // 订单备注：写入 shop_orders.note（她 20261028 总任务书 5.2）
           '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px;">' + // 收款安排：全款/定金＋尾款/分次付款（她 2026-10-28 补充需求 1）
-            '<span style="font-size:13px;color:var(--muted,#A88E9B);">' + t('收款安排', 'Payment plan') + '</span>' +
+            '<span style="font-size:13px;color:var(--muted,#81717A);">' + t('收款安排', 'Payment plan') + '</span>' +
             '<span class="paytab' + (POS.payPlan === 'full' ? ' on' : '') + '" data-plan="full">' + t('全款', 'Full') + '</span>' +
             '<span class="paytab' + (POS.payPlan === 'deposit' ? ' on' : '') + '" data-plan="deposit">' + t('定金＋尾款', 'Deposit + final') + '</span>' +
             '<span class="paytab' + (POS.payPlan === 'split' ? ' on' : '') + '" data-plan="split">' + t('分次付款', 'Installments') + '</span>' +
@@ -254,12 +254,12 @@
           '<div id="pos-cart"></div>' +
           '<div id="pos-sum"></div>' +
           '<div style="margin-top:10px;"><span class="chip on" id="pos-mode-test">' + t('测试模式', 'Test mode') + '</span> <span class="chip" id="pos-mode-formal">' + t('正式开单', 'Formal sale') + '</span>' +
-          '<span id="pos-nextno" style="margin-left:10px;font-size:12px;color:var(--muted,#A88E9B);"></span></div>' +
+          '<span id="pos-nextno" style="margin-left:10px;font-size:12px;color:var(--muted,#81717A);"></span></div>' +
           '<button class="btn-save-tb" id="pos-save" style="width:100%;margin-top:12px;">' + t('保存销售记录（测试模式）', 'Save sale (test mode)') + '</button>' +
           '<div id="pos-after" style="margin-top:12px;"></div>' +
         '</div>' +
       '</div>' +
-      '<div style="margin-top:14px;font-size:13px;color:var(--muted,#A88E9B);">' + t('编号规则：正式 SY-POS-001…，测试 SY-POS-TEST-001…，与线上订单独立计数；重复点击保存不会产生重复记录。', 'POS numbering is independent from online orders; duplicate submits are protected.') + '</div>';
+      '<div style="margin-top:14px;font-size:13px;color:var(--muted,#81717A);">' + t('编号规则：正式 SY-POS-001…，测试 SY-POS-TEST-001…，与线上订单独立计数；重复点击保存不会产生重复记录。', 'POS numbering is independent from online orders; duplicate submits are protected.') + '</div>';
     var chans = [['cash', t('现金', 'Cash')], ['zelle', 'Zelle'], ['venmo', 'Venmo'], ['paypal', 'PayPal'], ['stripe', t('Stripe 扫码', 'Stripe QR')], ['wechat', t('微信支付', 'WeChat Pay')], ['alipay', t('支付宝', 'Alipay')], ['other', t('＋ 其他', 'Other')]]; // 微信/支付宝：人工记录收款方式（未接在线 API）
     var chansEl = panel.querySelector('#pos-chans');
     chansEl.innerHTML = chans.map(function (c) { return '<span class="paytab' + (POS.channel === c[0] ? ' on' : '') + '" data-ch="' + c[0] + '">' + c[1] + '</span>'; }).join('');
@@ -312,7 +312,7 @@
         '<div><div class="nm">' + esc(p.name || '') + '</div><div class="st">' + t('库存', 'Stock') + ' ' + (p.stock == null ? '—' : p.stock) + '</div><div class="pr">$' + fmtMoney(p.price) + '</div></div>' +
         '<div class="qty"><button class="qb" data-add="' + escAttr(p.id) + '">＋</button></div></div>';
     }).join('') +
-    '<div class="pick" style="border-style:dashed;" id="pos-custom"><div style="width:56px;height:56px;border-radius:12px;background:var(--accent-soft,#FCE4EC);display:flex;align-items:center;justify-content:center;color:var(--muted,#A88E9B);font-size:22px;">＋</div>' +
+    '<div class="pick" style="border-style:dashed;" id="pos-custom"><div style="width:56px;height:56px;border-radius:12px;background:var(--accent-soft,#FCE4EC);display:flex;align-items:center;justify-content:center;color:var(--muted,#81717A);font-size:22px;">＋</div>' +
       '<div><div class="nm">' + t('临时自定义商品（不上架）', 'Custom item (not listed)') + '</div><div class="st">' + t('名称 / 价格现场填，只属于本笔销售', 'Only belongs to this sale') + '</div></div></div>';
     box.querySelectorAll('[data-add]').forEach(function (btn) {
       btn.addEventListener('click', function () {
@@ -338,15 +338,15 @@
     var box = document.getElementById('pos-cart'); if (!box) return;
     box.innerHTML = POS.items.map(function (x, i) {
       return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--accent-soft,#FCE4EC);font-size:14px;">' +
-        '<div style="flex:1;min-width:0;"><b style="color:var(--text,#604C57);">' + esc(x.name) + '</b>' +
-        (x.id ? '' : ' <span style="font-size:12px;color:var(--muted,#A88E9B);">' + t('临时', 'custom') + '</span>') +
+        '<div style="flex:1;min-width:0;"><b style="color:var(--text,#62545B);">' + esc(x.name) + '</b>' +
+        (x.id ? '' : ' <span style="font-size:12px;color:var(--muted,#81717A);">' + t('临时', 'custom') + '</span>') +
         '<div style="color:var(--price,#ff6fa5);font-weight:600;">$' + fmtMoney(x.price) + '</div></div>' +
-        '<button class="qb pos-dec" data-i="' + i + '">−</button><b style="color:var(--text,#604C57);">' + x.qty + '</b><button class="qb pos-inc" data-i="' + i + '">＋</button>' +
+        '<button class="qb pos-dec" data-i="' + i + '">−</button><b style="color:var(--text,#62545B);">' + x.qty + '</b><button class="qb pos-inc" data-i="' + i + '">＋</button>' +
         '<button class="pos-rm" data-i="' + i + '" style="border:none;background:none;color:var(--danger,#D96570);font-size:13px;cursor:pointer;text-decoration:underline;">' + t('删', 'Del') + '</button>' +
-        '<b style="min-width:70px;text-align:right;color:var(--text,#604C57);">$' + fmtMoney(x.price * x.qty) + '</b></div>';
+        '<b style="min-width:70px;text-align:right;color:var(--text,#62545B);">$' + fmtMoney(x.price * x.qty) + '</b></div>';
     }).join('');
     var sum = document.getElementById('pos-sum');
-    sum.innerHTML = '<div style="display:flex;justify-content:space-between;font-size:17px;font-weight:700;color:var(--text,#604C57);border-top:1.5px solid var(--accent-soft,#FCE4EC);padding-top:10px;margin-top:4px;"><span>' + t('应收', 'Total') + '</span><span style="color:var(--price,#ff6fa5);">$' + fmtMoney(posTotal()) + '</span></div>';
+    sum.innerHTML = '<div style="display:flex;justify-content:space-between;font-size:17px;font-weight:700;color:var(--text,#62545B);border-top:1.5px solid var(--accent-soft,#FCE4EC);padding-top:10px;margin-top:4px;"><span>' + t('应收', 'Total') + '</span><span style="color:var(--price,#ff6fa5);">$' + fmtMoney(posTotal()) + '</span></div>';
     box.querySelectorAll('.pos-dec').forEach(function (b) { b.addEventListener('click', function () { var x = POS.items[+b.getAttribute('data-i')]; x.qty = Math.max(1, x.qty - 1); renderPosCart(); }); });
     box.querySelectorAll('.pos-inc').forEach(function (b) { b.addEventListener('click', function () { POS.items[+b.getAttribute('data-i')].qty++; renderPosCart(); }); });
     box.querySelectorAll('.pos-rm').forEach(function (b) { b.addEventListener('click', function () { POS.items.splice(+b.getAttribute('data-i'), 1); renderPosCart(); }); });
@@ -387,7 +387,7 @@
     var box = document.getElementById('pos-plan-inputs');
     if (!box) return;
     if (POS.payPlan === 'full') {
-      box.innerHTML = '<span style="font-size:13px;color:var(--muted,#A88E9B);">' + t('保存即记全款（应收全额）', 'full amount recorded on save') + '</span>';
+      box.innerHTML = '<span style="font-size:13px;color:var(--muted,#81717A);">' + t('保存即记全款（应收全额）', 'full amount recorded on save') + '</span>';
     } else if (POS.payPlan === 'deposit') {
       box.innerHTML =
         '<input id="pos-deposit" type="number" min="0" step="0.01" placeholder="' + t('定金 $（现在收）', 'Deposit $ (now)') + '" style="width:120px;">' +
@@ -433,7 +433,7 @@
       .then(function (res) {
         var rem = res && res.outstanding != null ? res.outstanding : null;
         toast(t('已记录' + (PLAN_LABEL[kind] || '收款') + ' $' + fmtMoney(amount) + (rem != null && rem > 0.005 ? '，待收 $' + fmtMoney(rem) : '，已结清'), 'Recorded payment'));
-        payMsg('<span style="color:var(--text,#604C57);">' + t('已记录', 'Recorded') + ' ' + (PLAN_LABEL[kind] || '收款') + ' <b style="color:var(--price,#ff6fa5);">$' + fmtMoney(amount) + '</b>' +
+        payMsg('<span style="color:var(--text,#62545B);">' + t('已记录', 'Recorded') + ' ' + (PLAN_LABEL[kind] || '收款') + ' <b style="color:var(--price,#ff6fa5);">$' + fmtMoney(amount) + '</b>' +
           (rem != null && rem > 0.005 ? ' · ' + t('待收', 'Outstanding') + ' <b style="color:#f3b96d;">$' + fmtMoney(rem) + '</b>（' + t('后续收款去订单管理该订单卡里继续记', 'record the rest in order manager') + '）' : ' · <b style="color:var(--price,#ff6fa5);">' + t('已结清', 'Settled') + '</b>') + '</span>');
         if (window.loadShopOrders) loadShopOrders();
       })
@@ -447,8 +447,8 @@
     var box = document.getElementById('pos-after');
     box.innerHTML =
       '<div class="card" style="padding:14px 16px;border:1.5px solid var(--accent-soft,#FCE4EC);">' +
-        '<div style="font-size:15px;font-weight:700;color:var(--text,#604C57);">' + t('销售编号', 'Sale No.') + '：<span style="color:var(--price,#ff6fa5);">' + esc(j.order_no) + '</span>' + (POS.test ? ' <span style="font-size:12px;padding:2px 10px;border-radius:999px;background:#fff7f0;border:1px solid #f0d9c0;color:#8a6d3b;">TEST 测试模式</span>' : '') + '</div>' +
-        '<div style="font-size:14px;color:var(--muted,#A88E9B);margin:4px 0 10px;">' + t('应收', 'Total') + ' $' + fmtMoney(j.total) + ' · ' + t('付款方式', 'Channel') + ' ' + POS.channel + ' · ' + t('收款安排', 'Plan') + ' ' + (PLAN_LABEL[POS.payPlan] || '全款') + '</div>' +
+        '<div style="font-size:15px;font-weight:700;color:var(--text,#62545B);">' + t('销售编号', 'Sale No.') + '：<span style="color:var(--price,#ff6fa5);">' + esc(j.order_no) + '</span>' + (POS.test ? ' <span style="font-size:12px;padding:2px 10px;border-radius:999px;background:#fff7f0;border:1px solid #f0d9c0;color:#8a6d3b;">TEST 测试模式</span>' : '') + '</div>' +
+        '<div style="font-size:14px;color:var(--muted,#81717A);margin:4px 0 10px;">' + t('应收', 'Total') + ' $' + fmtMoney(j.total) + ' · ' + t('付款方式', 'Channel') + ' ' + POS.channel + ' · ' + t('收款安排', 'Plan') + ' ' + (PLAN_LABEL[POS.payPlan] || '全款') + '</div>' +
         '<div id="pos-pay-line" style="margin:0 0 10px;font-size:14px;"></div>' +
         '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
           '<button class="btn-save-tb pos-confirm">' + t('✓ 确认已收款', 'Confirm received') + '</button>' +
@@ -474,7 +474,7 @@
     var sb = box.querySelector('.pos-stripe');
     if (sb) sb.addEventListener('click', function () {
       var sbox = box.querySelector('.pos-stripe-box');
-      sbox.innerHTML = '<p style="color:var(--muted,#A88E9B);font-size:14px;">' + t('正在创建 Stripe 测试付款链接…', 'Creating Stripe test link…') + '</p>';
+      sbox.innerHTML = '<p style="color:var(--muted,#81717A);font-size:14px;">' + t('正在创建 Stripe 测试付款链接…', 'Creating Stripe test link…') + '</p>';
       var adminAt = (typeof ACCESS !== 'undefined' && ACCESS) || (function () { try { return (JSON.parse(localStorage.getItem('yuki-admin-session') || 'null') || {}).a || ''; } catch (e) { return ''; } })();
       fetch(SUPA + '/functions/v1/stripe-checkout', {
         method: 'POST',
@@ -485,7 +485,7 @@
         sbox.innerHTML =
           '<div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;">' +
             '<img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' + encodeURIComponent(res.x.url) + '" alt="QR" style="width:150px;height:150px;border-radius:12px;border:1px solid var(--accent-soft,#FCE4EC);">' +
-            '<div style="flex:1;min-width:200px;font-size:13px;word-break:break-all;color:var(--text,#604C57);">' +
+            '<div style="flex:1;min-width:200px;font-size:13px;word-break:break-all;color:var(--text,#62545B);">' +
               '<b>TEST</b> ' + t('测试付款链接（手机扫码或复制打开，测试卡 4242…，不产生真实扣款）：', 'Test link (no real charge):') + '<br>' +
               '<a href="' + escAttr(res.x.url) + '" target="_blank" style="color:var(--accent-strong,#A98D96);text-decoration:underline;">' + esc(res.x.url.slice(0, 60)) + '…</a>' +
             '</div></div>';
@@ -502,9 +502,9 @@
       '<style>#tab-mailsync .chip { margin: 0 10px 0 0; } /* 胶囊之间留出空隙（她 20261027 14:40）*/</style>' +
       '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:22px;align-items:stretch;">' +
         '<div class="card" style="padding:24px 26px;display:flex;flex-direction:column;">' +
-          '<h3 style="margin:0 0 14px;font-size:18px;color:var(--text,#604C57);">' + t('Gmail 自动分类（过滤器方案）', 'Gmail auto labels (filters)') + '</h3>' +
-          '<p style="font-size:15px;color:var(--muted,#A88E9B);line-height:1.8;margin-bottom:16px;">' + t('默认只加标签，不删邮件、不动收件箱。以下过滤器待你完成 Google OAuth 授权后一键创建：', 'Labels only — nothing deleted. Filters created after you authorize Google OAuth:') + '</p>' +
-          '<div style="font-size:15px;color:var(--text,#604C57);line-height:2.4;">' + /* 行高从 2.7 收到 2.4，胶囊不再被椑高（配合 .chip 自身 line-height 锡1.5）*/
+          '<h3 style="margin:0 0 14px;font-size:18px;color:var(--text,#62545B);">' + t('Gmail 自动分类（过滤器方案）', 'Gmail auto labels (filters)') + '</h3>' +
+          '<p style="font-size:15px;color:var(--muted,#81717A);line-height:1.8;margin-bottom:16px;">' + t('默认只加标签，不删邮件、不动收件箱。以下过滤器待你完成 Google OAuth 授权后一键创建：', 'Labels only — nothing deleted. Filters created after you authorize Google OAuth:') + '</p>' +
+          '<div style="font-size:15px;color:var(--text,#62545B);line-height:2.4;">' + /* 行高从 2.7 收到 2.4，胶囊不再被椑高（配合 .chip 自身 line-height 锡1.5）*/
             '<span class="chip on">Snow Yuzu/订单</span> ' + t('主题含「订单确认 / 付款成功」', 'subject: order confirm/paid') + '<br>' +
             '<span class="chip on">Snow Yuzu/发货</span> ' + t('主题含「订单已发货」', 'subject: shipped') + '<br>' +
             '<span class="chip on">Snow Yuzu/取消退款</span> ' + t('主题含「退款通知 / 订单已取消」', 'subject: refund/cancel') + '<br>' +
@@ -515,8 +515,8 @@
           '<div style="font-size:14px;color:#8a6d3b;background:#fff7f0;border:1px solid #f0d9c0;border-radius:10px;padding:14px 16px;margin-top:auto;line-height:1.8;">' + t('需要 Google OAuth 授权（gmail.labels + gmail.filters）。SMTP 发信权限不等于邮箱管理权限——等你授权，我不会动你的邮箱。', 'Needs your Google OAuth (gmail.labels+filters). SMTP access is NOT mailbox access — nothing touched until you authorize.') + '</div>' +
         '</div>' +
         '<div class="card" style="padding:24px 26px;display:flex;flex-direction:column;">' +
-          '<h3 style="margin:0 0 14px;font-size:18px;color:var(--text,#604C57);">' + t('Google Contacts 联系人同步（默认关）', 'Google Contacts sync (off)') + '</h3>' +
-          '<div style="font-size:15px;color:var(--text,#604C57);line-height:2.2;display:grid;gap:10px;">' +
+          '<h3 style="margin:0 0 14px;font-size:18px;color:var(--text,#62545B);">' + t('Google Contacts 联系人同步（默认关）', 'Google Contacts sync (off)') + '</h3>' +
+          '<div style="font-size:15px;color:var(--text,#62545B);line-height:2.2;display:grid;gap:10px;">' +
             t('同步范围：仅「已同意接收通知」的客户；字段：姓名 / 邮箱 / 电话。', 'Scope: only customers who agreed to notices; fields: name/email/phone.') + '<br>' +
             t('匹配：按邮箱精确匹配，已存在只更新不重建。', 'Match by exact email; update, never duplicate.') + '<br>' +
             '<div style="display:flex;flex-wrap:wrap;gap:0;align-items:center;">' + t('联系人标签：', 'Contact labels: ') + '<span class="chip on">Snow Yuzu/普通客户</span><span class="chip on">Snow Yuzu/VIP</span><span class="chip on">Snow Yuzu/回头客</span></div>' + /* 包 flex 防 grid 拉伸；间距靠 .chip margin（她 20261027 14:40 报撑满）*/
@@ -551,13 +551,13 @@
     var box = document.getElementById('ms-oauth');
     if (!box) return;
     msApi('status').then(function (r) {
-      if (!r.ok || r.j.error) { box.innerHTML = '<p style="font-size:14px;color:var(--muted,#A88E9B);">' + t('连接状态读取失败：', 'Status load failed: ') + ((r.j && r.j.error) || '网络异常') + '</p>'; return; }
+      if (!r.ok || r.j.error) { box.innerHTML = '<p style="font-size:14px;color:var(--muted,#81717A);">' + t('连接状态读取失败：', 'Status load failed: ') + ((r.j && r.j.error) || '网络异常') + '</p>'; return; }
       var st = r.j;
       if (!st.connected) {
         box.innerHTML =
           '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">' +
             '<button class="btn-save-tb" id="ms-connect">' + t('连接 Google 账号', 'Connect Google account') + '</button>' +
-            '<span style="font-size:13px;color:var(--muted,#A88E9B);">' + t('未连接', 'Not connected') + '</span>' +
+            '<span style="font-size:13px;color:var(--muted,#81717A);">' + t('未连接', 'Not connected') + '</span>' +
           '</div>' +
           (!st.configured ? '<p style="font-size:13px;color:#8a6d3b;background:#fff7f0;border:1px solid #f0d9c0;border-radius:10px;padding:8px 12px;margin-top:10px;">' + t('后端 Google 凭据尚未配置完成，连接按钮暂时不可用。', 'Backend Google credentials not ready yet.') + '</p>' : '');
         var cb = box.querySelector('#ms-connect');
@@ -571,7 +571,7 @@
         return;
       }
       box.innerHTML =
-        '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:15px;color:var(--text,#604C57);">' +
+        '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:15px;color:var(--text,#62545B);">' +
           '<span class="chip on">✓ ' + escAttr(st.email || 'Google') + '</span>' +
           '<button class="btn-save-tb" id="ms-sync-dry">' + t('同步联系人', 'Sync contacts') + '</button>' +
           '<button class="btn-mini" id="ms-filters">' + t('一键创建 Gmail 标签过滤器', 'Create Gmail labels & filters') + '</button>' +
@@ -584,9 +584,9 @@
           btn.disabled = false;
           var res = document.getElementById('ms-sync-result');
           if (!r.ok) { res.innerHTML = '<p style="font-size:14px;color:var(--danger,#D96570);">' + ((r.j && r.j.error) || '失败') + '</p>'; return; }
-          var pv = (r.j.preview || []).map(function (p) { return '<span style="font-size:13px;color:var(--muted,#A88E9B);">' + escAttr(p.name || p.email) + ' → ' + escAttr(p.group || '') + '</span>'; }).join('<br>');
+          var pv = (r.j.preview || []).map(function (p) { return '<span style="font-size:13px;color:var(--muted,#81717A);">' + escAttr(p.name || p.email) + ' → ' + escAttr(p.group || '') + '</span>'; }).join('<br>');
           res.innerHTML =
-            '<div style="font-size:14px;color:var(--text,#604C57);background:var(--bg,#FFFBFC);border:1px solid var(--border,#FFD9E6);border-radius:12px;padding:12px 14px;">' +
+            '<div style="font-size:14px;color:var(--text,#62545B);background:var(--bg,#FFFBFC);border:1px solid var(--border,#FFD9E6);border-radius:12px;padding:12px 14px;">' +
               '<b>' + t('本次同步预计：', 'Preview: ') + '</b>' +
               t('新增 ' + r.j.created + ' 人，补全 ' + r.j.updated + ' 人，已完整跳过 ' + r.j.skipped + ' 人（共 ' + r.j.total + ' 位同意接收通知的客户）', '+' + r.j.created + ' new, ' + r.j.updated + ' to update, ' + r.j.skipped + ' unchanged, of ' + r.j.total + ' opted-in customers') +
               (pv ? '<br><br><b>' + t('将新增：', 'New: ') + '</b><br>' + pv : '') +
@@ -633,12 +633,12 @@
       try { raw = JSON.parse(raw); } catch (e) {}
       var st = (raw && typeof raw === 'object') ? raw : {};
       box.innerHTML =
-        '<div style="display:flex;align-items:center;gap:14px;font-size:15px;color:var(--text,#604C57);flex-wrap:wrap;">' +
+        '<div style="display:flex;align-items:center;gap:14px;font-size:15px;color:var(--text,#62545B);flex-wrap:wrap;">' +
           '<span>' + t('同步开关', 'Sync switch') + '</span>' +
-          '<span style="font-size:13px;padding:4px 16px;border-radius:999px;border:1.5px solid ' + (st.enabled ? 'transparent;background:var(--accent-soft,#FCE4EC);color:var(--accent-strong,#A98D96);' : '#e8d8e0;background:#fff;color:var(--muted,#A88E9B);') + 'font-weight:600;display:inline-flex;align-items:center;">' + (st.enabled ? t('已开启（待授权）', 'Enabled (pending auth)') : t('关闭', 'Off')) + '</span>' +
+          '<span style="font-size:13px;padding:4px 16px;border-radius:999px;border:1.5px solid ' + (st.enabled ? 'transparent;background:var(--accent-soft,#FCE4EC);color:var(--accent-strong,#A98D96);' : '#e8d8e0;background:#fff;color:var(--muted,#81717A);') + 'font-weight:600;display:inline-flex;align-items:center;">' + (st.enabled ? t('已开启（待授权）', 'Enabled (pending auth)') : t('关闭', 'Off')) + '</span>' +
           '<button class="btn-mini" id="ms-toggle">' + (st.enabled ? t('关闭', 'Turn off') : t('开启', 'Turn on')) + '</button>' +
         '</div>' +
-        '<div style="font-size:13px;color:var(--muted,#A88E9B);margin-top:14px;">' + t('状态：', 'Status: ') + (st.oauth_done ? t('Google 已授权，同步就绪', 'Google authorized, ready') : t('等待柚子完成 Google OAuth 授权', 'Waiting for your Google OAuth authorization')) + '</div>';
+        '<div style="font-size:13px;color:var(--muted,#81717A);margin-top:14px;">' + t('状态：', 'Status: ') + (st.oauth_done ? t('Google 已授权，同步就绪', 'Google authorized, ready') : t('等待柚子完成 Google OAuth 授权', 'Waiting for your Google OAuth authorization')) + '</div>';
       box.querySelector('#ms-toggle').addEventListener('click', function () {
         var next = { enabled: !(st && st.enabled), oauth_done: false, updated: new Date().toISOString() };
         api('site_settings', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' }, body: JSON.stringify({ key: 'crm_sync', value: next }) })
@@ -771,18 +771,18 @@
       // 20261028p18：生日邮件总开关 + 测试发送（发到官方邮箱）
       '<div class="card" style="padding:16px 20px;margin-bottom:14px;border:1.5px solid var(--accent-soft,#FCE4EC);">' +
         '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">' +
-          '<h3 style="margin:0;font-size:17px;color:var(--text,#604C57);">' + t('生日邮件 ♡', 'Birthday emails ♡') + '</h3>' +
+          '<h3 style="margin:0;font-size:17px;color:var(--text,#62545B);">' + t('生日邮件 ♡', 'Birthday emails ♡') + '</h3>' +
           '<span class="chip" id="bday-sw-on">' + t('自动发送开', 'Auto on') + '</span>' +
           '<span class="chip" id="bday-sw-off">' + t('自动发送关', 'Auto off') + '</span>' +
           '<button class="btn-mini" id="bday-test" style="margin-left:auto;">' + t('给官方邮箱发一封测试', 'Send a test to the official mailbox') + '</button>' +
         '</div>' +
-        '<p style="margin:8px 0 0;font-size:13px;color:var(--muted,#A88E9B);line-height:1.8;">' +
+        '<p style="margin:8px 0 0;font-size:13px;color:var(--muted,#81717A);line-height:1.8;">' +
           t('每天自动给当天生日的客户发一封生日祝福（客户资料里设置生日、可单独关闭）。这里控制全站自动发送。', 'Automatically sends a birthday wish to customers whose birthday is today (set birthdays in customer profiles; each profile can opt out). This switch controls the site-wide automation.') +
         '</p>' +
       '</div>' +
       '<div class="card" style="padding:16px 20px;margin-bottom:14px;">' +
-        '<h3 style="margin:0 0 4px;font-size:17px;color:var(--text,#604C57);">' + t('邮件模板管理', 'Email templates') + '</h3>' +
-        '<p style="margin:0;font-size:13px;color:var(--muted,#A88E9B);line-height:1.8;">' +
+        '<h3 style="margin:0 0 4px;font-size:17px;color:var(--text,#62545B);">' + t('邮件模板管理', 'Email templates') + '</h3>' +
+        '<p style="margin:0;font-size:13px;color:var(--muted,#81717A);line-height:1.8;">' +
           t('各用途邮件的主题与正文模板，中英文分开管理；带变量占位，发送时自动替换。当前仅保存与预览，不会自动发送任何邮件。', 'Subject & body templates per email type, zh/en managed separately. Save & preview only — nothing is sent automatically.') +
         '</p>' +
         '<div id="tpl-kind-chips" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;"></div>' +
@@ -791,12 +791,12 @@
         '<div class="card" style="padding:16px 20px;">' +
           '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">' +
             '<span class="chip" data-lang="zh">中文</span><span class="chip" data-lang="en">English</span>' +
-            '<span id="tpl-kind-desc" style="font-size:12px;color:var(--muted,#A88E9B);margin-left:auto;"></span>' +
+            '<span id="tpl-kind-desc" style="font-size:12px;color:var(--muted,#81717A);margin-left:auto;"></span>' +
           '</div>' +
-          '<div style="font-size:14px;color:var(--text,#604C57);margin-bottom:4px;">' + t('邮件主题', 'Subject') + '</div>' +
-          '<input id="tpl-subject" style="width:100%;box-sizing:border-box;padding:10px 14px;font-size:15px;border:1.5px solid var(--accent-soft,#FCE4EC);border-radius:12px;outline:none;font-family:inherit;color:var(--text,#604C57);background:#fff;">' +
-          '<div style="font-size:14px;color:var(--text,#604C57);margin:12px 0 4px;">' + t('邮件正文', 'Body') + '</div>' +
-          '<textarea id="tpl-body" rows="10" style="width:100%;box-sizing:border-box;padding:10px 14px;font-size:15px;border:1.5px solid var(--accent-soft,#FCE4EC);border-radius:12px;outline:none;font-family:inherit;color:var(--text,#604C57);background:#fff;resize:vertical;line-height:1.8;"></textarea>' +
+          '<div style="font-size:14px;color:var(--text,#62545B);margin-bottom:4px;">' + t('邮件主题', 'Subject') + '</div>' +
+          '<input id="tpl-subject" style="width:100%;box-sizing:border-box;padding:10px 14px;font-size:15px;border:1.5px solid var(--accent-soft,#FCE4EC);border-radius:12px;outline:none;font-family:inherit;color:var(--text,#62545B);background:#fff;">' +
+          '<div style="font-size:14px;color:var(--text,#62545B);margin:12px 0 4px;">' + t('邮件正文', 'Body') + '</div>' +
+          '<textarea id="tpl-body" rows="10" style="width:100%;box-sizing:border-box;padding:10px 14px;font-size:15px;border:1.5px solid var(--accent-soft,#FCE4EC);border-radius:12px;outline:none;font-family:inherit;color:var(--text,#62545B);background:#fff;resize:vertical;line-height:1.8;"></textarea>' +
           '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">' +
             '<button class="btn-save-tb" id="tpl-save">' + t('保存模板', 'Save') + '</button>' +
             '<button class="btn-mini" id="tpl-cancel">' + t('取消修改', 'Revert') + '</button>' +
@@ -804,14 +804,14 @@
             '<button class="btn-mini" id="tpl-preview-btn">' + t('预览', 'Preview') + '</button>' +
           '</div>' +
           '<div id="tpl-vars" style="margin-top:14px;background:var(--bg,#FFF8FA);border:1px solid var(--accent-soft,#FCE4EC);border-radius:12px;padding:10px 14px;">' +
-            '<div style="font-size:14px;font-weight:600;color:var(--text,#604C57);margin-bottom:6px;">' + t('可用变量（点击插入到正文末尾）', 'Variables (click to append to body)') + '</div>' +
+            '<div style="font-size:14px;font-weight:600;color:var(--text,#62545B);margin-bottom:6px;">' + t('可用变量（点击插入到正文末尾）', 'Variables (click to append to body)') + '</div>' +
             '<div id="tpl-var-list" style="display:flex;gap:6px;flex-wrap:wrap;"></div>' +
           '</div>' +
         '</div>' +
         '<div class="card" style="padding:16px 20px;align-self:start;">' +
-          '<h3 style="margin:0 0 10px;font-size:16px;color:var(--text,#604C57);">' + t('模板预览', 'Preview') + '</h3>' +
+          '<h3 style="margin:0 0 10px;font-size:16px;color:var(--text,#62545B);">' + t('模板预览', 'Preview') + '</h3>' +
           '<div id="tpl-preview" style="border:1px solid var(--accent-soft,#FCE4EC);border-radius:14px;padding:14px 16px;background:#fff;">' +
-            '<p style="color:var(--muted,#A88E9B);font-size:14px;">' + t('点「预览」查看替换变量后的效果', 'Click Preview to see variable substitution') + '</p>' +
+            '<p style="color:var(--muted,#81717A);font-size:14px;">' + t('点「预览」查看替换变量后的效果', 'Click Preview to see variable substitution') + '</p>' +
           '</div>' +
         '</div>' +
       '</div>';
@@ -966,10 +966,10 @@
     var sub = subject, txt = body;
     Object.keys(samples).forEach(function (k) { sub = sub.split(k).join(samples[k]); txt = txt.split(k).join(samples[k]); });
     panel.querySelector('#tpl-preview').innerHTML =
-      '<div style="font-size:12px;color:var(--muted,#A88E9B);margin-bottom:4px;">' + t('邮件主题', 'Subject') + '</div>' +
-      '<div style="font-size:15px;font-weight:700;color:var(--text,#604C57);padding-bottom:10px;border-bottom:1px solid var(--accent-soft,#FCE4EC);margin-bottom:10px;word-break:break-word;">' + esc(sub) + '</div>' +
-      '<div style="font-size:12px;color:var(--muted,#A88E9B);margin-bottom:4px;">' + t('邮件正文', 'Body') + '</div>' +
-      '<div style="font-size:14px;color:var(--text,#604C57);white-space:pre-wrap;line-height:1.9;word-break:break-word;">' + esc(txt) + '</div>';
+      '<div style="font-size:12px;color:var(--muted,#81717A);margin-bottom:4px;">' + t('邮件主题', 'Subject') + '</div>' +
+      '<div style="font-size:15px;font-weight:700;color:var(--text,#62545B);padding-bottom:10px;border-bottom:1px solid var(--accent-soft,#FCE4EC);margin-bottom:10px;word-break:break-word;">' + esc(sub) + '</div>' +
+      '<div style="font-size:12px;color:var(--muted,#81717A);margin-bottom:4px;">' + t('邮件正文', 'Body') + '</div>' +
+      '<div style="font-size:14px;color:var(--text,#62545B);white-space:pre-wrap;line-height:1.9;word-break:break-word;">' + esc(txt) + '</div>';
   }
 
   /* ═══════════ 主题颜色（全站同步） ═══════════ */
@@ -979,15 +979,15 @@
       ['accentSoft', t('选中底色 / 浅粉块', 'Selected / soft pink'), '#FCE4EC'],
       ['accentStrong', t('强调深字（选中态字）', 'Accent strong'), '#A98D96'],
       ['price', t('金额亮粉', 'Price pink'), '#FF6FA5'],
-      ['text', t('主文字 / 标题', 'Main text'), '#604C57'],
-      ['muted', t('次要文字', 'Muted text'), '#A88E9B'],
+      ['text', t('主文字 / 标题', 'Main text'), '#62545B'],
+      ['muted', t('次要文字', 'Muted text'), '#81717A'],
       ['bg', t('页面背景', 'Page background'), '#FFF8FA'],
       ['card', t('卡片底色', 'Card background'), '#FFF0F5'],
       ['success', t('成功状态（合格/已付款）', 'Success status'), '#5FA777'],
       ['warning', t('警告状态（待处理/返工）', 'Warning status'), '#E0A458'],
       ['danger', t('危险状态（失败/退款）', 'Danger status'), '#D96570']
     ],
-    presets: ['#FFD9E6', '#FCE4EC', '#FF6FA5', '#E073A8', '#A98D96', '#604C57', '#A88E9B', '#FFF8FA', '#FFF0F5', '#ffffff', '#D4B2C4', '#F6DFE8'],
+    presets: ['#FFD9E6', '#FCE4EC', '#FF6FA5', '#E073A8', '#A98D96', '#62545B', '#81717A', '#FFF8FA', '#FFF0F5', '#ffffff', '#D4B2C4', '#F6DFE8'],
     saved: {}
   };
 
@@ -997,8 +997,8 @@
     panel.dataset.booted = '1';
     panel.innerHTML =
       '<div class="card" style="padding:16px 20px;">' +
-        '<h3 style="margin:0 0 4px;font-size:17px;color:var(--text,#604C57);">' + t('主题颜色', 'Theme colors') + '</h3>' +
-        '<p style="margin:0;font-size:13px;color:var(--muted,#A88E9B);line-height:1.8;">' +
+        '<h3 style="margin:0 0 4px;font-size:17px;color:var(--text,#62545B);">' + t('主题颜色', 'Theme colors') + '</h3>' +
+        '<p style="margin:0;font-size:13px;color:var(--muted,#81717A);line-height:1.8;">' +
           t('改的是全站同一套变量：前台每个页面、后台所有页签、按钮/边框/金额/文字全部同步，不用挨个改。改完点「保存并同步全站」。', 'One set of variables for the whole site. Save to sync every page, admin tab, button, border and price color.') +
         '</p>' +
         '<div id="theme-fields" style="margin-top:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;"></div>' +
@@ -1006,7 +1006,7 @@
           '<button class="btn-save-tb" id="theme-save">' + t('保存并同步全站', 'Save & sync') + '</button>' +
           '<button class="btn-mini" id="theme-reset">' + t('恢复默认配色', 'Reset defaults') + '</button>' +
         '</div>' +
-        '<div style="margin-top:14px;font-size:12px;color:var(--muted,#A88E9B);">' + t('当前状态：', 'Status: ') + '<span id="theme-status">…</span></div>' +
+        '<div style="margin-top:14px;font-size:12px;color:var(--muted,#81717A);">' + t('当前状态：', 'Status: ') + '<span id="theme-status">…</span></div>' +
       '</div>';
     renderThemeFields();
     panel.querySelector('#theme-save').addEventListener('click', themeSave);
@@ -1036,12 +1036,12 @@
       var cur = THEME.saved[f[0]] || f[2];
       var sw = THEME.presets.map(function (p) {
         var on = p.toLowerCase() === cur.toLowerCase();
-        return '<span class="chip' + (on ? ' on' : '') + '" data-f="' + f[0] + '" data-c="' + p + '" style="width:30px;height:30px;padding:0;background:' + p + ';border:2px solid ' + (on ? 'var(--text,#604C57)' : 'var(--accent,#ffd9e6)') + ';" title="' + p + '"></span>';
+        return '<span class="chip' + (on ? ' on' : '') + '" data-f="' + f[0] + '" data-c="' + p + '" style="width:30px;height:30px;padding:0;background:' + p + ';border:2px solid ' + (on ? 'var(--text,#62545B)' : 'var(--accent,#ffd9e6)') + ';" title="' + p + '"></span>';
       }).join('');
       return '<div style="background:#fff;border:1px solid var(--accent-soft,#FCE4EC);border-radius:14px;padding:12px 14px;">' +
-        '<div style="font-size:14px;font-weight:600;color:var(--text,#604C57);">' + f[1] + ' <span style="font-weight:400;color:var(--muted,#A88E9B);">' + f[0] + '</span></div>' +
+        '<div style="font-size:14px;font-weight:600;color:var(--text,#62545B);">' + f[1] + ' <span style="font-weight:400;color:var(--muted,#81717A);">' + f[0] + '</span></div>' +
         '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px;">' + sw +
-          '<input data-hex="' + f[0] + '" value="' + cur + '" style="width:96px;padding:5px 8px;font-size:13px;border:1.5px solid var(--accent-soft,#FCE4EC);border-radius:8px;font-family:inherit;color:var(--text,#604C57);" placeholder="#RRGGBB">' +
+          '<input data-hex="' + f[0] + '" value="' + cur + '" style="width:96px;padding:5px 8px;font-size:13px;border:1.5px solid var(--accent-soft,#FCE4EC);border-radius:8px;font-family:inherit;color:var(--text,#62545B);" placeholder="#RRGGBB">' +
         '</div></div>';
     }).join('');
     box.querySelectorAll('[data-f]').forEach(function (c) {

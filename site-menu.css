@@ -206,3 +206,34 @@
 .idx-link:hover { background: var(--card-hover, #FCE4EC); }
 .idx-link.current { background: var(--accent-soft, #FCE4EC); color: var(--accent-strong, #A98D96); font-weight: 600; }
 @media (max-width: 700px) { .idx-wrap { display: block; } }
+
+/* ═══ 她 20261030 §5：Index / 全站导航文字统一 #62545B ═══
+   普通、悬停、选中、下拉（子菜单）、手机端侧边导航一律同一深色；选中只靠原有粉色背景区分，
+   不再出现多种深浅。只改文字颜色，不动背景、尺寸、间距、布局。
+   用 .menu / #menu 前缀 + !important：压过 button-theme.css 里给 .menu-toggle 的按钮配色层。 */
+:root { --nav-text: #62545B; }
+.menu a,
+.menu .menu-toggle,
+.menu .submenu a,
+.menu .menu-toggle:hover,
+.menu .submenu a:hover,
+.menu .menu-group.open > .menu-toggle,
+.menu .menu-group.active > .menu-toggle,
+.menu .menu-group.current > .menu-toggle,
+.menu a.active,
+.menu a.current,
+.menu-item.menu-link,
+.menu .menu-link,
+.menu .menu-link:hover,
+.menu .menu-link.current,
+.menu .menu-owner,
+.menu .menu-owner:hover,
+#menu a,
+#menu .menu-toggle,
+#menu .submenu a,
+#menu .menu-link,
+#menu .menu-toggle:hover,
+#menu .submenu a:hover { color: #62545B !important; }
+.idx-link,
+.idx-link:hover,
+.idx-link.current { color: #62545B !important; }

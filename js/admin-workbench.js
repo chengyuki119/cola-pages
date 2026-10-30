@@ -40,18 +40,18 @@
     panel.dataset.booted = '1';
     panel.innerHTML =
       '<div class="card" style="padding:16px 20px;margin-bottom:14px;">' +
-        '<h3 style="margin:0 0 4px;font-size:17px;color:var(--text,#604C57);">' + t('订单工作台', 'Order workbench') + '</h3>' +
-        '<p style="margin:0;font-size:13px;color:var(--muted,#A88E9B);line-height:1.8;">' +
+        '<h3 style="margin:0 0 4px;font-size:17px;color:var(--text,#62545B);">' + t('订单工作台', 'Order workbench') + '</h3>' +
+        '<p style="margin:0;font-size:13px;color:var(--muted,#81717A);line-height:1.8;">' +
           t('草稿（含外部平台导入）先审核、再确认导入成正式订单；外部商品默认仅展示；定金/尾款/分期/退款都在这里记账，欠款自动算。', 'Review drafts (incl. imported ones) before confirming them into real orders; external items are display-only by default; deposits / final payments / installments / refunds are tracked here.') +
         '</p>' +
         '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px;">' +
           '<span class="chip" data-view="drafts" style="font-size:15px;">草稿</span>' +
           '<span class="chip" data-view="orders" style="font-size:15px;">正式订单</span>' +
-          '<input id="wb-search" placeholder="搜订单号 / 邮箱 / 姓名" style="flex:1;min-width:160px;padding:9px 14px;font-size:15px;border:1.5px solid var(--accent-soft,#FCE4EC);border-radius:12px;outline:none;font-family:inherit;color:var(--text,#604C57);background:#fff;">' +
+          '<input id="wb-search" placeholder="搜订单号 / 邮箱 / 姓名" style="flex:1;min-width:160px;padding:9px 14px;font-size:15px;border:1.5px solid var(--accent-soft,#FCE4EC);border-radius:12px;outline:none;font-family:inherit;color:var(--text,#62545B);background:#fff;">' +
           '<button class="btn-mini" id="wb-new-draft">＋ 新建订单草稿</button>' +
           '<button class="btn-mini" id="wb-import">批量导入</button>' +
         '</div>' +
-        '<div id="wb-batch-note" style="margin-top:8px;font-size:12px;color:var(--muted,#A88E9B);"></div>' +
+        '<div id="wb-batch-note" style="margin-top:8px;font-size:12px;color:var(--muted,#81717A);"></div>' +
       '</div>' +
       '<div id="wb-body"><div class="empty">加载中…</div></div>';
     panel.querySelectorAll('[data-view]').forEach(function (c) {
@@ -105,10 +105,10 @@
       var amt = p.amounts || {};
       var buyer = p.buyer || {};
       return '<div style="display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--accent-soft,#FCE4EC);flex-wrap:wrap;">' +
-        '<div style="min-width:130px;"><b style="color:var(--text,#604C57);font-size:15px;">' + escHtml(d.src_no || '(无单号)') + '</b>' +
-          '<div style="font-size:12px;color:var(--muted,#A88E9B);">' + fmtDT(d.created_at) + '</div></div>' +
-        '<div style="flex:1;min-width:150px;font-size:14px;color:var(--text,#604C57);">' + escHtml(buyer.name || buyer.email || '—') +
-          '<span style="color:var(--muted,#A88E9B);"> · ' + items.length + ' 件商品</span>' +
+        '<div style="min-width:130px;"><b style="color:var(--text,#62545B);font-size:15px;">' + escHtml(d.src_no || '(无单号)') + '</b>' +
+          '<div style="font-size:12px;color:var(--muted,#81717A);">' + fmtDT(d.created_at) + '</div></div>' +
+        '<div style="flex:1;min-width:150px;font-size:14px;color:var(--text,#62545B);">' + escHtml(buyer.name || buyer.email || '—') +
+          '<span style="color:var(--muted,#81717A);"> · ' + items.length + ' 件商品</span>' +
           (d.status === 'imported' ? '<span style="color:var(--success,#5FA777);font-size:12px;"> · 已导入</span>' : '') +
           (d.error ? '<span style="color:var(--danger,#D96570);font-size:12px;"> · ' + escHtml(d.error) + '</span>' : '') + '</div>' +
         '<div style="font-size:15px;font-weight:700;color:var(--price,#ff6fa5);">' + money(amt.total || 0) + '</div>' +
@@ -185,8 +185,8 @@
     body.innerHTML =
       '<div class="card" style="padding:16px 20px;">' +
         '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;">' +
-          '<h3 style="margin:0;font-size:17px;color:var(--text,#604C57);">' + title + '</h3>' +
-          '<span style="font-size:12px;color:var(--muted,#A88E9B);margin-left:auto;">' + (isNew ? '' : '原始单号：' + escHtml(d.src_no || '—')) + '</span>' +
+          '<h3 style="margin:0;font-size:17px;color:var(--text,#62545B);">' + title + '</h3>' +
+          '<span style="font-size:12px;color:var(--muted,#81717A);margin-left:auto;">' + (isNew ? '' : '原始单号：' + escHtml(d.src_no || '—')) + '</span>' +
         '</div>' +
         '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;">' +
           wbField('原始单号', 'ed-src', d.src_no, 'text') +
@@ -194,7 +194,7 @@
           wbField('买家邮箱', 'ed-bemail', buyer.email, 'email') +
           wbField('买家电话', 'ed-bphone', buyer.phone) +
         '</div>' +
-        '<div style="font-size:14px;font-weight:600;color:var(--text,#604C57);margin:14px 0 8px;">收货地址</div>' +
+        '<div style="font-size:14px;font-weight:600;color:var(--text,#62545B);margin:14px 0 8px;">收货地址</div>' +
         '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;">' +
           wbField('收件人', 'ed-aname', addr.name) +
           wbField('电话', 'ed-aphone', addr.phone) +
@@ -206,21 +206,21 @@
           wbField('国家', 'ed-country', addr.country || 'US') +
         '</div>' +
         '<div style="display:flex;align-items:center;gap:10px;margin:14px 0 8px;flex-wrap:wrap;">' +
-          '<div style="font-size:14px;font-weight:600;color:var(--text,#604C57);">商品明细</div>' +
+          '<div style="font-size:14px;font-weight:600;color:var(--text,#62545B);">商品明细</div>' +
           '<button class="btn-mini" id="ed-add-item">＋ 加一件商品</button>' +
-          '<span style="font-size:12px;color:var(--muted,#A88E9B);">输入 SKU 或名称可匹配已有商品；匹配不到就作为外部商品（默认仅展示）</span>' +
+          '<span style="font-size:12px;color:var(--muted,#81717A);">输入 SKU 或名称可匹配已有商品；匹配不到就作为外部商品（默认仅展示）</span>' +
         '</div>' +
         '<div id="ed-items"></div>' +
-        '<div style="font-size:14px;font-weight:600;color:var(--text,#604C57);margin:14px 0 8px;">金额</div>' +
+        '<div style="font-size:14px;font-weight:600;color:var(--text,#62545B);margin:14px 0 8px;">金额</div>' +
         '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;">' +
           wbField('商品总价（自动）', 'ed-subtotal', n2(amt.subtotal), 'number') +
           wbField('折扣', 'ed-discount', n2(amt.discount), 'number') +
           wbField('运费', 'ed-shipping', n2(amt.shipping), 'number') +
           wbField('税费', 'ed-tax', n2(amt.tax), 'number') +
-          '<div><div style="font-size:13px;color:var(--muted,#A88E9B);margin-bottom:4px;">应付总额（自动，可手改）</div>' +
+          '<div><div style="font-size:13px;color:var(--muted,#81717A);margin-bottom:4px;">应付总额（自动，可手改）</div>' +
           '<input id="ed-total" type="number" step="0.01" value="' + n2(amt.total) + '" style="width:100%;box-sizing:border-box;padding:9px 12px;font-size:15px;font-weight:700;border:1.5px solid var(--accent-soft,#FCE4EC);border-radius:12px;outline:none;font-family:inherit;color:var(--price,#ff6fa5);background:#fff;"></div>' +
         '</div>' +
-        '<div style="font-size:14px;font-weight:600;color:var(--text,#604C57);margin:14px 0 8px;">付款计划（草稿阶段暂存，导入后写入付款记录）</div>' +
+        '<div style="font-size:14px;font-weight:600;color:var(--text,#62545B);margin:14px 0 8px;">付款计划（草稿阶段暂存，导入后写入付款记录）</div>' +
         '<div id="ed-pays"></div>' +
         '<button class="btn-mini" id="ed-add-pay" style="margin-top:6px;">＋ 添加付款记录</button>' +
         '<div style="margin-top:12px;">' + wbField('备注', 'ed-note', p.note || '') + '</div>' +
@@ -236,8 +236,8 @@
   }
 
   function wbField(label, id, val, type) {
-    return '<div><div style="font-size:13px;color:var(--muted,#A88E9B);margin-bottom:4px;">' + label + '</div>' +
-      '<input id="' + id + '"' + (type ? ' type="' + type + '"' + (type === 'number' ? ' step="0.01"' : '') : '') + ' value="' + escAttr(val == null ? '' : String(val)) + '" style="width:100%;box-sizing:border-box;padding:9px 12px;font-size:15px;border:1.5px solid var(--accent-soft,#FCE4EC);border-radius:12px;outline:none;font-family:inherit;color:var(--text,#604C57);background:#fff;"></div>';
+    return '<div><div style="font-size:13px;color:var(--muted,#81717A);margin-bottom:4px;">' + label + '</div>' +
+      '<input id="' + id + '"' + (type ? ' type="' + type + '"' + (type === 'number' ? ' step="0.01"' : '') : '') + ' value="' + escAttr(val == null ? '' : String(val)) + '" style="width:100%;box-sizing:border-box;padding:9px 12px;font-size:15px;border:1.5px solid var(--accent-soft,#FCE4EC);border-radius:12px;outline:none;font-family:inherit;color:var(--text,#62545B);background:#fff;"></div>';
   }
 
   function collectEd() {
@@ -270,16 +270,16 @@
     var box = document.getElementById('ed-items');
     if (!box) return;
     var items = arr(ed().payload.items);
-    if (!items.length) { box.innerHTML = '<div style="font-size:13px;color:var(--muted,#A88E9B);padding:8px 0;">还没有商品，点「＋ 加一件商品」。</div>'; return; }
+    if (!items.length) { box.innerHTML = '<div style="font-size:13px;color:var(--muted,#81717A);padding:8px 0;">还没有商品，点「＋ 加一件商品」。</div>'; return; }
     box.innerHTML = items.map(function (it, i) {
       return '<div data-item="' + i + '" style="background:var(--bg,#FFF8FA);border:1px solid var(--accent-soft,#FCE4EC);border-radius:12px;padding:10px 12px;margin-bottom:8px;">' +
         '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;align-items:end;">' +
-          '<div style="grid-column:span 2;"><div style="font-size:12px;color:var(--muted,#A88E9B);">商品名 *</div><input data-f="name" value="' + escAttr(it.name || '') + '" style="' + wbInputCss() + '"></div>' +
-          '<div><div style="font-size:12px;color:var(--muted,#A88E9B);">SKU / 搜商品</div><input data-f="sku" value="' + escAttr(it.sku || '') + '" placeholder="失焦自动匹配" style="' + wbInputCss() + '"></div>' +
-          '<div><div style="font-size:12px;color:var(--muted,#A88E9B);">规格</div><input data-f="spec" value="' + escAttr(it.spec || '') + '" style="' + wbInputCss() + '"></div>' +
-          '<div><div style="font-size:12px;color:var(--muted,#A88E9B);">单价 $</div><input data-f="price" type="number" step="0.01" value="' + n2(it.price) + '" style="' + wbInputCss() + '"></div>' +
-          '<div><div style="font-size:12px;color:var(--muted,#A88E9B);">数量</div><input data-f="qty" type="number" step="1" value="' + (parseInt(it.qty, 10) || 1) + '" style="' + wbInputCss() + '"></div>' +
-          '<div style="grid-column:span 2;"><div style="font-size:12px;color:var(--muted,#A88E9B);">定制要求</div><input data-f="note" value="' + escAttr(it.note || '') + '" style="' + wbInputCss() + '"></div>' +
+          '<div style="grid-column:span 2;"><div style="font-size:12px;color:var(--muted,#81717A);">商品名 *</div><input data-f="name" value="' + escAttr(it.name || '') + '" style="' + wbInputCss() + '"></div>' +
+          '<div><div style="font-size:12px;color:var(--muted,#81717A);">SKU / 搜商品</div><input data-f="sku" value="' + escAttr(it.sku || '') + '" placeholder="失焦自动匹配" style="' + wbInputCss() + '"></div>' +
+          '<div><div style="font-size:12px;color:var(--muted,#81717A);">规格</div><input data-f="spec" value="' + escAttr(it.spec || '') + '" style="' + wbInputCss() + '"></div>' +
+          '<div><div style="font-size:12px;color:var(--muted,#81717A);">单价 $</div><input data-f="price" type="number" step="0.01" value="' + n2(it.price) + '" style="' + wbInputCss() + '"></div>' +
+          '<div><div style="font-size:12px;color:var(--muted,#81717A);">数量</div><input data-f="qty" type="number" step="1" value="' + (parseInt(it.qty, 10) || 1) + '" style="' + wbInputCss() + '"></div>' +
+          '<div style="grid-column:span 2;"><div style="font-size:12px;color:var(--muted,#81717A);">定制要求</div><input data-f="note" value="' + escAttr(it.note || '') + '" style="' + wbInputCss() + '"></div>' +
           '<button class="btn-mini" data-del="' + i + '">删除</button>' +
         '</div>' +
         '<div data-match="' + i + '" style="margin-top:6px;font-size:12px;">' + itemMatchHint(it) + '</div>' +
@@ -308,12 +308,12 @@
   }
 
   function wbInputCss() {
-    return 'width:100%;box-sizing:border-box;padding:8px 10px;font-size:14px;border:1.5px solid var(--accent-soft,#FCE4EC);border-radius:10px;outline:none;font-family:inherit;color:var(--text,#604C57);background:#fff;';
+    return 'width:100%;box-sizing:border-box;padding:8px 10px;font-size:14px;border:1.5px solid var(--accent-soft,#FCE4EC);border-radius:10px;outline:none;font-family:inherit;color:var(--text,#62545B);background:#fff;';
   }
 
   function itemMatchHint(it) {
     if (it.id) return '<span style="color:var(--success,#5FA777);">✓ 已匹配商城商品：' + escHtml(it.matched_name || it.name) + '</span>';
-    return '<span style="color:var(--muted,#A88E9B);">外部商品（导入时默认仅展示，不会扣库存）</span>';
+    return '<span style="color:var(--muted,#81717A);">外部商品（导入时默认仅展示，不会扣库存）</span>';
   }
 
   function skuMatch(i) {
@@ -354,7 +354,7 @@
     var box = document.getElementById('ed-pays');
     if (!box) return;
     var pays = arr(ed().payload.pay_records);
-    if (!pays.length) { box.innerHTML = '<div style="font-size:13px;color:var(--muted,#A88E9B);">暂无付款记录（可不填，导入后也能在正式订单里补记）。</div>'; return; }
+    if (!pays.length) { box.innerHTML = '<div style="font-size:13px;color:var(--muted,#81717A);">暂无付款记录（可不填，导入后也能在正式订单里补记）。</div>'; return; }
     box.innerHTML = pays.map(function (pr, i) {
       var kindChips = Object.keys(PAY_KIND).map(function (k) {
         return '<span class="chip' + (pr.kind === k ? ' on' : '') + '" data-pk="' + k + '">' + PAY_KIND[k] + '</span>';
@@ -451,11 +451,11 @@
     mask.innerHTML =
       '<div style="position:fixed;inset:0;background:rgba(96,76,87,.35);z-index:999;display:flex;align-items:center;justify-content:center;padding:16px;">' +
         '<div class="card" style="max-width:760px;width:100%;max-height:86vh;overflow-y:auto;padding:18px 22px;">' +
-          '<h3 style="margin:0 0 8px;font-size:17px;color:var(--text,#604C57);">批量导入订单</h3>' +
-          '<p style="margin:0;font-size:13px;color:var(--muted,#A88E9B);line-height:1.8;">支持 CSV / Excel(.xlsx)。一行一个商品，同一原始单号的多行会合并成一单多商品。解析后先预览校验，再保存为草稿。</p>' +
+          '<h3 style="margin:0 0 8px;font-size:17px;color:var(--text,#62545B);">批量导入订单</h3>' +
+          '<p style="margin:0;font-size:13px;color:var(--muted,#81717A);line-height:1.8;">支持 CSV / Excel(.xlsx)。一行一个商品，同一原始单号的多行会合并成一单多商品。解析后先预览校验，再保存为草稿。</p>' +
           '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center;">' +
             '<button class="btn-mini" id="wb-dl-tpl">下载 CSV 模板</button>' +
-            '<input id="wb-file" type="file" accept=".csv,.xlsx,.xls" style="font-size:14px;color:var(--text,#604C57);font-family:inherit;">' +
+            '<input id="wb-file" type="file" accept=".csv,.xlsx,.xls" style="font-size:14px;color:var(--text,#62545B);font-family:inherit;">' +
           '</div>' +
           '<div id="wb-imp-preview" style="margin-top:12px;"></div>' +
           '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;">' +
@@ -559,7 +559,7 @@
   function parseImportFile(file, mask) {
     var preview = mask.querySelector('#wb-imp-preview');
     var saveBtn = mask.querySelector('#wb-imp-save');
-    preview.innerHTML = '<div style="font-size:13px;color:var(--muted,#A88E9B);">解析中…</div>';
+    preview.innerHTML = '<div style="font-size:13px;color:var(--muted,#81717A);">解析中…</div>';
     var isXlsx = /\.xlsx$|\.xls$/i.test(file.name);
     if (isXlsx) {
       if (!window.XLSX) {
@@ -602,15 +602,15 @@
       return;
     }
     preview.innerHTML =
-      '<div style="font-size:14px;color:var(--text,#604C57);margin-bottom:6px;">解析出 <b>' + IMP.orders.length + '</b> 笔订单、共 ' +
+      '<div style="font-size:14px;color:var(--text,#62545B);margin-bottom:6px;">解析出 <b>' + IMP.orders.length + '</b> 笔订单、共 ' +
         IMP.orders.reduce(function (a, o) { return a + o.items.length; }, 0) + ' 件商品' +
         (IMP.warnings.length ? '，<span style="color:var(--warning,#E0A458);">' + IMP.warnings.length + ' 行有警告（已跳过）</span>' : '') + '</div>' +
       (IMP.warnings.length ? '<div style="font-size:12px;color:var(--warning,#E0A458);max-height:80px;overflow-y:auto;margin-bottom:8px;">' + IMP.warnings.map(function (w) { return '第 ' + w.line + ' 行：' + escHtml(w.msg); }).join('<br>') + '</div>' : '') +
       '<div style="border:1px solid var(--accent-soft,#FCE4EC);border-radius:12px;overflow:hidden;">' +
         IMP.orders.map(function (o) {
           return '<div style="display:flex;gap:10px;padding:8px 12px;border-bottom:1px solid var(--accent-soft,#FCE4EC);font-size:13px;flex-wrap:wrap;align-items:center;">' +
-            '<b style="color:var(--text,#604C57);min-width:90px;">' + escHtml(o.src_no) + '</b>' +
-            '<span style="flex:1;color:var(--muted,#A88E9B);">' + escHtml(o.buyer.name || o.buyer.email || '—') + ' · ' + o.items.length + ' 件</span>' +
+            '<b style="color:var(--text,#62545B);min-width:90px;">' + escHtml(o.src_no) + '</b>' +
+            '<span style="flex:1;color:var(--muted,#81717A);">' + escHtml(o.buyer.name || o.buyer.email || '—') + ' · ' + o.items.length + ' 件</span>' +
             '<b style="color:var(--price,#ff6fa5);">' + money(o.amounts.total) + '</b></div>';
         }).join('') +
       '</div>';
@@ -671,9 +671,9 @@
       var items = arr(o.items);
       return '<div style="display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--accent-soft,#FCE4EC);flex-wrap:wrap;">' +
         '<div style="min-width:140px;"><b style="color:var(--price,#ff6fa5);font-size:15px;">' + escHtml(o.order_no) + '</b>' +
-          '<div style="font-size:12px;color:var(--muted,#A88E9B);">' + fmtDT(o.created_at) + '</div></div>' +
-        '<div style="flex:1;min-width:140px;font-size:14px;color:var(--text,#604C57);">' + escHtml((o.address && o.address.name) || o.email || '—') +
-          '<span style="color:var(--muted,#A88E9B);font-size:12px;"> · ' + (ORDER_STATUS[o.status] || o.status) + '</span>' +
+          '<div style="font-size:12px;color:var(--muted,#81717A);">' + fmtDT(o.created_at) + '</div></div>' +
+        '<div style="flex:1;min-width:140px;font-size:14px;color:var(--text,#62545B);">' + escHtml((o.address && o.address.name) || o.email || '—') +
+          '<span style="color:var(--muted,#81717A);font-size:12px;"> · ' + (ORDER_STATUS[o.status] || o.status) + '</span>' +
           (o.order_source === 'import' ? '<span style="color:var(--warning,#E0A458);font-size:12px;"> · 导入</span>' : '') + '</div>' +
         '<div style="font-size:15px;font-weight:700;color:var(--price,#ff6fa5);">' + money(o.total) + '</div>' +
         '<button class="btn-mini" data-open="' + i + '">审核</button></div>';
@@ -692,19 +692,19 @@
       '<div class="card" style="padding:16px 20px;">' +
         '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;">' +
           '<button class="btn-mini" id="rv-prev"' + (WB.reviewIdx <= 0 ? ' disabled style="opacity:.55;"' : '') + '>‹ 上一单</button>' +
-          '<span style="font-size:13px;color:var(--muted,#A88E9B);">第 ' + (WB.reviewIdx + 1) + ' / ' + list.length + ' 笔</span>' +
+          '<span style="font-size:13px;color:var(--muted,#81717A);">第 ' + (WB.reviewIdx + 1) + ' / ' + list.length + ' 笔</span>' +
           '<button class="btn-mini" id="rv-next"' + (WB.reviewIdx >= list.length - 1 ? ' disabled style="opacity:.55;"' : '') + '>下一单 ›</button>' +
           '<button class="btn-mini" id="rv-back" style="margin-left:auto;">返回列表</button>' +
         '</div>' +
-        '<h3 style="margin:0 0 4px;font-size:17px;color:var(--text,#604C57);"><span style="color:var(--price,#ff6fa5);">' + escHtml(o.order_no) + '</span> · ' + (ORDER_STATUS[o.status] || escHtml(o.status)) + '</h3>' +
-        '<div style="font-size:13px;color:var(--muted,#A88E9B);margin-bottom:10px;">' + fmtDT(o.created_at) + ' · 来源：' + escHtml(o.order_source || '线上') + ' · ' + escHtml(o.email || '—') + '</div>' +
+        '<h3 style="margin:0 0 4px;font-size:17px;color:var(--text,#62545B);"><span style="color:var(--price,#ff6fa5);">' + escHtml(o.order_no) + '</span> · ' + (ORDER_STATUS[o.status] || escHtml(o.status)) + '</h3>' +
+        '<div style="font-size:13px;color:var(--muted,#81717A);margin-bottom:10px;">' + fmtDT(o.created_at) + ' · 来源：' + escHtml(o.order_source || '线上') + ' · ' + escHtml(o.email || '—') + '</div>' +
         '<div style="border:1px solid var(--accent-soft,#FCE4EC);border-radius:12px;overflow:hidden;margin-bottom:12px;">' +
           items.map(function (it) {
             return '<div style="display:flex;gap:10px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--accent-soft,#FCE4EC);">' +
               (it.image ? '<img src="' + escAttr(it.image) + '" style="width:56px;height:56px;object-fit:cover;border-radius:10px;" onerror="this.style.display=\'none\'">' : '') +
-              '<div style="flex:1;min-width:0;"><div style="font-size:14px;color:var(--text,#604C57);">' + escHtml(it.name) + (it.spec ? ' <span style="color:var(--muted,#A88E9B);font-size:12px;">(' + escHtml(it.spec) + ')</span>' : '') + '</div>' +
-                (it.note ? '<div style="font-size:12px;color:var(--muted,#A88E9B);">' + escHtml(it.note) + '</div>' : '') + '</div>' +
-              '<span style="font-size:13px;color:var(--muted,#A88E9B);">×' + (it.qty || 1) + '</span>' +
+              '<div style="flex:1;min-width:0;"><div style="font-size:14px;color:var(--text,#62545B);">' + escHtml(it.name) + (it.spec ? ' <span style="color:var(--muted,#81717A);font-size:12px;">(' + escHtml(it.spec) + ')</span>' : '') + '</div>' +
+                (it.note ? '<div style="font-size:12px;color:var(--muted,#81717A);">' + escHtml(it.note) + '</div>' : '') + '</div>' +
+              '<span style="font-size:13px;color:var(--muted,#81717A);">×' + (it.qty || 1) + '</span>' +
               '<b style="color:var(--price,#ff6fa5);font-size:14px;">' + money(num(it.price) * num(it.qty || 1)) + '</b></div>';
           }).join('') +
         '</div>' +
@@ -714,14 +714,14 @@
           '<div>运费 <b>' + money(num(o.shipping_actual) || num(o.shipping_est) || 0) + '</b></div>' +
           '<div>应付 <b style="color:var(--price,#ff6fa5);">' + money(o.total) + '</b></div>' +
         '</div>' +
-        '<div style="font-size:13px;color:var(--muted,#A88E9B);margin-bottom:6px;">地址：' + escHtml([addr.line1, addr.line2, addr.city, addr.state, addr.zip, addr.country].filter(Boolean).join(', ') || '—') + (addr.phone ? ' · ' + escHtml(addr.phone) : '') + '</div>' +
-        (o.note ? '<div style="font-size:13px;color:var(--text,#604C57);background:var(--bg,#FFF8FA);border-radius:10px;padding:8px 12px;margin-bottom:6px;">客户备注：' + escHtml(o.note) + '</div>' : '') +
-        (o.admin_note ? '<div style="font-size:13px;color:var(--text,#604C57);background:var(--bg,#FFF8FA);border-radius:10px;padding:8px 12px;margin-bottom:6px;">内部备注：' + escHtml(o.admin_note) + '</div>' : '') +
-        '<div style="font-size:14px;font-weight:600;color:var(--text,#604C57);margin:14px 0 6px;">付款记录（定金/尾款/分期/退款）</div>' +
-        '<div id="rv-pays" style="margin-bottom:8px;"><div style="font-size:13px;color:var(--muted,#A88E9B);">加载中…</div></div>' +
+        '<div style="font-size:13px;color:var(--muted,#81717A);margin-bottom:6px;">地址：' + escHtml([addr.line1, addr.line2, addr.city, addr.state, addr.zip, addr.country].filter(Boolean).join(', ') || '—') + (addr.phone ? ' · ' + escHtml(addr.phone) : '') + '</div>' +
+        (o.note ? '<div style="font-size:13px;color:var(--text,#62545B);background:var(--bg,#FFF8FA);border-radius:10px;padding:8px 12px;margin-bottom:6px;">客户备注：' + escHtml(o.note) + '</div>' : '') +
+        (o.admin_note ? '<div style="font-size:13px;color:var(--text,#62545B);background:var(--bg,#FFF8FA);border-radius:10px;padding:8px 12px;margin-bottom:6px;">内部备注：' + escHtml(o.admin_note) + '</div>' : '') +
+        '<div style="font-size:14px;font-weight:600;color:var(--text,#62545B);margin:14px 0 6px;">付款记录（定金/尾款/分期/退款）</div>' +
+        '<div id="rv-pays" style="margin-bottom:8px;"><div style="font-size:13px;color:var(--muted,#81717A);">加载中…</div></div>' +
         '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">' +
           '<button class="btn-mini" id="rv-add-pay">＋ 记一笔</button>' +
-          '<span id="rv-pay-sum" style="font-size:14px;color:var(--text,#604C57);"></span>' +
+          '<span id="rv-pay-sum" style="font-size:14px;color:var(--text,#62545B);"></span>' +
         '</div>' +
       '</div>';
     body.querySelector('#rv-prev').addEventListener('click', function () { if (WB.reviewIdx > 0) { WB.reviewIdx--; renderOrders(); } });
@@ -744,10 +744,10 @@
             return '<div style="display:flex;gap:8px;align-items:center;padding:6px 0;font-size:14px;border-bottom:1px dashed var(--accent-soft,#FCE4EC);flex-wrap:wrap;">' +
               '<span class="chip on" style="pointer-events:none;">' + (PAY_KIND[p.kind] || p.kind) + '</span>' +
               '<b style="color:' + (p.kind === 'refund' ? 'var(--danger,#D96570)' : 'var(--price,#ff6fa5)') + ';">' + (p.kind === 'refund' ? '−' : '') + money(p.amount) + '</b>' +
-              '<span style="color:var(--muted,#A88E9B);font-size:13px;">' + (PAY_METHOD[p.method] || p.method) + (p.txn_ref ? ' · ' + escHtml(p.txn_ref) : '') + (p.paid_at ? ' · ' + escHtml(p.paid_at) : '') + '</span>' +
+              '<span style="color:var(--muted,#81717A);font-size:13px;">' + (PAY_METHOD[p.method] || p.method) + (p.txn_ref ? ' · ' + escHtml(p.txn_ref) : '') + (p.paid_at ? ' · ' + escHtml(p.paid_at) : '') + '</span>' +
               '<button class="btn-mini" data-pdel="' + p.id + '" style="margin-left:auto;">删除</button></div>';
           }).join('')
-        : '<div style="font-size:13px;color:var(--muted,#A88E9B);">还没有付款记录。</div>';
+        : '<div style="font-size:13px;color:var(--muted,#81717A);">还没有付款记录。</div>';
       var sumEl = document.getElementById('rv-pay-sum');
       if (sumEl) sumEl.innerHTML = '已收 <b style="color:var(--price,#ff6fa5);">' + money(paid) + '</b> · 退款 <b style="color:var(--danger,#D96570);">' + money(refund) + '</b> · 欠款 <b style="color:' + (outstanding > 0.005 ? 'var(--warning,#E0A458)' : 'var(--success,#5FA777)') + ';">' + money(outstanding) + '</b>';
       box.querySelectorAll('[data-pdel]').forEach(function (b) {
@@ -775,7 +775,7 @@
     mask.innerHTML =
       '<div style="position:fixed;inset:0;background:rgba(96,76,87,.35);z-index:999;display:flex;align-items:center;justify-content:center;padding:16px;">' +
         '<div class="card" style="max-width:480px;width:100%;padding:18px 22px;">' +
-          '<h3 style="margin:0 0 10px;font-size:16px;color:var(--text,#604C57);">记一笔 · ' + escHtml(o.order_no) + '</h3>' +
+          '<h3 style="margin:0 0 10px;font-size:16px;color:var(--text,#62545B);">记一笔 · ' + escHtml(o.order_no) + '</h3>' +
           '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;" id="pk-chips">' + kindChips + '</div>' +
           '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;" id="pm-chips">' + methodChips + '</div>' +
           '<input id="np-amount" type="number" step="0.01" placeholder="金额 $（必填）" style="' + wbInputCss() + 'margin-bottom:8px;">' +

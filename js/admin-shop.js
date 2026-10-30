@@ -15,19 +15,19 @@
   css.textContent = [
     '#tab-shopmgr .sm-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:14px; }',
     '#tab-shopmgr .sm-stat { background:#fff; border-radius:var(--radius); padding:10px 14px; box-shadow:0 2px 10px rgba(180,120,150,.12); }',
-    '#tab-shopmgr .sm-stat b { display:block; font-size:23px; color:var(--text,#604C57); line-height:1.3; }',
+    '#tab-shopmgr .sm-stat b { display:block; font-size:23px; color:var(--text,#62545B); line-height:1.3; }',
     '#tab-shopmgr .sm-stat span { font-size:14px; color:var(--muted); }',
     '#tab-shopmgr .sm-tabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; }',
     '#tab-shopmgr .sm-tab { border:none; background:var(--card); color:var(--muted); font-size:16px; padding:7px 14px; border-radius:999px; cursor:pointer; font-family:inherit; transition:background .15s,color .15s; }',
     '#tab-shopmgr .sm-tab:hover { background:var(--card-hover); }',
-    '#tab-shopmgr .sm-tab.active { background:var(--accent-soft,#FCE4EC); color:var(--text,#604C57); }',
+    '#tab-shopmgr .sm-tab.active { background:var(--accent-soft,#FCE4EC); color:var(--text,#62545B); }',
     '#tab-shopmgr .sm-toolbar { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:12px; }',
     '#tab-shopmgr .sm-toolbar .dy-chips { flex:1; min-width:260px; }',
     '#tab-shopmgr .sm-toolbar input { width:230px; flex-shrink:0; }',
     '#tab-shopmgr .sm-o-head { display:flex; align-items:center; gap:8px; flex-wrap:wrap; cursor:pointer; }',
     '#tab-shopmgr .sm-o-no { font-weight:700; color:var(--text); }',
     '#tab-shopmgr .sm-o-mail { font-size:15px; color:var(--muted); word-break:break-all; }',
-    '#tab-shopmgr .sm-o-total { color:var(--text,#604C57); font-weight:600; }',
+    '#tab-shopmgr .sm-o-total { color:var(--text,#62545B); font-weight:600; }',
     '#tab-shopmgr .sm-o-time, #tab-shopmgr .sm-o-cnt { font-size:15px; color:var(--muted); }',
     '#tab-shopmgr .sm-o-arrow { margin-left:auto; color:var(--muted); transition:transform .15s; }',
     '#tab-shopmgr .sm-order.open .sm-o-arrow { transform:rotate(90deg); }',
@@ -42,13 +42,13 @@
     '#tab-shopmgr .sm-act-v { display:block; }',
     '#tab-shopmgr .sm-act-v .sm-vrow { margin-bottom:12px; }',
     '#tab-shopmgr .sm-act-v .sm-vrow:last-child { margin-bottom:0; }',
-    '#tab-shopmgr .sm-vlabel { display:block; font-size:13px; color:var(--muted,#A88E9B); margin-bottom:5px; }',
+    '#tab-shopmgr .sm-vlabel { display:block; font-size:13px; color:var(--muted,#81717A); margin-bottom:5px; }',
     '#tab-shopmgr .sm-act-v input { width:100%; box-sizing:border-box; margin-top:0; }',
     '#tab-shopmgr .sm-vfee-row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; background:#fff; border:1.5px solid var(--accent-soft,#FCE4EC); border-radius:12px; padding:12px; }',
     '#tab-shopmgr .sm-vfee-row input { flex:1; min-width:140px; margin:0; }',
     '#tab-shopmgr .sm-vfee-row .sm-total-prev { font-size:15px; color:var(--muted); flex-shrink:0; }',
     '#tab-shopmgr .mo-item { background:#fff; border:1.5px solid var(--accent-soft,#FCE4EC); border-radius:14px; padding:14px; margin-bottom:12px; }',
-    '#tab-shopmgr .mo-flabel { display:block; font-size:13px; color:var(--muted,#A88E9B); margin-bottom:5px; }',
+    '#tab-shopmgr .mo-flabel { display:block; font-size:13px; color:var(--muted,#81717A); margin-bottom:5px; }',
     '#tab-shopmgr .mo-item input { width:100%; box-sizing:border-box; padding:10px 12px; font-size:15px; border:1.5px solid var(--accent-soft,#FCE4EC); border-radius:10px; background:#fff; color:var(--text); font-family:inherit; outline:none; }',
     '#tab-shopmgr .mo-sum-box { background:var(--card,#FFF0F5); border-radius:14px; padding:14px 16px; margin-bottom:12px; }',
     '#tab-shopmgr .mo-sum-row { display:flex; justify-content:space-between; font-size:16px; color:var(--text); padding:4px 0; }',
@@ -57,7 +57,7 @@
     '#tab-shopmgr .mo-sum-total b { font-size:22px; font-weight:800; color:var(--price,#ff6fa5); }',
     /* 手动开单：四个分区（默认展开）+ 高级选项（默认折叠）*/ 
     '#mo-form .mo-sec { border:1.5px solid var(--accent-soft,#FCE1EA); border-radius:14px; margin-bottom:10px; background:#fff; overflow:hidden; }',
-    '#mo-form .mo-sec > summary { cursor:pointer; list-style:none; display:flex; align-items:center; gap:9px; padding:11px 14px; font-size:16px; font-weight:700; color:var(--text,#604C57); background:var(--card,#FFF8FA); user-select:none; }',
+    '#mo-form .mo-sec > summary { cursor:pointer; list-style:none; display:flex; align-items:center; gap:9px; padding:11px 14px; font-size:16px; font-weight:700; color:var(--text,#62545B); background:var(--card,#FFF8FA); user-select:none; }',
     '#mo-form .mo-sec > summary::-webkit-details-marker { display:none; }',
     '#mo-form .mo-sec > summary::after { content:"▾"; margin-left:auto; color:#A98D96; font-size:13px; transition:transform .2s; }',
     '#mo-form .mo-sec[open] > summary::after { transform:rotate(180deg); }',
@@ -72,7 +72,7 @@
     '#tab-shopmgr .sm-act input, #tab-shopmgr .sm-act textarea { flex:1; min-width:120px; width:auto; }',
     '#tab-shopmgr .sm-act .sm-reject-reason { min-width:190px; }',
     '#tab-shopmgr .sm-act textarea { min-height:44px; }',
-    '#tab-shopmgr .sm-total-prev { color:var(--text,#604C57); font-size:15px; white-space:nowrap; }',
+    '#tab-shopmgr .sm-total-prev { color:var(--text,#62545B); font-size:15px; white-space:nowrap; }',
     '#tab-shopmgr .sm-g-top { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }',
     '#tab-shopmgr .sm-g-meta { font-size:15px; color:var(--muted); margin-top:4px; }',
     '#tab-shopmgr .sm-mb-row { font-size:16px; padding:5px 0; border-bottom:1px dashed var(--card-hover); }',
@@ -84,7 +84,7 @@
     '#tab-shopmgr .sm-b-mail:last-child { border-bottom:none; }',
     '#tab-shopmgr .sm-var-row, #tab-shop .sm-var-row { background:#fff; border-radius:14px; padding:14px; margin-bottom:12px; box-shadow:0 2px 10px rgba(180,120,150,.10); }',
     '#tab-shopmgr .sm-var-grid, #tab-shop .sm-var-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }',
-    '#tab-shopmgr .sm-var-grid label, #tab-shop .sm-var-grid label { display:block; font-size:13px; color:var(--muted,#A88E9B); margin-bottom:5px; line-height:1.4; }',
+    '#tab-shopmgr .sm-var-grid label, #tab-shop .sm-var-grid label { display:block; font-size:13px; color:var(--muted,#81717A); margin-bottom:5px; line-height:1.4; }',
     '#tab-shopmgr .sm-var-grid input, #tab-shop .sm-var-grid input { width:100%; box-sizing:border-box; padding:10px 12px; font-size:15px; border:1.5px solid var(--accent-soft,#FCE4EC); border-radius:10px; background:#fff; outline:none; color:var(--text); font-family:inherit; }',
     '#tab-shopmgr .sm-var-grid input:focus, #tab-shop .sm-var-grid input:focus { border-color:var(--card-hover,#FCE4EC); }',
     '#tab-shopmgr .sm-var-imgs, #tab-shop .sm-var-imgs { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:12px; }',
@@ -323,7 +323,7 @@
   function itemEditRow(it) {
     it = it || {};
     return '<div class="sm-ie-row" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;background:var(--card,#FFF0F5);border-radius:10px;padding:6px 8px;margin-bottom:6px;">' +
-      '<select class="sm-ie-prod" style="flex:1;min-width:170px;max-width:280px;border:1.5px solid var(--accent-soft,#FCE4EC);border-radius:10px;padding:6px 8px;font-family:inherit;font-size:14px;background:#fff;color:var(--text,#604C57);">' + ieProdOpts(it.name) + '</select>' +
+      '<select class="sm-ie-prod" style="flex:1;min-width:170px;max-width:280px;border:1.5px solid var(--accent-soft,#FCE4EC);border-radius:10px;padding:6px 8px;font-family:inherit;font-size:14px;background:#fff;color:var(--text,#62545B);">' + ieProdOpts(it.name) + '</select>' +
       '<label style="font-size:13px;color:var(--muted);">单价 $<input class="sm-ie-price" type="number" step="0.01" min="0" value="' + escAttr(it.price != null ? it.price : '') + '" style="width:74px;border:1.5px solid var(--accent-soft,#FCE4EC);border-radius:8px;padding:4px 6px;font-family:inherit;font-size:14px;"></label>' +
       '<label style="font-size:13px;color:var(--muted);">×<input class="sm-ie-qty" type="number" min="1" step="1" value="' + (it.qty || 1) + '" style="width:52px;border:1.5px solid var(--accent-soft,#FCE4EC);border-radius:8px;padding:4px 6px;font-family:inherit;font-size:14px;"></label>' +
       '<span class="sm-ie-line" style="font-size:14px;min-width:64px;text-align:right;color:var(--price,#ff6fa5);"></span>' +
@@ -431,7 +431,7 @@
             out += '<div class="sm-line"><span class="lbl">付款进度</span>' +
               '<button type="button" class="chip sm-pflag' + (hasDep ? ' on' : '') + '" data-kind="deposit">定金' + (hasDep ? ' ✓' : '') + '</button> ' +
               '<button type="button" class="chip sm-pflag' + (hasFin ? ' on' : '') + '" data-kind="final">尾款' + (hasFin ? ' ✓' : '') + '</button>' +
-              '<span style="font-size:12px;color:var(--muted,#A88E9B);margin-left:6px;">' + (hasDep || hasFin ? '点已勾的可撤销' : '点未勾的记一笔') + '</span></div>';
+              '<span style="font-size:12px;color:var(--muted,#81717A);margin-left:6px;">' + (hasDep || hasFin ? '点已勾的可撤销' : '点未勾的记一笔') + '</span></div>';
           }
           if (!dead) { // 多次收款：订金/尾款/分期分笔记录（人工收款，走 shop_pay_record_add RPC，幂等）
             out += '<div class="sm-act"><button type="button" class="btn-mini sm-recpay-toggle">＋ 记录收款</button>' +
@@ -490,10 +490,10 @@
     }
     return '<div class="card sm-order' + (open ? ' open' : '') + '" data-id="' + escAttr(o.id) + '">' +
       '<div class="sm-o-head">' +
-      '<span class="ck-box sm-osel' + (SM.osel[o.id] ? ' on' : '') + '" data-id="' + escAttr(o.id) + '" style="width:18px;height:18px;border-radius:6px;border:2px solid var(--border,#FFD9E6);flex-shrink:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;line-height:1;color:var(--text,#604C57);background:' + (SM.osel[o.id] ? 'var(--accent-soft,#FCE4EC)' : '#fff') + '">' + (SM.osel[o.id] ? '<svg viewBox=\"0 0 16 16\" width=\"11\" height=\"11\" style=\"display:block;\"><path d=\"M3.2 8.6 L6.6 11.8 L12.8 4.6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>' : '') + '</span>' +
+      '<span class="ck-box sm-osel' + (SM.osel[o.id] ? ' on' : '') + '" data-id="' + escAttr(o.id) + '" style="width:18px;height:18px;border-radius:6px;border:2px solid var(--border,#FFD9E6);flex-shrink:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;line-height:1;color:var(--text,#62545B);background:' + (SM.osel[o.id] ? 'var(--accent-soft,#FCE4EC)' : '#fff') + '">' + (SM.osel[o.id] ? '<svg viewBox=\"0 0 16 16\" width=\"11\" height=\"11\" style=\"display:block;\"><path d=\"M3.2 8.6 L6.6 11.8 L12.8 4.6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>' : '') + '</span>' +
       '<span class="sm-o-no">' + esc(o.order_no || '') + '</span>' +
       '<span class="sold-badge" style="background:' + st[1] + ';">' + esc(dead ? (st[0] + ' · 无需发货') : st[0]) + '</span>' +
-      '<span class="sold-badge" style="background:#fff;border:1.5px solid var(--accent-soft,#FCE4EC);color:var(--muted,#A88E9B);">付款：' + esc(payL) + '</span>' +
+      '<span class="sold-badge" style="background:#fff;border:1.5px solid var(--accent-soft,#FCE4EC);color:var(--muted,#81717A);">付款：' + esc(payL) + '</span>' +
       '<span class="sm-o-mail">' + esc(o.email || '') + '</span>' +
       ((o.note || o.coupon_code) ? '<span class="sm-o-cnt" title="' + escAttr((o.note ? '备注：' + o.note : '') + (o.coupon_code ? (o.note ? '；' : '') + '优惠码：' + o.coupon_code : '')) + '">' + (o.note ? '' : '') + (o.coupon_code ? '' : '') + '</span>' : '') +
       '<span class="sm-o-cnt">' + arr(o.items).length + ' 件</span>' +
@@ -1602,10 +1602,10 @@
       '</div>' +
       (it.custom ? '<div class="mo-photo-row" style="margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">' +
         '<span class="mo-flabel">商品照片（可留空）</span>' +
-        '<span class="mo-img-prev">' + (it.imgUrl ? '<img src="' + escAttr(it.imgUrl) + '" style="width:46px;height:46px;object-fit:cover;border-radius:10px;border:1px solid #FFD9E6;vertical-align:middle;">' : (it.imgPrev ? '<img src="' + escAttr(it.imgPrev) + '" style="width:46px;height:46px;object-fit:cover;border-radius:10px;border:1px dashed #F3C9D8;vertical-align:middle;">' : '<span style="font-size:13px;color:var(--muted,#A88E9B);">未选择</span>')) + '</span>' +
+        '<span class="mo-img-prev">' + (it.imgUrl ? '<img src="' + escAttr(it.imgUrl) + '" style="width:46px;height:46px;object-fit:cover;border-radius:10px;border:1px solid #FFD9E6;vertical-align:middle;">' : (it.imgPrev ? '<img src="' + escAttr(it.imgPrev) + '" style="width:46px;height:46px;object-fit:cover;border-radius:10px;border:1px dashed #F3C9D8;vertical-align:middle;">' : '<span style="font-size:13px;color:var(--muted,#81717A);">未选择</span>')) + '</span>' +
         '<label class="sel-btn" style="cursor:pointer;">' + (it.imgUrl || it.imgPrev ? '替换照片' : '选择照片') + '<input type="file" accept="image/*" class="mo-img" data-i="' + i + '" hidden></label>' +
         (it.imgUrl || it.imgPrev ? '<button type="button" class="btn-del mo-img-del" data-i="' + i + '" style="padding:5px 14px;font-size:14px;">删除照片</button>' : '') +
-        (it.imgUp ? '<span style="font-size:13px;color:var(--muted,#A88E9B);">上传中…</span>' : '') +
+        (it.imgUp ? '<span style="font-size:13px;color:var(--muted,#81717A);">上传中…</span>' : '') +
       '</div>' : '') +
       '</div>';
   }
@@ -1884,7 +1884,7 @@
       '<input class="mo-note" placeholder="买家备注（可空）" style="width:100%;box-sizing:border-box;">' +
       '<details class="mo-adv"><summary>高级选项（订单时间 / 状态 / 货币 / 内部备注）</summary>' +
       '<div class="form-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">' +
-      '<input class="mo-no" value="" readonly placeholder="订单编号：保存时自动生成" style="color:var(--muted,#A88E9B);background:#FFF8FA;">' +
+      '<input class="mo-no" value="" readonly placeholder="订单编号：保存时自动生成" style="color:var(--muted,#81717A);background:#FFF8FA;">' +
       '<input class="mo-time" type="datetime-local" value="' + local + '">' +
       '<button type="button" class="sel-btn mo-status" data-v="pending"><span class="pick-btn-label">状态：待付款</span></button>' +
       '<button type="button" class="sel-btn mo-cur" data-v="USD"><span class="pick-btn-label">货币：USD</span></button>' +

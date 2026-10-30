@@ -520,6 +520,9 @@ if (document.getElementById('share-pop')) {
 }
 
 // ===== 中英双语切换 =====
+/* 她 20261030 §2：用户原始内容彻底不译——留言墙、提问与回复、任何标了 data-raw 的节点。
+   命中这个选择器范围内的文字节点与属性一概不碰，即便用户写的字刚好和界面词典里的词一样。 */
+var YK_RAW_SEL = '#qa-list, .qa, .qa-q, .qa-reply, .qa-meta, [data-raw], [data-no-translate]';
 var LANG = (window.YK && window.YK.lang) || 'en'; // 语言由 URL 路径决定（/zh/ = 中文，根路径 = 英文）
 try { history.scrollRestoration = 'manual'; } catch (err) {} // 刷新/切语言/logo 回主页都从页面顶部开始，不恢复上次滚动位置
 try { LANG = (window.YK && window.YK.lang) || localStorage.getItem('yuki-lang') || 'en'; } catch (err) {}
@@ -657,6 +660,8 @@ function ykTranslateAttrs(lang) {
   if (lang !== 'en') return;
   var d = ykEnDict();
   document.querySelectorAll('[aria-label],[title],[placeholder],[alt]').forEach(function (el) {
+    /* 她 20261030 §2：用户原始内容（留言墙等）一律不动，连属性也不碰 */
+    if (el.closest && el.closest(YK_RAW_SEL)) return;
     ['aria-label', 'title', 'placeholder', 'alt'].forEach(function (a) {
       var v = el.getAttribute(a);
       if (!v) return;
@@ -698,6 +703,8 @@ function applyLang(lang) {
   while (walker.nextNode()) nodes.push(walker.currentNode);
   nodes.forEach(function (n) {
     if (!n.parentElement || n.parentElement.closest('[data-zh], figcaption, script, style')) return;
+    /* 她 20261030 §2：留言墙等用户原始内容禁止翻译、禁止改写——即便用户写的字刚好和界面词典撞上也不动 */
+    if (n.parentElement.closest(YK_RAW_SEL)) return;
     var txt = n.nodeValue;
     var trimmed = txt.trim();
     if (trimmed && dict[trimmed] !== undefined) {
