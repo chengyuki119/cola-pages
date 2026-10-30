@@ -20,17 +20,17 @@
     <link rel="preload" href="/fonts/Millo-RiceSoyMilk80.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/fonts/Millo-RiceSoyMilk90.woff2" as="font" type="font/woff2" crossorigin>
 <meta charset="UTF-8">
-  <script src="/js/lang-path.js?v=20261031c"></script>
+  <script src="/js/lang-path.js?v=20261031h"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Photo Gallery · Yuki / 柚子</title>
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" sizes="180x180" href="/icon-yuki2-180.png">
 <link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki2-180.png">
 <meta name="apple-mobile-web-app-title" content="小柚的小世界">
-<link rel="stylesheet" href="/css/site.css?v=20261031c">
-  <link rel="stylesheet" href="/site-menu.css?v=20261031c">
+<link rel="stylesheet" href="/css/site.css?v=20261031h">
+  <link rel="stylesheet" href="/site-menu.css?v=20261031h">
     <script src="/site-menu.js" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261031c">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261031h">
 </head>
 <body>
 
@@ -56,7 +56,7 @@
 
 <div class="page active" id="page-photos">
 <div class="subpage-header">
-    <h1 class="subpage-title" data-zh="Photo Gallery" data-en="Photo Gallery">Photo Gallery</h1>
+    <h1 class="subpage-title" data-zh="照片墙" data-en="Photo Gallery">照片墙</h1>
     <p class="subpage-sub" data-zh="点开可全屏查看，可自行选择是否下载原图" data-en="Tap to view full screen · Optional download">点开可全屏查看，可自行选择是否下载原图</p>
   </div>
   <a class="back-link page-back" href="/" style="margin:8px 0 24px 2px;"><span data-zh="← 返回主页" data-en="← Back to Home">← 返回主页</span></a>
@@ -187,7 +187,7 @@
 
 
 <div class="toast" id="toast"></div>
-<script src="/js/site-common.js?v=20261031c"></script>
+<script src="/js/site-common.js?v=20261031h"></script>
 <script>
   // 照片展示门禁：登录后可见（任意登录账号；未登录显示粉色提示卡并停载所有数据）
   window.YK_PHOTOS_GATE = (window.ykGatePage ? ykGatePage('photos') : Promise.resolve(true));
@@ -358,7 +358,7 @@
   if (window.SiteMenu) SiteMenu.notify('gallery');
   applyLang(LANG);
 </script>
-<script src="/js/site-footer.js?v=20261031c"></script>
+<script src="/js/site-footer.js?v=20261031h"></script>
 <script>
   // 统一 Footer（已有 <footer> 则替换其内容，不新建第二个）
   function initSiteFooter() { renderSiteFooter(); }

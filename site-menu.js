@@ -22,7 +22,7 @@
     ]},
     { key: 'bjd', zh: 'BJD', en: 'BJD', page: 'bjd', url: '/bjd/' },
     { key: 'cards', zh: '色卡', en: 'Color Cards', page: 'cards', url: '/color-card/' },
-    { key: 'works', zh: '稿件展示', en: 'Works', page: 'works', url: '/works/' },
+    { key: 'works', zh: '稿件展示', en: 'Commissions', page: 'works', url: '/works/' },
     { key: 'shop', group: true, nav: 'shop', zh: '我的小铺', en: 'My Shop', items: [
       { key: 'shop', zh: '逛小铺', en: 'Shop', page: 'shop', url: '/shop/' },
       { key: 'reviews', zh: '评价返图', en: 'Review', page: 'shop', url: '/shop/?sec=reviews', sec: 'reviews' }

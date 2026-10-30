@@ -4,7 +4,7 @@
     <link rel="preload" href="/fonts/Millo-RiceSoyMilk80.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/fonts/Millo-RiceSoyMilk90.woff2" as="font" type="font/woff2" crossorigin>
 <meta charset="UTF-8">
-  <script src="/js/lang-path.js?v=20261031c"></script>
+  <script src="/js/lang-path.js?v=20261031h"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>小柚的小铺 · Yuki's Shop</title>
 <link rel="manifest" href="/manifest.json">
@@ -337,11 +337,11 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
   .keycap-notes-wrap .pol-card p { margin: 0 0 10px; }
   .keycap-notes-wrap .pol-card p:last-child { margin-bottom: 0; }
 </style>
-  <link rel="stylesheet" href="/site-menu.css?v=20261031c">
-  <script src="/js/site-common.js?v=20261031c"></script>
-  <script src="/js/policy-content.js?v=20261031c"></script>
-  <script src="/site-menu.js?v=20261031c" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261031c">
+  <link rel="stylesheet" href="/site-menu.css?v=20261031h">
+  <script src="/js/site-common.js?v=20261031h"></script>
+  <script src="/js/policy-content.js?v=20261031h"></script>
+  <script src="/site-menu.js?v=20261031h" defer></script>
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261031h">
 </head>
 <body>
 <header class="topbar">
@@ -475,9 +475,12 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     document.querySelectorAll('.lang-btn').forEach(function (b) {
       b.classList.toggle('active', b.getAttribute('data-lang') === lang);
     });
-    document.querySelectorAll('[data-zh][data-en]').forEach(function (node) {
-      node.textContent = lang === 'en' ? node.getAttribute('data-en') : node.getAttribute('data-zh');
+    document.querySelectorAll('[data-zh],[data-en]').forEach(function (node) {
+      var _tx = (lang === 'en') ? (node.getAttribute('data-en') || node.getAttribute('data-zh')) : node.getAttribute('data-zh');
+      if (_tx != null) node.textContent = _tx;
     });
+    // 无障碍/提示属性跟随语言（她 20261031 §1；本页有自己的 applyLang，要手动调一次）
+    if (typeof ykTranslateAttrs === 'function') ykTranslateAttrs(lang);
     document.querySelectorAll('[data-ph-zh]').forEach(function (node) {
       node.placeholder = lang === 'en' ? node.getAttribute('data-ph-en') : node.getAttribute('data-ph-zh');
     });
@@ -840,8 +843,8 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     }, 300);
   }
 </script>
-<script src="/js/shop-app.js?v=20261031c"></script>
-<script src="/js/site-footer.js?v=20261031c"></script>
+<script src="/js/shop-app.js?v=20261031h"></script>
+<script src="/js/site-footer.js?v=20261031h"></script>
 <script>
   // 统一 Footer（已有 <footer> 则替换其内容，不新建第二个）
   function initSiteFooter() { renderSiteFooter(); }

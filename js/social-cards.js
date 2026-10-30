@@ -17,6 +17,23 @@
     link: '<svg viewBox="0 0 24 24" fill="none" stroke="var(--muted,#A88E9B)" stroke-width="2"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1.5 1.5"/><path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7L12.5 19"/></svg>'
   };
 
+  /* ── 品牌 Logo（她 20261031 §7）：官方图形 + 官方品牌色，统一 20px，名称左侧
+     Footer 与 About（本文件 text 模式）共用同一套；不用 Emoji、不用自创图案 ── */
+  var BRAND_ICONS = {
+    discord: '<svg viewBox="0 0 24 24" fill="#5865F2"><path d="M20.32 4.37a19.8 19.8 0 0 0-4.89-1.52.07.07 0 0 0-.08.04c-.21.38-.44.87-.6 1.25a18.3 18.3 0 0 0-5.5 0 12.6 12.6 0 0 0-.61-1.25.08.08 0 0 0-.08-.04 19.7 19.7 0 0 0-4.88 1.52.07.07 0 0 0-.04.03C.53 9.05-.32 13.58.1 18.06a.08.08 0 0 0 .03.05 19.9 19.9 0 0 0 6 3.03.08.08 0 0 0 .08-.03c.46-.63.87-1.3 1.22-2a.08.08 0 0 0-.04-.11 13.1 13.1 0 0 1-1.87-.9.08.08 0 0 1-.01-.13c.13-.09.25-.19.37-.29a.07.07 0 0 1 .08 0 14.2 14.2 0 0 0 12.06 0 .07.07 0 0 1 .08 0c.12.1.25.2.38.29a.08.08 0 0 1-.01.13c-.6.35-1.22.64-1.87.9a.08.08 0 0 0-.04.11c.36.7.77 1.37 1.22 2a.08.08 0 0 0 .08.03 19.8 19.8 0 0 0 6.02-3.03.08.08 0 0 0 .03-.05c.5-5.18-.84-9.68-3.55-13.66a.06.06 0 0 0-.03-.03ZM8.02 15.33c-1.18 0-2.16-1.08-2.16-2.42 0-1.33.96-2.42 2.16-2.42 1.21 0 2.18 1.1 2.16 2.42 0 1.34-.96 2.42-2.16 2.42Zm7.97 0c-1.18 0-2.16-1.08-2.16-2.42 0-1.33.95-2.42 2.16-2.42 1.21 0 2.18 1.1 2.16 2.42 0 1.34-.95 2.42-2.16 2.42Z"/></svg>',
+    gmail: '<svg viewBox="0 0 24 24"><path fill="#EA4335" d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457Z"/></svg>',
+    wechat: '<svg viewBox="0 0 24 24" fill="#07C160"><path d="M9.3 4C5.3 4 2 6.7 2 10.1c0 1.9 1 3.5 2.7 4.7l-.7 2.1 2.4-1.2c.7.2 1.4.4 2.2.4h.4a5.5 5.5 0 0 1-.2-1.5c0-3.2 3-5.8 6.7-5.8h.4C15.3 6 12.6 4 9.3 4ZM7 7.4a.9.9 0 1 1 0 1.8.9.9 0 0 1 0-1.8Zm4.6 0a.9.9 0 1 1 0 1.8.9.9 0 0 1 0-1.8ZM15.5 10c-3.2 0-5.8 2.1-5.8 4.8 0 2.6 2.6 4.8 5.8 4.8.6 0 1.2-.1 1.8-.3l2 1-.6-1.7c1.4-.9 2.3-2.2 2.3-3.8 0-2.6-2.6-4.8-5.5-4.8Zm-2 2.3a.8.8 0 1 1 0 1.6.8.8 0 1 1 0-1.6Zm4 0a.8.8 0 1 1 0 1.6.8.8 0 1 1 0-1.6Z"/></svg>',
+    tiktok: '<svg viewBox="0 0 24 24" fill="#010101"><path d="M16.6 3c.4 2.3 1.9 3.8 4.4 4v3c-1.7 0-3.2-.5-4.4-1.4v6.6c0 3.5-2.6 5.8-5.9 5.8-3.1 0-5.7-2.4-5.7-5.6 0-3.3 2.9-5.8 6.3-5.4v3.1c-1.7-.5-3.2.5-3.2 2.2 0 1.5 1.2 2.6 2.6 2.6 1.6 0 2.8-1.1 2.8-3.2V3h3.1Z"/></svg>',
+    instagram: '<svg viewBox="0 0 24 24"><defs><linearGradient id="ykig" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#FEDA75"/><stop offset="28%" stop-color="#FA7E1E"/><stop offset="55%" stop-color="#D62976"/><stop offset="80%" stop-color="#962FBF"/><stop offset="100%" stop-color="#4F5BD5"/></linearGradient></defs><rect x="1.6" y="1.6" width="20.8" height="20.8" rx="6" fill="none" stroke="url(#ykig)" stroke-width="2"/><circle cx="12" cy="12" r="4.6" fill="none" stroke="url(#ykig)" stroke-width="2"/><circle cx="17.2" cy="6.8" r="1.3" fill="#D62976"/></svg>'
+  };
+  window.ykSocialIcon = function (icon, size) {
+    var svg = BRAND_ICONS[icon];
+    if (!svg) return '';
+    var s = size || 20;
+    return '<span class="sy-sicon" aria-hidden="true" style="display:inline-block;width:' + s + 'px;height:' + s + 'px;vertical-align:-4px;margin-right:7px;line-height:0;">' +
+      svg.replace('<svg ', '<svg style="width:' + s + 'px;height:' + s + 'px;display:block;" ') + '</span>';
+  };
+
   var DB = 'https://ukxrvcptwhlwvdanovgd.supabase.co/rest/v1/';
   var AK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVreHJ2Y3B0d2hsd3ZkYW5vdmdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyMzgyNDcsImV4cCI6MjEwODgxNDI0N30.Grdi23yToGPFF8e_kxFjf37JOOf51j-FW_FYQTUVu8E';
   function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
@@ -25,7 +42,7 @@
   // 默认清单 = 主页「找到我」当前的静态配置（账号名/ID/链接逐字一致，2026-10-31 她最终版：只保留 Discord / Gmail / WeChat / TikTok / Instagram）；
   // 后台「主页管理」保存过 links 设置时以库里的为准
   var DEFAULT_LINKS = [
-    { icon: 'discord', name: 'Discord', sub: '小柚的服务器', url: 'https://discord.gg/aWSfnydGG' },
+    { icon: 'discord', name: 'Discord', sub: '小柚的服务器', subEn: "Yuki's server", url: 'https://discord.gg/aWSfnydGG' },
     { icon: 'gmail', name: 'Gmail', sub: 'snowyuzustudio@gmail.com', url: 'mailto:snowyuzustudio@gmail.com' },
     { icon: 'wechat', name: '微信', sub: 'yuki_060119', url: '' },
     { icon: 'tiktok', name: 'TikTok', sub: '@snowyuzu.studio', url: 'https://www.tiktok.com/@snowyuzu.studio' },
@@ -52,7 +69,17 @@
 
   // mode='cards'（默认）：图标卡片网格；mode='text'：纵向文字链接列表（她 20261026 最终合并版 §3.3，不再用大卡网格）
   // 中英文切换：品牌名可保留，但展示名/提示语需本地化（她 20261029 任务书 §5.4；微信→WeChat、小红书→RED）
-  function syLang() { try { return localStorage.getItem('yuki-lang') || 'zh'; } catch (e) { return 'zh'; } }
+  /* 语言：URL 路径优先（window.YK.lang），其次 localStorage（她 20261030 路径即唯一依据） */
+  function syLang() {
+    if (window.YK && (window.YK.lang === 'zh' || window.YK.lang === 'en')) return window.YK.lang;
+    try { return localStorage.getItem('yuki-lang') === 'en' ? 'en' : 'zh'; } catch (e) { return 'zh'; }
+  }
+  /* 副标题（如「小柚的服务器」）跟随语言：库里有 subEn 用 subEn，没有就用映射表，查不到保留原文 */
+  var SUB_EN = { '小柚的服务器': "Yuki's server" };
+  function sySub(l) {
+    if (syLang() !== 'en') return l.sub || '';
+    return l.subEn || SUB_EN[l.sub] || l.sub || '';
+  }
   var NAME_EN = { '微信': 'WeChat', '小红书': 'RED', '抖音': 'Douyin', '网易云音乐': 'NetEase Music', '微博': 'Weibo', '邮件': 'Email', '账号整理中': 'account coming soon' };
   function syName(name) { if (syLang() !== 'en') return esc(name); return esc(NAME_EN[name] || name); }
   function syT(zh, en) { return syLang() === 'en' ? en : zh; }
@@ -67,7 +94,8 @@
         }
         if (mode === 'text') {
           box.innerHTML = links.map(function (l) {
-            var name = syName(l.name) + (l.sub ? '<small style="color:var(--muted,#A88E9B);font-weight:400;">　' + esc(l.sub) + '</small>' : '');
+            var iconSvg = (window.ykSocialIcon ? window.ykSocialIcon(l.icon, 20) : ''); // §7 品牌 Logo
+            var name = iconSvg + syName(l.name) + (l.sub ? '<small style="color:var(--muted,#A88E9B);font-weight:400;">　' + esc(sySub(l)) + '</small>' : '');
             var icon = l.icon || '';
             /* §4.3（她 20261026 总任务书）：微信点击复制微信号；Gmail 点击展开邮箱地址+复制/打开两操作 */
             if (icon === 'wechat' && l.sub) return '<a class="sy-linkline" href="javascript:void(0)" data-sy-copy="' + escAttr(l.sub) + '">' + name + '</a>';
@@ -80,8 +108,8 @@
         }
         box.innerHTML = links.map(function (l) {
           return '<a class="link-card"' + (l.url ? ' href="' + escAttr(l.url) + '" target="_blank" rel="noopener"' : '') + '>' +
-            (HOME_ICONS[l.icon] || HOME_ICONS.link) +
-            '<span>' + syName(l.name) + (l.sub ? '<small>' + esc(l.sub) + '</small>' : '') + '</span>' +
+            (BRAND_ICONS[l.icon] || HOME_ICONS[l.icon] || HOME_ICONS.link) +
+            '<span>' + syName(l.name) + (l.sub ? '<small>' + esc(sySub(l)) + '</small>' : '') + '</span>' +
             '</a>';
         }).join('');
       })

@@ -560,9 +560,138 @@ Object.keys(I18N_EN).forEach(function (k) { I18N_ZH[I18N_EN[k]] = k; });
 
 function t(zh, en) { return LANG === 'en' ? en : zh; }
 
+/* ═══ 英文页残留中文补齐（她 20261031 §1/§4/§5/§6）═══
+   文字节点、下拉选项、无障碍与提示属性（aria-label/title/placeholder/alt）统一走这张表；
+   中文页不查这张表（中文就是原文），因此不影响中文页面。 */
+var YK_EN_EXTRA = {
+  /* ——— 无障碍 / 提示 ——— */
+  '回主页': 'Back to home',
+  '购物车': 'Cart',
+  '菜单': 'Menu',
+  '关闭': 'Close',
+  '关闭聊天': 'Close chat',
+  '上一张': 'Previous',
+  '下一张': 'Next',
+  '上个月': 'Previous month',
+  '下个月': 'Next month',
+  '管理': 'Manage',
+  '发送': 'Send',
+  '打开小助手ovo': "Open Yuki's Assistant",
+  '小柚助手': "Yuki's Assistant",
+  '点击快速选择年月': 'Tap to choose year & month',
+  '运单号 / Tracking number': 'Tracking number',
+  /* ——— 排序 / 筛选下拉（BJD、色卡） ——— */
+  '默认排序': 'Default',
+  '添加时间 最新 → 最旧': 'Added: newest → oldest',
+  '添加时间 最旧 → 最新': 'Added: oldest → newest',
+  '购入日期 最新 → 最旧': 'Purchased: newest → oldest',
+  '购入日期 最旧 → 最新': 'Purchased: oldest → newest',
+  '价格 低 → 高': 'Price: low → high',
+  '价格 高 → 低': 'Price: high → low',
+  '张数 多 → 少': 'Cards: many → few',
+  '张数 少 → 多': 'Cards: few → many',
+  '种类 正序': 'Type: A → Z',
+  '种类 倒序': 'Type: Z → A',
+  '名称 A → Z': 'Name: A → Z',
+  '名称 Z → A': 'Name: Z → A',
+  '尺寸 正序': 'Size: small → large',
+  '尺寸 倒序': 'Size: large → small',
+  /* ——— 政策 / 品牌 / 服务页 ——— */
+  '网站政策': 'Policies',
+  '隐私政策': 'Privacy Policy',
+  '我们如何收集与保护你的信息': 'How we collect and protect your information',
+  '服务条款': 'Terms of Service',
+  '使用本站与小铺服务的相关条款': 'Terms for using the site and the shop',
+  '常见问题': 'FAQ',
+  '品牌介绍': 'About the Brand',
+  '各平台账号汇总': 'All social accounts',
+  '手作小物 · 色卡 · 稿件': 'Handmade goods · Color cards · Commissions',
+  '留言会直接送达柚子': 'Messages go straight to Yuki',
+  '客户服务': 'Customer Service',
+  '商品咨询、订单问题、售后与退款，留言直接送达柚子': 'Product questions, order issues, after-sales and refunds — messages go straight to Yuki',
+  '购买流程、发货时间、常见疑问一次说清': 'Ordering, dispatch times and common questions, all in one place',
+  '退货与退款政策': 'Return & Refund Policy',
+  '退货条件、退款流程与时限': 'Return conditions, refund process and time limits',
+  '配送政策': 'Shipping Policy',
+  '发货时间、运费与物流查询': 'Dispatch times, shipping fees and tracking'
+};
+Object.assign(I18N_EN, YK_EN_EXTRA); // 保留旧入口，同时单独留一份给会被内页覆盖的页面用
+
+/* ═══ 页面标题（浏览器标签）也要跟随语言（她 20261031 §1）═══
+   源页的 <title> 是中文/英文混写的，这里按“原文标题”查表给出对应语言版本；
+   首次运行把原标题存进 <html data-base-title>，反复 applyLang 不会叠加。 */
+var TITLE_MAP = {
+  '关于 Snow Yuzu · 小柚的小世界': { zh: '关于 Snow Yuzu · 小柚的小世界', en: 'About Snow Yuzu · My Little World' },
+  "我的账号 · Yuki's Shop": { zh: '我的账号 · Yuki\'s Shop', en: "My Account · Yuki's Shop" },
+  '联系我们 · Yuki / 柚子': { zh: '联系我们 · Yuki / 柚子', en: 'Contact Us · Yuki' },
+  'BJD · Yuki / 柚子': { zh: 'BJD · Yuki / 柚子', en: 'BJD · Yuki / 柚子' },
+  'BJD萌物自拍 · Yuki / 柚子': { zh: 'BJD萌物自拍 · Yuki / 柚子', en: 'BJD Doll Selfies · Yuki' },
+  '品牌介绍 · Snow Yuzu': { zh: '品牌介绍 · Snow Yuzu', en: 'About the Brand · Snow Yuzu' },
+  'Color Cards · Yuki / 柚子': { zh: '色卡 · Yuki / 柚子', en: 'Color Cards · Yuki / 柚子' },
+  '常见问题 FAQ · Snow Yuzu': { zh: '常见问题 FAQ · Snow Yuzu', en: 'FAQ · Snow Yuzu' },
+  'Photo Gallery · Yuki / 柚子': { zh: '照片墙 · Yuki / 柚子', en: 'Photo Gallery · Yuki / 柚子' },
+  '网站政策 · Snow Yuzu': { zh: '网站政策 · Snow Yuzu', en: 'Policies · Snow Yuzu' },
+  '隐私政策 · Snow Yuzu': { zh: '隐私政策 · Snow Yuzu', en: 'Privacy Policy · Snow Yuzu' },
+  '退货与退款政策 · Snow Yuzu': { zh: '退货与退款政策 · Snow Yuzu', en: 'Return & Refund Policy · Snow Yuzu' },
+  '客户服务 · Snow Yuzu': { zh: '客户服务 · Snow Yuzu', en: 'Customer Service · Snow Yuzu' },
+  '配送政策 · Snow Yuzu': { zh: '配送政策 · Snow Yuzu', en: 'Shipping Policy · Snow Yuzu' },
+  "小柚的小铺 · Yuki's Shop": { zh: '小柚的小铺', en: "Yuki's Shop" },
+  '服务条款 · Snow Yuzu': { zh: '服务条款 · Snow Yuzu', en: 'Terms of Service · Snow Yuzu' },
+  '物流查询 · Snow Yuzu': { zh: '物流查询 · Snow Yuzu', en: 'Track Your Order · Snow Yuzu' },
+  '稿件展示 · Yuki / 柚子': { zh: '稿件展示 · Yuki / 柚子', en: 'Commissions · Yuki' },
+  '页面走丢了 · Yuki / 柚子': { zh: '页面走丢了 · Yuki / 柚子', en: 'Page not found · Yuki' },
+  '小柚的小世界': { zh: '小柚的小世界', en: 'My Little World · Yuki' }
+};
+
+/* 属性文案翻译：英文页把 aria-label / title / placeholder / alt 里残留的中文换成英文（她 20261031 §1）
+   注意：shop / askbox 两个页面自己又声明了一份同名 I18N_EN，会把全站那份覆盖掉，
+   所以这里同时合并 YK_EN_EXTRA（独立命名，不会被覆盖）。 */
+function ykEnDict() {
+  var d = {};
+  var base = (window.I18N_EN && typeof window.I18N_EN === 'object') ? window.I18N_EN : {};
+  for (var k in base) if (Object.prototype.hasOwnProperty.call(base, k)) d[k] = base[k];
+  for (var k2 in YK_EN_EXTRA) if (Object.prototype.hasOwnProperty.call(YK_EN_EXTRA, k2)) d[k2] = YK_EN_EXTRA[k2];
+  return d;
+}
+function ykTranslateAttrs(lang) {
+  if (lang !== 'en') return;
+  var d = ykEnDict();
+  document.querySelectorAll('[aria-label],[title],[placeholder],[alt]').forEach(function (el) {
+    ['aria-label', 'title', 'placeholder', 'alt'].forEach(function (a) {
+      var v = el.getAttribute(a);
+      if (!v) return;
+      var s = v.trim();
+      if (d[s] !== undefined && d[s] !== v) el.setAttribute(a, d[s]);
+    });
+  });
+}
+/* 动态插入的节点（购物车弹窗、灯箱、列表）也要跟上：监听 DOM，英文页下防抖重跑属性翻译 */
+if (!window.__ykAttrObserver) {
+  window.__ykAttrObserver = true;
+  var _ykAttrTimer = null;
+  var _ykAttrObs = new MutationObserver(function () {
+    if (LANG !== 'en') return;
+    clearTimeout(_ykAttrTimer);
+    _ykAttrTimer = setTimeout(function () { ykTranslateAttrs('en'); }, 90);
+  });
+  var _startObs = function () {
+    if (document.body) _ykAttrObs.observe(document.body, { childList: true, subtree: true });
+  };
+  if (document.body) _startObs();
+  else document.addEventListener('DOMContentLoaded', _startObs);
+}
+
 function applyLang(lang) {
   LANG = lang;
   document.documentElement.lang = lang === 'en' ? 'en' : 'zh-CN';
+  /* 浏览器标签标题 */
+  try {
+    var root = document.documentElement;
+    var baseTitle = root.getAttribute('data-base-title') || document.title;
+    if (!root.getAttribute('data-base-title')) root.setAttribute('data-base-title', baseTitle);
+    var tm = TITLE_MAP[baseTitle];
+    if (tm && tm[lang]) document.title = tm[lang];
+  } catch (e) {}
   var dict = lang === 'en' ? I18N_EN : I18N_ZH;
   var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
   var nodes = [];
@@ -575,6 +704,8 @@ function applyLang(lang) {
       n.nodeValue = txt.replace(trimmed, dict[trimmed]);
     }
   });
+  /* 属性文案（aria-label / title / placeholder / alt）翻译：抽成独立函数，动态插入的节点可以再调一次 */
+  ykTranslateAttrs(lang);
   document.querySelectorAll('.lang-btn').forEach(function (b) {
     b.classList.toggle('active', b.getAttribute('data-lang') === lang);
   });
@@ -591,8 +722,13 @@ function applyLang(lang) {
       node.textContent = text;
     }
   }
-  document.querySelectorAll('[data-zh][data-en]').forEach(function (node) {
-    var text = lang === 'en' ? node.getAttribute('data-en') : node.getAttribute('data-zh');
+  /* 她 20261031 §1：反向兼容「只写了 data-en、没写 data-zh」的元素（BJD/色卡下拉选项全是这种），
+     旧版只认同时带 data-zh+data-en 的，导致英文页下拉满屏中文。 */
+  document.querySelectorAll('[data-zh],[data-en]').forEach(function (node) {
+    var text;
+    if (lang === 'en') text = node.getAttribute('data-en') || node.getAttribute('data-zh');
+    else text = node.getAttribute('data-zh'); // 中文页：只认 data-zh；只有 data-en 的元素正文本来就是中文，不动它
+    if (text == null) return;
     var fig = node.tagName === 'FIGCAPTION' ? node.closest('.album-item') : null;
     if (fig) {
       var key = 'yuki-note-' + fig.getAttribute('data-img');

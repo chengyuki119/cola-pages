@@ -435,16 +435,12 @@
 
   function renderFaq(lang) {
     var data = (POLICY_CONTENT.faq && POLICY_CONTENT.faq[lang]) || POLICY_CONTENT.faq.zh;
-    var other = lang === 'en' ? 'zh' : 'en';
-    var dataOther = (POLICY_CONTENT.faq && POLICY_CONTENT.faq[other]) || POLICY_CONTENT.faq.zh;
-    return (data.items || []).map(function (item, i) {
-      var otherItem = (dataOther.items || [])[i] || {};
-      var qEn = lang === 'en' ? item.q : (otherItem.q || '');
-      var qZh = lang === 'zh' ? item.q : (otherItem.q || '');
+    /* 她 20261031 §1：一个语言的页面只出该语言的问题与答案。
+       旧版为了「中英对照好看」把问题行两种语言叠在一个按钮里，导致英文页满屏中文、中文页满屏英文，本次修正。 */
+    return (data.items || []).map(function (item) {
       return '<div class="faq-item">' +
         '<button type="button" class="faq-q">' +
-          (qEn ? '<span class="faq-q-en">' + esc(qEn) + '</span>' : '') +
-          (qZh ? '<span class="faq-q-zh">' + esc(qZh) + '</span>' : '') +
+          '<span class="faq-q-one">' + esc(item.q) + '</span>' +
           '<span class="faq-arrow">▾</span>' +
         '</button>' +
         '<div class="faq-a"><div class="faq-a-box"><p>' + esc(item.a) + '</p></div></div>' +

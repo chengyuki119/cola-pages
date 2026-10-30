@@ -4,17 +4,17 @@
     <link rel="preload" href="/fonts/Millo-RiceSoyMilk80.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/fonts/Millo-RiceSoyMilk90.woff2" as="font" type="font/woff2" crossorigin>
 <meta charset="UTF-8">
-  <script src="/js/lang-path.js?v=20261031c"></script>
+  <script src="/js/lang-path.js?v=20261031h"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>稿件展示 · Yuki / 柚子</title>
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" sizes="180x180" href="/icon-yuki2-180.png">
 <link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki2-180.png">
 <meta name="apple-mobile-web-app-title" content="小柚的小世界">
-<link rel="stylesheet" href="/css/site.css?v=20261031c">
-<link rel="stylesheet" href="/site-menu.css?v=20261031c">
+<link rel="stylesheet" href="/css/site.css?v=20261031h">
+<link rel="stylesheet" href="/site-menu.css?v=20261031h">
 <script src="/site-menu.js" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261031c">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261031h">
 </head>
 <body>
 
@@ -40,7 +40,7 @@
 <div class="page active" id="page-works-page">
   <div id="works-list-page">
 <div class="subpage-header">
-      <h1 class="subpage-title" data-zh="和桓桓宝宝的稿件展示" data-en="Our Works">和桓桓宝宝的稿件展示</h1>
+      <h1 class="subpage-title" data-zh="和桓桓宝宝的稿件展示" data-en="Commissioned Artwork">和桓桓宝宝的稿件展示</h1>
       <p class="subpage-sub" data-zh="和桓桓宝宝一起完成的稿件 · 点开看大图" data-en="Pieces made together with Huanhuan · tap to view">和桓桓宝宝一起完成的稿件 · 点开看大图</p>
     </div>
     <a class="back-link page-back" href="/zh/" style="margin:8px 0 24px 2px;"><span data-zh="← 返回主页" data-en="← Back to Home">← 返回主页</span></a>
@@ -78,7 +78,7 @@
 <div id="share-pop"></div>
 <div class="toast" id="toast"></div>
 
-<script src="/js/site-common.js?v=20261031c"></script>
+<script src="/js/site-common.js?v=20261031h"></script>
 <script>
   // ===== 稿件展示：独立子页（稿件墙 + 稿件详情 /works/?id=N）=====
   // 数据：site_settings.works（与后台「稿件管理」同一份，单一数据源）
@@ -185,11 +185,12 @@
       })() + '</div>' +
       '<div style="text-align:center;margin-bottom:18px;">' +
       '<span style="font-size:21px;font-weight:700;">' + escDb(w.name || t('未命名稿件', 'Untitled work')) + '</span>' +
-      (w.date ? '<span style="color:var(--muted);font-size:17px;">　|　' + escDb(fmtWorkDate(w.date)) + '</span>' : '') +
-      (w.cat || w.artist ? '<span style="color:var(--muted);font-size:17px;">　|　' + escDb([w.cat, w.artist].filter(Boolean).join(' · ')) + '</span>' : '') +
+      (w.date ? '<span style="color:var(--muted);font-size:17px;">　|　' + t('约稿日期', 'Commission Date') + t('：', ': ') + escDb(fmtWorkDate(w.date)) + '</span>' : '') +
+      (w.cat || w.artist ? '<span style="color:var(--muted);font-size:17px;">　|　' + t('画师', 'Artist') + t('：', ': ') + escDb([w.cat, w.artist].filter(Boolean).join(' · ')) + '</span>' : '') +
       (parseFloat(w.price) ? '<span style="color:var(--price,#ff6fa5);font-size:18px;font-weight:700;">　|　¥' + fmtMoney(w.price) + '</span>' : '') +
       '</div>' +
-      (workDesc(w) ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;font-size:17px;line-height:1.9;white-space:pre-wrap;word-break:break-word;">' + escDb(workDesc(w)) + '</div>' : '');
+      (workDesc(w) ? '<div style="font-size:14px;letter-spacing:.06em;color:var(--muted,#A88E9B);margin:0 0 6px 2px;">' + t('约稿详情', 'Commission Details') + '</div>' +
+        '<div class="card" style="padding:18px 20px;margin-bottom:14px;font-size:17px;line-height:1.9;white-space:pre-wrap;word-break:break-word;">' + escDb(workDesc(w)) + '</div>' : '');
   }
   function routeWorks() {
     var id = new URLSearchParams(location.search).get('id');
@@ -251,7 +252,7 @@
   if (window.SiteMenu) SiteMenu.notify('works');
   applyLang(LANG);
 </script>
-<script src="/js/site-footer.js?v=20261031c"></script>
+<script src="/js/site-footer.js?v=20261031h"></script>
 <script>
   // 统一 Footer（页面没有 <footer> 时自动在页尾新建）
   function initSiteFooter() { renderSiteFooter(); }

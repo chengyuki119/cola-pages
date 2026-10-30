@@ -20,7 +20,7 @@
     <link rel="preload" href="/fonts/Millo-RiceSoyMilk80.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/fonts/Millo-RiceSoyMilk90.woff2" as="font" type="font/woff2" crossorigin>
 <meta charset="UTF-8">
-  <script src="/js/lang-path.js?v=20261031c"></script>
+  <script src="/js/lang-path.js?v=20261031h"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>小柚的小世界</title>
 <link rel="manifest" href="/manifest.json">
@@ -36,10 +36,10 @@
 <meta name="twitter:title" content="小柚的小世界">
 <meta name="twitter:description" content="欢迎来到小柚的小世界">
 <meta name="twitter:image" content="https://yukicheng.com/zh/">
-<link rel="stylesheet" href="/css/site.css?v=20261031c">
-  <link rel="stylesheet" href="/site-menu.css?v=20261031c">
+<link rel="stylesheet" href="/css/site.css?v=20261031h">
+  <link rel="stylesheet" href="/site-menu.css?v=20261031h">
     <script src="/site-menu.js" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261031c">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261031h">
 </head>
 <body class="home">
 
@@ -163,7 +163,7 @@
 <div id="share-pop"></div>
 
 
-<script src="/js/site-common.js?v=20261031c"></script>
+<script src="/js/site-common.js?v=20261031h"></script>
 
 <!-- ═══════════ 小柚助手（AI 入口 · 第一阶段测试：模拟回复 + 后台知识库匹配，未接真 AI）═══════════ -->
 <style>
@@ -721,7 +721,7 @@
       var showCards = CARDS_CACHE.map(function (c, i) { return { c: c, i: i }; }).filter(function (x) { return x.c.homeShow !== false; }).slice(0, 4); // 只显示勾选「主页展示」的色卡，最多四张
       if (!CARDS_CACHE.length) {
         chGrid.style.display = 'block';
-        chGrid.innerHTML = '<p style="color:var(--muted);text-align:center;padding:30px 0;font-size:17px;">还没有色卡，去后台「色卡管理」新建吧</p>';
+        chGrid.innerHTML = '<p style="color:var(--muted);text-align:center;padding:30px 0;font-size:17px;">' + t('还没有色卡，去后台「色卡管理」新建吧', 'No color cards yet — add one in the admin panel') + '</p>';
       } else if (!showCards.length) {
         chGrid.style.display = 'block';
         chGrid.innerHTML = '<p style="color:var(--muted);text-align:center;padding:30px 0;font-size:17px;">暂无展示中的色卡</p>';
@@ -768,7 +768,7 @@
       var worksList = (Array.isArray(worksRaw) ? worksRaw : []).map(function (w, i) { return { w: w, i: i }; }).filter(function (x) { return x.w && x.w.visible !== false; }).slice(0, 4); // 与 /works/ 同样过滤，序号一致，主页最多四张
       if (!worksList.length) {
         wkGrid.style.display = 'block';
-        wkGrid.innerHTML = '<p style="color:var(--muted);text-align:center;padding:30px 0;font-size:17px;">还没有稿件，去后台「稿件管理」上传吧</p>';
+        wkGrid.innerHTML = '<p style="color:var(--muted);text-align:center;padding:30px 0;font-size:17px;">' + t('还没有稿件，去后台「稿件管理」上传吧', 'No commissions yet — upload one in the admin panel') + '</p>';
       } else {
         wkGrid.style.display = 'grid';
         /* 稿件预览固定 4 列（CSS 硬编码） */
@@ -1440,7 +1440,7 @@
   });
 })();
 </script>
-<script src="/js/site-footer.js?v=20261031c"></script>
+<script src="/js/site-footer.js?v=20261031h"></script>
 <script>
   // 统一 Footer（已有 <footer> 则替换其内容，不新建第二个）
   function initSiteFooter() { renderSiteFooter(); }

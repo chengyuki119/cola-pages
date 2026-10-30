@@ -92,6 +92,8 @@
       '.sy-footer-head:hover{color:var(--price,#FF6FA5);}' +
       '.sy-footer-links{display:flex;flex-direction:column;align-items:flex-start;}' +
       '.sy-footer-social{margin-top:10px;display:flex;flex-direction:column;align-items:flex-start;gap:0;}' +
+      '.sy-footer-social .sy-sicon{filter:saturate(1);transition:opacity .2s;}' +
+      '.sy-footer-social .sy-footer-link:hover .sy-sicon{opacity:.78;}' +
       '.sy-footer-link{color:var(--muted,#A88E9B);font-size:15px;line-height:2.15;text-decoration:none;transition:color .2s;}' +
       '.sy-footer-link:hover{color:var(--price,#FF6FA5);}' +
       '.sy-footer-bottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px 18px;' +
@@ -143,14 +145,20 @@
       // 她 20261031 §6：页脚只留 Discord / Gmail / WeChat / TikTok / Instagram，其余平台过滤掉（包括旧数据里残留的）
       var ALLOW = ['discord', 'gmail', 'wechat', 'tiktok', 'instagram'];
       var NAME_EN = { '微信': 'WeChat' };
+      /* 副标题英文（如「小柚的服务器」→ Yuki's server）：库里 subEn 优先，其次映射表 */
+      var SUB_EN = { '小柚的服务器': "Yuki's server" };
       var isEn = false;
       try { isEn = (window.YK && window.YK.lang === 'en') || /^en/i.test(document.documentElement.lang || ''); } catch (e) {}
       box.innerHTML = (links || []).filter(function (l) { return ALLOW.indexOf(l.icon) !== -1; }).map(function (l) {
         var nm = (isEn && NAME_EN[l.name]) ? NAME_EN[l.name] : l.name;
-        if (l.url) return '<a class="sy-footer-link" href="' + esc(l.url) + '"' + (l.url.indexOf('mailto:') === 0 ? '' : ' target="_blank" rel="noopener"') + '>' + esc(nm) + '</a>';
-        if (l.sub) return '<span class="sy-footer-link" style="cursor:default;">' + esc(nm) + '：' + esc(l.sub) + '</span>';
-        return '';
+        /* 她 20261031 §7：每个平台前面加真实品牌 Logo（官方图形 + 官方色，20px），对齐、可点、hover 微变，微信仍复制 */
+        var ico = (typeof window.ykSocialIcon === 'function') ? window.ykSocialIcon(l.icon, 20) : '';
+        var sub = l.sub ? String((isEn && (l.subEn || SUB_EN[l.sub])) || l.sub) : '';
+        if (l.url) return '<a class="sy-footer-link" href="' + esc(l.url) + '"' + (l.url.indexOf('mailto:') === 0 ? '' : ' target="_blank" rel="noopener"') + '>' + ico + '<span style="display:inline-block;vertical-align:middle;">' + esc(nm) + '</span></a>';
+        if (sub) return '<span class="sy-footer-link" data-sy-copy="' + esc(sub) + '" style="cursor:pointer;" title="' + esc(isEn ? 'Tap to copy: ' : '点击复制：') + esc(sub) + '">' + ico + '<span style="display:inline-block;vertical-align:middle;">' + esc(nm) + '：' + esc(sub) + '</span></span>';
+        return '<span class="sy-footer-link" style="cursor:default;">' + ico + '<span style="display:inline-block;vertical-align:middle;">' + esc(nm) + '</span></span>';
       }).join('');
+      bindFooterCopy();
     };
     if (window.getSocialLinks) { window.getSocialLinks().then(done); return; }
     var ver = '20261026m';
@@ -160,6 +168,36 @@
     sEl.onload = function () { if (window.getSocialLinks) window.getSocialLinks().then(done); else box.parentNode.removeChild(box); };
     sEl.onerror = function () { box.parentNode.removeChild(box); };
     document.head.appendChild(sEl);
+  }
+
+  /* 页脚微信点一下复制微信号（她 20261031 §7：微信仍执行复制微信号）*/
+  function bindFooterCopy() {
+    if (window.__syFooterCopyBound) return;
+    window.__syFooterCopyBound = true;
+    document.addEventListener('click', function (e) {
+      var el = e.target && e.target.closest ? e.target.closest('#sy-footer-social [data-sy-copy]') : null;
+      if (!el) return;
+      e.preventDefault();
+      var txt = el.getAttribute('data-sy-copy');
+      var isEn = false;
+      try { isEn = (window.YK && window.YK.lang === 'en') || /^en/i.test(document.documentElement.lang || ''); } catch (err) {}
+      var done = function (ok) {
+        if (window.syToast) { window.syToast(ok ? (isEn ? 'WeChat ID copied ♡' : '已复制微信号 ♡') : (isEn ? 'Copy failed' : '复制失败，请手动复制'), ok); return; }
+        var t = document.createElement('div');
+        t.textContent = ok ? (isEn ? 'WeChat ID copied ♡' : '已复制微信号 ♡') : txt;
+        t.style.cssText = 'position:fixed;left:50%;bottom:34px;transform:translateX(-50%);z-index:99999;background:#fff;border:1.5px solid #FFD9E6;border-radius:999px;padding:9px 22px;font-size:15px;color:#604C57;box-shadow:0 4px 18px rgba(255,143,171,.25);font-family:inherit;';
+        document.body.appendChild(t);
+        setTimeout(function () { if (t.parentNode) t.parentNode.removeChild(t); }, 1600);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(txt).then(function () { done(true); }, function () { done(false); });
+      } else {
+        try {
+          var ta = document.createElement('textarea'); ta.value = txt; ta.style.cssText = 'position:fixed;opacity:0;';
+          document.body.appendChild(ta); ta.select(); var ok = document.execCommand('copy'); ta.remove(); done(ok);
+        } catch (err) { done(false); }
+      }
+    });
   }
 
   window.renderSiteFooter = function () {
