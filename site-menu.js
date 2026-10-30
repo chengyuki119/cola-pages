@@ -8,8 +8,8 @@
    / = 主页 · /photos/ = Photo Gallery · /bjd/ = BJD · /color-card/ = 色卡
    /shop/ = 小铺 · /askbox/ = 提问箱 · /admin.html = 后台 */
 (function () {
-  var LANG = 'zh';
-  try { LANG = localStorage.getItem('yuki-lang') || 'zh'; } catch (e) {}
+  var LANG = (window.YK && window.YK.lang) || 'en'; // 语言由 URL 路径决定（/zh/ = 中文，根路径 = 英文）
+  try { LANG = (window.YK && window.YK.lang) || localStorage.getItem('yuki-lang') || 'en'; } catch (e) {}
   function t(zh, en) { return LANG === 'en' ? en : zh; }
 
   // ── 唯一导航数据源 ──
@@ -34,7 +34,9 @@
   // 当前页面 / 当前子区（?sec= / ?id= / ?card=）
   var QS = new URLSearchParams(location.search);
   var curPage = (function () {
-    var p = location.pathname;
+    var p = location.pathname; // /zh/ 前缀先剥掉，页面判定与语言无关
+    if (p === '/zh') p = '/';
+    else if (p.indexOf('/zh/') === 0) p = p.slice(3);
     if (p.indexOf('/photos/') === 0) return 'photos';
     if (p.indexOf('/bjd/') === 0) return 'bjd';
     if (p.indexOf('/color-card/') === 0) return 'cards';
@@ -47,10 +49,19 @@
   })();
   var curSec = QS.get('sec') || '';
   var curSubId = QS.get('id') != null ? QS.get('id') : (QS.get('card') != null ? QS.get('card') : '');
+  // 是否真是首页（curPage 会把 policies/faq/brand 等归到 'index'，不能用它判定）
+  var isHomePage = (function () {
+    var p = location.pathname;
+    if (p === '/zh') p = '/';
+    else if (p.indexOf('/zh/') === 0) p = p.slice(3);
+    return p === '/' || p === '/index.html';
+  })();
 
   function hrefOf(item) {
-    if (curPage === item.page && item.scrollTo) return item.url; // 同页区块入口：点击时 data-scroll 平滑滚动，不产生 hash
-    return item.url;
+    // 导航链接跟随语言路径：英文根路径 / /zh/ 前缀
+    var u = (typeof window.ykLink === 'function') ? window.ykLink(item.url) : item.url;
+    if (curPage === item.page && item.scrollTo) return u; // 同页区块入口：点击时 data-scroll 平滑滚动，不产生 hash
+    return u;
   }
   function itemMatchesCurrent(it) {
     if (it.page !== curPage) return false;
@@ -80,19 +91,21 @@
   }
   function buildAcctBottom() {
     var s = readSession();
-    if (s) return el('<a class="menu-acct-bottom is-in" href="/account/" data-acct="account">' + span('我的账户', 'My Account') + '</a>');
-    return el('<a class="menu-acct-bottom" href="/account/?next=' + encodeURIComponent(location.pathname + location.search) + '" data-acct="account">' + span('登录', 'Log in') + '</a>');
+    var acct = (typeof window.ykLink === 'function') ? window.ykLink('/account/') : '/account/';
+    if (s) return el('<a class="menu-acct-bottom is-in" href="' + acct + '" data-acct="account">' + span('我的账户', 'My Account') + '</a>');
+    return el('<a class="menu-acct-bottom" href="' + acct + '?next=' + encodeURIComponent(location.pathname + location.search) + '" data-acct="account">' + span('登录', 'Log in') + '</a>');
   }
   // 已登录点「我的账户」：按真实专属身份（RPC）决定去向——专属→后台、买家→普通账户页；验证中保持加载态不误跳
   function routeAccount(link) {
-    if (typeof window.ykExclusiveCheck !== 'function') { location.href = '/account/'; return; }
+    var acctURL = (typeof window.ykLink === 'function') ? window.ykLink('/account/') : '/account/';
+    if (typeof window.ykExclusiveCheck !== 'function') { location.href = acctURL; return; }
     var restore = link.innerHTML;
     link.classList.add('acct-loading');
     link.innerHTML = span('身份确认中…', 'Checking…');
     var go = function (exclusive) {
       if (exclusive) { location.href = '/admin.html'; return; }
-      if (curPage === 'shop' && typeof window.__shopNav === 'function') { location.href = '/account/'; return; }
-      location.href = '/account/';
+      if (curPage === 'shop' && typeof window.__shopNav === 'function') { location.href = acctURL; return; }
+      location.href = acctURL;
     };
     var fail = function () { link.classList.remove('acct-loading'); link.innerHTML = restore; };
     window.ykExclusiveCheck().then(function (res) {
@@ -286,7 +299,7 @@
       if (sc && curPage !== 'index') {
         // 子页点「日历/找到我」：先回主页再精准定位到区块（含顶栏偏移，主页端统一处理）
         e.preventDefault();
-        location.href = '/?scroll=' + encodeURIComponent(sc);
+        location.href = (typeof window.ykLink === 'function' ? window.ykLink('/') : '/') + '?scroll=' + encodeURIComponent(sc);
         return;
       }
       if (sc && typeof window.__menuScroll === 'function') {
@@ -356,7 +369,8 @@
 
   /* ═══ 手机端 Index 页面选择入口（她 20261028 总任务书 B3）═══
      仅手机端显示（CSS ≤700px）；同一导航数据源 NAV + 同一套 permFilter 权限过滤；
-     样式与后台「当前页面」选择器同款（胶囊 + 白底圆角浮层 + 浅粉高亮）；后台页不挂载。 */
+     样式与后台「当前页面」选择器同款（胶囊 + 白底圆角浮层 + 浅粉高亮）；后台页不挂载。
+     20261030：手机首页（curPage === 'index'）不再挂载这一行，其余页面保持原样。 */
   function buildWrap() {
     var wrap = el('<div class="idx-wrap" id="idx-wrap"><button class="idx-btn" id="idx-btn" type="button">Index <span class="idx-arrow">▾</span></button><div class="idx-menu" id="idx-menu"></div></div>');
     var menu = wrap.querySelector('.idx-menu');
@@ -376,6 +390,7 @@
   function idxBuild() {
     var old = document.getElementById('idx-wrap');
     if (old && old.parentNode) old.parentNode.removeChild(old);
+    if (isHomePage) return; // 手机首页不要这一行（其他页面保留）
     var page = document.querySelector('.page.active');
     if (page && curPage !== 'admin') {
       page.insertBefore(buildWrap(), page.firstChild);

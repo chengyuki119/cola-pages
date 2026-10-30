@@ -55,6 +55,19 @@
     '#tab-shopmgr .mo-sum-row .mo-sl { color:var(--muted); }',
     '#tab-shopmgr .mo-sum-total { display:flex; justify-content:space-between; align-items:center; border-top:1.5px dashed var(--accent-soft,#FCE4EC); margin-top:8px; padding-top:10px; }',
     '#tab-shopmgr .mo-sum-total b { font-size:22px; font-weight:800; color:var(--price,#ff6fa5); }',
+    /* 手动开单：四个分区（默认展开）+ 高级选项（默认折叠）*/ 
+    '#mo-form .mo-sec { border:1.5px solid var(--accent-soft,#FCE1EA); border-radius:14px; margin-bottom:10px; background:#fff; overflow:hidden; }',
+    '#mo-form .mo-sec > summary { cursor:pointer; list-style:none; display:flex; align-items:center; gap:9px; padding:11px 14px; font-size:16px; font-weight:700; color:var(--text,#604C57); background:var(--card,#FFF8FA); user-select:none; }',
+    '#mo-form .mo-sec > summary::-webkit-details-marker { display:none; }',
+    '#mo-form .mo-sec > summary::after { content:"▾"; margin-left:auto; color:#A98D96; font-size:13px; transition:transform .2s; }',
+    '#mo-form .mo-sec[open] > summary::after { transform:rotate(180deg); }',
+    '#mo-form .mo-step { display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; background:#FCE1EA; color:#A98D96; font-size:13px; font-weight:700; flex:none; }',
+    '#mo-form .mo-sec-body { padding:12px 14px 14px; }',
+    '#mo-form .mo-adv { margin-top:10px; border:1.5px dashed var(--accent-soft,#FCE1EA); border-radius:12px; padding:0 12px 12px; }',
+    '#mo-form .mo-adv > summary { cursor:pointer; list-style:none; padding:10px 0; font-size:14px; color:#A98D96; font-weight:600; }',
+    '#mo-form .mo-adv > summary::-webkit-details-marker { display:none; }',
+    '#mo-form .mo-adv > summary::before { content:"＋ "; }',
+    '#mo-form .mo-adv[open] > summary::before { content:"－ "; }',
     '#tab-shopmgr .sm-act .lbl { font-size:15px; color:var(--muted); flex-shrink:0; }',
     '#tab-shopmgr .sm-act input, #tab-shopmgr .sm-act textarea { flex:1; min-width:120px; width:auto; }',
     '#tab-shopmgr .sm-act .sm-reject-reason { min-width:190px; }',
@@ -76,7 +89,11 @@
     '#tab-shopmgr .sm-var-grid input:focus, #tab-shop .sm-var-grid input:focus { border-color:var(--card-hover,#FCE4EC); }',
     '#tab-shopmgr .sm-var-imgs, #tab-shop .sm-var-imgs { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:12px; }',
     '#tab-shopmgr .sm-var-imgs img, #tab-shop .sm-var-imgs img { width:52px; height:52px; border-radius:10px; object-fit:cover; background:var(--card); }',
-    '#tab-shopmgr .sm-var-imgdel, #tab-shop .sm-var-imgdel { position:absolute; top:-6px; right:-6px; width:18px; height:18px; border:none; border-radius:50%; background:var(--accent-soft); color:var(--text,#604C57); font-size:12px; line-height:1; cursor:pointer; }',
+    '#tab-shopmgr .sm-var-imgdel, #tab-shop .sm-var-imgdel { position:absolute; top:-6px; right:-6px; width:18px; height:18px; border:none; border-radius:50%; background:#FBE3E6; color:#C4636E; font-size:12px; line-height:1; cursor:pointer; }',
+    '#tab-shopmgr .sm-var-imgmv, #tab-shop .sm-var-imgmv { position:absolute; bottom:-6px; width:18px; height:18px; border:1.5px solid #FFD1E0; border-radius:50%; background:#FFF7FA; color:#A98D96; font-size:13px; line-height:1; cursor:pointer; padding:0; }',
+    '#tab-shopmgr .sm-var-imgmv[data-d="-1"], #tab-shop .sm-var-imgmv[data-d="-1"] { left:-4px; }',
+    '#tab-shopmgr .sm-var-imgmv[data-d="1"], #tab-shop .sm-var-imgmv[data-d="1"] { right:8px; }',
+    '#tab-shopmgr .sm-var-imgmv:disabled, #tab-shop .sm-var-imgmv:disabled { opacity:.45; cursor:default; background:#F8F0F3; border-color:#EADCE2; color:#B9A5AE; }',
     '#tab-shopmgr .sm-empty { text-align:center; color:var(--muted); font-size:17px; padding:24px 0; }',
     '@media (max-width:640px) { #tab-shopmgr .sm-stats { grid-template-columns:repeat(2,1fr); } #tab-shopmgr .sm-var-grid, #tab-shop .sm-var-grid { grid-template-columns:1fr 1fr; } }'
   ].join('\n');
@@ -507,7 +524,7 @@
     if (SM._oFailed) { // 网络断了就明说，不再无限「加载中」（她 2026-10-25 要求查根因，不能只靠重试）
       list.innerHTML = '<div class="sm-o-retrybox" style="background:var(--card,#FFF0F5);border-radius:14px;padding:20px;text-align:center;">' +
         '<p style="margin:0 0 10px;color:var(--muted);font-size:16px;">订单没加载出来（网络问题，不是订单丢了）</p>' +
-        '<button type="button" class="btn-mini sm-o-retry" style="background:#FCE1EA;color:#A04A68;padding:9px 22px;font-size:15px;">点这里重新加载</button></div>';
+        '<button type="button" class="btn-mini sm-o-retry" style="background:#FCE1EA;color:#A98D96;padding:9px 22px;font-size:15px;">点这里重新加载</button></div>';
       return;
     }
     list.innerHTML = rows.length ? rows.map(orderHtml).join('') : '<p class="sm-empty">没有符合条件的订单</p>';
@@ -745,7 +762,7 @@
       block.innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;">' +
         '<b style="font-size:16px;color:var(--text);">商品规格</b>' +
         '<span class="hint" style="flex:1;min-width:180px;">一个规格＝买家看到的一个选项（比如一个颜色款）；全部留空＝单规格</span>' +
-        '<button type="button" class="btn-mini sm-var-add" style="background:#FCE1EA;color:#A04A68;padding:9px 20px;font-size:15px;">＋ 添加规格</button></div>' +
+        '<button type="button" class="btn-mini sm-var-add" style="background:#FCE1EA;color:#A98D96;padding:9px 20px;font-size:15px;">＋ 添加规格</button></div>' +
         '<div class="sm-var-rows"></div>' +
         '<p class="hint" style="margin:6px 0 0;">每个规格可以传自己的图，第一张就是这个选项的封面；详情页点选项会换图、换价、换库存。</p>';
       g2.appendChild(block);
@@ -842,7 +859,7 @@
     block.innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;">' +
       '<b style="font-size:16px;color:var(--text);">商品规格（可选）</b>' +
       '<span class="hint" style="flex:1;min-width:180px;">一个规格＝买家看到的一个选项；不留空就用上面的商品价/库存</span>' +
-      '<button type="button" class="btn-mini sm-var-add" style="background:#FCE1EA;color:#A04A68;padding:9px 20px;font-size:15px;">＋ 添加规格</button></div>' +
+      '<button type="button" class="btn-mini sm-var-add" style="background:#FCE1EA;color:#A98D96;padding:9px 20px;font-size:15px;">＋ 添加规格</button></div>' +
       '<div class="sm-var-rows"></div>' +
       '<p class="hint" style="margin:6px 0 0;">每个规格可以传自己的图，第一张就是这个选项的封面；和编辑商品里的是同一套，上架时一起保存。</p>';
     actions.parentNode.insertBefore(block, actions); // 她 2026-10-25 表单加了 wrapper：actions 不再是 .card 直接子节点，改插到同父级
@@ -855,6 +872,15 @@
       if (e.target.classList.contains('sm-var-del')) { ADDVAR.list.splice(parseInt(e.target.getAttribute('data-i'), 10), 1); smVarRenderRows(form); return; }
       var imgdel = e.target.closest('.sm-var-imgdel');
       if (imgdel) { var v = ADDVAR.list[parseInt(imgdel.getAttribute('data-i'), 10)]; if (v && arr(v.images)) { v.images.splice(parseInt(imgdel.getAttribute('data-k'), 10), 1); smVarRenderRows(form); } }
+      var imgmv = e.target.closest('.sm-var-imgmv');
+      if (imgmv) {
+        var vmv = ADDVAR.list[parseInt(imgmv.getAttribute('data-i'), 10)];
+        var kk = parseInt(imgmv.getAttribute('data-k'), 10), dd = parseInt(imgmv.getAttribute('data-d'), 10);
+        if (vmv && arr(vmv.images).length > 1 && kk + dd >= 0 && kk + dd < vmv.images.length) {
+          var tmp = vmv.images[kk]; vmv.images[kk] = vmv.images[kk + dd]; vmv.images[kk + dd] = tmp;
+          smVarRenderRows(form);
+        }
+      }
     });
     form.addEventListener('input', function (e) {
       var row = e.target.closest('.sm-var-row'); if (!row) return;
@@ -1057,7 +1083,7 @@
       return;
     }
     if (e.target.classList.contains('sm-pmethod')) { // 收款渠道：含微信/支付宝（whitelist 未扩展前自动降级 other）
-      pickPop(e.target, [['cash', '现金'], ['zelle', 'Zelle'], ['venmo', 'Venmo'], ['cashapp', 'CashApp'], ['paypal', 'PayPal'], ['bank', '银行转账'], ['wechat', '微信支付'], ['alipay', '支付宝'], ['other', '其他']].map(function (m) { return { v: m[0], label: m[1] }; }),
+      pickPop(e.target, [['cash', '现金'], ['zelle', 'Zelle'], ['venmo', 'Venmo'], ['paypal', 'PayPal'], ['wechat', '微信支付'], ['alipay', '支付宝'], ['other', '其他']].map(function (m) { return { v: m[0], label: m[1] }; }),
         e.target.getAttribute('data-v') || 'cash', function (v) {
           var L = { cash: '现金', bank: '银行转账', other: '其他' };
           e.target.setAttribute('data-v', v);
@@ -1490,6 +1516,15 @@
         var v = arr(card.__variants)[parseInt(imgdel.getAttribute('data-i'), 10)];
         if (v && arr(v.images)) { v.images.splice(parseInt(imgdel.getAttribute('data-k'), 10), 1); smVarRenderRows(card); }
       }
+      var imgmv = e.target.closest('.sm-var-imgmv');
+      if (imgmv) {
+        var vmv = arr(card.__variants)[parseInt(imgmv.getAttribute('data-i'), 10)];
+        var kk2 = parseInt(imgmv.getAttribute('data-k'), 10), dd2 = parseInt(imgmv.getAttribute('data-d'), 10);
+        if (vmv && arr(vmv.images).length > 1 && kk2 + dd2 >= 0 && kk2 + dd2 < vmv.images.length) {
+          var tmp2 = vmv.images[kk2]; vmv.images[kk2] = vmv.images[kk2 + dd2]; vmv.images[kk2 + dd2] = tmp2;
+          smVarRenderRows(card);
+        }
+      }
     });
     productList.addEventListener('change', function (e) { // 规格图上传：复用 uploadShopFiles（shop 桶）
       if (!e.target.classList.contains('sm-var-file')) return;
@@ -1612,6 +1647,186 @@
     var box = document.querySelector('#mo-form .mo-items');
     if (box) box.innerHTML = MO_ITEMS.length ? MO_ITEMS.map(moItemRowHtml).join('') : '<p class="hint">还没加商品，点下面「＋ 添加商品」</p>';
   }
+  /* ─────────────────────────────────────────────────────────────
+     地址文本解析（中英文混排都能吃；纯前端启发式，不联网、不自动提交）
+     返回 {name, phone, email, country, state, city, zip, street, confirm}
+     confirm 里为 false 的字段 = 我没把握，界面上标 ⚠ 让她自己确认
+     ───────────────────────────────────────────────────────────── */
+  var ADDR_COUNTRY_ALIAS = {
+    'united states': 'United States', 'usa': 'United States', 'u.s.a.': 'United States', 'u.s.': 'United States',
+    'america': 'United States', '美国': 'United States',
+    'canada': 'Canada', '加拿大': 'Canada',
+    'united kingdom': 'United Kingdom', 'uk': 'United Kingdom', 'england': 'United Kingdom', '英国': 'United Kingdom',
+    'australia': 'Australia', '澳大利亚': 'Australia', '澳洲': 'Australia',
+    'japan': 'Japan', '日本': 'Japan',
+    'china': 'China', '中国': 'China',
+    'singapore': 'Singapore', '新加坡': 'Singapore',
+    'germany': 'Germany', '德国': 'Germany',
+    'france': 'France', '法国': 'France',
+    'new zealand': 'New Zealand', '新西兰': 'New Zealand',
+    'malaysia': 'Malaysia', '马来西亚': 'Malaysia',
+    'south korea': 'South Korea', 'korea': 'South Korea', '韩国': 'South Korea',
+    'hong kong': 'Hong Kong', '香港': 'Hong Kong',
+    'taiwan': 'Taiwan', '台湾': 'Taiwan',
+    'netherlands': 'Netherlands', '荷兰': 'Netherlands',
+    'italy': 'Italy', '意大利': 'Italy', 'spain': 'Spain', '西班牙': 'Spain',
+    'sweden': 'Sweden', '瑞典': 'Sweden', 'switzerland': 'Switzerland', '瑞士': 'Switzerland'
+  };
+  var ADDR_US_STATES = {
+    AL: 1, AK: 1, AZ: 1, AR: 1, CA: 1, CO: 1, CT: 1, DE: 1, FL: 1, GA: 1, HI: 1, ID: 1, IL: 1, IN: 1, IA: 1,
+    KS: 1, KY: 1, LA: 1, ME: 1, MD: 1, MA: 1, MI: 1, MN: 1, MS: 1, MO: 1, MT: 1, NE: 1, NV: 1, NH: 1, NJ: 1,
+    NM: 1, NY: 1, NC: 1, ND: 1, OH: 1, OK: 1, OR: 1, PA: 1, RI: 1, SC: 1, SD: 1, TN: 1, TX: 1, UT: 1, VT: 1,
+    VA: 1, WA: 1, WV: 1, WI: 1, WY: 1, DC: 1
+  };
+  var ADDR_CA_PROV = { ON: 1, QC: 1, BC: 1, AB: 1, MB: 1, SK: 1, NS: 1, NB: 1, NL: 1, PE: 1, YT: 1, NT: 1, NU: 1 };
+  var ADDR_STATE_NAMES = {
+    alabama: 'AL', alaska: 'AK', arizona: 'AZ', arkansas: 'AR', california: 'CA', colorado: 'CO',
+    connecticut: 'CT', delaware: 'DE', florida: 'FL', georgia: 'GA', hawaii: 'HI', idaho: 'ID',
+    illinois: 'IL', indiana: 'IN', iowa: 'IA', kansas: 'KS', kentucky: 'KY', louisiana: 'LA',
+    maine: 'ME', maryland: 'MD', massachusetts: 'MA', michigan: 'MI', minnesota: 'MN',
+    mississippi: 'MS', missouri: 'MO', montana: 'MT', nebraska: 'NE', nevada: 'NV',
+    'new hampshire': 'NH', 'new jersey': 'NJ', 'new mexico': 'NM', 'new york': 'NY',
+    'north carolina': 'NC', 'north dakota': 'ND', ohio: 'OH', oklahoma: 'OK', oregon: 'OR',
+    pennsylvania: 'PA', 'rhode island': 'RI', 'south carolina': 'SC', 'south dakota': 'SD',
+    tennessee: 'TN', texas: 'TX', utah: 'UT', vermont: 'VT', virginia: 'VA', washington: 'WA',
+    'west virginia': 'WV', wisconsin: 'WI', wyoming: 'WY'
+  };
+  function parseAddressText(raw) {
+    var out = { name: '', phone: '', email: '', country: '', state: '', city: '', zip: '', street: '' };
+    var conf = { name: true, phone: true, email: true, country: true, state: true, city: true, zip: true, street: true };
+    var t = String(raw || '').replace(/[，、；]/g, function (m) { return m === '；' ? '\n' : ','; }).replace(/\u3000/g, ' ').trim();
+    if (!t) return { name: '', phone: '', email: '', country: '', state: '', city: '', zip: '', street: '', confirm: conf };
+
+    // 邮箱
+    var em = t.match(/[\w.+-]+@[\w-]+\.[\w.-]+/);
+    if (em) { out.email = em[0]; t = t.replace(em[0], ' '); }
+
+    // 电话：美国 10/11 位、中国 11 位、通用长串数字
+    var ph = t.match(/(?:\+?1[\s.\-]?)?\(?\d{3}\)?[\s.\-]?\d{3}[\s.\-]?\d{4}\b/)
+      || t.match(/(?:\+?86[\s\-]?)?1[3-9]\d{9}\b/)
+      || t.match(/\+?\d[\d\s().\-]{7,}\d/);
+    if (ph) { out.phone = ph[0].replace(/\s+/g, ' ').trim(); t = t.replace(ph[0], ' '); }
+    else { conf.phone = false; }
+
+    var full = t; // 保留未去邮编的全文，供后面的城市/州正则用
+
+    // 邮编：US 5 位 / 5-4，日本 3-4，加拿大 A1A 1A1，中国 6 位
+    var zp = t.match(/\b\d{5}-\d{4}\b/)
+      || t.match(/\b\d{3}-\d{4}\b/)
+      || t.match(/\b[A-Z]\d[A-Z]\s?\d[A-Z]\d\b/)
+      || t.match(/(?<!\d)\d{5}(?!\d)/)
+      || t.match(/(?<!\d)\d{6}(?!\d)/);
+    if (zp) { out.zip = zp[0]; t = t.replace(zp[0], ' '); }
+    else { conf.zip = false; }
+
+    // 国家
+    var lower = ' ' + t.toLowerCase() + ' ';
+    var ckeys = Object.keys(ADDR_COUNTRY_ALIAS).sort(function (a, b) { return b.length - a.length; });
+    for (var ci = 0; ci < ckeys.length; ci++) {
+      var ck = ckeys[ci];
+      var isCn = /[\u4e00-\u9fa5]/.test(ck);
+      if (isCn ? t.indexOf(ck) >= 0 : lower.indexOf(' ' + ck) >= 0 || lower.indexOf(ck + ' ') >= 0) {
+        out.country = ADDR_COUNTRY_ALIAS[ck];
+        break;
+      }
+    }
+
+    // 州 / 省
+    var stAbbr = t.match(/\b([A-Z]{2})\b/);
+    if (stAbbr && (ADDR_US_STATES[stAbbr[1]] || ADDR_CA_PROV[stAbbr[1]])) { out.state = stAbbr[1]; }
+    if (!out.state) {
+      var sk = Object.keys(ADDR_STATE_NAMES);
+      for (var si = 0; si < sk.length; si++) {
+        if (lower.indexOf(sk[si]) >= 0) { out.state = ADDR_STATE_NAMES[sk[si]]; break; }
+      }
+    }
+    if (!out.state) {
+      var cnProv = t.match(/([\u4e00-\u9fa5]{2,8}?(?:省|自治区|特别行政区))/);
+      if (cnProv) out.state = cnProv[1];
+    }
+    if (!out.state) conf.state = false;
+
+    // 城市
+    var cnCity = t.match(/([\u4e00-\u9fa5]{2,10}?(?:市|地区|自治州|县))/);
+    if (cnCity) out.city = cnCity[1];
+    if (out.city && out.state && out.city.indexOf(out.state) === 0) out.city = out.city.slice(out.state.length); // 广东省深圳市 → 深圳市
+    if (!out.city) {
+      var usCity = full.match(/,\s*([A-Za-z][A-Za-z .'\-]{1,30})\s*,\s*(?:[A-Z]{2}|\d{5})/)
+        || full.match(/([A-Za-z][A-Za-z .'\-]{1,30}),\s*[A-Z]{2}\b/) 
+        || full.match(/([A-Za-z][A-Za-z .'\-]{1,30})\s+\d{3}-\d{4}/)
+        || full.match(/([A-Za-z][A-Za-z .'\-]{1,30})[\s,]+(?:\d{5}|[A-Z]\d[A-Z]\s?\d[A-Z]\d)\b/);
+      if (usCity) out.city = usCity[1].trim();
+    }
+    if (!out.city) conf.city = false;
+
+    // 拆行：姓名行 / 详细地址行（单行用逗号拆；中文单行按空格拆）
+    var lines = t.split(/\r?\n/).map(function (s) { return s.replace(/\s+/g, ' ').trim(); }).filter(Boolean);
+    if (lines.length === 1 && lines[0].indexOf(',') >= 0) {
+      lines = lines[0].split(/\s*,\s*/).filter(Boolean);
+    }
+    if (lines.length === 1 && /[\u4e00-\u9fa5]/.test(lines[0])) {
+      lines = lines[0].split(/\s+/).filter(Boolean);
+    }
+    var rest = [];
+    var nameHit = false;
+    var nameKey = /^(?:收件人|收货人|姓名|联系人|name|receiver|to)\s*[:：]?\s*/i;
+    for (var li = 0; li < lines.length; li++) {
+      var ln = lines[li];
+      var cleaned = ln.replace(nameKey, '');
+      var looksName = cleaned.length <= 24 && !/\d/.test(cleaned)
+        && !/(street|st\.|ave|road|rd\.|drive|dr\.|lane|ln\.|blvd|suite|apt|unit|city|state|province|zip|county)/i.test(cleaned)
+        && !/(省|市|区|路|街|道|巷|号|楼|室|镇|村)/.test(cleaned);
+      if (!nameHit && (nameKey.test(ln) || looksName)) {
+        if (nameKey.test(ln) || cleaned.length >= 2) {
+          out.name = cleaned.trim();
+          nameHit = true;
+          continue;
+        }
+      }
+      // 中文单行：“张三 广东省深圳市…” → 领头 2-4 个汉字当姓名
+      if (!nameHit) {
+        var cnNm = ln.match(/^([\u4e00-\u9fa5]{2,4})(?=[\s\d,])/);
+        if (cnNm && !/(省|市|区|县|路|街|道|号|楼|室|镇|村|收件人|收货人)/.test(cnNm[1])) {
+          out.name = cnNm[1];
+          nameHit = true;
+          ln = ln.slice(cnNm[1].length).trim();
+          if (ln) rest.push(ln);
+          continue;
+        }
+      }
+      rest.push(ln);
+    }
+    // 详细地址：优先带门牌/路名的行
+    var streetLines = rest.filter(function (ln) {
+      return /\d/.test(ln) || /(street|st\.|ave|avenue|road|rd\.|drive|dr\.|lane|ln\.|blvd|suite|apt|unit|#|\u53f7|\u8def|\u8857|\u9053|\u5df7|\u5f04|\u697c|\u5ba4)/i.test(ln);
+    });
+    if (streetLines.length) out.street = streetLines.join(', ').replace(/\s*,\s*/g, ', ').replace(/(,\s*){2,}/g, ', ').trim();
+
+    // 兜底：如果街道为空但还有非空行，就把剩下的拼起来当街道
+    if (!out.street) {
+      var left = rest.filter(function (ln) { return ln && ln !== out.city && ln !== out.state && ln !== out.country; });
+      if (left.length) out.street = left.join(', ').trim();
+    }
+    if (!out.street) conf.street = false;
+    if (!out.name) conf.name = false;
+    if (!out.city) conf.city = false;
+    // 没识别出国家：美国州默认美国，加拿大省默认加拿大，中文省/市默认中国
+    if (!out.country && out.state && ADDR_US_STATES[out.state]) out.country = 'United States';
+    if (!out.country && out.state && ADDR_CA_PROV[out.state]) out.country = 'Canada';
+    if (!out.country && /(省|自治区|市)/.test((out.state || '') + (out.city || '')) && /[\u4e00-\u9fa5]/.test(out.state || out.city || '')) out.country = 'China';
+    if (!out.country) conf.country = false;
+
+    // 收尾清理：街道里别再把姓名/城市/州/省/邮编/国家重复一遍
+    if (out.street) {
+      var strip = [out.name, out.city, out.state, out.zip, out.country].filter(Boolean);
+      strip.forEach(function (w) {
+        out.street = out.street.split(w).join(' ').replace(/\s*,\s*,/g, ',').replace(/^\s*,\s*|\s*,\s*$/g, ' ').replace(/\s{2,}/g, ' ').trim();
+      });
+    }
+
+    return { name: out.name, phone: out.phone, email: out.email, country: out.country, state: out.state, city: out.city, zip: out.zip, street: out.street, confirm: conf };
+  }
+
   function openManualOrder() {
     MO_ITEMS = [{ pid: '', sku: '', qty: 1, price: '', custom: false, name: '' }];
     if (!SM.products.length) loadProducts().then(function () { if (document.querySelector('#mo-form')) moRenderItems(); });
@@ -1623,49 +1838,123 @@
     mask.style.cssText = 'position:fixed;inset:0;background:rgba(90,80,90,.45);z-index:9998;overflow:auto;padding:30px 10px;';
     // 订单编号改为保存时才向服务端申请（20261029 她反馈：打开弹窗就预占号，不开单号码也一直变/被烧掉）
     mask.innerHTML =
-      '<div id="mo-form" style="max-width:800px;margin:0 auto;background:#fff;border-radius:18px;padding:22px;box-shadow:0 10px 40px rgba(120,80,100,.25);">' +
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><h3 style="margin:0;font-size:19px;">手动创建订单</h3>' +
+      '<div id="mo-form" style="max-width:820px;margin:0 auto;background:#fff;border-radius:18px;padding:22px;box-shadow:0 10px 40px rgba(120,80,100,.25);">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;"><h3 style="margin:0;font-size:19px;">手动创建订单</h3>' +
       '<button type="button" class="btn-mini mo-close">关闭</button></div>' +
-      '<div class="form-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">' +
-        '<input class="mo-no" value="" readonly placeholder="订单编号：保存时自动生成" style="color:var(--muted,#A88E9B);background:#FFF8FA;">' +
-        '<input class="mo-time" type="datetime-local" value="' + local + '">' +
-        '<button type="button" class="sel-btn mo-status" data-v="pending"><span class="pick-btn-label">状态：待付款</span></button>' +
-        '<button type="button" class="sel-btn mo-cur" data-v="USD"><span class="pick-btn-label">货币：USD</span></button>' +
-        '<input class="mo-email" placeholder="买家邮箱（可空）" style="grid-column:1/-1;">' +
-        '<input class="mo-bname" placeholder="买家姓名（可空）">' +
-        '<input class="mo-bphone" placeholder="联系电话（可空）">' +
-        '<input class="mo-addr-name" placeholder="收件人姓名 *">' +
-        '<input class="mo-addr-street" placeholder="街道地址 *">' +
-        '<input class="mo-addr-city" placeholder="城市 *">' +
-        '<input class="mo-addr-state" placeholder="州/省">' +
-        '<input class="mo-addr-zip" placeholder="ZIP Code">' +
-        '<input class="mo-addr-country" placeholder="国家（默认 United States）">' +
-        '<input class="mo-note" placeholder="买家备注（可空）" style="grid-column:1/-1;">' +
-        '<input class="mo-adminnote" placeholder="管理员备注（只有你能看）" style="grid-column:1/-1;">' +
-      '</div>' +
-      '<div style="margin:14px 0 6px;"><b style="font-size:16px;">订单商品</b>' +
-      '<div class="mo-items" style="margin-top:10px;"></div>' +
-      '<button type="button" class="btn-mini mo-additem" style="background:#FCE1EA;color:#A04A68;padding:9px 22px;font-size:15px;">＋ 添加商品</button>' +
-      '<p class="hint" style="margin:6px 0 0;">从商品列表选，或选「自定义商品」录临时商品；单价留空自动用商品价</p></div>' +
-      '<div style="margin:14px 0 6px;"><b style="font-size:16px;">收款安排</b>' +
-      '<div style="display:flex;gap:8px;margin-top:8px;">' +
-        '<button type="button" class="paytab mo-plan on" data-v="full">全款</button>' +
-        '<button type="button" class="paytab mo-plan" data-v="deposit">定金＋尾款</button>' +
-        '<button type="button" class="paytab mo-plan" data-v="split">分次付款</button>' +
+      '<p class="hint" style="margin:0 0 10px;">顺序 ① 客户 → ② 商品 → ③ 收款 → ④ 确认；高级选项默认收起。</p>' +
+
+      '<details class="mo-sec" open><summary><span class="mo-step">1</span>客户信息</summary><div class="mo-sec-body">' +
+      '<textarea class="mo-addr-text" placeholder="把买家发来的地址整段粘进来（中英文都行），点「识别并预览」自动拆开" style="width:100%;min-height:58px;box-sizing:border-box;padding:10px 12px;font-family:inherit;font-size:15px;border:1.5px solid var(--accent-soft,#FCE1EA);border-radius:12px;"></textarea>' +
+      '<button type="button" class="btn-mini mo-addr-parse" style="margin-top:6px;padding:8px 18px;">识别并预览</button>' +
+      '<p class="hint mo-addr-hint" style="margin:6px 0 0;"></p>' +
+      '<div class="form-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;">' +
+      '<input class="mo-email" placeholder="买家邮箱（可空）" style="grid-column:1/-1;">' +
+      '<input class="mo-bname" placeholder="买家姓名（可空）">' +
+      '<input class="mo-bphone" placeholder="联系电话（可空）">' +
+      '<input class="mo-addr-name" placeholder="收件人姓名 *">' +
+      '<input class="mo-addr-country" placeholder="国家（默认 United States）">' +
+      '<input class="mo-addr-street" placeholder="街道地址 *" style="grid-column:1/-1;">' +
+      '<input class="mo-addr-city" placeholder="城市 *">' +
+      '<input class="mo-addr-state" placeholder="州/省">' +
+      '<input class="mo-addr-zip" placeholder="ZIP Code">' +
+      '</div></div></details>' +
+
+      '<details class="mo-sec" open><summary><span class="mo-step">2</span>商品信息</summary><div class="mo-sec-body">' +
+      '<div class="mo-items"></div>' +
+      '<button type="button" class="btn-mini mo-additem" style="background:#FCE1EA;color:#A98D96;padding:9px 22px;font-size:15px;">＋ 添加商品</button>' +
+      '<p class="hint" style="margin:6px 0 0;">从商品列表选，或选「自定义商品」录临时商品；单价留空自动用商品价</p>' +
+      '</div></details>' +
+
+      '<details class="mo-sec" open><summary><span class="mo-step">3</span>收款安排</summary><div class="mo-sec-body">' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+      '<button type="button" class="paytab mo-plan on" data-v="full">全款</button>' +
+      '<button type="button" class="paytab mo-plan" data-v="deposit">定金＋尾款</button>' +
+      '<button type="button" class="paytab mo-plan" data-v="split">分次付款</button>' +
       '</div>' +
       '<div class="mo-plan-inputs" style="margin-top:8px;"></div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:12px 0 10px;">' +
+      '<div><span class="mo-flabel mo-flabel-inpop">折扣金额 $</span><input class="mo-discount" type="number" min="0" step="0.01" value="0"></div>' +
+      '<div><span class="mo-flabel mo-flabel-inpop">运费 $</span><input class="mo-ship" type="number" min="0" step="0.01" value="0"></div>' +
+      '<div><span class="mo-flabel mo-flabel-inpop">服务费 $</span><input class="mo-fee" type="number" min="0" step="0.01" value="2"></div>' +
       '</div>' +
-      '<div style="margin:14px 0 8px;"><b style="font-size:16px;">金额</b></div>' +
-      '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;">' +
-        '<div><span class="mo-flabel mo-flabel-inpop">折扣金额 $</span><input class="mo-discount" type="number" min="0" step="0.01" value="0"></div>' +
-        '<div><span class="mo-flabel mo-flabel-inpop">运费 $</span><input class="mo-ship" type="number" min="0" step="0.01" value="0"></div>' +
-        '<div><span class="mo-flabel mo-flabel-inpop">服务费 $</span><input class="mo-fee" type="number" min="0" step="0.01" value="2"></div>' +
-      '</div>' +
-      '<div class="mo-sum" style="margin-bottom:12px;"></div>' +
-      '<button type="button" class="btn-mini mo-save" style="background:#FCE1EA;color:#A04A68;padding:10px 26px;font-size:16px;">保存订单</button>' +
-      '<span class="hint" style="margin-left:10px;">默认「待付款」，不会自动标成已付款；来源自动记为「后台手动创建」</span>' +
+      '<div class="mo-sum"></div>' +
+      '</div></details>' +
+
+      '<details class="mo-sec" open><summary><span class="mo-step">4</span>订单确认</summary><div class="mo-sec-body">' +
+      '<input class="mo-note" placeholder="买家备注（可空）" style="width:100%;box-sizing:border-box;">' +
+      '<details class="mo-adv"><summary>高级选项（订单时间 / 状态 / 货币 / 内部备注）</summary>' +
+      '<div class="form-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">' +
+      '<input class="mo-no" value="" readonly placeholder="订单编号：保存时自动生成" style="color:var(--muted,#A88E9B);background:#FFF8FA;">' +
+      '<input class="mo-time" type="datetime-local" value="' + local + '">' +
+      '<button type="button" class="sel-btn mo-status" data-v="pending"><span class="pick-btn-label">状态：待付款</span></button>' +
+      '<button type="button" class="sel-btn mo-cur" data-v="USD"><span class="pick-btn-label">货币：USD</span></button>' +
+      '<input class="mo-adminnote" placeholder="管理员备注（只有你能看）" style="grid-column:1/-1;">' +
+      '</div></details>' +
+      '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px;">' +
+      '<button type="button" class="btn-mini mo-save" style="background:#FCE1EA;color:#A98D96;padding:10px 26px;font-size:16px;">保存订单</button>' +
+      '<span class="hint" style="margin:0;">默认「待付款」，不会自动标成已付款；来源自动记为「后台手动创建」</span>' +
+      '</div></div></details>' +
       '</div>';
     root.appendChild(mask);
+    // ── 地址识别：粘贴 → 预览（⚠ 标出没把握的字段）→ 确认后才填入，绝不自动提交 ──
+    var moFillAddr = function (a) {
+      var q = function (c) { return mask.querySelector(c); };
+      var set = function (c, v) { var el = q(c); if (el && v) el.value = v; };
+      set('.mo-addr-name', a.name);
+      set('.mo-addr-street', a.street);
+      set('.mo-addr-city', a.city);
+      set('.mo-addr-state', a.state);
+      set('.mo-addr-zip', a.zip);
+      set('.mo-addr-country', a.country);
+      var bp = q('.mo-bphone'); if (bp && !bp.value && a.phone) bp.value = a.phone;
+      var em = q('.mo-email'); if (em && !em.value && a.email) em.value = a.email;
+      var bn = q('.mo-bname'); if (bn && !bn.value && a.name) bn.value = a.name;
+    };
+    var moOpenAddrPreview = function () {
+      var box = mask.querySelector('.mo-addr-text');
+      var raw = box ? box.value.trim() : '';
+      if (!raw) { toast('先把买家发来的地址粘进框里'); return; }
+      var a = parseAddressText(raw);
+      var prev = document.createElement('div');
+      prev.id = 'mo-addr-prev';
+      prev.style.cssText = 'position:fixed;inset:0;background:rgba(90,80,90,.45);z-index:9999;overflow:auto;padding:40px 12px;';
+      var fld = function (label, key, val) {
+        var low = a.confirm && a.confirm[key] === false;
+        return '<label style="display:block;margin-bottom:8px;">' +
+          '<span style="display:block;font-size:13px;color:#A98D96;margin-bottom:4px;">' + label + (low ? ' <b style="color:#C4636E;font-weight:600;">⚠ 需确认</b>' : '') + '</span>' +
+          '<input data-f="' + key + '" value="' + escAttr(val || '') + '" style="width:100%;box-sizing:border-box;padding:9px 11px;font-size:15px;font-family:inherit;border:1.5px solid ' + (low ? '#F5BFD1' : '#FCE1EA') + ';border-radius:10px;">' +
+          '</label>';
+      };
+      prev.innerHTML = '<div style="max-width:560px;margin:0 auto;background:#fff;border-radius:18px;padding:20px;box-shadow:0 10px 40px rgba(120,80,100,.25);">' +
+        '<h3 style="margin:0 0 4px;font-size:18px;">地址识别结果</h3>' +
+        '<p class="hint" style="margin:0 0 12px;">标 ⚠ 的是我没把握的；确认之前不会写进订单，也不会提交。</p>' +
+        fld('收件人姓名', 'name', a.name) +
+        fld('电话', 'phone', a.phone) +
+        fld('国家', 'country', a.country) +
+        fld('州 / 省', 'state', a.state) +
+        fld('城市', 'city', a.city) +
+        fld('邮编', 'zip', a.zip) +
+        fld('详细地址', 'street', a.street) +
+        '<div style="display:flex;gap:10px;margin-top:14px;">' +
+        '<button type="button" class="btn-mini ap-ok" style="background:#FCE1EA;color:#A98D96;padding:9px 22px;">确认填入</button>' +
+        '<button type="button" class="btn-mini ap-no" style="padding:9px 22px;">取消</button></div></div>';
+      root.appendChild(prev);
+      prev.addEventListener('click', function (ev) {
+        if (ev.target === prev || ev.target.classList.contains('ap-no')) { prev.remove(); return; }
+        if (ev.target.classList.contains('ap-ok')) {
+          var o = {};
+          Array.prototype.forEach.call(prev.querySelectorAll('input[data-f]'), function (inp) { o[inp.getAttribute('data-f')] = inp.value.trim(); });
+          moFillAddr(o);
+          prev.remove();
+          var hint = mask.querySelector('.mo-addr-hint');
+          if (hint) hint.textContent = '已按你确认的结果填入，可继续手改。';
+          toast('地址已填入');
+        }
+      });
+    };
+    mask.addEventListener('click', function (e) {
+      if (e.target.closest('.mo-addr-parse')) { moOpenAddrPreview(); }
+    });
     // 收款安排（她 20261029：与 POS 同款全款/定金＋尾款/分次）
     var moRenderPlanInputs = function () {
       var onBtn = mask.querySelector('.mo-plan.on');
@@ -2007,7 +2296,7 @@
         '<p class="hint" style="margin:0 0 8px;">也会套用当前订单搜索关键字；跨页导出会包含所有符合条件的记录</p>' +
       '</div>' +
       '<p class="hint">CSV 为 UTF-8（带 BOM），Excel 可直接打开；每个商品一行，订单信息重复以便筛选</p>' +
-      '<button type="button" class="btn-mini ex-go" style="background:#FCE1EA;color:#A04A68;padding:10px 26px;font-size:16px;">导出</button>' +
+      '<button type="button" class="btn-mini ex-go" style="background:#FCE1EA;color:#A98D96;padding:10px 26px;font-size:16px;">导出</button>' +
       '</div>';
     root.appendChild(mask);
     var mode = 'all';
@@ -2016,7 +2305,7 @@
       var m = e.target.closest('.ex-mode');
       if (m) {
         mode = m.getAttribute('data-v');
-        mask.querySelectorAll('.ex-mode').forEach(function (b) { b.style.background = b === m ? '#FCE1EA' : ''; b.style.color = b === m ? '#A04A68' : ''; }); /* 选中态：粉胶囊深玫瑰字（白字不配浅底，她 20261029 §4） */
+        mask.querySelectorAll('.ex-mode').forEach(function (b) { b.style.background = b === m ? '#FCE1EA' : ''; b.style.color = b === m ? '#A98D96' : ''; }); /* 选中态：粉胶囊深玫瑰字（白字不配浅底，她 20261029 §4） */
         mask.querySelector('.ex-filters').style.display = mode === 'filtered' ? '' : 'none';
         return;
       }
@@ -2057,7 +2346,7 @@
       '<textarea class="po-zh" placeholder="简体中文内容（留空 = 使用内置默认；支持 <p> <ul> <li> <a> <strong> <br>）" style="width:100%;min-height:140px;box-sizing:border-box;"></textarea>' +
       '<textarea class="po-en" placeholder="English content (leave empty = built-in default)" style="width:100%;min-height:140px;box-sizing:border-box;margin-top:8px;"></textarea>' +
       '<div style="display:flex;gap:8px;margin-top:8px;align-items:center;">' +
-        '<button type="button" class="btn-mini po-save" style="background:#FCE1EA;color:#A04A68;">保存并发布</button>' +
+        '<button type="button" class="btn-mini po-save" style="background:#FCE1EA;color:#A98D96;">保存并发布</button>' +
         '<button type="button" class="btn-mini po-reset">恢复内置默认</button>' +
         '<span class="hint">保存后前台立即生效；「联系我们」页面就是留言板，不需要在这里编辑</span>' +
       '</div></div>';

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <script src="/js/lang-path.js?v=20261031c"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>品牌介绍 · Snow Yuzu</title>
+  <meta name="description" content="Snow Yuzu（Snow Yuzu · 小柚的小世界）品牌介绍：手作小物、BJD 妆容与色卡、原创稿件">
+  <link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki2-180.png">
+  <link rel="stylesheet" href="/css/site.css?v=20261031c">
+  <link rel="stylesheet" href="/site-menu.css?v=20261031c">
+  <script src="/js/site-common.js?v=20261031c"></script>
+  <script src="/site-menu.js?v=20261031c" defer></script>
+  <style>
+    .sy-linkline { display: block; padding: 15px 4px; border-bottom: 1px solid var(--accent,#FFD9E6); color: var(--text,#604C57); font-size:17px; text-decoration: none; transition: color .2s, padding-left .2s; }
+    .sy-linkline:hover { color: var(--price,#FF6FA5); padding-left: 10px; }
+    .sy-linkline:first-child { border-top: 1px solid var(--accent,#FFD9E6); }
+    .sy-linkline small { display: block; font-size: 14px; color: var(--muted,#A88E9B); margin-top: 2px; }
+    .sy-hub { max-width: 640px; }
+  </style>
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261031c">
+</head>
+<body>
+
+<!-- 顶部白色长条：左边切换语言，中间 logo 点击回主页，右边菜单（与全站子页面同一套） -->
+<header class="topbar">
+  <div class="lang-switch">
+    <button class="lang-btn" data-lang="zh">简体中文</button>
+    <button class="lang-btn" data-lang="en">English</button>
+  </div>
+  <a class="site-logo" href="/zh/" aria-label="回主页"><img src="/logo.png" alt="logo"></a>
+  <div class="topbar-right">
+    <a class="topbar-cart" id="topbar-cart" href="/zh/shop/?sec=cart" aria-label="购物车">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3.5h2.2l2.3 11.2a1.8 1.8 0 0 0 1.8 1.4h8.5a1.8 1.8 0 0 0 1.8-1.4l1.5-8.2H6"/></svg>
+      <span class="topbar-cart-badge" id="topbar-cart-badge" style="display:none;">0</span>
+    </a>
+    <button class="burger" id="burger" aria-label="菜单">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+<div class="menu-mask" id="menu-mask"></div>
+
+<div class="subpage-header">
+    <h1 class="subpage-title">品牌介绍</h1>
+    <p class="subpage-sub" data-zh="Snow Yuzu · 每一件都是亲手做的" data-en="Snow Yuzu · everything handmade">Snow Yuzu · 每一件都是亲手做的</p>
+  </div>
+  <a class="back-link page-back" href="/zh/" style="margin:8px 0 24px 2px;"><span data-zh="← 返回主页" data-en="← Back to Home">← 返回主页</span></a>
+
+  <div class="page-body" style="padding-top:6px;">
+    <div class="sy-hub">
+      <p style="font-size:17px;line-height:2;color:var(--text,#604C57);" data-zh="Snow Yuzu（Snow Yuzu · 小柚的小世界）是柚子的手作品牌：手作小物、BJD 妆容与色卡、原创稿件，都会在小铺里与大家见面。每一件都是亲手做的，节奏不快，但每一件都用心。" data-en="Snow Yuzu is Yuki's handmade brand: handmade crafts, BJD faceups &amp; color cards, and original artworks — all shared through the shop. Everything is made by hand, at a slow pace, with care.">Snow Yuzu（Snow Yuzu · 小柚的小世界）是柚子的手作品牌：手作小物、BJD 妆容与色卡、原创稿件，都会在小铺里与大家见面。每一件都是亲手做的，节奏不快，但每一件都用心。</p>
+      <p style="font-size:17px;line-height:2;color:var(--text,#604C57);margin-top:14px;" data-zh="想看最新动态可以去「找到我」关注社交账号；商品咨询与售后请走「联系我们」，或发邮件到官方邮箱 snowyuzustudio@gmail.com。" data-en="For the latest updates, follow me via Find Me. For product questions and after-sales, use Contact Us or email snowyuzustudio@gmail.com.">想看最新动态可以去「找到我」关注社交账号；商品咨询与售后请走「联系我们」，或发邮件到官方邮箱 snowyuzustudio@gmail.com。</p>
+      <div style="margin-top:22px;display:flex;flex-direction:column;align-items:flex-start;">
+        <a class="sy-linkline" href="/zh/about/">找到我<small>各平台账号汇总</small></a>
+        <a class="sy-linkline" href="/zh/shop/">我的小铺<small>手作小物 · 色卡 · 稿件</small></a>
+        <a class="sy-linkline" href="/zh/askbox/">联系我们<small>留言会直接送达柚子</small></a>
+      </div>
+    </div>
+  </div>
+
+<footer></footer>
+  <script src="/js/site-footer.js?v=20261031c"></script>
+  <script>
+
+    if (window.renderSiteFooter) renderSiteFooter();
+      // §1.3 语言状态初始化：刷新/跳转后恢复 yuki-lang 选中态并翻译静态文案（此前四页漏调，语言按钮无选中态）
+    if (typeof applyLang === 'function') applyLang((function(){try{return localStorage.getItem('yuki-lang')||'zh';}catch(e){return 'zh';}})());
+</script>
+</body>
+</html>

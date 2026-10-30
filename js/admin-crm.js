@@ -75,7 +75,7 @@
         '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">' +
           '<span style="font-size:16px;font-weight:700;color:var(--text,#604C57);">' + esc(c.name || t('（未命名）', '(Unnamed)')) + '</span>' +
           '<span style="font-size:13px;color:var(--muted,#A88E9B);">' + esc(c.c_no || '') + '</span>' +
-          (c.vip ? '<span style="font-size:12px;font-weight:600;padding:2px 10px;border-radius:999px;background:var(--accent-soft,#FCE4EC);color:var(--accent-strong,#A04A68);">VIP' + (c.vip_until ? ' · ' + c.vip_until : '') + '</span>' : '') +
+          (c.vip ? '<span style="font-size:12px;font-weight:600;padding:2px 10px;border-radius:999px;background:var(--accent-soft,#FCE4EC);color:var(--accent-strong,#A98D96);">VIP' + (c.vip_until ? ' · ' + c.vip_until : '') + '</span>' : '') +
           '<span style="font-size:12px;padding:2px 10px;border-radius:999px;background:#fff;border:1px solid var(--accent-soft,#FCE4EC);color:var(--muted,#A88E9B);">' + (c.source === 'online' ? t('线上', 'Online') : t('线下', 'Offline')) + '</span>' +
           '<span style="margin-left:auto;font-size:15px;color:var(--price,#ff6fa5);font-weight:700;">$' + fmtMoney(st.sum) + '</span>' +
           '<span style="font-size:13px;color:var(--muted,#A88E9B);">' + st.count + ' ' + t('次', 'orders') + '</span>' +
@@ -487,7 +487,7 @@
             '<img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' + encodeURIComponent(res.x.url) + '" alt="QR" style="width:150px;height:150px;border-radius:12px;border:1px solid var(--accent-soft,#FCE4EC);">' +
             '<div style="flex:1;min-width:200px;font-size:13px;word-break:break-all;color:var(--text,#604C57);">' +
               '<b>TEST</b> ' + t('测试付款链接（手机扫码或复制打开，测试卡 4242…，不产生真实扣款）：', 'Test link (no real charge):') + '<br>' +
-              '<a href="' + escAttr(res.x.url) + '" target="_blank" style="color:var(--accent-strong,#A04A68);text-decoration:underline;">' + esc(res.x.url.slice(0, 60)) + '…</a>' +
+              '<a href="' + escAttr(res.x.url) + '" target="_blank" style="color:var(--accent-strong,#A98D96);text-decoration:underline;">' + esc(res.x.url.slice(0, 60)) + '…</a>' +
             '</div></div>';
       }).catch(function () { sbox.innerHTML = '<p style="color:var(--danger,#D96570);font-size:14px;">' + t('网络异常，再试一次', 'Network error') + '</p>'; });
     });
@@ -635,7 +635,7 @@
       box.innerHTML =
         '<div style="display:flex;align-items:center;gap:14px;font-size:15px;color:var(--text,#604C57);flex-wrap:wrap;">' +
           '<span>' + t('同步开关', 'Sync switch') + '</span>' +
-          '<span style="font-size:13px;padding:4px 16px;border-radius:999px;border:1.5px solid ' + (st.enabled ? 'transparent;background:var(--accent-soft,#FCE4EC);color:var(--accent-strong,#A04A68);' : '#e8d8e0;background:#fff;color:var(--muted,#A88E9B);') + 'font-weight:600;display:inline-flex;align-items:center;">' + (st.enabled ? t('已开启（待授权）', 'Enabled (pending auth)') : t('关闭', 'Off')) + '</span>' +
+          '<span style="font-size:13px;padding:4px 16px;border-radius:999px;border:1.5px solid ' + (st.enabled ? 'transparent;background:var(--accent-soft,#FCE4EC);color:var(--accent-strong,#A98D96);' : '#e8d8e0;background:#fff;color:var(--muted,#A88E9B);') + 'font-weight:600;display:inline-flex;align-items:center;">' + (st.enabled ? t('已开启（待授权）', 'Enabled (pending auth)') : t('关闭', 'Off')) + '</span>' +
           '<button class="btn-mini" id="ms-toggle">' + (st.enabled ? t('关闭', 'Turn off') : t('开启', 'Turn on')) + '</button>' +
         '</div>' +
         '<div style="font-size:13px;color:var(--muted,#A88E9B);margin-top:14px;">' + t('状态：', 'Status: ') + (st.oauth_done ? t('Google 已授权，同步就绪', 'Google authorized, ready') : t('等待柚子完成 Google OAuth 授权', 'Waiting for your Google OAuth authorization')) + '</div>';
@@ -977,7 +977,7 @@
     fields: [
       ['accent', t('粉底按钮 / 边框', 'Pink buttons / borders'), '#FFD9E6'],
       ['accentSoft', t('选中底色 / 浅粉块', 'Selected / soft pink'), '#FCE4EC'],
-      ['accentStrong', t('强调深字（选中态字）', 'Accent strong'), '#A04A68'],
+      ['accentStrong', t('强调深字（选中态字）', 'Accent strong'), '#A98D96'],
       ['price', t('金额亮粉', 'Price pink'), '#FF6FA5'],
       ['text', t('主文字 / 标题', 'Main text'), '#604C57'],
       ['muted', t('次要文字', 'Muted text'), '#A88E9B'],
@@ -987,7 +987,7 @@
       ['warning', t('警告状态（待处理/返工）', 'Warning status'), '#E0A458'],
       ['danger', t('危险状态（失败/退款）', 'Danger status'), '#D96570']
     ],
-    presets: ['#FFD9E6', '#FCE4EC', '#FF6FA5', '#E073A8', '#A04A68', '#604C57', '#A88E9B', '#FFF8FA', '#FFF0F5', '#ffffff', '#D4B2C4', '#F6DFE8'],
+    presets: ['#FFD9E6', '#FCE4EC', '#FF6FA5', '#E073A8', '#A98D96', '#604C57', '#A88E9B', '#FFF8FA', '#FFF0F5', '#ffffff', '#D4B2C4', '#F6DFE8'],
     saved: {}
   };
 

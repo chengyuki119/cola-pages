@@ -4,6 +4,7 @@
     <link rel="preload" href="/fonts/Millo-RiceSoyMilk80.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/fonts/Millo-RiceSoyMilk90.woff2" as="font" type="font/woff2" crossorigin>
 <meta charset="UTF-8">
+  <script src="/js/lang-path.js?v=20261031c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>联系我们 · Yuki / 柚子</title>
 <link rel="manifest" href="/manifest.json">
@@ -25,7 +26,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     --muted: #A88E9B;
     --accent: #ffd9e6;
     --accent-soft: #FCE4EC;
-    --accent-strong: #A04A68;
+    --accent-strong: #A98D96;
     --radius: 16px;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -72,7 +73,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .wrap { max-width: 1000px; margin: 0 auto; padding: 48px 24px 64px; }
   .back-link {
     display: inline-flex; align-items: center; gap: 8px;
-    color: #A04A68;
+    color: #A98D96;
     font-size:16px; font-weight:600;
     padding: 9px 18px;
     border-radius: 999px;
@@ -124,7 +125,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .contact-hint { font-size:15px; color: var(--muted); margin-top: 10px; line-height: 1.6; }
   .ask-card button {
     align-self: flex-end; margin-top: 12px;
-    border: none; background: #FCE1EA; color: #A04A68;
+    border: none; background: #FCE1EA; color: #A98D96;
     font-size:17px; padding: 9px 22px; border-radius: 999px;
     cursor: pointer; transition: background .2s;
   }
@@ -185,11 +186,12 @@ h2::after { content: " ♥"; font-size: .75em; }
   .subpage-header { background: var(--accent-soft,#FCE4EC); padding: 84px 0 40px; width: 100vw; margin-left: calc(50% - 50vw); }
   .subpage-header h1, .subpage-header p.sub { max-width: 1000px; margin-left: auto; margin-right: auto; padding-left: 24px; padding-right: 24px; box-sizing: border-box; }
 </style>
-  <link rel="stylesheet" href="/site-menu.css?v=20261028p19">
+  <link rel="stylesheet" href="/site-menu.css?v=20261031c">
   <script src="/site-menu.js" defer></script>
   <style>a { color: inherit; text-decoration: none; }</style>
 <script>/* 主题色本地快照（无 site-common 页）；完整主题来自 site_settings.theme_colors */
 try { var __t = JSON.parse(localStorage.getItem('yuki-theme-colors') || 'null'); if (__t && typeof __t === 'object') { var __m = { text: '--text', muted: '--muted', bg: '--bg', card: '--card', accent: '--accent', accentSoft: '--accent-soft', accentStrong: '--accent-strong', price: '--price', success: '--success', warning: '--warning', danger: '--danger' }, __r = document.documentElement.style; Object.keys(__m).forEach(function (k) { if (__t[k]) __r.setProperty(__m[k], __t[k]); }); } } catch (e) {}</script>
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261031c">
 </head>
 <body>
 <header class="topbar">
@@ -439,7 +441,7 @@ try { var __t = JSON.parse(localStorage.getItem('yuki-theme-colors') || 'null');
   loadWall();
 </script>
 <footer>© 2026 Yuki · Made with Cola</footer>
-<script src="/js/site-footer.js?v=20261028p19"></script>
+<script src="/js/site-footer.js?v=20261031c"></script>
 <script>
   // 统一 Footer（已有 <footer> 则替换其内容，不新建第二个）
   function initSiteFooter() { renderSiteFooter(); }

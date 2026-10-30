@@ -394,7 +394,7 @@ window.__menuScroll = function (sc) { // 菜单点「日历/找到我」等区�
   var el = document.getElementById(sc);
   if (el) scrollToEl(el);
 };
-var ASKBOX_URL = '/askbox/'; // 匿名提问箱页面
+var ASKBOX_URL = (window.ykLink ? window.ykLink('/askbox/') : '/askbox/'); // 匿名提问箱页面（随语言路径）
 
 // ===== 色卡 / BJD 分享：独立子页链接（不再使用 #） =====
 var SHARE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4"/><path d="M8 7l4-4 4 4"/><path d="M6 11h-1a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-1"/></svg>';
@@ -430,10 +430,13 @@ function shareBtnHtml(i, type, inline) {
   return '<button class="share-btn' + (inline ? ' share-inline' : '') + '" data-share="' + i + '" data-share-type="' + (type || 'card') + '" title="' + t('分享', 'Share') + '" aria-label="' + t('分享', 'Share') + '">' + SHARE_ICON + '</button>';
 }
 function shareLink(i, type) {
-  return location.origin + (type === 'bjd' ? '/bjd/?id=' : type === 'work' ? '/works/?id=' : '/color-card/?card=') + i;
+  // 分享链接跟随当前页面语言：中文页分享出去就是 /zh/... 的中文页面
+  var p = type === 'bjd' ? '/bjd/?id=' : type === 'work' ? '/works/?id=' : '/color-card/?card=';
+  return location.origin + (window.ykLink ? window.ykLink(p) : p) + i;
 }
 function sharePopItems() {
-  return [['wx', '微信'], ['qq', 'QQ'], ['wb', '微博'], ['xhs', '小红书'], ['fb', 'Facebook'], ['x', 'X / Twitter'], ['wa', 'WhatsApp'], ['ms', 'Messenger'], ['mail', t('邮件分享', 'Email')], ['copy', t('复制链接', 'Copy Link')]]
+  // 她 20261031 §6：分享面板也只保留微信 / 邮件 / 复制链接，其他平台（QQ、微博、小红书、Facebook、X、WhatsApp、Messenger）全部下掉
+  return [['wx', '微信'], ['mail', t('邮件分享', 'Email')], ['copy', t('复制链接', 'Copy Link')]]
     .map(function (p) { return '<button class="sc-opt" data-opt="' + p[0] + '">' + p[1] + '</button>'; }).join('');
 }
 var shareLinkIdx = -1;   // 当前分享的色卡 / 娃娃序号
@@ -517,9 +520,9 @@ if (document.getElementById('share-pop')) {
 }
 
 // ===== 中英双语切换 =====
-var LANG = 'zh';
+var LANG = (window.YK && window.YK.lang) || 'en'; // 语言由 URL 路径决定（/zh/ = 中文，根路径 = 英文）
 try { history.scrollRestoration = 'manual'; } catch (err) {} // 刷新/切语言/logo 回主页都从页面顶部开始，不恢复上次滚动位置
-try { LANG = localStorage.getItem('yuki-lang') || 'zh'; } catch (err) {}
+try { LANG = (window.YK && window.YK.lang) || localStorage.getItem('yuki-lang') || 'en'; } catch (err) {}
 var I18N_EN = {
   '找到我': 'Find Me',
   '我的小铺': 'My Shop',
@@ -1010,10 +1013,10 @@ function ykGatePage(mode) {
     var title = (mode === 'photos') ? (en ? 'Photos are for logged-in visitors' : '照片展示要登录后才能看哦') : (en ? 'Yuki Members Only' : '此内容仅限柚子专属账号查看');
     var btns = '';
     if (!logged) {
-      btns = '<a href="/account/?next=' + encodeURIComponent(location.pathname + location.search) + '" style="display:inline-block;background:var(--accent,#ffd9e6);color:var(--text,#604C57);border-radius:999px;padding:11px 26px;font-size:16px;text-decoration:none;">' + (en ? 'Go to Login' : '去登录') + '</a>';
+      btns = '<a href="' + (window.ykLink ? window.ykLink('/account/?next=' + encodeURIComponent(location.pathname + location.search)) : '/account/?next=' + encodeURIComponent(location.pathname + location.search)) + '" style="display:inline-block;background:var(--accent,#ffd9e6);color:var(--text,#604C57);border-radius:999px;padding:11px 26px;font-size:16px;text-decoration:none;">' + (en ? 'Go to Login' : '去登录') + '</a>';
     } else {
       btns = '<button id="yk-logout" style="background:var(--accent,#ffd9e6);color:var(--text,#604C57);border:0;border-radius:999px;padding:11px 26px;font-size:16px;cursor:pointer;">' + (en ? 'Log Out' : '退出登录') + '</button>' +
-             ' <a href="/" style="display:inline-block;margin-left:10px;color:var(--muted,#A88E9B);text-decoration:none;">' + (en ? 'Back to Home' : '返回主页') + '</a>';
+             ' <a href="' + (window.ykLink ? window.ykLink('/') : '/') + '" style="display:inline-block;margin-left:10px;color:var(--muted,#A88E9B);text-decoration:none;">' + (en ? 'Back to Home' : '返回主页') + '</a>';
     }
     wrap.innerHTML = '<div style="background:var(--card,#FFFFFF);border-radius:22px;padding:44px 34px;max-width:480px;width:100%;text-align:center;">' +
       '<div style="font-size:34px;color:var(--text,#604C57);line-height:1;">♥</div>' +

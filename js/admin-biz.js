@@ -42,7 +42,7 @@
       /* 自定义勾选 chip：边框 #FFD9E6、选中 var(--accent-soft,#FCE4EC)、圆头 SVG 勾（铁律：不用原生 checkbox） */
       '.biz-chip{display:inline-flex;align-items:center;border:1.5px solid var(--border,#FFD9E6);background:#fff;color:var(--muted,#A88E9B);border-radius:999px;padding:5px 13px;font-size:15px;cursor:pointer;font-family:inherit;user-select:none;white-space:nowrap;transition:background .15s,color .15s;}',
       '.biz-chip:hover{color:var(--text,#604C57);}',
-      '.biz-chip.on{background:var(--accent-soft,#FCE4EC);border-color:var(--accent-soft,#FCE4EC);color:var(--accent-strong,#A04A68);font-weight:600;}',
+      '.biz-chip.on{background:var(--accent-soft,#FCE4EC);border-color:var(--accent-soft,#FCE4EC);color:var(--accent-strong,#A98D96);font-weight:600;}',
       '.biz-chip .ck{display:none;}',
       '.biz-chip.on .ck{display:inline-block;}',
       '.biz-chip:disabled{opacity:.5;cursor:default;}',
@@ -54,12 +54,12 @@
       /* 勾选方块（自定义，非原生 checkbox）：白底粉框 → 选中深玫瑰底白勾 */
       '.biz-uchk{width:22px;height:22px;flex:none;border:1.5px solid var(--border,#FFD9E6);background:#fff;border-radius:7px;cursor:pointer;padding:0;display:inline-flex;align-items:center;justify-content:center;font-family:inherit;transition:background .15s,border-color .15s;}',
       '.biz-uchk:hover{border-color:#F8BBD0;background:var(--accent-soft,#FCE4EC);}',
-      '.biz-uchk.on{background:var(--accent-strong,#A04A68);border-color:var(--accent-strong,#A04A68);}',
+      '.biz-uchk.on{background:var(--cb-on,#F2A9C4);border-color:var(--cb-on,#F2A9C4);color:#fff;}',
       /* 自定义下拉弹层（同 admin.html sel-menu 视觉，独立 id 防冲突） */
       '#biz-pop{position:fixed;z-index:10001;background:#fff;border-radius:12px;box-shadow:0 6px 20px rgba(180,120,150,.18);padding:6px;min-width:170px;max-height:280px;overflow-y:auto;display:none;box-sizing:border-box;}',
       '#biz-pop .biz-opt{display:block;width:100%;text-align:left;border:none;background:none;font-family:inherit;font-size:14px;color:var(--text,#604C57);padding:8px 12px;border-radius:8px;cursor:pointer;white-space:nowrap;}',
       '#biz-pop .biz-opt:hover{background:var(--accent-soft,#FCE4EC);}',
-      '#biz-pop .biz-opt.active{background:var(--accent-soft,#FCE4EC);color:var(--accent-strong,#A04A68);font-weight:600;}',
+      '#biz-pop .biz-opt.active{background:var(--accent-soft,#FCE4EC);color:var(--accent-strong,#A98D96);font-weight:600;}',
       '#biz-pop .biz-opt .sub{font-size:12px;color:var(--muted,#A88E9B);margin-left:6px;}',
       /* 弹层遮罩 */
       '#biz-mask{position:fixed;inset:0;background:rgba(96,76,87,.45);z-index:10000;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:36px 12px;box-sizing:border-box;}',
@@ -73,7 +73,7 @@
       /* 计算面板 */
       '.biz-calc-line{display:flex;justify-content:space-between;gap:10px;font-size:14px;color:var(--text,#604C57);padding:3px 0;}',
       '.biz-calc-f{font-size:11.5px;color:var(--muted,#A88E9B);text-align:right;max-width:190px;}',
-      '.biz-sec-t{font-size:13px;font-weight:700;color:var(--accent-strong,#A04A68);margin:10px 0 4px;}',
+      '.biz-sec-t{font-size:13px;font-weight:700;color:var(--accent-strong,#A98D96);margin:10px 0 4px;}',
       '.biz-hr{border:none;border-top:1.5px dashed #F8BBD0;margin:8px 0;}',
       /* 摄像头 */
       '#biz-cam-box video{width:100%;max-width:420px;border-radius:14px;background:#000;display:block;margin:0 auto;}',
@@ -86,7 +86,7 @@
   })();
 
   /* 圆头 SVG 勾（chip 选中态显示） */
-  var CK = '<svg class="ck" width="14" height="14" viewBox="0 0 24 24" style="margin-right:5px;vertical-align:-2px;"><circle cx="12" cy="12" r="10" fill="#F48FB1"/><path d="M7.2 12.6l3 3L16.8 9" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var CK = '<svg class="ck" width="14" height="14" viewBox="0 0 24 24" style="margin-right:5px;vertical-align:-2px;"><circle cx="12" cy="12" r="10" fill="#F2A9C4"/><path d="M7.2 12.6l3 3L16.8 9" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   var UCHK = '<svg width="14" height="14" viewBox="0 0 24 24"><path d="M7.2 12.6l3 3L16.8 9" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
   /* qc_status 徽章配色（pass 绿 / fail 红 / pending 灰 / rework 橙 / quarantine 紫） */
@@ -297,7 +297,7 @@
       return '<div class="card biz-cost-card" data-id="' + escAttr(row.id) + '" style="padding:12px 16px;margin-bottom:10px;cursor:pointer;">' +
         '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">' +
           '<b style="font-size:15px;color:var(--text,#604C57);">' + esc(row.name || '（未命名模板）') + '</b>' +
-          '<span style="font-size:12px;padding:2px 10px;border-radius:999px;background:var(--accent-soft,#FCE4EC);color:var(--accent-strong,#A04A68);">' + esc(TYPE_LABEL[row.item_type] || row.item_type || '—') + '</span>' +
+          '<span style="font-size:12px;padding:2px 10px;border-radius:999px;background:var(--accent-soft,#FCE4EC);color:var(--accent-strong,#A98D96);">' + esc(TYPE_LABEL[row.item_type] || row.item_type || '—') + '</span>' +
           '<span style="font-size:13px;color:var(--muted,#A88E9B);">单件总成本 <b style="color:var(--price,#ff6fa5);">$' + money(u) + '</b></span>' +
           '<span style="margin-left:auto;font-size:13px;color:var(--muted,#A88E9B);">建议售价 <b style="color:var(--price,#ff6fa5);">$' + money(row.suggested_price) + '</b></span>' +
         '</div>' +
@@ -1087,7 +1087,7 @@
       '*{box-sizing:border-box;}',
       "body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;background:#FFF9FB;margin:0;padding:24px;display:flex;flex-direction:column;align-items:center;gap:14px;}",
       '.label{width:420px;background:#fff;border:1.5px dashed #F8BBD0;border-radius:16px;padding:18px;display:flex;gap:16px;align-items:center;text-align:left;}',
-      '.brand{font-size:20px;font-weight:800;color:#A04A68;letter-spacing:1px;text-align:center;flex:none;width:100%;}',
+      '.brand{font-size:20px;font-weight:800;color:#A98D96;letter-spacing:1px;text-align:center;flex:none;width:100%;}',
       '.pname{font-size:16px;color:#604C57;font-weight:600;line-height:1.4;}',
       '.ucode{font-size:20px;font-weight:800;color:#ff6fa5;margin-top:4px;letter-spacing:1px;}',
       '.meta{font-size:12px;color:#A88E9B;margin-top:4px;line-height:1.7;}',

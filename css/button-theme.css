@@ -1,0 +1,624 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   全站按钮 / 选择控件 统一配色（20261030 总任务书）
+   ---------------------------------------------------------------------------
+   只改颜色：背景色、描边色、文字色（含 hover / active / disabled / selected）。
+   不改任何尺寸、位置、圆角、字号、内外边距、排列顺序，不加缩放/位移动画。
+   所以这里只出现 background-color / border-color / color / accent-color 四类属性。
+
+   分层约定（在"不改几何"的前提下保住视觉层次）：
+     1. 主按钮      → 淡粉填充 #FCE1EA + 文字 #A98D96（加入购物车 / 保存 / 确认 / 主要行动）
+     2. 次要按钮·有描边 → 底 #FFF7FA + 描边 #FFD1E0 + 文字 #A98D96（= 规范里的 Default）
+     3. 次要按钮·无描边 → 淡粉填充 #FCE1EA + 文字 #A98D96（不能加描边，加了会改按钮宽度，
+                          所以用同色系填充保持可见度）
+     4. 危险按钮    → 柔和红底 #FBE3E6 + 文字 #C4636E（保留"删除"的语义，不用深红、不用鲜艳粉）
+     5. 选择类      → 未选中 白/淡粉白 + 柔和浅粉描边 + 柔和灰棕文字；
+                      选中   淡粉填充 + 描边与底色同色（= 无可视描边）+ 文字 #A98D96 + 加粗沿用原样式
+     6. Checkbox / Radio → 未选 淡粉白底 + 浅粉描边；选中 粉色填充 + 白色勾/点
+
+   注意：--accent / --accent-soft / --accent-strong / --price 允许被后台"主题颜色"（Supabase）
+   覆写，而本文件的 --btn-* / --opt-* 令牌不在那张映射表里，所以按钮配色不会被主题色带偏。
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* 普通按钮 */
+  --btn-bg: #FFF7FA;
+  --btn-bd: #FFD1E0;
+  --btn-fg: #A98D96;
+  --btn-bg-h: #FCE1EA;
+  --btn-bd-h: #F5BFD1;
+  --btn-fg-h: #A98D96;
+  --btn-bg-a: #F8D3E2;
+  --btn-bd-a: #EFB0C5;
+  --btn-fg-a: #A98D96;
+  --btn-bg-d: #F8F0F3;
+  --btn-bd-d: #EADCE2;
+  --btn-fg-d: #B9A5AE;
+
+  /* 主按钮（淡粉填充） */
+  --btn-pri-bg: #FCE1EA;
+  --btn-pri-bd: #FCE1EA;
+  --btn-pri-fg: #A98D96;
+  --btn-pri-bg-h: #F8D3E2;
+  --btn-pri-bd-h: #F8D3E2;
+  --btn-pri-fg-h: #A98D96;
+  --btn-pri-bg-a: #F5C4D6;
+  --btn-pri-bd-a: #F5C4D6;
+  --btn-pri-fg-a: #A98D96;
+
+  /* 危险按钮（柔和红，保留删除语义） */
+  --btn-dg-bg: #FBE3E6;
+  --btn-dg-bd: #F6CDD4;
+  --btn-dg-fg: #C4636E;
+  --btn-dg-bg-h: #F6D0D8;
+  --btn-dg-bd-h: #EFB9C4;
+  --btn-dg-fg-h: #B5545F;
+  --btn-dg-bg-a: #EFBCC6;
+  --btn-dg-bd-a: #E8ABB7;
+  --btn-dg-fg-a: #A54A55;
+
+  /* 选择类 */
+  --opt-bg: #FFFFFF;
+  --opt-bd: #FFD9E6;
+  --opt-fg: #7C6A73;
+  --opt-bg-h: #FFF7FA;
+  --opt-bd-h: #F5BFD1;
+  --opt-fg-h: #7C6A73;
+  --opt-sel-bg: #FCE1EA;
+  --opt-sel-bd: #FCE1EA;
+  --opt-sel-fg: #A98D96;
+
+  /* Checkbox / Radio */
+  --cb-bg: #FFF7FA;
+  --cb-bd: #FFD1E0;
+  --cb-on: #F2A9C4;
+  --cb-mark: #FFFFFF;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   1. 主按钮：淡粉填充
+   ───────────────────────────────────────────────────────────── */
+.btn-save,
+.btn-save-tb,
+.btn-ok,
+.back-link,
+.home-long-btn,
+.er-btn-main,
+.gate button,
+.adm-home-btn,
+#pp-btn,
+.track-search button,
+#lightbox-download.lightbox-btn,
+#cal-form .ev-save,
+.ask-card > button,
+.aix-add,
+.btn-save-link,
+.sm-o-retry,
+.sm-var-add,
+.mo-additem,
+.mo-save,
+.ex-go,
+.po-save {
+  background-color: var(--btn-pri-bg) !important;
+  border-color: var(--btn-pri-bd) !important;
+  color: var(--btn-pri-fg) !important;
+}
+.btn-save:hover, .btn-save-tb:hover, .btn-ok:hover,
+.back-link:hover, .home-long-btn:hover, .er-btn-main:hover, .gate button:hover,
+.adm-home-btn:hover, #pp-btn:hover, .track-search button:hover,
+#lightbox-download.lightbox-btn:hover, #cal-form .ev-save:hover,
+.ask-card > button:hover, .aix-add:hover, .btn-save-link:hover,
+.sm-o-retry:hover, .sm-var-add:hover, .mo-additem:hover, .mo-save:hover, .ex-go:hover, .po-save:hover {
+  background-color: var(--btn-pri-bg-h) !important;
+  border-color: var(--btn-pri-bd-h) !important;
+  color: var(--btn-pri-fg-h) !important;
+}
+.btn-save:active, .btn-save-tb:active, .btn-ok:active,
+.back-link:active, .home-long-btn:active, .er-btn-main:active, .gate button:active,
+.adm-home-btn:active, #pp-btn:active, .track-search button:active,
+#lightbox-download.lightbox-btn:active, #cal-form .ev-save:active,
+.ask-card > button:active, .aix-add:active, .btn-save-link:active,
+.sm-o-retry:active, .sm-var-add:active, .mo-additem:active, .mo-save:active, .ex-go:active, .po-save:active {
+  background-color: var(--btn-pri-bg-a) !important;
+  border-color: var(--btn-pri-bd-a) !important;
+  color: var(--btn-pri-fg-a) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   2. 次要按钮（本来就有描边）→ 规范里的 Default 白底浅粉描边
+   ───────────────────────────────────────────────────────────── */
+.btn-mini,
+.chip,
+.paytab,
+.cur-chip,
+.pr-opt,
+.pf-chip,
+.pp-btn,
+.er-btn-soft,
+.idx-btn,
+.sel-btn,
+.sku-chip,
+.btn-sc-cancel-tb {
+  background-color: var(--btn-bg) !important;
+  border-color: var(--btn-bd) !important;
+  color: var(--btn-fg) !important;
+}
+.btn-mini:hover, .chip:hover, .paytab:hover, .cur-chip:hover, .pr-opt:hover,
+.pf-chip:hover, .pp-btn:hover, .er-btn-soft:hover, .idx-btn:hover, .sel-btn:hover,
+.sku-chip:hover, .btn-sc-cancel-tb:hover {
+  background-color: var(--btn-bg-h) !important;
+  border-color: var(--btn-bd-h) !important;
+  color: var(--btn-fg-h) !important;
+}
+.btn-mini:active, .chip:active, .paytab:active, .cur-chip:active, .pr-opt:active,
+.pf-chip:active, .pp-btn:active, .er-btn-soft:active, .idx-btn:active,
+.sel-btn:active, .sku-chip:active, .btn-sc-cancel-tb:active {
+  background-color: var(--btn-bg-a) !important;
+  border-color: var(--btn-bd-a) !important;
+  color: var(--btn-fg-a) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   3. 次要按钮（无描边：加描边会改变按钮宽度，违规）→ 淡粉填充
+   ───────────────────────────────────────────────────────────── */
+.btn-cancel,
+.btn-cancel-hm,
+.fx-cancel,
+.wm-cancel,
+.ke-edit,
+.wm-edit,
+.card-edit-btn,
+.cal-btn.wide,
+.lightbox-btn,
+#cal-form .ev-cancel,
+.ai-quick button,
+.sel-btn,
+.aix-filters .fclear,
+#tab-messages .msg-filters .fclear,
+#tab-messages .msg-searchbox .clear,
+.aix-searchbox .clear,
+.shop-tag-edit + .btn-mini,
+.fx-save,
+.wm-save,
+.shop-tag-save {
+  background-color: var(--btn-pri-bg) !important;
+  border-color: var(--btn-pri-bd) !important;
+  color: var(--btn-pri-fg) !important;
+}
+.btn-cancel:hover, .btn-cancel-hm:hover, .fx-cancel:hover, .wm-cancel:hover,
+.ke-edit:hover, .wm-edit:hover, .card-edit-btn:hover, .cal-btn.wide:hover,
+.lightbox-btn:hover, #cal-form .ev-cancel:hover, .ai-quick button:hover,
+.sel-btn:hover, .aix-filters .fclear:hover, #tab-messages .msg-filters .fclear:hover,
+#tab-messages .msg-searchbox .clear:hover, .aix-searchbox .clear:hover,
+.fx-save:hover, .wm-save:hover, .shop-tag-save:hover {
+  background-color: var(--btn-pri-bg-h) !important;
+  border-color: var(--btn-pri-bd-h) !important;
+  color: var(--btn-pri-fg-h) !important;
+}
+.btn-cancel:active, .btn-cancel-hm:active, .fx-cancel:active, .wm-cancel:active,
+.ke-edit:active, .wm-edit:active, .card-edit-btn:active, .cal-btn.wide:active,
+.lightbox-btn:active, #cal-form .ev-cancel:active, .ai-quick button:active,
+.sel-btn:active, .fx-save:active, .wm-save:active, .shop-tag-save:active {
+  background-color: var(--btn-pri-bg-a) !important;
+  border-color: var(--btn-pri-bd-a) !important;
+  color: var(--btn-pri-fg-a) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   4. 危险按钮（删除 / 部分退款等）：柔和红，不用深红不用鲜艳粉
+   ───────────────────────────────────────────────────────────── */
+.btn-del,
+.btn-del-tb,
+.ke-del,
+.wm-del,
+.sc-opt-del,
+.rv-menu-del,
+#rv-menu .rv-menu-del,
+.cart-rm,
+.text-del-btn {
+  background-color: var(--btn-dg-bg) !important;
+  border-color: var(--btn-dg-bd) !important;
+  color: var(--btn-dg-fg) !important;
+}
+.btn-del:hover, .btn-del-tb:hover, .ke-del:hover, .wm-del:hover,
+.sc-opt-del:hover, .rv-menu-del:hover, #rv-menu .rv-menu-del:hover,
+.cart-rm:hover, .text-del-btn:hover {
+  background-color: var(--btn-dg-bg-h) !important;
+  border-color: var(--btn-dg-bd-h) !important;
+  color: var(--btn-dg-fg-h) !important;
+}
+.btn-del:active, .btn-del-tb:active, .ke-del:active, .wm-del:active,
+.sc-opt-del:active, .rv-menu-del:active, #rv-menu .rv-menu-del:active,
+.cart-rm:active, .text-del-btn:active {
+  background-color: var(--btn-dg-bg-a) !important;
+  border-color: var(--btn-dg-bd-a) !important;
+  color: var(--btn-dg-fg-a) !important;
+}
+/* 二次确认弹窗里的"确定删除" */
+.fx-del-yes,
+.del-yes,
+.confirm-del {
+  background-color: var(--btn-dg-bg) !important;
+  border-color: var(--btn-dg-bd) !important;
+  color: var(--btn-dg-fg) !important;
+}
+.fx-del-no,
+.del-no {
+  background-color: var(--btn-bg) !important;
+  border-color: var(--btn-bd) !important;
+  color: var(--btn-fg) !important;
+}
+
+/* 注册表单里的邮件通知开关（role=switch，颜色由 JS 内联设定，这里只收微调） */
+#rg-notify {
+  border-color: transparent !important;
+  color: var(--btn-fg) !important;
+}
+
+/* 行内文字型删除按钮（下划线）：不填底色，只用柔和红字 */
+.pos-rm {
+  background-color: transparent !important;
+  border-color: transparent !important;
+  color: var(--btn-dg-fg) !important;
+}
+.pos-rm:hover {
+  color: var(--btn-dg-fg-h) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   4b. 购买链路上的 .buy-btn：同一个 class 在站里同时用于主按钮 / 次按钮 / 危险按钮
+       区分信息存在原有的 inline 样式里（#FCE1EA 主、#fff 次、--danger 删），
+       这里按 inline 标记收色，不改一行 JS/hTML，也不改变任何尺寸
+   ───────────────────────────────────────────────────────────── */
+.buy-btn {
+  background-color: var(--btn-bg) !important;
+  border-color: var(--btn-bd) !important;
+  color: var(--btn-fg) !important;
+}
+.buy-btn:hover {
+  background-color: var(--btn-bg-h) !important;
+  border-color: var(--btn-bd-h) !important;
+  color: var(--btn-fg-h) !important;
+}
+.buy-btn:active {
+  background-color: var(--btn-bg-a) !important;
+  border-color: var(--btn-bd-a) !important;
+  color: var(--btn-fg-a) !important;
+}
+.buy-btn[style*="background:#FCE1EA"], .buy-btn[style*="background: #FCE1EA"],
+.buy-btn[style*="background:#fce1ea"] {
+  background-color: var(--btn-pri-bg) !important;
+  border-color: var(--btn-pri-bd) !important;
+  color: var(--btn-pri-fg) !important;
+}
+.buy-btn[style*="background:#FCE1EA"]:hover, .buy-btn[style*="background: #FCE1EA"]:hover,
+.buy-btn[style*="background:#fce1ea"]:hover {
+  background-color: var(--btn-pri-bg-h) !important;
+  border-color: var(--btn-pri-bd-h) !important;
+  color: var(--btn-pri-fg-h) !important;
+}
+.buy-btn[style*="background:#FCE1EA"]:active, .buy-btn[style*="background: #FCE1EA"]:active {
+  background-color: var(--btn-pri-bg-a) !important;
+  border-color: var(--btn-pri-bd-a) !important;
+  color: var(--btn-pri-fg-a) !important;
+}
+.buy-btn[style*="--danger"] {
+  background-color: var(--btn-dg-bg) !important;
+  border-color: var(--btn-dg-bd) !important;
+  color: var(--btn-dg-fg) !important;
+}
+.buy-btn[style*="--danger"]:hover {
+  background-color: var(--btn-dg-bg-h) !important;
+  border-color: var(--btn-dg-bd-h) !important;
+  color: var(--btn-dg-fg-h) !important;
+}
+/* 登录 / 注册 切换页签：未选白底、选中淡粉 */
+.buy-btn.acct-tab { background-color: var(--opt-bg) !important; color: var(--opt-fg) !important; }
+.buy-btn.acct-tab.on, .buy-btn.acct-tab.active {
+  background-color: var(--opt-sel-bg) !important;
+  border-color: var(--opt-sel-bg) !important;
+  color: var(--opt-sel-fg) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   5. 选择类：chip / tab / segmented / 下拉选项 / 筛选
+      未选中 = 白或淡粉白 + 柔和浅粉描边 + 柔和灰棕
+      选中   = 淡粉填充 + 描边与底色同色（无可视描边）+ 品牌柔粉文字
+   ───────────────────────────────────────────────────────────── */
+.bjd-chip,
+.dy-chip,
+.adm-subtab,
+.tab-btn,
+.sel-opt,
+.cat-opt,
+.combo-opt,
+.ev-chip,
+.topic-chips button,
+.msg-filters button,
+.aix-filters button,
+.aix-pager button,
+.vis-chip,
+.cur-chip,
+.paytab,
+.pf-chip,
+.chip,
+.pr-opt,
+.sku-chip,
+.sm-tab,
+#share-pop .sc-opt,
+#sc-pop .sc-opt,
+#rv-menu button:not(.rv-menu-del) {
+  background-color: var(--opt-bg) !important;
+  border-color: var(--opt-bd) !important;
+  color: var(--opt-fg) !important;
+}
+.bjd-chip:hover, .dy-chip:hover, .adm-subtab:hover, .tab-btn:hover,
+.sel-opt:hover, .cat-opt:hover, .combo-opt:hover, .ev-chip:hover,
+.topic-chips button:hover, .msg-filters button:hover, .aix-filters button:hover,
+.aix-pager button:hover, .vis-chip:hover, .cur-chip:hover, .paytab:hover,
+.pf-chip:hover, .chip:hover, .pr-opt:hover, .sku-chip:hover, .sm-tab:hover,
+#share-pop .sc-opt:hover, #sc-pop .sc-opt:hover,
+#rv-menu button:not(.rv-menu-del):hover {
+  background-color: var(--opt-bg-h) !important;
+  border-color: var(--opt-bd-h) !important;
+  color: var(--opt-fg-h) !important;
+}
+/* 选中态（各页面历史上用过 .active / .on / .cur / .selected） */
+.bjd-chip.active, .bjd-chip.on, .bjd-chip.is-on,
+.dy-chip.active, .dy-chip.on,
+.adm-subtab.active, .tab-btn.active,
+.sel-opt.active, .cat-opt.active, .combo-opt.active,
+.ev-chip.active, .topic-chips button.active,
+.msg-filters button.active, .aix-filters button.active,
+.aix-pager button.cur, .aix-pager button.active,
+.vis-chip.vis-on, .vis-chip.on, .cur-chip.on, .paytab.on, .pf-chip.on,
+.chip.on, .pr-opt.active, .sku-chip.on, .sku-chip.active,
+.sm-tab.active,
+#rv-menu button.current,
+.pp-menu .tab-btn.active,
+#sc-pop .sc-opt.active, #share-pop .sc-opt.active {
+  background-color: var(--opt-sel-bg) !important;
+  border-color: var(--opt-sel-bd) !important;
+  color: var(--opt-sel-fg) !important;
+}
+.bjd-chip.active:hover, .dy-chip.active:hover, .adm-subtab.active:hover,
+.tab-btn.active:hover, .sel-opt.active:hover, .cat-opt.active:hover,
+.combo-opt.active:hover, .ev-chip.active:hover, .topic-chips button.active:hover,
+.msg-filters button.active:hover, .aix-filters button.active:hover,
+.aix-pager button.cur:hover, .vis-chip.vis-on:hover, .cur-chip.on:hover,
+.paytab.on:hover, .pf-chip.on:hover, .chip.on:hover, .pr-opt.active:hover,
+.sku-chip.on:hover, .pp-menu .tab-btn.active:hover {
+  background-color: var(--btn-pri-bg-h) !important;
+  border-color: var(--btn-pri-bd-h) !important;
+  color: var(--opt-sel-fg) !important;
+}
+
+/* 下拉 / 弹出菜单里的普通选项行：选中同样是淡粉填充 */
+.pp-menu .tab-btn { background-color: var(--opt-bg) !important; color: var(--opt-fg) !important; }
+.pp-menu .tab-btn:hover { background-color: var(--opt-bg-h) !important; color: var(--opt-fg-h) !important; }
+.pp-menu .tab-btn.active { background-color: var(--opt-sel-bg) !important; color: var(--opt-sel-fg) !important; }
+
+/* 语言切换（胶囊分段控件）：胶囊底色沿用原粉色底座，选中项淡粉白填充、取消可见描边 */
+.lang-btn { color: var(--opt-fg) !important; }
+.lang-btn:hover { background-color: var(--opt-bg) !important; color: var(--opt-fg-h) !important; }
+.lang-btn.active {
+  background-color: var(--opt-bg) !important;
+  border-color: var(--opt-bg) !important;
+  color: var(--btn-fg) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   6. 图标按钮（分享 / 收藏 / 加减 / 翻页 / 日历箭头）
+      只统一底色与图标色，尺寸与圆角一律不动
+   ───────────────────────────────────────────────────────────── */
+.share-btn,
+.fav-btn,
+.qty-btn,
+.cal-btn,
+.pg-btn,
+#pg-lightbox .lb-btn,
+.card-edit-btn,
+.sc-add-artist,
+.hm-file-btn,
+.dp-nav,
+.dp-today,
+.ai-close,
+.pay-close,
+.area-kebab,
+.hm-kebab {
+  background-color: var(--btn-bg) !important;
+  border-color: var(--btn-bd) !important;
+  color: var(--btn-fg) !important;
+}
+.share-btn:hover,
+.fav-btn:hover,
+.qty-btn:hover,
+.cal-btn:hover,
+.pg-btn:hover,
+#pg-lightbox .lb-btn:hover,
+.card-edit-btn:hover,
+.sc-add-artist:hover,
+.hm-file-btn:hover,
+.dp-nav:hover,
+.dp-today:hover,
+.ai-close:hover,
+.pay-close:hover,
+.area-kebab:hover,
+.hm-kebab:hover {
+  background-color: var(--btn-bg-h) !important;
+  border-color: var(--btn-bd-h) !important;
+  color: var(--btn-fg-h) !important;
+}
+.share-btn:active,
+.fav-btn:active,
+.qty-btn:active,
+.cal-btn:active,
+.pg-btn:active,
+#pg-lightbox .lb-btn:active,
+.card-edit-btn:active,
+.sc-add-artist:active,
+.hm-file-btn:active,
+.dp-nav:active,
+.dp-today:active,
+.ai-close:active,
+.pay-close:active,
+.area-kebab:active,
+.hm-kebab:active {
+  background-color: var(--btn-bg-a) !important;
+  border-color: var(--btn-bd-a) !important;
+  color: var(--btn-fg-a) !important;
+}
+/* 卡片上的编辑/分享小胶囊（原粉色小底） */
+#bjd-home-grid .share-btn, #cards-home-grid .share-btn, #works-home-grid .share-btn,
+#bjd-grid .share-btn, #cards-grid .share-btn, #works-grid .share-btn,
+#bjd-home-grid .card-edit-btn, #cards-home-grid .card-edit-btn, #works-home-grid .card-edit-btn,
+#bjd-grid .card-edit-btn, #cards-grid .card-edit-btn, #works-grid .card-edit-btn {
+  background-color: var(--btn-bg) !important;
+  border-color: var(--btn-bd) !important;
+  color: var(--btn-fg) !important;
+}
+#bjd-home-grid .share-btn:hover, #cards-home-grid .share-btn:hover, #works-home-grid .share-btn:hover,
+#bjd-grid .share-btn:hover, #cards-grid .share-btn:hover, #works-grid .share-btn:hover,
+#bjd-home-grid .card-edit-btn:hover, #cards-home-grid .card-edit-btn:hover, #works-home-grid .card-edit-btn:hover,
+#bjd-grid .card-edit-btn:hover, #cards-grid .card-edit-btn:hover, #works-grid .card-edit-btn:hover {
+  background-color: var(--btn-bg-h) !important;
+  border-color: var(--btn-bd-h) !important;
+  color: var(--btn-fg-h) !important;
+}
+
+/* 汉堡菜单（她 17:46 要求）：默认白底，悬停粉底；图标本身用品牌正文色 */
+.burger {
+  background-color: #FFFFFF !important;
+  border-color: transparent !important;
+}
+.burger:hover {
+  background-color: var(--btn-bg-h) !important;
+}
+.burger span {
+  background-color: var(--btn-fg) !important;
+}
+
+/* 纯图标/文字按钮：底色沿用白或透明，只把文字与图标颜色收到色板内 */
+.burger,
+.menu-toggle,
+.ai-fab,
+.ai-dock,
+#aiFab {
+  color: var(--btn-fg) !important;
+}
+.menu-toggle:hover,
+.ai-fab:hover,
+#aiFab:hover {
+  color: var(--btn-fg-h) !important;
+}
+
+/* 展开 / 收起（FAQ 手风琴）：不填底色，只用品牌柔粉文字与箭头 */
+.faq-q {
+  color: var(--btn-fg) !important;
+  background-color: transparent !important;
+}
+.faq-q:hover {
+  background-color: var(--btn-bg-h) !important;
+  color: var(--btn-fg-h) !important;
+}
+.faq-arrow {
+  color: var(--btn-fg) !important;
+}
+
+/* 侧边菜单里的当前页项（选中态） */
+.menu-group.current > .menu-toggle {
+  background-color: var(--opt-sel-bg) !important;
+  color: var(--opt-sel-fg) !important;
+}
+
+/* 登录卡片下的文字按钮（忘记密码等） */
+#li-forgot {
+  color: var(--btn-fg) !important;
+  background-color: transparent !important;
+}
+#li-forgot:hover {
+  color: var(--btn-fg-h) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   7. Checkbox / Radio：未选淡粉白 + 浅粉描边；选中粉色填充 + 白勾/白点
+      尺寸、圆角、形状全部沿用原样式
+   ───────────────────────────────────────────────────────────── */
+input[type="checkbox"],
+input[type="radio"],
+.ck-box {
+  background-color: var(--cb-bg) !important;
+  border-color: var(--cb-bd) !important;
+}
+input[type="checkbox"]:hover,
+input[type="radio"]:hover {
+  border-color: var(--btn-bd-h) !important;
+}
+input[type="checkbox"]:checked,
+input[type="radio"]:checked,
+.ck-box:has(svg),
+.ck-box.on,
+.ck-box.checked {
+  background-color: var(--cb-on) !important;
+  border-color: var(--cb-on) !important;
+}
+input[type="checkbox"]:checked::after,
+input[type="radio"]:checked::after {
+  border-color: var(--cb-mark) !important;
+}
+input[type="radio"]:checked::after {
+  background-color: var(--cb-mark) !important;
+}
+.ck-box:has(svg) { color: var(--cb-mark) !important; }   /* 购物车勾选：白色勾 */
+/* 浏览器原生控件（未自定义外观的页面）：只给粉色强调色，形状不动 */
+.ck-box ~ input, .ask-card input[type="checkbox"] { accent-color: var(--cb-on); }
+
+/* ─────────────────────────────────────────────────────────────
+   7b. 开关（toggle）：只有选中/未选中两种状态
+       轨道选中 = 粉色填充，未选 = 淡粉白；圆点留白。尺寸与圆点位移沿用原样式（原交互，不是新增动画）
+   ───────────────────────────────────────────────────────────── */
+.tgl {
+  background-color: var(--btn-bg) !important;
+  border-color: var(--btn-bd) !important;
+}
+.tgl.on {
+  background-color: var(--cb-on) !important;
+  border-color: var(--cb-on) !important;
+}
+.tgl.on .tgl-knob {
+  background-color: var(--cb-mark) !important;
+  border-color: var(--cb-mark) !important;
+}
+
+/* 商品筛选标签：同一个按钮同时有未选 / 选中两种状态 */
+.buy-btn.q-tag {
+  background-color: var(--opt-bg) !important;
+  border-color: var(--opt-bd) !important;
+  color: var(--opt-fg) !important;
+}
+.buy-btn.q-tag:hover { background-color: var(--opt-bg-h) !important; color: var(--opt-fg-h) !important; }
+.buy-btn.q-tag.on, .buy-btn.q-tag.active, .buy-btn.q-tag.current {
+  background-color: var(--opt-sel-bg) !important;
+  border-color: var(--opt-sel-bd) !important;
+  color: var(--opt-sel-fg) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   ───────────────────────────────────────────────────────────── */
+.buy-btn:disabled, .btn-save:disabled, .btn-save-tb:disabled, .btn-ok:disabled,
+.btn-cancel:disabled, .btn-mini:disabled, .btn-del:disabled, .back-link:disabled,
+.home-long-btn:disabled, .er-btn-main:disabled, .er-btn-soft:disabled,
+.track-search button:disabled, #cal-form .ev-save:disabled, #cal-form .ev-cancel:disabled,
+.aix-add:disabled, .chip:disabled, .paytab:disabled, .cur-chip:disabled,
+.pr-opt:disabled, .sku-chip:disabled, .dy-chip:disabled, .bjd-chip:disabled,
+.adm-subtab:disabled, .tab-btn:disabled, .sel-btn:disabled, .pp-btn:disabled,
+.idx-btn:disabled, .card-edit-btn:disabled, .qty-btn:disabled, .cal-btn:disabled,
+.share-btn:disabled, .fav-btn:disabled,
+[disabled][class*="btn"], [aria-disabled="true"][class*="btn"] {
+  background-color: var(--btn-bg-d) !important;
+  border-color: var(--btn-bd-d) !important;
+  color: var(--btn-fg-d) !important;
+}
+#sc-pop .sc-opt:disabled {
+  background-color: transparent !important;
+  color: var(--btn-fg-d) !important;
+}

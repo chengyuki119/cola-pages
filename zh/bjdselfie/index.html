@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <link rel="preload" href="/fonts/Millo-RiceSoyMilk80.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/Millo-RiceSoyMilk90.woff2" as="font" type="font/woff2" crossorigin>
+<meta charset="UTF-8">
+  <script src="/js/lang-path.js?v=20261031c"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BJD萌物自拍 · Yuki / 柚子</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" sizes="180x180" href="/icon-yuki2-180.png">
+<link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki2-180.png">
+<meta name="apple-mobile-web-app-title" content="小柚的小世界">
+<link rel="stylesheet" href="/css/site.css?v=20261031c">
+  <link rel="stylesheet" href="/site-menu.css?v=20261031c">
+    <script src="/site-menu.js" defer></script>
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261031c">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="lang-switch">
+    <button class="lang-btn" data-lang="zh">简体中文</button>
+    <button class="lang-btn" data-lang="en">English</button>
+  </div>
+  <a class="site-logo" href="/zh/" aria-label="回主页"><img src="/logo.png" alt="logo"></a>
+  <div class="topbar-right">
+    <a class="topbar-cart" id="topbar-cart" href="/zh/shop/?sec=cart" aria-label="购物车">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3.5h2.2l2.3 11.2a1.8 1.8 0 0 0 1.8 1.4h8.5a1.8 1.8 0 0 0 1.8-1.4l1.5-8.2H6"/></svg>
+      <span class="topbar-cart-badge" id="topbar-cart-badge" style="display:none;">0</span>
+    </a>
+    <button class="burger" id="burger" aria-label="菜单">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+<div class="menu-mask" id="menu-mask"></div>
+<nav class="menu" id="menu"></nav>
+
+<div class="page active" id="page-photos">
+<div class="subpage-header">
+    <h1 class="subpage-title" data-zh="BJD萌物自拍" data-en="BJD Cuties Selfies">BJD萌物自拍</h1>
+    <p class="subpage-sub" data-zh="点开可全屏查看，可自行选择是否下载原图" data-en="Tap to view full screen · Optional download">点开可全屏查看，可自行选择是否下载原图</p>
+  </div>
+  <a class="back-link page-back" href="/zh/" style="margin:8px 0 24px 2px;"><span data-zh="← 返回主页" data-en="← Back to Home">← 返回主页</span></a>
+  <div class="page-body album-body" style="padding-top:0;">
+<section id="sec-bjdselfie" data-sec="bjdselfie">
+      <h2 data-zh="BJD萌物自拍" data-en="BJD Cuties Selfies">BJD萌物自拍</h2>
+      <div class="album"></div>
+      <p class="empty" id="bjd-empty" data-zh="还没有照片，敬请期待～" data-en="No photos yet — coming soon~" style="display:none;text-align:center;color:var(--muted);padding:30px 0;">还没有照片，敬请期待～</p>
+    </section>
+<footer>© 2026 Yuki · Made with Cola</footer>
+  </div>
+</div>
+<div class="lightbox" id="lightbox">
+  <img id="lightbox-img" alt="">
+  <div class="lightbox-info" id="lightbox-info"></div>
+  <div class="lightbox-bar">
+    <a class="lightbox-btn" id="lightbox-download" download="photo.jpg" data-zh="下载原图" data-en="Download">下载原图</a>
+    <button class="lightbox-btn" id="lightbox-close" data-zh="关闭" data-en="Close">关闭</button>
+  </div>
+</div>
+
+
+<div class="toast" id="toast"></div>
+<script src="/js/site-common.js?v=20261031c"></script>
+<script>ykGatePage('photos').then(function (ok) { if (!ok) return; document.body.classList.add('yk-gated-ok'); }); /* 登录后才能看（普通买家+专属都可）；匿名时权限提示页接管 */</script>
+<script>
+  // ===== BJD萌物自拍：独立照片页（分区 key=bjdselfie，与后台照片管理同一套数据） =====
+  var PHOTO_STYLES = {};
+  var SEC_KEY = 'bjdselfie';
+  function albumHtml(list) {
+    return list.map(function (p) {
+      var zh = p.caption_zh || '';
+      var en = p.caption_en || zh;
+      var st = PHOTO_STYLES[p.id];
+      return '<figure class="album-item' + (st && st !== 'normal' ? ' st-' + escAttrDb(st) : '') + '" data-img="' + escAttrDb(p.image_url) + '">' +
+        '<div class="album-img"></div>' +
+        '<figcaption data-zh="' + escAttrDb(zh) + '" data-en="' + escAttrDb(en) + '">' + escDb(zh) + '</figcaption>' +
+        '</figure>';
+    }).join('');
+  }
+  function fillAlbum(box, list) {
+    box.innerHTML = albumHtml(list);
+    box.querySelectorAll('.album-item').forEach(function (fig) {
+      loadDbImg(fig.querySelector('.album-img'), fig.getAttribute('data-img'));
+      bindCaption(fig.querySelector('figcaption'));
+    });
+  }
+  function loadPhotoRows() {
+    // 新字段（pinned/home）没建之前自动回退旧查询，照片功能不受影响
+    return fetch(DB_BASE + 'photos?select=id,category,image_url,caption_zh,caption_en,pinned,home&order=pinned.desc,sort.asc,created_at.asc&limit=300', { headers: DB_HEADERS })
+      .then(function (r) { if (!r.ok) throw new Error(); return r.json(); })
+      .catch(function () {
+        return dbFetch('photos?select=id,category,image_url,caption_zh,caption_en&order=sort.asc,created_at.asc&limit=300');
+      });
+  }
+
+  // 每行显示：photo_grid[bjdselfie]，后台分区设置同一份
+  var PHOTO_GRID = {};
+  function applyGrid() {
+    var secEl = document.getElementById('sec-bjdselfie');
+    var n = parseInt(PHOTO_GRID[SEC_KEY], 10);
+    if (!(n >= 1 && n <= 4)) n = 4;
+    secEl.style.setProperty('--pr', n);
+    secEl.style.setProperty('--pr-md', Math.min(n, 3));
+    secEl.style.setProperty('--pr-sm', Math.min(n, 2));
+  }
+  dbFetch('site_settings?select=key,value&key=eq.photo_grid&limit=1').then(function (rr) {
+    (rr || []).forEach(function (row) { try { PHOTO_GRID = JSON.parse(row.value || '{}') || {}; } catch (e) {} });
+    applyGrid();
+  });
+
+  Promise.all([
+    loadPhotoRows(),
+    dbFetch('site_settings?select=key,value&key=eq.photo_styles&limit=1').then(function (rr) {
+      (rr || []).forEach(function (row) { try { PHOTO_STYLES = JSON.parse(row.value || '{}') || {}; } catch (e) {} });
+      return null;
+    })
+  ]).then(function (res) {
+    var rows = res[0] || [];
+    var list = rows.filter(function (p) { return p.category === SEC_KEY; });
+    var box = document.querySelector('#sec-bjdselfie .album');
+    if (list.length) fillAlbum(box, list);
+    else document.getElementById('bjd-empty').style.display = 'block';
+  }).catch(function () {
+    document.getElementById('bjd-empty').style.display = 'block';
+  });
+
+  applyLang(LANG);
+</script>
+
+</body>
+</html>

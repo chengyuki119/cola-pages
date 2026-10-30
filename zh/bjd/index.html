@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<!--
+  ═══════════════════════════════════════════════
+  自己动手改这里（用任意文本编辑器打开本文件即可）：
+
+  1. 名字/签名：搜索「Yuki」和「欢迎食用」改成你的
+  2. 头像：文件名 avatar.jpg（放同文件夹即自动显示）
+  3. 封面背景图：文件名 cover.jpg（放同文件夹即自动显示）
+  4. 社交链接：搜索 class="link-card"，改 href 和账号名；
+     微信卡片点击自动复制微信号，号码在 JS 里的 WECHAT_ID 处改
+  5. 主页精选图：各 4 张，photos/vct1~4.jpg 和 photos/bjd1~4.jpg
+  6. 子页面全部照片：photos/vct5.jpg、vct6.jpg… 一直排下去，
+     文件存在就自动显示（子页面已预留到 12 张，更多就复制一行 div 改编号）
+
+  改完保存，刷新浏览器就能看到效果。
+  ═══════════════════════════════════════════════
+-->
+<head>
+    <link rel="preload" href="/fonts/Millo-RiceSoyMilk80.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/Millo-RiceSoyMilk90.woff2" as="font" type="font/woff2" crossorigin>
+<meta charset="UTF-8">
+  <script src="/js/lang-path.js?v=20261031c"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BJD · Yuki / 柚子</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" sizes="180x180" href="/icon-yuki2-180.png">
+<link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki2-180.png">
+<meta name="apple-mobile-web-app-title" content="小柚的小世界">
+<link rel="stylesheet" href="/css/site.css?v=20261031c">
+  <link rel="stylesheet" href="/site-menu.css?v=20261031c">
+    <script src="/site-menu.js" defer></script>
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261031c">
+</head>
+<body>
+
+<!-- 顶部白色长条：左边切换语言，中间 logo 点击回主页，右边菜单 -->
+<header class="topbar">
+  <div class="lang-switch">
+    <button class="lang-btn" data-lang="zh">简体中文</button>
+    <button class="lang-btn" data-lang="en">English</button>
+  </div>
+  <a class="site-logo" href="/zh/" aria-label="回主页"><img src="/logo.png" alt="logo"></a>
+  <div class="topbar-right">
+    <a class="topbar-cart" id="topbar-cart" href="/zh/shop/?sec=cart" aria-label="购物车">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3.5h2.2l2.3 11.2a1.8 1.8 0 0 0 1.8 1.4h8.5a1.8 1.8 0 0 0 1.8-1.4l1.5-8.2H6"/></svg>
+      <span class="topbar-cart-badge" id="topbar-cart-badge" style="display:none;">0</span>
+    </a>
+    <button class="burger" id="burger" aria-label="菜单">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+<div class="menu-mask" id="menu-mask"></div>
+<nav class="menu" id="menu"></nav>
+
+<div class="page active" id="page-bjd-page">
+  <div id="bjd-list-page">
+<div class="subpage-header">
+    <h1 class="subpage-title" data-zh="BJD" data-en="BJD">BJD</h1>
+    <p class="subpage-sub" data-zh="我的娃娃收藏档案" data-en="My doll collection">我的娃娃收藏档案</p>
+  </div>
+  <a class="back-link page-back" href="/zh/" style="margin:8px 0 24px 2px;"><span data-zh="← 返回主页" data-en="← Back to Home">← 返回主页</span></a>
+  <div class="page-body" style="padding-top:0;">
+<div class="bjd-toolbar">
+      <div class="bjd-chips" id="bjd-size-chips"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <select id="bjd-cat">
+          <option value="全部" data-zh="全部分类" data-en="All Parts">全部分类</option>
+          <option value="娃娃头" data-zh="娃娃头" data-en="Head">娃娃头</option>
+          <option value="娃娃身体" data-zh="娃娃身体" data-en="Body">娃娃身体</option>
+          <option value="眼睛" data-zh="眼珠" data-en="Eyes">眼珠</option>
+        </select>
+        <select id="bjd-sort">
+          <option value="manual" data-en="Manual (default)">默认排序</option>
+          <option value="new" data-en="Added newest → oldest">添加时间 最新 → 最旧</option>
+          <option value="old" data-en="Added oldest → newest">添加时间 最旧 → 最新</option>
+          <option value="buyDesc" data-en="Purchase date newest → oldest">购入日期 最新 → 最旧</option>
+          <option value="buyAsc" data-en="Purchase date oldest → newest">购入日期 最旧 → 最新</option>
+          <option value="priceAsc" data-en="Price low → high">价格 低 → 高</option>
+          <option value="priceDesc" data-en="Price high → low">价格 高 → 低</option>
+          <option value="catAsc" data-en="Category A → Z">种类 正序</option>
+          <option value="catDesc" data-en="Category Z → A">种类 倒序</option>
+          <option value="nameAsc" data-en="Name A → Z">名称 A → Z</option>
+          <option value="nameDesc" data-en="Name Z → A">名称 Z → A</option>
+          <option value="sizeAsc" data-en="Size A → Z">尺寸 正序</option>
+          <option value="sizeDesc" data-en="Size Z → A">尺寸 倒序</option>
+        </select>
+      </div>
+    </div>
+    <div id="bjd-grid"></div>  </div>
+  </div>
+  <div id="bjd-view-page" style="display:none;">
+  <div class="subpage-header">
+    <a class="back-link" href="/zh/bjd/"><span data-zh="← 返回 BJD 列表" data-en="← Back to BJD">← 返回 BJD 列表</span></a>
+    <h1 class="subpage-title" id="bjd-view-title"></h1>
+  </div>
+  <div class="page-body" style="padding-top:0;" id="bjd-view-body"></div>
+  </div>
+</div>
+<div id="share-pop"></div>
+<div class="toast" id="toast"></div>
+<script src="/js/site-common.js?v=20261031c"></script>
+<script>
+  // ===== BJD：独立子页（娃娃墙 + 娃娃详情 /bjd/?id=N）=====
+  var BJD_FILTER = '全部';
+  var BJD_CAT = '全部';
+  var BJD_SORT = 'manual';
+  var BJD_SIZES = ['三分头', '四分头', '四分', '肉四', '小六', '矮胖六', '正常六分', '八分', '十二分']; // 娃娃头尺寸（与后台同一份）
+  var CURRENT_BJD = -1;
+
+  function bjdCardHtml(x) {
+    var b = x.b;
+    return '<div class="card bjd-card" data-i="' + x.i + '" style="margin-bottom:0;padding:0;overflow:hidden;cursor:pointer;position:relative;display:flex;flex-direction:column;">' +
+      (pagerImgsOf({ photos: b.photos, image: b.image }).length ? pagerWrapHtml(pagerImgsOf({ photos: b.photos, image: b.image }), b.name)
+               : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--card);color:var(--muted);font-size:15px;">' + t('暂无图片', 'No photo') + '</div>') +
+      '<div style="padding:12px 14px;display:flex;flex-direction:column;flex:1;">' +
+      '<div style="display:flex;align-items:center;gap:8px;">' +
+      '<b style="flex:1;font-size:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(b.name || t('未命名娃娃', 'Unnamed doll')) + '</b>' +
+      shareBtnHtml(x.i, 'bjd', true) +
+      '</div>' +
+      (bjdMeta(b) ? '<div style="font-size:15px;color:var(--muted);margin-top:3px;">' + escDb(bjdMeta(b)) + '</div>' : '') +
+      (function () {
+        var tv = bjdTotalV(b);
+        var pv = tv > 0 ? '¥' + fmtMoney(tv) : (String(b.price.total || '').trim() !== '' ? '¥' + fmtPriceText(b.price.total) : '');
+        var eb = bjdEditBtn(x.i); // 登录后台后才出现
+        // §6.2 总价行永远渲染（无值显示 —），钉在卡片底部，位置稳定
+        if (!pv) pv = '—';
+        return '<div style="display:flex;align-items:center;gap:8px;margin-top:auto;padding-top:6px;">' +
+          '<span style="flex:1;font-size:16px;color:var(--text,#604C57);font-weight:600;">' + t('总价', 'Total') + ' <span style="color:var(--price,#ff6fa5);">' + escDb(pv) + '</span></span>' +
+          eb + '</div>';
+      })() +
+      '</div></div>';
+  }
+  function renderBjdWall() {
+    var grid = document.getElementById('bjd-grid');
+    if (!grid) return;
+    var list = BJDS_CACHE.map(function (b, i) { return { b: normBjdView(b), i: i }; });
+    if (BJD_FILTER !== '全部') list = list.filter(function (x) { return x.b.head.size === BJD_FILTER; });
+    if (BJD_CAT !== '全部') list = list.filter(function (x) { return bjdHasPart(x.b, BJD_CAT); });
+    if (BJD_SORT === 'new') list.sort(function (a, b) { return (b.b.createdAt || 0) - (a.b.createdAt || 0); });
+    if (BJD_SORT === 'old') list.sort(function (a, b) { return (a.b.createdAt || 0) - (b.b.createdAt || 0); });
+    if (BJD_SORT === 'buyDesc' || BJD_SORT === 'buyAsc') {
+      var bdate = function (x) { return (x.b.purchase && x.b.purchase.date) || ''; };
+      list.sort(function (a, b) {
+        var av = bdate(a), bv = bdate(b);
+        if (!av && !bv) return 0; if (!av) return 1; if (!bv) return -1; // 没填购买日期的排最后
+        return BJD_SORT === 'buyDesc' ? bv.localeCompare(av) : av.localeCompare(bv);
+      });
+    }
+    if (BJD_SORT === 'priceAsc' || BJD_SORT === 'priceDesc') {
+      var num = function (v) { var m = String(v || '').replace(/[^\d.]/g, ''); return m === '' ? null : parseFloat(m); };
+      list.sort(function (a, b) {
+        var av = num(a.b.price.total), bv = num(b.b.price.total);
+        if (av == null && bv == null) return 0; if (av == null) return 1; if (bv == null) return -1; // 没填价格的排最后，不再隐藏
+        return BJD_SORT === 'priceAsc' ? av - bv : bv - av;
+      });
+    }
+    if (BJD_SORT === 'catAsc' || BJD_SORT === 'catDesc') {
+      list.sort(function (a, b) { var r = bjdCatRank(a.b) - bjdCatRank(b.b); return BJD_SORT === 'catAsc' ? r : -r; });
+    }
+    if (BJD_SORT === 'nameAsc' || BJD_SORT === 'nameDesc') {
+      list.sort(function (a, b) {
+        var r = (a.b.name || '').localeCompare(b.b.name || '', 'zh-Hans-CN');
+        return BJD_SORT === 'nameAsc' ? r : -r;
+      });
+    }
+    if (BJD_SORT === 'sizeAsc' || BJD_SORT === 'sizeDesc') {
+      var srank = function (x) { var si = BJD_SIZES.indexOf(x.b.head.size); return si === -1 ? 999 : si; };
+      list.sort(function (a, b) { var r = srank(a) - srank(b); return BJD_SORT === 'sizeAsc' ? r : -r; });
+    }
+    // 她 20261027 02:31：不再按尺寸分组分栏，改色卡同款平铺网格（#bjd-grid 每行 5 个），尺寸筛选条继续可用
+    var html = list.map(bjdCardHtml).join('');
+    grid.innerHTML = list.length ? html : '<p style="color:var(--muted);text-align:center;padding:30px 0;font-size:17px;">' + t('还没有 BJD 档案，去后台「BJD管理」新增吧', 'No BJD profiles yet. Add one in the admin BJD tab.') + '</p>';
+  }
+  function renderBjdToolbar() {
+    var chips = document.getElementById('bjd-size-chips');
+    if (!chips) return;
+    chips.innerHTML = ['全部'].concat(BJD_SIZES).map(function (sz) {
+      return '<button class="bjd-chip' + (BJD_FILTER === sz ? ' active' : '') + '" data-size="' + sz + '">' + (sz === '全部' ? t('全部', 'All') : (LANG === 'en' && window.sizeEnKeep ? sizeEnKeep(sz) : sz)) + '</button>';
+    }).join('');
+  }
+  function bjdPriceRow(label, val) { // 价格专用行：数值亮粉（她定的标价色），标签仍灰色
+    if (val == null || String(val).trim() === '') return '';
+    return '<div style="display:flex;gap:12px;padding:3px 0;font-size:16px;"><span style="color:var(--muted);flex-shrink:0;width:96px;">' + label + '</span><span class="f-data" style="color:var(--price,#ff6fa5);">' + escDb(val) + '</span></div>';
+  }
+  function renderBjdView() {
+    var body = document.getElementById('bjd-view-body');
+    var b = normBjdView(BJDS_CACHE[CURRENT_BJD]);
+    if (!body) return;
+    if (!BJDS_CACHE[CURRENT_BJD]) { body.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px 0;">' + t('没有找到这个娃娃', 'Doll not found') + '</p>'; return; }
+    var title = document.getElementById('bjd-view-title');
+    if (title) title.textContent = b.name || t('未命名娃娃', 'Unnamed doll');
+    var priceRows = (b.parts.head !== false ? bjdPriceRow(t('娃娃头', 'Head'), fmtPriceRow(b.price.doll)) : '') +
+      (b.parts.head !== false ? bjdPriceRow(t('妆面', 'Face-up'), fmtPriceRow(b.price.faceup)) : '') +
+      (b.parts.eyes !== false ? bjdPriceRow(t('眼珠', 'Eyes'), fmtPriceRow(b.price.eyes)) : '') +
+      (b.parts.body !== false ? bjdPriceRow(t('身体', 'Body'), fmtPriceRow(b.price.body)) : '') +
+      (b.parts.clothes ? bjdPriceRow(t('衣服', 'Outfit'), fmtPriceRow(b.price.clothes)) : '');
+    var totalV = bjdTotalV(b);
+    body.innerHTML =
+      (b.image ? '<div style="width:100%;max-width:420px;aspect-ratio:1/1;margin:0 auto 18px;overflow:hidden;border-radius:var(--radius);background:var(--card);"><img src="' + escAttrDb(normImg(b.image)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="BJD"></div>' : '') +
+      ((b.photos && b.photos.length) ? '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:420px;margin:0 auto 18px;">' + b.photos.map(function (u) {
+        return '<div class="album-img" style="width:100%;aspect-ratio:1/1;overflow:hidden;border-radius:12px;background:var(--card);"><img src="' + escAttrDb(normImg(u)) + '" style="width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in;" alt="BJD" loading="lazy"></div>';
+      }).join('') + '</div>' : '') +
+      '<div style="text-align:center;margin-bottom:18px;">' +
+      '<span style="font-size:21px;font-weight:700;">' + escDb(b.name || t('未命名娃娃', 'Unnamed doll')) + '</span>' +
+      (b.head.size ? '<span style="color:var(--muted);font-size:17px;">　|　' + escDb(LANG === 'en' && window.sizeEnKeep ? sizeEnKeep(b.head.size) : b.head.size) + '</span>' : '') +
+      '</div>' +
+      (b.parts.head !== false ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:19px;">' + t('娃娃头', 'Head') + '</h2>' +
+      (bjdRow(t('厂家 / 品牌', 'Maker / Brand'), b.head.brand) + bjdRow(t('型号 / Sculpt', 'Sculpt'), b.head.sculpt) + bjdRow(t('娃娃头尺寸', 'Head size'), LANG === 'en' && window.sizeEnKeep ? sizeEnKeep(b.head.size) : b.head.size) + bjdRow(t('备注', 'Notes'), b.head.note) || '<p style="color:var(--muted);font-size:16px;">' + t('暂无记录', 'No records yet') + '</p>') + '</div>' : '') +
+      (b.parts.body !== false ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:19px;">' + t('身体', 'Body') + '</h2>' +
+      (bjdRow(t('厂家 / 品牌', 'Maker / Brand'), b.body.brand) + bjdRow(t('Body 型号', 'Body model'), b.body.model) + bjdRow(t('类型', 'Type'), b.body.type) + bjdRow(t('备注', 'Notes'), b.body.note) || '<p style="color:var(--muted);font-size:16px;">' + t('暂无记录', 'No records yet') + '</p>') + '</div>' : '') +
+      (b.parts.eyes !== false ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:19px;">' + t('眼珠', 'Eyes') + '</h2>' +
+      (bjdRow(t('商家 / 制作者', 'Seller / Maker'), b.eyes.maker) + bjdRow(t('来源', 'Source'), b.eyes.source) + bjdRow(t('眼珠尺寸', 'Eye size'), b.eyes.size) + bjdRow(t('备注', 'Notes'), b.eyes.note) || '<p style="color:var(--muted);font-size:16px;">' + t('暂无记录', 'No records yet') + '</p>') + '</div>' : '') +
+      (b.parts.clothes ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:19px;">' + t('衣服', 'Outfit') + '</h2>' +
+      (bjdRow(t('商家 / 制作者', 'Seller / Maker'), b.clothes.brand) + bjdRow(t('备注', 'Notes'), b.clothes.note) || '<p style="color:var(--muted);font-size:16px;">' + t('暂无记录', 'No records yet') + '</p>') + '</div>' : '') +
+      (b.parts.head !== false ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:19px;">' + t('妆面', 'Face-up') + '</h2>' +
+      (bjdRow(t('妆面 / Face-up', 'Face-up'), b.faceup.faceup) + bjdRow(t('妆师', 'Face-up artist'), b.faceup.artist) + bjdRow(t('完成时间', 'Completed'), b.faceup.date) || '<p style="color:var(--muted);font-size:16px;">' + t('暂无记录', 'No records yet') + '</p>') + '</div>' : '') +
+      ((b.price.total || priceRows || totalV) ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:19px;">' + t('价格', 'Price') + '</h2>' +
+      (totalV > 0 ? '<div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--card-hover);padding:10px 0;margin-bottom:10px;"><span style="font-size:18px;font-weight:700;">' + t('娃娃总价', 'Total price') + '</span><b style="font-size:20px;color:var(--price,#ff6fa5);">¥' + fmtMoney(totalV) + '</b></div>' : '') +
+      (bjdPriceRow(t('娃娃价格', 'Total price'), fmtPriceRow(b.price.total)) + priceRows) + '</div>' : '') +
+      ((b.purchase.date || b.purchase.channel || b.purchase.status || b.birth) ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:19px;">' + t('购买信息', 'Purchase Info') + '</h2>' +
+      (bjdRow(t('购买日期', 'Purchase date'), b.purchase.date) + bjdRow(t('出生日期', 'Birth date'), b.birth) + bjdRow(t('渠道 / 商家', 'Channel / Seller'), b.purchase.channel) + bjdRow(t('状态', 'Status'), b.purchase.status)) + '</div>' : '') +
+      (b.notes ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:19px;">' + t('备注', 'Notes') + '</h2><p style="font-size:16px;line-height:1.8;white-space:pre-wrap;">' + escDb(b.notes) + '</p></div>' : '') +
+      (b.photos.length ? '<div class="card" style="padding:18px 20px;"><h2 style="font-size:19px;">' + t('更多照片', 'More Photos') + '</h2><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px;">' +
+        b.photos.map(function (u) { return '<div class="photo" data-img="' + escAttrDb(u) + '"></div>'; }).join('') +
+        '</div></div>' : '');
+    body.querySelectorAll('.photo[data-img]').forEach(function (el) { loadPhoto(el, true); });
+  }
+
+  // 数据：柚子专属门禁（契约见 js/site-common.js ykGatePage / ykExclusiveData）
+  function ykStartLoad(kind, fn) {
+    if (!window.ykGatePage) { fn(); return; } // 旧缓存 site-common 无门禁模块时按 pending 放行
+    ykGatePage().then(function (ok) {
+      if (!ok) return;
+      if (window.ykExclusiveCheck && window.ykExclusiveData) {
+        ykExclusiveCheck().then(function (res) {
+          if (res.ok !== true) { fn(); return; }
+          ykExclusiveData(kind).then(function (v) { window.YK_RPC_DATA = v; fn(); }, function () { fn(); });
+        }).catch(function () { fn(); });
+      } else fn();
+    }).catch(function () {});
+  }
+  function ykLoadData() {
+  ykAuthFetch('site_settings?select=key,value&limit=100') /* 私有键走登录态（SQL5 后 anon 拿不到 bjds）*/.then(function (rows) {
+    var S = {};
+    (rows || []).forEach(function (r) { S[r.key] = r.value; });
+    var bjdsRaw = (window.YK_RPC_DATA !== undefined) ? window.YK_RPC_DATA : null;
+    if (window.YK_RPC_DATA === undefined) { try { bjdsRaw = JSON.parse(S['bjds'] || 'null'); } catch (e) {} }
+    BJDS_CACHE = (Array.isArray(bjdsRaw) ? bjdsRaw : []).map(function (b) { return normBjdView(b); });
+    var bsz = null; // 自定义娃娃尺寸 / 种类（与后台同一份 site_settings.bjd_sizes）
+    try { bsz = JSON.parse(S['bjd_sizes'] || 'null'); } catch (e) {}
+    if (Array.isArray(bsz) && bsz.length) BJD_SIZES = bsz.map(function (s) { return String(s).trim(); }).filter(Boolean);
+    renderBjdToolbar();
+    renderBjdWall();
+    // ?id=N → 直接打开娃娃详情
+    var id = new URLSearchParams(location.search).get('id');
+    if (id != null && !isNaN(parseInt(id, 10))) {
+      CURRENT_BJD = parseInt(id, 10);
+      document.getElementById('bjd-list-page').style.display = 'none';
+      document.getElementById('bjd-view-page').style.display = '';
+      renderBjdView();
+    }
+  }).catch(function () {});
+  }
+  ykStartLoad('bjds', ykLoadData);
+
+  // 筛选 / 排序 / 打开详情
+  document.getElementById('bjd-size-chips').addEventListener('click', function (e) {
+    var chip = e.target.closest('.bjd-chip');
+    if (!chip) return;
+    BJD_FILTER = chip.getAttribute('data-size');
+    renderBjdToolbar();
+    renderBjdWall();
+  });
+  document.getElementById('bjd-sort').addEventListener('change', function (e) { BJD_SORT = e.target.value; renderBjdWall(); });
+  document.getElementById('bjd-cat').addEventListener('change', function (e) { BJD_CAT = e.target.value; renderBjdWall(); });
+  document.getElementById('bjd-grid').addEventListener('click', function (e) {
+    if (e.target.closest('.share-btn')) return; // 分享按钮自己处理
+    var dc = e.target.closest('.bjd-card');
+    if (dc) location.href = ykLink('/bjd/?id=') + dc.getAttribute('data-i');
+  });
+  if (window.SiteMenu) SiteMenu.notify('bjd');
+  applyLang(LANG);
+</script>
+<script src="/js/site-footer.js?v=20261031c"></script>
+<script>
+  // 统一 Footer（页面没有 <footer> 时自动在页尾新建）
+  function initSiteFooter() { renderSiteFooter(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initSiteFooter);
+  else initSiteFooter();
+</script>
+
+</body>
+</html>

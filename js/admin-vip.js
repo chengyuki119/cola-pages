@@ -177,7 +177,7 @@
         }[o.status] || [o.status, '#A88E9B'];
         var refTxt = pi.refunded > 0 ? money(pi.refunded, '$') : (o.status === 'refunded' ? t('全额·金额未记录', 'Full (amount unrecorded)') : '—');
         return '<tr>' +
-          '<td style="padding:8px 10px;"><a href="javascript:void(0)" class="vip-o" data-no="' + escAttr(o.order_no || '') + '" style="color:var(--accent-strong,#A04A68);text-decoration:underline;font-weight:600;white-space:nowrap;">' + esc(o.order_no || '') + '</a>' + (isTest(o) ? ' <span class="chip" style="font-size:11px;padding:1px 8px;">TEST</span>' : '') + '</td>' +
+          '<td style="padding:8px 10px;"><a href="javascript:void(0)" class="vip-o" data-no="' + escAttr(o.order_no || '') + '" style="color:var(--accent-strong,#A98D96);text-decoration:underline;font-weight:600;white-space:nowrap;">' + esc(o.order_no || '') + '</a>' + (isTest(o) ? ' <span class="chip" style="font-size:11px;padding:1px 8px;">TEST</span>' : '') + '</td>' +
           '<td style="padding:8px 10px;white-space:nowrap;">' + esc(String(o.created_at).slice(0, 10)) + '</td>' +
           '<td style="padding:8px 10px;min-width:160px;">' + esc(itemTxt) + '</td>' +
           '<td style="padding:8px 10px;text-align:right;white-space:nowrap;">' + money(num(o.subtotal), '$') + '</td>' +

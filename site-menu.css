@@ -204,5 +204,5 @@
   color: var(--text, #604C57); font-size: 15px; text-decoration: none;
 }
 .idx-link:hover { background: var(--card-hover, #FCE4EC); }
-.idx-link.current { background: var(--accent-soft, #FCE4EC); color: var(--accent-strong, #A04A68); font-weight: 600; }
+.idx-link.current { background: var(--accent-soft, #FCE4EC); color: var(--accent-strong, #A98D96); font-weight: 600; }
 @media (max-width: 700px) { .idx-wrap { display: block; } }

@@ -68,12 +68,13 @@
   }
 
   function currentLang() {
+    if (window.YK && (window.YK.lang === 'zh' || window.YK.lang === 'en')) return window.YK.lang; // URL 路径优先
     if (window.LANG === 'zh' || window.LANG === 'en') return window.LANG;
     try {
       var l = localStorage.getItem('yuki-lang');
       if (l === 'en') return 'en';
     } catch (e) {}
-    return 'zh';
+    return 'en';
   }
 
   function ensureStyle() {
@@ -106,12 +107,13 @@
     var lang = currentLang();
     var txt = TEXT[lang] || TEXT.zh;
     var col = function (titleKey, items) {
+      var yk = function (u) { return (typeof window.ykLink === 'function') ? window.ykLink(u) : u; }; // 链接跟随语言路径
       return '<div class="sy-footer-col">' +
-        '<a class="sy-footer-head" href="' + TITLE_HREF[titleKey] + '">' + esc(txt[titleKey]) + '</a>' +
+        '<a class="sy-footer-head" href="' + esc(yk(TITLE_HREF[titleKey])) + '">' + esc(txt[titleKey]) + '</a>' +
         '<div class="sy-footer-links">' +
         items.map(function (p) {
           var extra = p[2] === 'login' ? ' data-acc="login"' : '';
-          return '<a class="sy-footer-link" href="' + esc(p[1]) + '"' + extra + '>' + esc(txt[p[0]]) + '</a>';
+          return '<a class="sy-footer-link" href="' + esc(yk(p[1])) + '"' + extra + '>' + esc(txt[p[0]]) + '</a>';
         }).join('') +
         (titleKey === 'about' ? '<div class="sy-footer-social" id="sy-footer-social"></div>' : '') +
         '</div></div>';
@@ -124,8 +126,8 @@
       '<div class="sy-footer-bottom">' +
         '<span>' + esc(txt.copy) + '</span>' +
         '<span class="sy-footer-legal">' +
-          '<a href="/privacy-policy/">' + esc(txt['privacy-policy']) + '</a>' +
-          '<a href="/terms-of-service/">' + esc(txt['terms-of-service']) + '</a>' +
+          '<a href="' + ((typeof window.ykLink === 'function') ? window.ykLink('/privacy-policy/') : '/privacy-policy/') + '">' + esc(txt['privacy-policy']) + '</a>' +
+          '<a href="' + ((typeof window.ykLink === 'function') ? window.ykLink('/terms-of-service/') : '/terms-of-service/') + '">' + esc(txt['terms-of-service']) + '</a>' +
         '</span>' +
       '</div>' +
       '</div></div>';
@@ -138,9 +140,15 @@
     if (!box) return;
     var done = function (links) {
       if (!box.isConnected) return;
-      box.innerHTML = (links || []).filter(function (l) { return l.icon !== 'tiktok' && l.icon !== 'youtube'; }).map(function (l) {
-        if (l.url) return '<a class="sy-footer-link" href="' + esc(l.url) + '"' + (l.url.indexOf('mailto:') === 0 ? '' : ' target="_blank" rel="noopener"') + '>' + esc(l.name) + '</a>';
-        if (l.sub) return '<span class="sy-footer-link" style="cursor:default;">' + esc(l.name) + '：' + esc(l.sub) + '</span>';
+      // 她 20261031 §6：页脚只留 Discord / Gmail / WeChat / TikTok / Instagram，其余平台过滤掉（包括旧数据里残留的）
+      var ALLOW = ['discord', 'gmail', 'wechat', 'tiktok', 'instagram'];
+      var NAME_EN = { '微信': 'WeChat' };
+      var isEn = false;
+      try { isEn = (window.YK && window.YK.lang === 'en') || /^en/i.test(document.documentElement.lang || ''); } catch (e) {}
+      box.innerHTML = (links || []).filter(function (l) { return ALLOW.indexOf(l.icon) !== -1; }).map(function (l) {
+        var nm = (isEn && NAME_EN[l.name]) ? NAME_EN[l.name] : l.name;
+        if (l.url) return '<a class="sy-footer-link" href="' + esc(l.url) + '"' + (l.url.indexOf('mailto:') === 0 ? '' : ' target="_blank" rel="noopener"') + '>' + esc(nm) + '</a>';
+        if (l.sub) return '<span class="sy-footer-link" style="cursor:default;">' + esc(nm) + '：' + esc(l.sub) + '</span>';
         return '';
       }).join('');
     };
@@ -181,7 +189,7 @@
       if (!a) return;
       var logged = false;
       try { logged = !!(JSON.parse(localStorage.getItem('yuki-user-session') || 'null')); } catch (err) {}
-      if (logged) { e.preventDefault(); location.href = '/account/?sec=orders'; }
+      if (logged) { e.preventDefault(); location.href = (typeof window.ykLink === 'function' ? window.ykLink('/account/') : '/account/') + '?sec=orders'; }
     });
     // 页底返回钮（§1.2）：有站内来源时回退历史，直达时走默认 href，不会离开网站
     document.addEventListener('click', function (e) {

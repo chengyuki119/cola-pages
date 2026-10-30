@@ -2,11 +2,12 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
+  <script src="/js/lang-path.js?v=20261031c"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>页面走丢了 · Yuki / 柚子</title>
 <link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki2-180.png">
-<link rel="stylesheet" href="/css/site.css?v=20261029p29">
-<link rel="stylesheet" href="/site-menu.css?v=20261028p18">
+<link rel="stylesheet" href="/css/site.css?v=20261031c">
+<link rel="stylesheet" href="/site-menu.css?v=20261031c">
 <script src="/site-menu.js" defer></script>
 <style>
   body { padding: 0 !important; }
@@ -19,12 +20,13 @@
   .er-star { color: var(--accent-soft); }
   .er-btns { margin-top: 26px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
   .er-btn { display: inline-flex; align-items: center; justify-content: center; height: 46px; padding: 0 26px; border-radius: 999px; font-family: inherit; font-size: 17px; font-weight: 600; cursor: pointer; text-decoration: none; border: none; }
-  .er-btn-main { background:#FCE1EA; color: #A04A68; font-weight:600; }
+  .er-btn-main { background:#FCE1EA; color: #A98D96; font-weight:600; }
   .er-btn-main:hover { filter: brightness(1.05); }
   .er-btn-soft { background: #fff; color:var(--text,#604C57); border: 1.5px solid var(--accent-soft); }
 </style>
 <script>/* 主题色本地快照（无 site-common 页）；完整主题来自 site_settings.theme_colors */
 try { var __t = JSON.parse(localStorage.getItem('yuki-theme-colors') || 'null'); if (__t && typeof __t === 'object') { var __m = { text: '--text', muted: '--muted', bg: '--bg', card: '--card', accent: '--accent', accentSoft: '--accent-soft', accentStrong: '--accent-strong', price: '--price', success: '--success', warning: '--warning', danger: '--danger' }, __r = document.documentElement.style; Object.keys(__m).forEach(function (k) { if (__t[k]) __r.setProperty(__m[k], __t[k]); }); } } catch (e) {}</script>
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261031c">
 </head>
 <body>
 <header class="topbar">
@@ -83,12 +85,23 @@ try { var __t = JSON.parse(localStorage.getItem('yuki-theme-colors') || 'null');
   apply(lang);
 })();
 </script>
-<script src="/js/site-footer.js?v=20261028p18"></script>
+<script src="/js/site-footer.js?v=20261031c"></script>
 <script>
   // 统一 Footer（页面没有 <footer> 时自动在页尾新建）
   function initSiteFooter() { renderSiteFooter(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initSiteFooter);
   else initSiteFooter();
+</script>
+<script>
+  // 404 只有一份文件（GitHub Pages 自定义 404），中文访问时把页内固定链接改写成 /zh/ 路径
+  (function () {
+    if (typeof window.ykLink !== 'function') return;
+    document.querySelectorAll('a[href^="/"]').forEach(function (a) {
+      var h = a.getAttribute('href');
+      var n = window.ykLink(h);
+      if (n !== h) a.setAttribute('href', n);
+    });
+  })();
 </script>
 </body>
 </html>

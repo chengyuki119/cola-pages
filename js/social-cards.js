@@ -22,18 +22,17 @@
   function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
   function escAttr(s) { return esc(s).replace(/"/g, '&quot;'); }
 
-  // 默认清单 = 主页「找到我」当前的静态配置（账号名/ID/链接逐字一致，2026-10-26 实查）；
+  // 默认清单 = 主页「找到我」当前的静态配置（账号名/ID/链接逐字一致，2026-10-31 她最终版：只保留 Discord / Gmail / WeChat / TikTok / Instagram）；
   // 后台「主页管理」保存过 links 设置时以库里的为准
   var DEFAULT_LINKS = [
     { icon: 'discord', name: 'Discord', sub: '小柚的服务器', url: 'https://discord.gg/aWSfnydGG' },
-    { icon: 'douyin', name: '抖音', sub: '小柚ovo', url: 'https://v.douyin.com/rDWydc4QlBE/' },
-    { icon: 'instagram', name: 'Instagram', sub: 'zyc.0119', url: 'https://instagram.com/zyc.0119' },
+    { icon: 'gmail', name: 'Gmail', sub: 'snowyuzustudio@gmail.com', url: 'mailto:snowyuzustudio@gmail.com' },
     { icon: 'wechat', name: '微信', sub: 'yuki_060119', url: '' },
-    { icon: 'gmail', name: 'Gmail', sub: 'snowyuzustudio', url: 'mailto:snowyuzustudio@gmail.com' },
-    { icon: 'x', name: 'X / Twitter', sub: '@yuki_zheng119', url: 'https://x.com/yuki_zheng119' },
-    { icon: 'xhs', name: '小红书', sub: '柚y', url: 'https://xhslink.cn/o/8ZUGYxQgnKG' },
-    { icon: 'netease', name: '网易云音乐', sub: 'Snow柚', url: 'https://y.music.163.com/m/user?id=5022037817' }
+    { icon: 'tiktok', name: 'TikTok', sub: '@snowyuzu.studio', url: 'https://www.tiktok.com/@snowyuzu.studio' },
+    { icon: 'instagram', name: 'Instagram', sub: '@snowyuzu.studio', url: 'https://www.instagram.com/snowyuzu.studio/' }
   ];
+  // 只允许这五个平台出现在前台（她 20261031 §6：其他平台彻底删除，不能只隐藏）
+  var ALLOW_ICONS = ['discord', 'gmail', 'wechat', 'tiktok', 'instagram'];
 
   // 社交数据源单一出口：about 页与 Footer 共用（库里 links 行为准，无则用默认清单）
   var linksPromise = null;
@@ -44,7 +43,7 @@
         .then(function (rows) {
           var links = [];
           try { links = JSON.parse((rows[0] && rows[0].value) || 'null') || []; } catch (e) {}
-          return (Array.isArray(links) && links.length) ? links : DEFAULT_LINKS;
+          return (Array.isArray(links) && links.length) ? links.filter(function (l) { return ALLOW_ICONS.indexOf(l.icon) !== -1; }) : DEFAULT_LINKS;
         })
         .catch(function () { return DEFAULT_LINKS; });
     }
@@ -127,7 +126,7 @@
         pop._for=addr;
         pop.innerHTML='<div style="max-width:420px;margin:10px auto 0;background:#fff;border:1.5px solid #FFD9E6;border-radius:14px;padding:14px 18px;font-size:15px;color:#604C57;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">'+
           '<b style="word-break:break-all;">'+addr+'</b>'+
-          '<button type="button" data-sy-copybtn="'+addr+'" style="border:none;background:#FCE4EC;color:#A04A68;border-radius:999px;padding:6px 16px;font-size:14px;cursor:pointer;font-family:inherit;">复制邮箱</button>'+
+          '<button type="button" data-sy-copybtn="'+addr+'" style="border:none;background:#FCE4EC;color:#A98D96;border-radius:999px;padding:6px 16px;font-size:14px;cursor:pointer;font-family:inherit;">复制邮箱</button>'+
           '<a href="mailto:'+addr+'" style="border:1.5px solid #FFD9E6;color:#604C57;border-radius:999px;padding:5px 16px;font-size:14px;text-decoration:none;">打开邮箱</a>'+
           '</div>';
         pop.style.display='block';

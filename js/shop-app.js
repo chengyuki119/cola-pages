@@ -19,7 +19,7 @@
   function t(zh, en) { return (window.LANG === 'en') ? en : zh; }
   function svgHeart(on) { // 收藏按钮：实心/空心 SVG（原 ♥/♡ 字符按「全站去 emoji」改矢量）
     var p = 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z';
-    return '<svg viewBox="0 0 24 24" width="17" height="17" style="display:block;margin:auto;" ' + (on ? 'fill="#A04A68"' : 'fill="none" stroke="#A88E9B" stroke-width="1.8"') + '><path d="' + p + '"/></svg>';
+    return '<svg viewBox="0 0 24 24" width="17" height="17" style="display:block;margin:auto;" ' + (on ? 'fill="#F2A9C4"' : 'fill="none" stroke="#A88E9B" stroke-width="1.8"') + '><path d="' + p + '"/></svg>';
   }
 
   // ===== 买家登录态 =====
@@ -140,7 +140,7 @@
       if (i.dataset.styled) return;
       i.dataset.styled = '1';
       i.style.cssText = 'width:100%;padding:11px 14px;font-size:17px;border:1.5px solid var(--accent-soft,#FCE4EC);border-radius:12px;background:#fff;outline:none;color:var(--text,#604C57);font-family:inherit;box-sizing:border-box;transition:border-color .15s;box-shadow:0 2px 10px rgba(255,143,171,.06);';
-      i.addEventListener('focus', function () { i.style.borderColor = 'var(--accent-strong,#A04A68)'; });
+      i.addEventListener('focus', function () { i.style.borderColor = 'var(--accent-strong,#A98D96)'; });
       i.addEventListener('blur', function () { i.style.borderColor = 'var(--accent-soft,#FCE4EC)'; });
     });
   }
@@ -167,15 +167,14 @@
     }).catch(function () { return false; });
   }
   function subToggleHtml(id, on) {
-    return '<button type="button" id="' + id + '" role="switch" aria-checked="' + (on ? 'true' : 'false') + '" style="width:46px;height:26px;border-radius:999px;border:none;cursor:pointer;padding:0;position:relative;transition:background .2s;font-family:inherit;background:' + (on ? 'var(--accent,#ffd9e6)' : '#e8d5de') + ';flex-shrink:0;">' +
+    return '<button type="button" id="' + id + '" role="switch" aria-checked="' + (on ? 'true' : 'false') + '" style="width:46px;height:26px;border-radius:999px;border:none;cursor:pointer;padding:0;position:relative;transition:background .2s;font-family:inherit;background:' + (on ? 'var(--cb-on,#F2A9C4)' : 'var(--btn-bg,#FFF7FA)') + ';flex-shrink:0;">' +
       '<span style="position:absolute;top:3px;left:' + (on ? '23px' : '3px') + ';width:20px;height:20px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 1px 4px rgba(120,70,95,.25);"></span></button>';
-  }
-  function bindSubToggle(btn, getUidFn, onChange) {
+  }  function bindSubToggle(btn, getUidFn, onChange) {
     if (!btn) return;
     btn.addEventListener('click', function () {
       var on = btn.getAttribute('aria-checked') !== 'true';
       btn.setAttribute('aria-checked', on ? 'true' : 'false');
-      btn.style.background = on ? 'var(--accent,#ffd9e6)' : '#e8d5de';
+      btn.style.background = on ? 'var(--cb-on,#F2A9C4)' : 'var(--btn-bg,#FFF7FA)';
       btn.querySelector('span').style.left = on ? '23px' : '3px';
       var done = subWrite(on, getUidFn ? getUidFn() : null);
       if (onChange) onChange(on);
@@ -254,7 +253,7 @@
     var skuText = v ? (v.sku || '') : '';
     var el = document.createElement('div');
     el.innerHTML =
-      '<a class="back-link" href="/shop/" style="margin-bottom:14px;display:inline-flex;">← ' + t('回小铺', 'Back to shop') + '</a>' +
+      '<a class="back-link" href="' + ykLink('/shop/') + '" style="margin-bottom:14px;display:inline-flex;">← ' + t('回小铺', 'Back to shop') + '</a>' +
       '<div class="pdp">' +
         '<div class="d-pager" id="d-pager">' + pagerWrapHtml(imgs.map(normImg), p.name) + '</div>' +
         '<div class="d-info">' +
@@ -278,7 +277,7 @@
             '<b style="font-size:15px;">' + t('购买须知 ♡', 'Before You Order ♡') + '</b>' +
             '<p style="font-size:14px;color:var(--muted);margin:6px 0 0;line-height:1.7;">' +
               t('下单前请仔细阅读商品描述与图片。手工制品与键帽可能存在轻微瑕疵或正常工艺差异，与描述一致的轻微差异不构成退款理由。详细规则见', 'Please review the description and photos carefully. Handmade items and keycaps may have minor imperfections or variations; minor variations consistent with the description are not grounds for refund. See our ') +
-              '<a href="/return-policy/" style="color:var(--price,#ff6fa5);text-decoration:underline;">' + t('《退货与退款政策》', 'Return & Refund Policy') + '</a>' + t('。', '.') + '</p>' +
+              '<a href="' + ykLink('/return-policy/') + '" style="color:var(--price,#ff6fa5);text-decoration:underline;">' + t('《退货与退款政策》', 'Return & Refund Policy') + '</a>' + t('。', '.') + '</p>' +
           '</div>' : '') +
         (st === 'on' ?
             '<div class="d-actions" style="margin:12px 0;">' +
@@ -289,7 +288,7 @@
               '</div>' +
               '<div style="display:flex;gap:10px;flex-wrap:wrap;margin:0;">' +
                 '<button class="buy-btn" id="d-add" style="padding:10px 22px;">' + t('加入购物车', 'Add to cart') + '</button>' +
-                '<button class="buy-btn" id="d-buy" style="padding:10px 22px;background:#FCE1EA;color:#A04A68;">' + t('立即购买', 'Buy now') + '</button>' +
+                '<button class="buy-btn" id="d-buy" style="padding:10px 22px;background:#FCE1EA;color:#A98D96;">' + t('立即购买', 'Buy now') + '</button>' +
               '</div>' +
             '</div>'
           : '<div class="d-actions"><p class="no-buy" style="margin:14px 0;">' + (st === 'out' ? t('已售罄，看看别的吧～', 'Sold out — take a look at other items~') : t('仅展示，不能下单', 'Not for sale')) + '</p></div>') +
@@ -431,7 +430,7 @@
           members = arr(members);
           var stText = { open: t('进行中', 'Open'), success: t('已成团', 'Success'), failed: t('已失败', 'Failed'), cancelled: t('已取消', 'Cancelled') }[g.status];
           box.innerHTML =
-            '<a class="back-link" href="/shop/?sec=groups" style="margin-bottom:14px;display:inline-flex;">← ' + t('全部拼团', 'All groups') + '</a>' +
+            '<a class="back-link" href="' + ykLink('/shop/?sec=groups') + '" style="margin-bottom:14px;display:inline-flex;">← ' + t('全部拼团', 'All groups') + '</a>' +
             '<div class="card" style="padding:18px;">' +
               '<div style="display:grid;grid-template-columns:180px 1fr;gap:18px;">' +
                 (g.product_image ? '<img src="' + escAttr(normImg(g.product_image)) + '" style="width:180px;height:180px;object-fit:cover;border-radius:14px;">' : '') +
@@ -443,7 +442,7 @@
               '</div>' +
               (g.status === 'open' ?
                 '<div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">' +
-                  (g.joined < g.target ? '<button class="buy-btn" id="g-join" style="padding:10px 24px;background:#FCE1EA;color:#A04A68;">' + t('加入拼团', 'Join group') + '</button>' : '<span class="no-buy">' + t('人数已满，等待成员付款中', 'Full — waiting for payments') + '</span>') +
+                  (g.joined < g.target ? '<button class="buy-btn" id="g-join" style="padding:10px 24px;background:#FCE1EA;color:#A98D96;">' + t('加入拼团', 'Join group') + '</button>' : '<span class="no-buy">' + t('人数已满，等待成员付款中', 'Full — waiting for payments') + '</span>') +
                 '</div>' : '') +
               '<div style="margin-top:14px;font-size:15px;color:var(--muted);">' + t('成员', 'Members') + '：' +
                 (members.length ? members.map(function (m) { return esc(m.nickname || t('小伙伴', 'member')); }).join('、') : t('虚位以待…', 'Waiting…')) +
@@ -584,7 +583,7 @@
         '</div>' +
         '<div class="card" style="padding:18px;"><div style="display:flex;justify-content:space-between;font-size:19px;"><b>' + t('预估合计', 'Estimated total') + '</b><b id="ck-total" style="color:var(--price,#ff6fa5);">' + sym(cur) + money(sub + est + fee) + '</b></div>' +
           '<p style="font-size:14px;color:var(--muted);margin-top:4px;">' + t('以服务端验证后的金额为准；实际运费由后台确认后更新。', 'Final amount is validated server-side; shipping updates once confirmed.') + '</p>' +
-          '<button class="buy-btn" id="ck-submit" style="width:100%;margin-top:12px;padding:12px;background:#FCE1EA;color:#A04A68;font-size:18px;">' + t('提交订单', 'Place order') + '</button>' +
+          '<button class="buy-btn" id="ck-submit" style="width:100%;margin-top:12px;padding:12px;background:#FCE1EA;color:#A98D96;font-size:18px;">' + t('提交订单', 'Place order') + '</button>' +
         '</div>';
       paintAddrPicker();
       window.__ckUpdateShip = updateShip;
@@ -611,8 +610,8 @@
     // 按收件人名字排（不用 A-Z 字母导航，她 2026-10-25 要求删掉）
     var list = ADDR.slice().sort(function (a, b) { return String(a.name || '').localeCompare(String(b.name || ''), 'zh-u-co-pinyin'); });
     var html = '<div>' + list.map(function (a) {
-      return '<label style="display:flex;gap:8px;align-items:flex-start;padding:10px;border-radius:12px;background:' + (a.id === ckAddrId ? 'var(--card-hover)' : '#fff') + ';margin-bottom:6px;cursor:pointer;" data-aid="' + escAttr(a.id) + '">' +
-        '<span class="addr-dot" style="width:16px;height:16px;border-radius:50%;border:2px solid var(--muted,#A88E9B);margin-top:4px;flex-shrink:0;background:' + (a.id === ckAddrId ? 'var(--accent,#ffd9e6)' : 'transparent') + ';"></span>' +
+      return '<label style="display:flex;gap:8px;align-items:flex-start;padding:10px;border-radius:12px;background:' + (a.id === ckAddrId ? 'var(--opt-sel-bg,#FCE1EA)' : '#fff') + ';margin-bottom:6px;cursor:pointer;" data-aid="' + escAttr(a.id) + '">' +
+        '<span class="addr-dot" style="width:16px;height:16px;border-radius:50%;border:2px solid ' + (a.id === ckAddrId ? 'var(--cb-on,#F2A9C4)' : 'var(--cb-bd,#FFD1E0)') + ';margin-top:4px;flex-shrink:0;background:' + (a.id === ckAddrId ? 'var(--cb-on,#F2A9C4)' : 'transparent') + ';"></span>' +
         '<span style="font-size:16px;">' + esc(a.name) + ' · ' + esc(a.phone) + '<br><span style="color:var(--muted);">' + esc(a.street + ', ' + a.city + ', ' + a.state + ' ' + a.zip + ', ' + a.country) + '</span></span></label>';
     }).join('') + '</div>';
     box.innerHTML = html;
@@ -705,7 +704,7 @@
       '<div style="font-size:15px;color:var(--muted);margin-top:2px;">' + new Date(o.created_at).toLocaleString() + '</div>' +
       (o.items || []).map(function (it) {
         return '<div style="display:flex;gap:12px;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--accent-soft,#FCE4EC);">' +
-          (it.image ? '<a href="/shop/?id=' + escAttr(it.id) + '" target="_blank" style="text-decoration:none;"><img src="' + escAttr(normImg(it.image)) + '" style="width:56px;height:56px;border-radius:12px;object-fit:cover;flex-shrink:0;"></a>' : '<div style="width:56px;height:56px;border-radius:12px;background:var(--accent-soft,#FCE4EC);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--muted,#A88E9B);font-size:20px;">♡</div>') +
+          (it.image ? '<a href="' + ykLink('/shop/?id=' + escAttr(it.id)) + '" target="_blank" style="text-decoration:none;"><img src="' + escAttr(normImg(it.image)) + '" style="width:56px;height:56px;border-radius:12px;object-fit:cover;flex-shrink:0;"></a>' : '<div style="width:56px;height:56px;border-radius:12px;background:var(--accent-soft,#FCE4EC);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--muted,#A88E9B);font-size:20px;">♡</div>') +
           '<div style="flex:1;min-width:0;">' +
             '<div style="font-size:16px;color:var(--text,#604C57);font-weight:600;">' + esc(it.name) + '</div>' +
             (it.sku ? '<div style="font-size:13px;color:var(--muted,#A88E9B);margin-top:2px;">' + t('规格', 'Option') + '：' + esc(it.sku) + '</div>' : '') +
@@ -750,8 +749,8 @@
       '<div style="font-size:15px;color:var(--muted);margin-top:6px;">' + t('明细', 'Breakdown') + '：<span style="color:var(--price,#ff6fa5);">' + sym(o.currency) + money(o.subtotal) + '</span>' + (o.discount > 0 ? ' − 优惠 <span style="color:var(--price,#ff6fa5);">' + sym(o.currency) + money(o.discount) + '</span>' : '') + ' + 运费 <span style="color:var(--price,#ff6fa5);">' + sym(o.currency) + money(o.shipping_actual != null ? o.shipping_actual : o.shipping_est) + '</span>' + ' + 服务费 <span style="color:var(--price,#ff6fa5);">' + sym(o.currency) + money(o.service_fee) + '</span>' + '</div>' +
       '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">';
     if (o.status === 'pending' || o.status === 'rejected') {
-      html += '<button class="buy-btn oc-stripe" style="padding:8px 18px;background:#FCE1EA;color:#A04A68;">' + t('在线支付（Stripe 测试）', 'Pay online (Stripe test)') + '</button>';
-      html += '<button class="buy-btn oc-pay" style="padding:8px 18px;background:#FCE1EA;color:#A04A68;">' + t('上传付款截图', 'Upload payment proof') + '</button>';
+      html += '<button class="buy-btn oc-stripe" style="padding:8px 18px;background:#FCE1EA;color:#A98D96;">' + t('在线支付（Stripe 测试）', 'Pay online (Stripe test)') + '</button>';
+      html += '<button class="buy-btn oc-pay" style="padding:8px 18px;background:#FCE1EA;color:#A98D96;">' + t('上传付款截图', 'Upload payment proof') + '</button>';
     }
     if (o.status === 'reviewing') html += '<span class="no-buy">' + t('凭证已提交，等柚子确认～', 'Proof submitted — awaiting confirmation~') + '</span>';
     if (['pending', 'reviewing', 'rejected'].indexOf(o.status) >= 0) {
@@ -841,12 +840,12 @@
         line = '<span class="no-buy">' + t('已付清 ✓', 'Fully paid ✓') + '</span>';
       } else if (paid > 0.005) {
         line = '<span style="font-size:14px;color:var(--muted);">' + t('已收', 'Paid') + ' ' + symC + money(paid) + ' · ' + t('还剩', 'Remaining') + ' ' + symC + money(out) + '</span> ' +
-               '<button class="buy-btn oc-plan-pill" data-amt="' + out.toFixed(2) + '" style="padding:7px 16px;background:#FCE1EA;color:#A04A68;">' + t('支付尾款 ' + symC + money(out), 'Pay balance ' + symC + money(out)) + '</button>';
+               '<button class="buy-btn oc-plan-pill" data-amt="' + out.toFixed(2) + '" style="padding:7px 16px;background:#FCE1EA;color:#A98D96;">' + t('支付尾款 ' + symC + money(out), 'Pay balance ' + symC + money(out)) + '</button>';
       } else if (hasDep) {
         var dep = rows.filter(function (x) { return x.kind === 'deposit'; })[0];
         var depAmt = parseFloat(dep && dep.amount) || 0;
         line = '<span style="font-size:14px;color:var(--muted);">' + t('订单为定金＋尾款：先付定金，发货前付清尾款', 'Deposit + balance: pay the deposit first, the rest before shipping') + '</span> ' +
-               '<button class="buy-btn oc-plan-pill" data-amt="' + depAmt.toFixed(2) + '" style="padding:7px 16px;background:#FCE1EA;color:#A04A68;">' + t('支付定金 ' + symC + money(depAmt), 'Pay deposit ' + symC + money(depAmt)) + '</button>';
+               '<button class="buy-btn oc-plan-pill" data-amt="' + depAmt.toFixed(2) + '" style="padding:7px 16px;background:#FCE1EA;color:#A98D96;">' + t('支付定金 ' + symC + money(depAmt), 'Pay deposit ' + symC + money(depAmt)) + '</button>';
       }
       if (line) box.innerHTML = '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">' + line + '</div>';
     }).catch(function () { box.style.display = 'none'; });
@@ -864,7 +863,7 @@
         '<div style="margin-top:8px;display:flex;gap:8px;align-items:center;">' +
           '<label class="buy-btn" style="padding:7px 16px;cursor:pointer;">' + t('选择截图', 'Choose screenshot') + '<input id="pu-file" type="file" accept="image/*" hidden></label>' +
           '<span id="pu-name" style="font-size:15px;color:var(--muted);">' + t('未选择', 'None') + '</span>' +
-          '<button class="buy-btn" id="pu-go" style="padding:8px 18px;background:#FCE1EA;color:#A04A68;margin-left:auto;">' + t('提交凭证', 'Submit proof') + '</button>' +
+          '<button class="buy-btn" id="pu-go" style="padding:8px 18px;background:#FCE1EA;color:#A98D96;margin-left:auto;">' + t('提交凭证', 'Submit proof') + '</button>' +
         '</div>' +
       '</div>';
     box.querySelectorAll('input:not([type=file])').forEach(function (i) { i.style.cssText = 'width:100%;padding:10px 12px;font-size:16px;border:none;border-radius:12px;background:#fff;outline:none;color:var(--text);font-family:inherit;'; });
@@ -933,7 +932,7 @@
           '<div id="ac-login">' +
             '<input id="li-email" placeholder="Email" style="width:100%;margin-bottom:14px;">' +
             '<input id="li-pw" type="password" placeholder="' + t('密码', 'Password') + '" style="width:100%;margin-bottom:16px;">' +
-            '<button class="buy-btn" id="li-go" style="width:100%;padding:11px;background:#FCE1EA;color:#A04A68;font-size:17px;">' + t('登录', 'Log in') + '</button>' +
+            '<button class="buy-btn" id="li-go" style="width:100%;padding:11px;background:#FCE1EA;color:#A98D96;font-size:17px;">' + t('登录', 'Log in') + '</button>' +
             '<button id="li-forgot" style="background:none;border:none;color:var(--muted);font-family:inherit;font-size:15px;margin-top:14px;cursor:pointer;">' + t('忘记密码？发重置邮件', 'Forgot password? Send reset email') + '</button>' +
           '</div>' +
           '<div id="ac-reg" style="display:none;">' +
@@ -951,7 +950,7 @@
               '<span style="font-size:16px;color:var(--text,#604C57);">' + t('接收新品上架通知', 'Notify me about new items') + '<br><span style="font-size:13px;color:var(--muted,#A88E9B);">' + t('默认关闭 · 邮件通知服务尚未配置，启用前不会发送邮件', 'Off by default · email delivery not configured yet') + '</span></span>' +
               subToggleHtml('rg-notify', false) +
             '</div>' +
-            '<button class="buy-btn" id="rg-go" style="width:100%;padding:11px;background:#FCE1EA;color:#A04A68;font-size:17px;margin-top:14px;">' + t('注册', 'Create account') + '</button>' +
+            '<button class="buy-btn" id="rg-go" style="width:100%;padding:11px;background:#FCE1EA;color:#A98D96;font-size:17px;margin-top:14px;">' + t('注册', 'Create account') + '</button>' +
           '</div>' +
         '</div>';
       styleInputs(box);
@@ -1002,7 +1001,7 @@
           };
           return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;">' +
               '<b style="font-size:17px;">' + t('基本资料', 'Basic info') + '</b>' +
-              '<button class="buy-btn" id="pf-edit" style="padding:7px 18px;background:#FCE1EA;color:#A04A68;">' + t('编辑', 'Edit') + '</button>' +
+              '<button class="buy-btn" id="pf-edit" style="padding:7px 18px;background:#FCE1EA;color:#A98D96;">' + t('编辑', 'Edit') + '</button>' +
             '</div>' +
             '<div style="display:grid;grid-template-columns:76px 1fr;row-gap:10px;column-gap:12px;align-items:baseline;">' +
               row(t('邮箱', 'Email'), USER.email || '') +
@@ -1022,7 +1021,7 @@
             '</div>' +
             (errMsg ? '<p id="pf-err" style="color:var(--danger,#D96570);font-size:14px;margin:10px 0 0;">' + esc(errMsg) + '</p>' : '') +
             '<div style="display:flex;gap:10px;margin-top:14px;">' +
-              '<button class="buy-btn" id="pf-save" style="padding:9px 22px;background:#FCE1EA;color:#A04A68;">' + t('保存', 'Save') + '</button>' +
+              '<button class="buy-btn" id="pf-save" style="padding:9px 22px;background:#FCE1EA;color:#A98D96;">' + t('保存', 'Save') + '</button>' +
               '<button class="buy-btn" id="pf-cancel" style="padding:9px 22px;background:#fff;color:var(--muted);border:1.5px solid #FFD9E6;">' + t('取消', 'Cancel') + '</button>' +
             '</div>';
         }
@@ -1150,7 +1149,7 @@
           : '<p style="margin:0 0 6px;font-size:14px;color:#A88E9B;line-height:1.7;">你已登录小柚小世界的后台管理员账号（只读权限）。<br>可以浏览后台的授权内容，但不能新增、修改或删除数据。</p>' +
             '<p style="margin:0 0 16px;font-size:14px;color:#A88E9B;">如需修改内容，请联系小柚 ♡</p>') +
         '<div style="display:flex;gap:8px;justify-content:center;">' +
-          '<button id="ro-go" type="button" style="border:none;background:#FCE4EC;color:#A04A68;border-radius:999px;padding:9px 24px;font-size:15px;cursor:pointer;font-family:inherit;">前往后台</button>' +
+          '<button id="ro-go" type="button" style="border:none;background:#FCE4EC;color:#A98D96;border-radius:999px;padding:9px 24px;font-size:15px;cursor:pointer;font-family:inherit;">前往后台</button>' +
           '<button id="ro-stay" type="button" style="border:none;background:none;color:#A88E9B;font-size:14px;cursor:pointer;font-family:inherit;padding:9px 12px;">' + (isP ? '取消' : '知道了') + '</button>' +
         '</div>' +
       '</div>';
@@ -1322,7 +1321,7 @@
       '<h2 style="font-size:22px;margin-bottom:14px;">' + t('购物车', 'Cart') + '</h2>' +
       CART.map(function (x, i) {
         return '<div class="card" style="padding:14px 16px;margin-bottom:10px;display:flex;gap:12px;align-items:center;">' +
-          '<span class="ck-box" data-i="' + i + '" style="width:20px;height:20px;border-radius:6px;border:2px solid var(--border,#FFD9E6);flex-shrink:0;cursor:pointer;background:' + (x.checked !== false ? 'var(--accent-soft,#FCE4EC)' : '#fff') + ';display:inline-flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;line-height:1;color:var(--text,#604C57);">' + (x.checked !== false ? '<svg viewBox=\"0 0 16 16\" width=\"12\" height=\"12\" style=\"display:block;\"><path d=\"M3.2 8.6 L6.6 11.8 L12.8 4.6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>' : '') + '</span>' +
+          '<span class="ck-box" data-i="' + i + '" style="width:20px;height:20px;border-radius:6px;border:2px solid var(--cb-bd,#FFD1E0);flex-shrink:0;cursor:pointer;background:' + (x.checked !== false ? 'var(--cb-on,#F2A9C4)' : 'var(--cb-bg,#FFF7FA)') + ';display:inline-flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;line-height:1;color:' + (x.checked !== false ? 'var(--cb-mark,#fff)' : 'var(--text,#604C57)') + ';">' + (x.checked !== false ? '<svg viewBox=\"0 0 16 16\" width=\"12\" height=\"12\" style=\"display:block;\"><path d=\"M3.2 8.6 L6.6 11.8 L12.8 4.6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>' : '') + '</span>' +
           (x.image ? '<img src="' + escAttr(normImg(x.image)) + '" style="width:64px;height:64px;border-radius:14px;object-fit:cover;flex-shrink:0;">' : '<div style="width:64px;height:64px;border-radius:14px;background:var(--accent-soft,#FCE4EC);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--muted,#A88E9B);font-size:22px;">♡</div>') +
           '<div style="flex:1;min-width:0;">' +
             '<div style="font-size:16px;color:var(--text,#604C57);font-weight:600;">' + esc(x.name) + '</div>' +
@@ -1341,7 +1340,7 @@
       }).join('') +
       '<div class="card" style="padding:14px;display:flex;justify-content:space-between;align-items:center;">' +
         '<span style="font-size:17px;">' + t('已选小计', 'Selected subtotal') + '</span><b style="font-size:20px;color:var(--price,#ff6fa5);">' + sym(subCur) + money(sub) + '</b></div>' +
-      '<button class="buy-btn" id="cart-go" style="width:100%;margin-top:12px;padding:12px;background:#FCE1EA;color:#A04A68;font-size:18px;font-weight:600;">' + t('去结算', 'Check out') + '</button>';
+      '<button class="buy-btn" id="cart-go" style="width:100%;margin-top:12px;padding:12px;background:#FCE1EA;color:#A98D96;font-size:18px;font-weight:600;">' + t('去结算', 'Check out') + '</button>';
     box.querySelectorAll('.ck-box').forEach(function (el) { el.addEventListener('click', function () {
       var x = CART[+el.getAttribute('data-i')]; x.checked = x.checked === false; saveCart(); renderCart();
     }); });
@@ -1372,7 +1371,7 @@
     function tags() {
       var set = []; PRODUCTS.forEach(function (p) { if (p.tag && set.indexOf(p.tag) < 0) set.push(p.tag); });
       document.getElementById('q-tags').innerHTML = [''].concat(set).map(function (x) {
-        return '<button class="buy-btn q-tag" data-t="' + escAttr(x) + '" style="padding:6px 12px;font-size:14px;border-radius:999px;background:' + (x === tag ? 'var(--accent-soft,#FCE4EC);color:var(--accent-strong,#A04A68);box-shadow:none;' : '#fff;color:var(--muted,#A88E9B)') + ';box-shadow:' + 'none' + ';">' + esc(x || t('全部', 'All')) + '</button>';
+        return '<button class="buy-btn q-tag' + (x === tag ? ' on' : '') + '" data-t="' + escAttr(x) + '" style="padding:6px 12px;font-size:14px;border-radius:999px;box-shadow:none;">' + esc(x || t('全部', 'All')) + '</button>';
       }).join('');
       bar.querySelectorAll('.q-tag').forEach(function (b) { b.addEventListener('click', function () { tag = b.getAttribute('data-t'); paint(); }); });
     }
