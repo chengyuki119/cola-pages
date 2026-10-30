@@ -20,7 +20,7 @@
     <link rel="preload" href="/fonts/Millo-RiceSoyMilk80.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/fonts/Millo-RiceSoyMilk90.woff2" as="font" type="font/woff2" crossorigin>
 <meta charset="UTF-8">
-  <script src="/js/lang-path.js?v=20261031h"></script>
+  <script src="/js/lang-path.js?v=20261031i"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>小柚的小世界</title>
 <link rel="manifest" href="/manifest.json">
@@ -36,10 +36,10 @@
 <meta name="twitter:title" content="小柚的小世界">
 <meta name="twitter:description" content="欢迎来到小柚的小世界">
 <meta name="twitter:image" content="https://yukicheng.com/zh/">
-<link rel="stylesheet" href="/css/site.css?v=20261031h">
-  <link rel="stylesheet" href="/site-menu.css?v=20261031h">
+<link rel="stylesheet" href="/css/site.css?v=20261031i">
+  <link rel="stylesheet" href="/site-menu.css?v=20261031i">
     <script src="/site-menu.js" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261031h">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261031i">
 </head>
 <body class="home">
 
@@ -163,7 +163,7 @@
 <div id="share-pop"></div>
 
 
-<script src="/js/site-common.js?v=20261031h"></script>
+<script src="/js/site-common.js?v=20261031i"></script>
 
 <!-- ═══════════ 小柚助手（AI 入口 · 第一阶段测试：模拟回复 + 后台知识库匹配，未接真 AI）═══════════ -->
 <style>
@@ -915,8 +915,35 @@
   function repName(r) {
     return { none: t('不重复', 'Does not repeat'), daily: t('每天重复', 'Repeats daily'), weekly: t('每周重复', 'Repeats weekly'), monthly: t('每月重复', 'Repeats monthly'), yearly: t('每年重复', 'Repeats yearly') }[r] || r;
   }
+  /* 她 20261031 §3：分类必须统一对应（纪念=Anniversary / 其他=Other / 色卡=Color Card / 生日=Birthday / 重要日子=Important Date）。
+     库里历史值中英混杂（day_cats 现在是 ["生日","anniversary","birthday","重要日"]），
+     这里只做「归一化显示」，不修改任何数据库记录；旧值照旧能认。 */
+  var CAT_CANON = {
+    'birthday': 'birthday', '生日': 'birthday',
+    'anniversary': 'anniversary', '纪念': 'anniversary', '纪念日': 'anniversary',
+    'event': 'important', '重要日': 'important', '重要日子': 'important', 'important': 'important', 'important date': 'important',
+    'other': 'other', '其他': 'other',
+    'colorcard': 'color', 'color card': 'color', '色卡': 'color'
+  };
+  var CAT_LABEL = {
+    birthday: ['生日', 'Birthday'],
+    anniversary: ['纪念', 'Anniversary'],
+    important: ['重要日子', 'Important Date'],
+    other: ['其他', 'Other'],
+    color: ['色卡', 'Color Card']
+  };
+  function catKey(raw) {
+    var s = String(raw == null ? '' : raw).trim();
+    return CAT_CANON[s.toLowerCase()] || CAT_CANON[s] || '';
+  }
+  function catLabel(raw) {
+    var k = catKey(raw);
+    if (!k) return raw;
+    var L = CAT_LABEL[k];
+    return t(L[0], L[1]);
+  }
   function typeNameZh(r) {
-    return { birthday: '生日', anniversary: '纪念日', event: '重要日' }[r] || r;
+    return catLabel(r);
   }
   // ===== 周年/年龄自动计算：每年重复的事件在 y 年自动显示「第几年」=====
   function zhYears(n) { // 1→一 2→两 3→三 … 21→二十一
@@ -1143,7 +1170,7 @@
     grid.innerHTML = html;
   }
   function evTypeName(ev) {
-    return { birthday: t('生日', 'Birthday'), anniversary: t('纪念日', 'Anniversary'), event: t('重要日', 'Event') }[ev.type] || ev.type;
+    return catLabel(ev.type);
   }
   function renderCalSide() {
     var tEl = document.getElementById('cal-sel-list');
@@ -1256,13 +1283,13 @@
       var q = catInp.value.trim().toLowerCase();
       var seenL = {}, src = [];
       dayCatSources().forEach(function (c) { // 按显示名去重：day_cats 与旧英文类型同名的只留一个
-        var l = { birthday: t('生日', 'Birthday'), anniversary: t('纪念日', 'Anniversary'), event: t('重要日', 'Event') }[c] || c;
+        var l = catLabel(c);
         if (!seenL[l]) { seenL[l] = 1; src.push(c); }
       });
       var cats = src.filter(function (c) { return c.toLowerCase().indexOf(q) !== -1; }).slice(0, 6);
       var exact = src.indexOf(catInp.value.trim()) !== -1;
       var html = cats.map(function (c) {
-        return '<button type="button" class="cat-opt' + (c === catInp.value.trim() ? ' active' : '') + '" data-cat="' + escAttrDb(c) + '">' + escDb({ birthday: t('生日', 'Birthday'), anniversary: t('纪念日', 'Anniversary'), event: t('重要日', 'Event') }[c] || c) + '</button>';
+        return '<button type="button" class="cat-opt' + (c === catInp.value.trim() ? ' active' : '') + '" data-cat="' + escAttrDb(c) + '">' + escDb(catLabel(c)) + '</button>';'Birthday'), anniversary: t('纪念日', 'Anniversary'), event: t('重要日', 'Event') }[c] || c) + '</button>';
       }).join('');
       if (catInp.value.trim() && !exact) html += '<button type="button" class="cat-opt cat-new" data-cat="' + escAttrDb(catInp.value.trim()) + '">+ ' + t('创建「', 'Create "') + escDb(catInp.value.trim()) + t('」', '"') + '</button>';
       catList.innerHTML = html;
@@ -1440,7 +1467,7 @@
   });
 })();
 </script>
-<script src="/js/site-footer.js?v=20261031h"></script>
+<script src="/js/site-footer.js?v=20261031i"></script>
 <script>
   // 统一 Footer（已有 <footer> 则替换其内容，不新建第二个）
   function initSiteFooter() { renderSiteFooter(); }
