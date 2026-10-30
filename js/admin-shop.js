@@ -363,8 +363,69 @@
   }
   function addrHtml(a) {
     a = a || {};
-    var parts = [a.name, a.phone, a.street, a.city, a.state, a.zip, a.country].filter(function (x) { return x; });
+    /* 她 20261030 §6：库里存的是 line1 / line2（下单与开单都写这个键），
+       旧显示只认 street 导致「收货」那行把街道吞掉（导出同时认两个键，所以导出是对的）。
+       这里统一：line1 优先，兼容老的 street，并补上第二行。 */
+    var street = a.line1 || a.street || '';
+    var parts = [a.name, a.phone, street, a.line2, a.city, a.state, a.zip, a.country].filter(function (x) { return x; });
     return parts.length ? esc(parts.join(', ')) : '（无地址）';
+  }
+
+  /* ═══ 收件人模块（她 20261030 §6）：独立查看 / 编辑 / 粘贴识别 / 常用地址 / 独立保存 ═══
+     严格边界：只写本订单自己的 orders.address 快照（+ 本订单邮箱），
+     不碰其它订单、不碰商品与支付、不碰历史订单已经保存过的地址。
+     地址识别只做「预览 → 用户点确认才填入」，绝不自动保存。 */
+  function buildAddrSection(o) {
+    var a = o.address || {};
+    var v = function (k) { return escAttr(a[k] == null ? '' : a[k]); };
+    var row = function (label, cls, val, ph) {
+      return '<label class="sm-a-f"><span class="sm-a-l">' + label + '</span>' +
+        '<input class="sm-a-in ' + cls + '" value="' + val + '" placeholder="' + (ph || '') + '"></label>';
+    };
+    return '<details class="sm-sec" data-sec="addr"' + (SM.oopen['addr_' + o.id] === false ? '' : ' open') + '>' +
+      '<summary class="sm-sec-sum"><span class="sm-sec-step">②</span>收件人<span class="sm-sec-tip">改完要点「保存收件人」，不会自动提交</span></summary>' +
+      '<div class="sm-sec-body">' +
+        '<div class="sm-addr-view">' +
+          '<div class="sm-line"><span class="lbl">收货</span><span class="sm-addr-text">' + addrHtml(o.address) + '</span></div>' +
+          '<div class="sm-line"><span class="lbl">买家</span>' +
+            (a.name ? esc(a.name) : '未提供') +
+            (o.email ? ' · ' + esc(o.email) : ' · <span style="color:#D96570;">邮箱未填</span>') +
+            (a.phone ? ' · ' + esc(a.phone) : ' · <span style="color:#D96570;">电话未提供</span>') +
+          '</div>' +
+          '<div class="sm-act">' +
+            '<button type="button" class="btn-mini sm-addr-edit">编辑收件人</button>' +
+            '<button type="button" class="btn-mini sm-addr-book">常用地址</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="sm-addr-edit-box" style="display:none;">' +
+          '<div class="sm-a-grid">' +
+            row('收件人姓名', 'sm-a-name', v('name'), '必填') +
+            row('电话', 'sm-a-phone', v('phone'), '必填') +
+            row('邮箱', 'sm-a-email', escAttr(o.email || ''), '选填') +
+            row('国家', 'sm-a-country', v('country'), '如 US / China') +
+            row('州 / 省', 'sm-a-state', v('state'), '如 CA / 广东') +
+            row('城市', 'sm-a-city', v('city'), '') +
+            row('街道地址', 'sm-a-line1', v('line1') || v('street'), '街道 + 门牌') +
+            row('地址第二行', 'sm-a-line2', v('line2'), '公寓 / 单元号（选填）') +
+            row('邮编', 'sm-a-zip', v('zip'), '') +
+          '</div>' +
+          '<div class="sm-a-paste-wrap">' +
+            '<div class="sm-a-paste-h">直接粘贴一整段地址（中英文都行），先识别再点「确认填入」；不确认就不动表单</div>' +
+            '<textarea class="sm-a-paste" placeholder="例：Yuki Cheng, 415-555-0199, 123 Main St Apt 4B, San Francisco, CA 94110, US"></textarea>' +
+            '<div class="sm-a-prevbox" style="display:none;"></div>' +
+            '<div class="sm-act">' +
+              '<button type="button" class="btn-mini sm-addr-parse">识别地址</button>' +
+              '<button type="button" class="btn-mini sm-addr-apply" style="display:none;">确认填入</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="sm-addr-booklist" style="display:none;"></div>' +
+          '<div class="sm-act">' +
+            '<button type="button" class="btn-save sm-addr-save">保存收件人</button>' +
+            '<button type="button" class="btn-mini sm-addr-cancel">取消</button>' +
+            '<span class="sm-a-dirty" style="color:#C4636E;font-size:13px;"></span>' +
+          '</div>' +
+        '</div>' +
+      '</div></details>';
   }
   function orderHtml(o) {
     var open = !!SM.oopen[o.id];
@@ -378,6 +439,9 @@
       var addrName = a0.name || '';
       var addrPhone = a0.phone || '';
       body = '<div class="sm-o-body">' +
+        /* 她 20261030 §8：订单详情拆成四个独立折叠模块（商品 / 收件人 / 金额与收款 / 发货与备注），
+           每块自己折叠、自己的保存按钮只保存自己的字段，不互相覆盖。 */
+        '<details class="sm-sec" data-sec="items" open><summary class="sm-sec-sum"><span class="sm-sec-step">①</span>商品</summary><div class="sm-sec-body">' +
         '<div style="min-width:0;">' +
           '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px;"><b style="font-size:15px;">商品</b>' +
           (o.status !== 'rejected'
@@ -387,10 +451,9 @@
           '<div class="sm-items-view">' + itemsHtml(o) + '</div>' +
           '<div class="sm-items-edit" style="display:none;"></div>' +
         '</div>' +
-        '<div class="sm-line"><span class="lbl">收货</span>' + addrHtml(o.address) + '</div>' +
-        '<div class="sm-line"><span class="lbl">买家</span>' +
-          (addrName ? esc(addrName) : '未提供') + (o.email ? ' · ' + esc(o.email) : '') +
-          (addrPhone ? ' · ' + esc(addrPhone) : ' · 电话未提供') + '</div>' +
+        '</div></details>' +
+        buildAddrSection(o) +
+        '<details class="sm-sec" data-sec="money" open><summary class="sm-sec-sum"><span class="sm-sec-step">③</span>金额与收款</summary><div class="sm-sec-body">' +
         '<div class="sm-line"><span class="lbl">订单信息</span>' + esc(o.order_no || '') + ' · ' +
           esc((o.created_at || '').replace('T', ' ').slice(0, 16).replace(/-/g, '/')) + ' · 来源：' +
           esc(SOURCE_LABEL[o.order_source || 'online'] || (o.order_source || 'online')) + ' · 付款：' + esc(payL) + '</div>' +
@@ -445,6 +508,8 @@
           }
           return out;
         })() +
+        '</div></details>' +
+        '<details class="sm-sec" data-sec="ship" open><summary class="sm-sec-sum"><span class="sm-sec-step">④</span>发货与备注</summary><div class="sm-sec-body">' +
         (dead ? '<div class="sm-line"><span class="lbl">发货</span>' + (o.status === 'refunded' ? '已退款 · 无需发货' : '已取消 · 无需发货') +
             (o.tracking ? '（历史物流：' + esc(o.carrier || '') + ' ' + esc(o.tracking) + '）' : '') + '</div>' : '') +
         (dead ? '' :
@@ -486,6 +551,7 @@
         '<textarea class="sm-admin-note" placeholder="只有你自己能看到">' + esc(o.admin_note || '') + '</textarea>' +
         '<button type="button" class="btn-mini sm-act-note">保存备注</button>' +
         '</div>' +
+        '</div></details>' +
         '</div>';
     }
     return '<div class="card sm-order' + (open ? ' open' : '') + '" data-id="' + escAttr(o.id) + '">' +
@@ -1000,6 +1066,22 @@
     renderOrders();
   });
   var oList = document.getElementById('sm-o-list');
+  /* 收件人表单：一改字就给未保存提示（她 20261030 §8 未保存提醒） */
+  oList.addEventListener('input', function (e) {
+    if (!e.target.classList || (!e.target.classList.contains('sm-a-in') && !e.target.classList.contains('sm-a-paste'))) return;
+    var card0 = e.target.closest('.sm-order'); if (!card0) return;
+    var d0 = card0.querySelector('.sm-a-dirty'); if (d0) d0.textContent = '有未保存的改动';
+  });
+  /* 收件人有未保存改动时收起模块：先问一句，避免误丢 */
+  oList.addEventListener('toggle', function (e) {
+    var d = e.target;
+    if (!d || d.tagName !== 'DETAILS' || d.getAttribute('data-sec') !== 'addr' || d.open) return;
+    var ab = d.querySelector('.sm-addr-edit-box');
+    var dt = d.querySelector('.sm-a-dirty');
+    if (ab && ab.style.display === 'block' && dt && dt.textContent) {
+      if (!window.confirm('收件人有未保存的改动，确定收起吗？')) d.open = true;
+    }
+  }, true);
   oList.addEventListener('click', function (e) {
     var card = e.target.closest('.sm-order');
     if (!card) return;
@@ -1018,6 +1100,105 @@
     if (e.target.closest('.sm-o-head')) {
       SM.oopen[id] = !SM.oopen[id];
       renderOrders();
+      return;
+    }
+
+    /* ═══ 收件人模块（她 20261030 §6）：独立查看 / 编辑 / 粘贴识别 / 常用地址 / 独立保存 ═══ */
+    var abox = card.querySelector('.sm-addr-edit-box');
+    if (e.target.classList.contains('sm-addr-edit')) {
+      card.querySelector('.sm-addr-view').style.display = 'none';
+      if (abox) abox.style.display = 'block';
+      return;
+    }
+    if (e.target.classList.contains('sm-addr-cancel')) {
+      // 取消：丢弃本次所有未保存改动（直接重绘回库里的值，什么也不写）
+      renderOrders();
+      toast('已取消，未保存任何改动');
+      return;
+    }
+    if (e.target.classList.contains('sm-addr-parse')) {
+      var raw = (card.querySelector('.sm-a-paste') || {}).value || '';
+      if (!raw.trim()) { toast('先把要识别的地址粘进去'); return; }
+      var pr = parseAddressText(raw);
+      SM.__addrPrev = pr;
+      var pbox = card.querySelector('.sm-a-prevbox');
+      var cf = pr.confirm || {};
+      var line = function (k, label) {
+        var val = pr[k] || '';
+        var sure = cf[k] !== false && !!val;
+        return '<div style="display:flex;gap:8px;font-size:14px;padding:3px 0;"><span style="width:88px;color:#81717A;flex-shrink:0;">' + label + '</span>' +
+          '<span style="' + (val && !sure ? 'color:#C4636E;font-weight:600;' : '') + '">' + (val ? esc(val) : '—') + (val && !sure ? ' ⚠ 需确认' : '') + '</span></div>';
+      };
+      if (pbox) {
+        pbox.innerHTML = '<div style="background:#FFF7FA;border:1.5px solid #FFD1E0;border-radius:12px;padding:12px 14px;margin:8px 0;">' +
+          '<div style="font-size:13px;color:#81717A;margin-bottom:6px;">识别结果（还没写入表单，点「确认填入」才会填）</div>' +
+          line('name', '姓名') + line('phone', '电话') + line('email', '邮箱') + line('country', '国家') +
+          line('state', '州/省') + line('city', '城市') + line('street', '街道') + line('zip', '邮编') +
+          '</div>';
+        pbox.style.display = 'block';
+      }
+      var ap = card.querySelector('.sm-addr-apply'); if (ap) ap.style.display = 'inline-flex';
+      return;
+    }
+    if (e.target.classList.contains('sm-addr-apply')) {
+      var pv2 = SM.__addrPrev;
+      if (!pv2) { toast('先点「识别地址」'); return; }
+      var setf = function (cls, val) { var el2 = card.querySelector(cls); if (el2 && val) el2.value = val; };
+      setf('.sm-a-name', pv2.name); setf('.sm-a-phone', pv2.phone); setf('.sm-a-email', pv2.email);
+      setf('.sm-a-country', pv2.country); setf('.sm-a-state', pv2.state);
+      setf('.sm-a-city', pv2.city); setf('.sm-a-line1', pv2.street); setf('.sm-a-zip', pv2.zip);
+      var dd = card.querySelector('.sm-a-dirty'); if (dd) dd.textContent = '已填入，确认后点「保存收件人」';
+      return;
+    }
+    if (e.target.classList.contains('sm-addr-book')) {
+      var book = card.querySelector('.sm-addr-booklist');
+      if (book.style.display === 'block') { book.style.display = 'none'; return; }
+      var seen = {}, list = [];
+      (SM.orders || []).forEach(function (oo) {
+        var aa = oo.address || {};
+        if (!aa.name && !aa.line1 && !aa.street) return;
+        var key = [aa.name, aa.phone, aa.line1 || aa.street, aa.city, aa.zip].join('|');
+        if (seen[key]) return; seen[key] = 1;
+        list.push({ a: aa, email: oo.email || '', no: oo.order_no || '' });
+      });
+      book.innerHTML = list.length
+        ? '<div style="font-size:13px;color:#81717A;margin:8px 0 6px;">历史订单用过的收件地址（未改过的抢眼快照，点一下填入表单）</div>' +
+          list.slice(0, 20).map(function (x, i) {
+            return '<div class="sm-book-pick" data-i="' + i + '" style="cursor:pointer;border:1.5px solid #FFD1E0;border-radius:10px;padding:9px 12px;margin-bottom:6px;font-size:14px;background:#fff;">' +
+              '<b>' + esc(x.a.name || '（无姓名）') + '</b> <span style="color:#81717A;">' + esc(x.no) + '</span><br>' +
+              '<span style="color:#62545B;">' + addrHtml(x.a) + '</span></div>';
+          }).join('')
+        : '<div style="font-size:14px;color:#81717A;padding:8px 0;">还没有可复用的历史地址</div>';
+      book._items = list;
+      book.style.display = 'block';
+      return;
+    }
+    if (e.target.closest('.sm-book-pick')) {
+      var pk = e.target.closest('.sm-book-pick');
+      var bk = card.querySelector('.sm-addr-booklist');
+      var it = (bk && bk._items) ? bk._items[parseInt(pk.getAttribute('data-i'), 10)] : null;
+      if (it) {
+        var setb = function (cls, val) { var el3 = card.querySelector(cls); if (el3 && val) el3.value = val; };
+        setb('.sm-a-name', it.a.name); setb('.sm-a-phone', it.a.phone); setb('.sm-a-email', it.email);
+        setb('.sm-a-country', it.a.country); setb('.sm-a-state', it.a.state); setb('.sm-a-city', it.a.city);
+        setb('.sm-a-line1', it.a.line1 || it.a.street); setb('.sm-a-line2', it.a.line2); setb('.sm-a-zip', it.a.zip);
+        if (bk) bk.style.display = 'none';
+        var dd2 = card.querySelector('.sm-a-dirty'); if (dd2) dd2.textContent = '已填入，确认后点「保存收件人」';
+      }
+      return;
+    }
+    if (e.target.classList.contains('sm-addr-save')) {
+      var gv = function (cls) { var el4 = card.querySelector(cls); return el4 ? el4.value.trim() : ''; };
+      var naddr = {
+        name: gv('.sm-a-name'), phone: gv('.sm-a-phone'),
+        line1: gv('.sm-a-line1'), line2: gv('.sm-a-line2'),
+        city: gv('.sm-a-city'), state: gv('.sm-a-state'), zip: gv('.sm-a-zip'), country: gv('.sm-a-country')
+      };
+      if (!naddr.name || !naddr.phone) { toast('收件人姓名和电话不能留空'); return; }
+      if (!naddr.line1) { toast('街道地址不能留空'); return; }
+      uiConfirm('确认把收件人信息保存到订单 ' + (o.order_no || '') + ' 吗？只影响这一单。', function () {
+        patchOrder(id, { address: naddr, email: gv('.sm-a-email') }, '收件人已保存（只对这单生效）', 'address', '收件人信息更新');
+      }, '保存收件人');
       return;
     }
     if (e.target.classList.contains('sm-carrier')) { // 快递公司：站内自定义下拉
@@ -2410,6 +2591,32 @@
   }
 
   /* ── 暴露给测试：注入假数组后直接调渲染函数 ── */
+  /* ═══ 订单四模块 + 收件人表单样式（她 20261030 §6/§8）：只加样式，不改动原有尺寸与布局 ═══ */
+  (function () {
+    if (document.getElementById('sm-sec-style')) return;
+    var st = document.createElement('style');
+    st.id = 'sm-sec-style';
+    st.textContent = [
+      '.sm-o-body .sm-sec{border:1.5px solid #FFE3EC;border-radius:14px;margin:10px 0;background:#fff;overflow:hidden;}',
+      '.sm-o-body .sm-sec>summary{cursor:pointer;list-style:none;padding:10px 14px;font-weight:600;font-size:15px;background:#FFF7FA;color:#55464E;display:flex;align-items:center;gap:8px;}',
+      '.sm-o-body .sm-sec>summary::-webkit-details-marker{display:none;}',
+      '.sm-o-body .sm-sec>summary::after{content:"▾";margin-left:auto;color:#81717A;font-size:12px;transition:transform .2s;}',
+      '.sm-o-body .sm-sec[open]>summary::after{transform:rotate(180deg);}',
+      '.sm-sec-step{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#FCE1EA;color:#A98D96;font-size:12px;flex-shrink:0;}',
+      '.sm-sec-tip{font-size:12px;font-weight:400;color:#81717A;}',
+      '.sm-sec-body{padding:12px 14px;}',
+      '.sm-a-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 14px;margin:8px 0 12px;}',
+      '.sm-a-f{display:flex;flex-direction:column;gap:4px;font-size:13px;color:#81717A;}',
+      '.sm-a-in{border:1.5px solid #FFD9E6;border-radius:10px;padding:8px 10px;font-size:15px;font-family:inherit;background:#fff;color:#55464E;}',
+      '.sm-a-in:focus{outline:none;border-color:#F5BFD1;}',
+      '.sm-a-paste-wrap{border-top:1px dashed #FFE3EC;padding-top:10px;margin-top:4px;}',
+      '.sm-a-paste-h{font-size:13px;color:#81717A;margin-bottom:6px;}',
+      '.sm-a-paste{width:100%;min-height:62px;border:1.5px solid #FFD9E6;border-radius:10px;padding:9px 11px;font-size:14px;font-family:inherit;box-sizing:border-box;resize:vertical;}',
+      '@media (max-width:700px){.sm-a-grid{grid-template-columns:1fr;}.sm-sec-body{padding:10px;}}'
+    ].join('');
+    document.head.appendChild(st);
+  })();
+
   window.ShopAdmin = {
     sm: SM,
     loadAll: loadAll,
