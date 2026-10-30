@@ -52,23 +52,29 @@
   };
 
   // mode='cards'（默认）：图标卡片网格；mode='text'：纵向文字链接列表（她 20261026 最终合并版 §3.3，不再用大卡网格）
+  // 中英文切换：品牌名可保留，但展示名/提示语需本地化（她 20261029 任务书 §5.4；微信→WeChat、小红书→RED）
+  function syLang() { try { return localStorage.getItem('yuki-lang') || 'zh'; } catch (e) { return 'zh'; } }
+  var NAME_EN = { '微信': 'WeChat', '小红书': 'RED', '抖音': 'Douyin', '网易云音乐': 'NetEase Music', '微博': 'Weibo', '邮件': 'Email', '账号整理中': 'account coming soon' };
+  function syName(name) { if (syLang() !== 'en') return esc(name); return esc(NAME_EN[name] || name); }
+  function syT(zh, en) { return syLang() === 'en' ? en : zh; }
+
   window.renderSocialCards = function (boxSel, mode) {
     var box = document.querySelector(boxSel);
     if (!box) return;
     window.getSocialLinks().then(function (links) {
         if (!links.length) {
-          box.innerHTML = '<p style="color:var(--muted,#A88E9B);text-align:center;padding:30px 0;">社交账号配置即将上线，先去首页逛逛吧 ♡</p>';
+          box.innerHTML = '<p style="color:var(--muted,#A88E9B);text-align:center;padding:30px 0;">' + syT('社交账号配置即将上线，先去首页逛逛吧 ♡', 'Social links coming soon ♡') + '</p>';
           return;
         }
         if (mode === 'text') {
           box.innerHTML = links.map(function (l) {
-            var name = esc(l.name) + (l.sub ? '<small style="color:var(--muted,#A88E9B);font-weight:400;">　' + esc(l.sub) + '</small>' : '');
+            var name = syName(l.name) + (l.sub ? '<small style="color:var(--muted,#A88E9B);font-weight:400;">　' + esc(l.sub) + '</small>' : '');
             var icon = l.icon || '';
             /* §4.3（她 20261026 总任务书）：微信点击复制微信号；Gmail 点击展开邮箱地址+复制/打开两操作 */
             if (icon === 'wechat' && l.sub) return '<a class="sy-linkline" href="javascript:void(0)" data-sy-copy="' + escAttr(l.sub) + '">' + name + '</a>';
             if (icon === 'gmail') { var full = (l.sub || '').indexOf('@') >= 0 ? l.sub : (l.sub || '') + '@gmail.com'; return '<a class="sy-linkline" href="javascript:void(0)" data-sy-mail="' + escAttr(full) + '">' + name + '</a>'; }
             if (l.url) return '<a class="sy-linkline" href="' + escAttr(l.url) + '" target="_blank" rel="noopener">' + name + '</a>';
-            return '<span class="sy-linkline" style="cursor:default;">' + name + (l.sub ? '' : '<small style="color:var(--muted,#A88E9B);font-weight:400;">　账号整理中</small>') + '</span>';
+            return '<span class="sy-linkline" style="cursor:default;">' + name + (l.sub ? '' : '<small style="color:var(--muted,#A88E9B);font-weight:400;">　' + syT('账号整理中', 'account coming soon') + '</small>') + '</span>';
           }).join('') + '<div id="sy-mail-pop" style="display:none;"></div>';
           bindSocialActions(box);
           return;
@@ -76,12 +82,12 @@
         box.innerHTML = links.map(function (l) {
           return '<a class="link-card"' + (l.url ? ' href="' + escAttr(l.url) + '" target="_blank" rel="noopener"' : '') + '>' +
             (HOME_ICONS[l.icon] || HOME_ICONS.link) +
-            '<span>' + esc(l.name) + (l.sub ? '<small>' + esc(l.sub) + '</small>' : '') + '</span>' +
+            '<span>' + syName(l.name) + (l.sub ? '<small>' + esc(l.sub) + '</small>' : '') + '</span>' +
             '</a>';
         }).join('');
       })
       .catch(function () {
-        box.innerHTML = '<p style="color:var(--muted,#A88E9B);text-align:center;padding:30px 0;">加载失败，请刷新重试</p>';
+        box.innerHTML = '<p style="color:var(--muted,#A88E9B);text-align:center;padding:30px 0;">' + syT('加载失败，请刷新重试', 'Failed to load, please refresh') + '</p>';
       });
   };
 
@@ -110,7 +116,7 @@
     box.addEventListener('click', function (e) {
       var cp = e.target.closest ? e.target.closest('[data-sy-copy]') : null;
       if (cp) { e.preventDefault();
-        syCopyText(cp.getAttribute('data-sy-copy'), function(ok){ syToast(ok?'已复制微信号 ♡':'复制失败，请手动复制：'+cp.getAttribute('data-sy-copy'), ok); });
+        syCopyText(cp.getAttribute('data-sy-copy'), function(ok){ syToast(syLang()==='en'?(ok?'WeChat ID copied ♡':'Copy failed, manually: '+cp.getAttribute('data-sy-copy')):(ok?'已复制微信号 ♡':'复制失败，请手动复制：'+cp.getAttribute('data-sy-copy')), ok); });
         return;
       }
       var gm = e.target.closest ? e.target.closest('[data-sy-mail]') : null;
@@ -128,7 +134,7 @@
         return;
       }
       var cb = e.target.closest ? e.target.closest('[data-sy-copybtn]') : null;
-      if (cb) { syCopyText(cb.getAttribute('data-sy-copybtn'), function(ok){ syToast(ok?'已复制邮箱 ♡':'复制失败，请手动复制', ok); }); }
+      if (cb) { syCopyText(cb.getAttribute('data-sy-copybtn'), function(ok){ syToast(syLang()==='en'?(ok?'Email copied ♡':'Copy failed'):(ok?'已复制邮箱 ♡':'复制失败，请手动复制'), ok); }); }
     });
   }
 })();

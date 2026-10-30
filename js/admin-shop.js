@@ -507,7 +507,7 @@
     if (SM._oFailed) { // 网络断了就明说，不再无限「加载中」（她 2026-10-25 要求查根因，不能只靠重试）
       list.innerHTML = '<div class="sm-o-retrybox" style="background:var(--card,#FFF0F5);border-radius:14px;padding:20px;text-align:center;">' +
         '<p style="margin:0 0 10px;color:var(--muted);font-size:16px;">订单没加载出来（网络问题，不是订单丢了）</p>' +
-        '<button type="button" class="btn-mini sm-o-retry" style="background:var(--accent,#ffd9e6);color:var(--text,#604C57);padding:9px 22px;font-size:15px;">点这里重新加载</button></div>';
+        '<button type="button" class="btn-mini sm-o-retry" style="background:#FCE1EA;color:#A04A68;padding:9px 22px;font-size:15px;">点这里重新加载</button></div>';
       return;
     }
     list.innerHTML = rows.length ? rows.map(orderHtml).join('') : '<p class="sm-empty">没有符合条件的订单</p>';
@@ -745,7 +745,7 @@
       block.innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;">' +
         '<b style="font-size:16px;color:var(--text);">商品规格</b>' +
         '<span class="hint" style="flex:1;min-width:180px;">一个规格＝买家看到的一个选项（比如一个颜色款）；全部留空＝单规格</span>' +
-        '<button type="button" class="btn-mini sm-var-add" style="background:var(--accent,#ffd9e6);color:var(--text,#604C57);padding:9px 20px;font-size:15px;">＋ 添加规格</button></div>' +
+        '<button type="button" class="btn-mini sm-var-add" style="background:#FCE1EA;color:#A04A68;padding:9px 20px;font-size:15px;">＋ 添加规格</button></div>' +
         '<div class="sm-var-rows"></div>' +
         '<p class="hint" style="margin:6px 0 0;">每个规格可以传自己的图，第一张就是这个选项的封面；详情页点选项会换图、换价、换库存。</p>';
       g2.appendChild(block);
@@ -842,7 +842,7 @@
     block.innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;">' +
       '<b style="font-size:16px;color:var(--text);">商品规格（可选）</b>' +
       '<span class="hint" style="flex:1;min-width:180px;">一个规格＝买家看到的一个选项；不留空就用上面的商品价/库存</span>' +
-      '<button type="button" class="btn-mini sm-var-add" style="background:var(--accent,#ffd9e6);color:var(--text,#604C57);padding:9px 20px;font-size:15px;">＋ 添加规格</button></div>' +
+      '<button type="button" class="btn-mini sm-var-add" style="background:#FCE1EA;color:#A04A68;padding:9px 20px;font-size:15px;">＋ 添加规格</button></div>' +
       '<div class="sm-var-rows"></div>' +
       '<p class="hint" style="margin:6px 0 0;">每个规格可以传自己的图，第一张就是这个选项的封面；和编辑商品里的是同一套，上架时一起保存。</p>';
     actions.parentNode.insertBefore(block, actions); // 她 2026-10-25 表单加了 wrapper：actions 不再是 .card 直接子节点，改插到同父级
@@ -1565,6 +1565,13 @@
         '<div><span class="mo-flabel">数量</span><input class="mo-qty" data-i="' + i + '" type="number" min="1" step="1" value="' + escAttr(it.qty == null ? 1 : it.qty) + '"></div>' +
         '<div><span class="mo-flabel">小计</span><div class="mo-item-sub" data-i="' + i + '" style="padding:10px 12px;font-size:16px;font-weight:700;color:var(--price,#ff6fa5);background:var(--card,#FFF0F5);border-radius:10px;">$' + fmtMoney(sub) + '</div></div>' +
       '</div>' +
+      (it.custom ? '<div class="mo-photo-row" style="margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">' +
+        '<span class="mo-flabel">商品照片（可留空）</span>' +
+        '<span class="mo-img-prev">' + (it.imgUrl ? '<img src="' + escAttr(it.imgUrl) + '" style="width:46px;height:46px;object-fit:cover;border-radius:10px;border:1px solid #FFD9E6;vertical-align:middle;">' : (it.imgPrev ? '<img src="' + escAttr(it.imgPrev) + '" style="width:46px;height:46px;object-fit:cover;border-radius:10px;border:1px dashed #F3C9D8;vertical-align:middle;">' : '<span style="font-size:13px;color:var(--muted,#A88E9B);">未选择</span>')) + '</span>' +
+        '<label class="sel-btn" style="cursor:pointer;">' + (it.imgUrl || it.imgPrev ? '替换照片' : '选择照片') + '<input type="file" accept="image/*" class="mo-img" data-i="' + i + '" hidden></label>' +
+        (it.imgUrl || it.imgPrev ? '<button type="button" class="btn-del mo-img-del" data-i="' + i + '" style="padding:5px 14px;font-size:14px;">删除照片</button>' : '') +
+        (it.imgUp ? '<span style="font-size:13px;color:var(--muted,#A88E9B);">上传中…</span>' : '') +
+      '</div>' : '') +
       '</div>';
   }
   function currentVariantName(p, sku) {
@@ -1638,7 +1645,7 @@
       '</div>' +
       '<div style="margin:14px 0 6px;"><b style="font-size:16px;">订单商品</b>' +
       '<div class="mo-items" style="margin-top:10px;"></div>' +
-      '<button type="button" class="btn-mini mo-additem" style="background:var(--accent,#ffd9e6);color:var(--text,#604C57);padding:9px 22px;font-size:15px;">＋ 添加商品</button>' +
+      '<button type="button" class="btn-mini mo-additem" style="background:#FCE1EA;color:#A04A68;padding:9px 22px;font-size:15px;">＋ 添加商品</button>' +
       '<p class="hint" style="margin:6px 0 0;">从商品列表选，或选「自定义商品」录临时商品；单价留空自动用商品价</p></div>' +
       '<div style="margin:14px 0 6px;"><b style="font-size:16px;">收款安排</b>' +
       '<div style="display:flex;gap:8px;margin-top:8px;">' +
@@ -1655,7 +1662,7 @@
         '<div><span class="mo-flabel mo-flabel-inpop">服务费 $</span><input class="mo-fee" type="number" min="0" step="0.01" value="2"></div>' +
       '</div>' +
       '<div class="mo-sum" style="margin-bottom:12px;"></div>' +
-      '<button type="button" class="btn-mini mo-save" style="background:var(--accent,#ffd9e6);color:var(--text,#604C57);padding:10px 26px;font-size:16px;">保存订单</button>' +
+      '<button type="button" class="btn-mini mo-save" style="background:#FCE1EA;color:#A04A68;padding:10px 26px;font-size:16px;">保存订单</button>' +
       '<span class="hint" style="margin-left:10px;">默认「待付款」，不会自动标成已付款；来源自动记为「后台手动创建」</span>' +
       '</div>';
     root.appendChild(mask);
@@ -1690,6 +1697,8 @@
       if (e.target.classList.contains('mo-additem')) { MO_ITEMS.push({ pid: '', sku: '', qty: 1, price: '', custom: false, name: '' }); moRenderItems(); return; }
       var del = e.target.closest('.mo-del');
       if (del) { MO_ITEMS.splice(parseInt(del.getAttribute('data-i'), 10), 1); moRenderItems(); moCalc(); return; }
+      var imgDel = e.target.closest('.mo-img-del');
+      if (imgDel) { var di = parseInt(imgDel.getAttribute('data-i'), 10); if (MO_ITEMS[di]) { MO_ITEMS[di].imgUrl = ''; MO_ITEMS[di].imgPrev = ''; MO_ITEMS[di].imgFile = null; moRenderItems(); } return; }
       var pick = e.target.closest('.mo-pick');
       if (pick) {
         var i = parseInt(pick.getAttribute('data-i'), 10);
@@ -1754,6 +1763,18 @@
       if (t.classList.contains('mo-discount') || t.classList.contains('mo-ship') || t.classList.contains('mo-fee')) moCalc();
       if (t.classList.contains('mo-name')) { var it2 = MO_ITEMS[parseInt(t.getAttribute('data-i'), 10)]; if (it2) it2.name = t.value; }
     });
+    mask.addEventListener('change', function (e) { // 自定义商品照片：选了就传 shop 桶（与规格图同款机制），可预览/替换/删除
+      var tf = e.target;
+      if (!tf.classList || !tf.classList.contains('mo-img')) return;
+      var ii = parseInt(tf.getAttribute('data-i'), 10);
+      var file = tf.files && tf.files[0];
+      if (!file || !MO_ITEMS[ii]) return;
+      if (file.size > 8 * 1024 * 1024) { toast('照片别超过 8MB'); tf.value = ''; return; }
+      MO_ITEMS[ii].imgUp = true; moRenderItems();
+      uploadShopFiles([file]).then(function (urls) {
+        MO_ITEMS[ii].imgUrl = urls[0] || ''; MO_ITEMS[ii].imgPrev = ''; MO_ITEMS[ii].imgUp = false; moRenderItems();
+      }).catch(function () { MO_ITEMS[ii].imgUp = false; moRenderItems(); toast('照片上传失败，重试一下'); });
+    });
     mask.querySelector('.mo-save').addEventListener('click', function () {
       var btn = this;
       if (btn.disabled) return;
@@ -1776,7 +1797,7 @@
         var qty = parseInt(it.qty, 10) || 0;
         if (!name) { toast('第 ' + (k + 1) + ' 行商品名没填'); return; }
         if (!(price >= 0) || qty < 1) { toast('第 ' + (k + 1) + ' 行数量/单价不合法'); return; }
-        items.push({ id: it.pid || null, name: name, image: pp ? (pp.image || pp.image_url || '') : '', sku: it.sku || '', variant: it.sku || '', price: fmtMoney(price), qty: qty });
+        items.push({ id: it.pid || null, name: name, image: it.custom ? (it.imgUrl || '') : (pp ? (pp.image || pp.image_url || '') : ''), image_url: it.custom ? (it.imgUrl || '') : (pp ? (pp.image || pp.image_url || '') : ''), sku: it.sku || '', variant: it.sku || '', price: fmtMoney(price), qty: qty });
       }
       if (!items.length) { toast('至少要有一个商品'); return; }
       var c = moCalc();
@@ -1837,6 +1858,16 @@
         if (!res || !res.ok) { toast('保存失败：' + ((res && res.msg) || '数据库拒绝，检查订单号是否重复')); return; }
         var newId = res.row && res.row.id;
         api('shop_order_logs', { method: 'POST', body: JSON.stringify({ order_id: newId || null, actor: 'admin', action: 'create', detail: '后台手动建单 ' + body.order_no }) }).catch(function () {});
+        // 自定义商品带照片 → 自动进现有「已展示/已售出」区（她 20261029 任务书 §6：display_only+sold，不可购买，不进库存）
+        MO_ITEMS.forEach(function (it) {
+          if (!(it.custom && it.imgUrl)) return;
+          api('products', { method: 'POST', body: JSON.stringify({
+            name: (it.name || '').trim() || '自定义商品',
+            price: it.price === '' || it.price == null ? '0' : String(num(it.price)),
+            description: '', image_url: it.imgUrl, sold: true, display_only: true, stock: 0, cost: '0',
+            currency: f.querySelector('.mo-cur').getAttribute('data-v') || 'USD'
+          }) }).catch(function () {});
+        });
         // 收款台账：全款/定金+尾款/分次（同 POS，落 shop_pay_record_add）
         var pays = [];
         if (moPlan === 'full') pays.push(['full', c.total]);
@@ -1976,7 +2007,7 @@
         '<p class="hint" style="margin:0 0 8px;">也会套用当前订单搜索关键字；跨页导出会包含所有符合条件的记录</p>' +
       '</div>' +
       '<p class="hint">CSV 为 UTF-8（带 BOM），Excel 可直接打开；每个商品一行，订单信息重复以便筛选</p>' +
-      '<button type="button" class="btn-mini ex-go" style="background:var(--accent,#ffd9e6);color:var(--text,#604C57);padding:10px 26px;font-size:16px;">导出</button>' +
+      '<button type="button" class="btn-mini ex-go" style="background:#FCE1EA;color:#A04A68;padding:10px 26px;font-size:16px;">导出</button>' +
       '</div>';
     root.appendChild(mask);
     var mode = 'all';
@@ -1985,7 +2016,7 @@
       var m = e.target.closest('.ex-mode');
       if (m) {
         mode = m.getAttribute('data-v');
-        mask.querySelectorAll('.ex-mode').forEach(function (b) { b.style.background = b === m ? 'var(--accent,#ffd9e6)' : ''; b.style.color = b === m ? '#fff' : ''; });
+        mask.querySelectorAll('.ex-mode').forEach(function (b) { b.style.background = b === m ? '#FCE1EA' : ''; b.style.color = b === m ? '#A04A68' : ''; }); /* 选中态：粉胶囊深玫瑰字（白字不配浅底，她 20261029 §4） */
         mask.querySelector('.ex-filters').style.display = mode === 'filtered' ? '' : 'none';
         return;
       }
@@ -2026,7 +2057,7 @@
       '<textarea class="po-zh" placeholder="简体中文内容（留空 = 使用内置默认；支持 <p> <ul> <li> <a> <strong> <br>）" style="width:100%;min-height:140px;box-sizing:border-box;"></textarea>' +
       '<textarea class="po-en" placeholder="English content (leave empty = built-in default)" style="width:100%;min-height:140px;box-sizing:border-box;margin-top:8px;"></textarea>' +
       '<div style="display:flex;gap:8px;margin-top:8px;align-items:center;">' +
-        '<button type="button" class="btn-mini po-save" style="background:var(--accent,#ffd9e6);color:var(--text,#604C57);">保存并发布</button>' +
+        '<button type="button" class="btn-mini po-save" style="background:#FCE1EA;color:#A04A68;">保存并发布</button>' +
         '<button type="button" class="btn-mini po-reset">恢复内置默认</button>' +
         '<span class="hint">保存后前台立即生效；「联系我们」页面就是留言板，不需要在这里编辑</span>' +
       '</div></div>';

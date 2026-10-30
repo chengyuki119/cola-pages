@@ -289,7 +289,7 @@
               '</div>' +
               '<div style="display:flex;gap:10px;flex-wrap:wrap;margin:0;">' +
                 '<button class="buy-btn" id="d-add" style="padding:10px 22px;">' + t('加入购物车', 'Add to cart') + '</button>' +
-                '<button class="buy-btn" id="d-buy" style="padding:10px 22px;background:var(--accent,#ffd9e6);color:var(--text,#604C57);">' + t('立即购买', 'Buy now') + '</button>' +
+                '<button class="buy-btn" id="d-buy" style="padding:10px 22px;background:#FCE1EA;color:#A04A68;">' + t('立即购买', 'Buy now') + '</button>' +
               '</div>' +
             '</div>'
           : '<div class="d-actions"><p class="no-buy" style="margin:14px 0;">' + (st === 'out' ? t('已售罄，看看别的吧～', 'Sold out — take a look at other items~') : t('仅展示，不能下单', 'Not for sale')) + '</p></div>') +
@@ -443,7 +443,7 @@
               '</div>' +
               (g.status === 'open' ?
                 '<div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">' +
-                  (g.joined < g.target ? '<button class="buy-btn" id="g-join" style="padding:10px 24px;background:var(--accent,#ffd9e6);color:var(--text,#604C57);">' + t('加入拼团', 'Join group') + '</button>' : '<span class="no-buy">' + t('人数已满，等待成员付款中', 'Full — waiting for payments') + '</span>') +
+                  (g.joined < g.target ? '<button class="buy-btn" id="g-join" style="padding:10px 24px;background:#FCE1EA;color:#A04A68;">' + t('加入拼团', 'Join group') + '</button>' : '<span class="no-buy">' + t('人数已满，等待成员付款中', 'Full — waiting for payments') + '</span>') +
                 '</div>' : '') +
               '<div style="margin-top:14px;font-size:15px;color:var(--muted);">' + t('成员', 'Members') + '：' +
                 (members.length ? members.map(function (m) { return esc(m.nickname || t('小伙伴', 'member')); }).join('、') : t('虚位以待…', 'Waiting…')) +
@@ -584,7 +584,7 @@
         '</div>' +
         '<div class="card" style="padding:18px;"><div style="display:flex;justify-content:space-between;font-size:19px;"><b>' + t('预估合计', 'Estimated total') + '</b><b id="ck-total" style="color:var(--price,#ff6fa5);">' + sym(cur) + money(sub + est + fee) + '</b></div>' +
           '<p style="font-size:14px;color:var(--muted);margin-top:4px;">' + t('以服务端验证后的金额为准；实际运费由后台确认后更新。', 'Final amount is validated server-side; shipping updates once confirmed.') + '</p>' +
-          '<button class="buy-btn" id="ck-submit" style="width:100%;margin-top:12px;padding:12px;background:var(--accent,#ffd9e6);color:var(--text,#604C57);font-size:18px;">' + t('提交订单', 'Place order') + '</button>' +
+          '<button class="buy-btn" id="ck-submit" style="width:100%;margin-top:12px;padding:12px;background:#FCE1EA;color:#A04A68;font-size:18px;">' + t('提交订单', 'Place order') + '</button>' +
         '</div>';
       paintAddrPicker();
       window.__ckUpdateShip = updateShip;
@@ -635,7 +635,7 @@
         '<input id="af-country" placeholder="' + t('国家', 'Country') + '" value="' + escAttr(e.country || 'United States') + '">' +
       '</div>' +
       '<div style="display:flex;gap:8px;margin-top:8px;"><button class="buy-btn" id="af-save" style="padding:8px 18px;">' + t('保存', 'Save') + '</button>' +
-      '<button class="buy-btn" id="af-cancel" style="padding:8px 18px;background:#fff;color:var(--muted);">' + t('取消', 'Cancel') + '</button></div>';
+      '<button class="buy-btn" id="af-cancel" style="padding:8px 18px;background:#fff;color:var(--muted);border:1.5px solid #FFD9E6;">' + t('取消', 'Cancel') + '</button></div>';
     box.querySelectorAll('input').forEach(function (i) {
       i.style.cssText = 'width:100%;padding:10px 12px;font-size:16px;border:1.5px solid var(--accent-soft,#FCE4EC);border-radius:12px;background:#fff;outline:none;color:var(--text,#604C57);font-family:inherit;box-sizing:border-box;transition:border-color .15s;';
       i.addEventListener('focus', function () { i.style.borderColor = 'var(--card-hover,#FCE4EC)'; });
@@ -750,19 +750,23 @@
       '<div style="font-size:15px;color:var(--muted);margin-top:6px;">' + t('明细', 'Breakdown') + '：<span style="color:var(--price,#ff6fa5);">' + sym(o.currency) + money(o.subtotal) + '</span>' + (o.discount > 0 ? ' − 优惠 <span style="color:var(--price,#ff6fa5);">' + sym(o.currency) + money(o.discount) + '</span>' : '') + ' + 运费 <span style="color:var(--price,#ff6fa5);">' + sym(o.currency) + money(o.shipping_actual != null ? o.shipping_actual : o.shipping_est) + '</span>' + ' + 服务费 <span style="color:var(--price,#ff6fa5);">' + sym(o.currency) + money(o.service_fee) + '</span>' + '</div>' +
       '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">';
     if (o.status === 'pending' || o.status === 'rejected') {
-      html += '<button class="buy-btn oc-stripe" style="padding:8px 18px;background:var(--accent,#ffd9e6);color:var(--text,#604C57);">' + t('在线支付（Stripe 测试）', 'Pay online (Stripe test)') + '</button>';
-      html += '<button class="buy-btn oc-pay" style="padding:8px 18px;background:var(--accent,#ffd9e6);color:var(--text,#604C57);">' + t('上传付款截图', 'Upload payment proof') + '</button>';
+      html += '<button class="buy-btn oc-stripe" style="padding:8px 18px;background:#FCE1EA;color:#A04A68;">' + t('在线支付（Stripe 测试）', 'Pay online (Stripe test)') + '</button>';
+      html += '<button class="buy-btn oc-pay" style="padding:8px 18px;background:#FCE1EA;color:#A04A68;">' + t('上传付款截图', 'Upload payment proof') + '</button>';
     }
     if (o.status === 'reviewing') html += '<span class="no-buy">' + t('凭证已提交，等柚子确认～', 'Proof submitted — awaiting confirmation~') + '</span>';
     if (['pending', 'reviewing', 'rejected'].indexOf(o.status) >= 0) {
-      html += '<button class="buy-btn oc-cancel" style="padding:8px 18px;background:#fff;color:var(--muted);">' + t('取消订单', 'Cancel order') + '</button>';
+      html += '<button class="buy-btn oc-cancel" style="padding:8px 18px;background:#fff;color:var(--muted);border:1.5px solid #FFD9E6;">' + t('取消订单', 'Cancel order') + '</button>';
     }
     if (o.status === 'shipped') html += '<button class="buy-btn oc-done" style="padding:8px 18px;">' + t('确认收货', 'Confirm received') + '</button>';
     html += '<button class="buy-btn oc-msg" style="padding:8px 18px;background:#fff;">' + t('留言 / 售后', 'Messages') + '</button>';
-    html += '</div><div class="oc-pay-box" style="display:none;margin-top:10px;"></div><div class="oc-msg-box" style="display:none;margin-top:10px;"></div>';
+    html += '</div><div class="oc-plan" style="margin-top:10px;"></div><div class="oc-pay-box" style="display:none;margin-top:10px;"></div><div class="oc-msg-box" style="display:none;margin-top:10px;"></div>';
     body.innerHTML = html;
+    renderPayPlan(o, body.querySelector('.oc-plan'));
     var payBtn = body.querySelector('.oc-pay');
     if (payBtn) payBtn.addEventListener('click', function () { renderPayUpload(o, body.querySelector('.oc-pay-box')); });
+    Array.prototype.forEach.call(body.querySelectorAll('.oc-plan-pill'), function (pl) {
+      pl.addEventListener('click', function () { renderPayUpload(o, body.querySelector('.oc-pay-box'), pl.getAttribute('data-amt')); });
+    });
     var stripeBtn = body.querySelector('.oc-stripe');
     if (stripeBtn) stripeBtn.addEventListener('click', function () {
       if (!USER || !USER.a) { toast(t('先登录再支付哦', 'Log in first')); return; }
@@ -820,20 +824,47 @@
     }).catch(function () {});
   }
   function confirmZh(msg) { return window.confirm(msg); }
-  function renderPayUpload(o, box) {
+  function renderPayPlan(o, box) {
+    if (!box) return;
+    api('rpc/shop_my_order_pays', { method: 'POST', body: JSON.stringify({ p_order_id: o.id }) }).then(function (r) {
+      if (!r.ok) { box.style.display = 'none'; return null; } // RPC 未建（SQL 未跑）→ 静默隐藏，不影响原入口
+      return r.json();
+    }).then(function (rows) {
+      if (!rows || !rows.length) return;
+      var paid = rows.reduce(function (s, x) { return s + (parseFloat(x.amount) || 0); }, 0);
+      var total = parseFloat(o.total) || 0;
+      var out = total - paid;
+      var symC = sym(o.currency);
+      var hasDep = rows.some(function (x) { return x.kind === 'deposit'; });
+      var line = '';
+      if (out <= 0.005) {
+        line = '<span class="no-buy">' + t('已付清 ✓', 'Fully paid ✓') + '</span>';
+      } else if (paid > 0.005) {
+        line = '<span style="font-size:14px;color:var(--muted);">' + t('已收', 'Paid') + ' ' + symC + money(paid) + ' · ' + t('还剩', 'Remaining') + ' ' + symC + money(out) + '</span> ' +
+               '<button class="buy-btn oc-plan-pill" data-amt="' + out.toFixed(2) + '" style="padding:7px 16px;background:#FCE1EA;color:#A04A68;">' + t('支付尾款 ' + symC + money(out), 'Pay balance ' + symC + money(out)) + '</button>';
+      } else if (hasDep) {
+        var dep = rows.filter(function (x) { return x.kind === 'deposit'; })[0];
+        var depAmt = parseFloat(dep && dep.amount) || 0;
+        line = '<span style="font-size:14px;color:var(--muted);">' + t('订单为定金＋尾款：先付定金，发货前付清尾款', 'Deposit + balance: pay the deposit first, the rest before shipping') + '</span> ' +
+               '<button class="buy-btn oc-plan-pill" data-amt="' + depAmt.toFixed(2) + '" style="padding:7px 16px;background:#FCE1EA;color:#A04A68;">' + t('支付定金 ' + symC + money(depAmt), 'Pay deposit ' + symC + money(depAmt)) + '</button>';
+      }
+      if (line) box.innerHTML = '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">' + line + '</div>';
+    }).catch(function () { box.style.display = 'none'; });
+  }
+  function renderPayUpload(o, box, prefill) {
     box.style.display = '';
     box.innerHTML =
       '<div class="card" style="padding:14px;background:var(--card);">' +
         '<p style="font-size:15px;color:var(--muted);">' + t('微信/支付宝付款后，把截图传上来，柚子确认后就发货～', 'Pay via WeChat/Alipay, then upload your screenshot here.') + '</p>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">' +
-          '<input id="pu-amount" placeholder="' + t('付款金额', 'Amount paid') + '">' +
+          '<input id="pu-amount" placeholder="' + t('付款金额', 'Amount paid') + '" value="' + escAttr(prefill ? parseFloat(prefill).toFixed(2) : '') + '">' +
           '<input id="pu-channel" placeholder="' + t('付款渠道（微信/支付宝…）', 'Channel (WeChat/Alipay…)') + '">' +
           '<input id="pu-time" placeholder="' + t('付款时间（如 10-23 21:00）', 'Time paid') + '" style="grid-column:1/-1;">' +
         '</div>' +
         '<div style="margin-top:8px;display:flex;gap:8px;align-items:center;">' +
           '<label class="buy-btn" style="padding:7px 16px;cursor:pointer;">' + t('选择截图', 'Choose screenshot') + '<input id="pu-file" type="file" accept="image/*" hidden></label>' +
           '<span id="pu-name" style="font-size:15px;color:var(--muted);">' + t('未选择', 'None') + '</span>' +
-          '<button class="buy-btn" id="pu-go" style="padding:8px 18px;background:var(--accent,#ffd9e6);color:var(--text,#604C57);margin-left:auto;">' + t('提交凭证', 'Submit proof') + '</button>' +
+          '<button class="buy-btn" id="pu-go" style="padding:8px 18px;background:#FCE1EA;color:#A04A68;margin-left:auto;">' + t('提交凭证', 'Submit proof') + '</button>' +
         '</div>' +
       '</div>';
     box.querySelectorAll('input:not([type=file])').forEach(function (i) { i.style.cssText = 'width:100%;padding:10px 12px;font-size:16px;border:none;border-radius:12px;background:#fff;outline:none;color:var(--text);font-family:inherit;'; });
@@ -902,7 +933,7 @@
           '<div id="ac-login">' +
             '<input id="li-email" placeholder="Email" style="width:100%;margin-bottom:14px;">' +
             '<input id="li-pw" type="password" placeholder="' + t('密码', 'Password') + '" style="width:100%;margin-bottom:16px;">' +
-            '<button class="buy-btn" id="li-go" style="width:100%;padding:11px;background:var(--accent,#ffd9e6);color:var(--text,#604C57);font-size:17px;">' + t('登录', 'Log in') + '</button>' +
+            '<button class="buy-btn" id="li-go" style="width:100%;padding:11px;background:#FCE1EA;color:#A04A68;font-size:17px;">' + t('登录', 'Log in') + '</button>' +
             '<button id="li-forgot" style="background:none;border:none;color:var(--muted);font-family:inherit;font-size:15px;margin-top:14px;cursor:pointer;">' + t('忘记密码？发重置邮件', 'Forgot password? Send reset email') + '</button>' +
           '</div>' +
           '<div id="ac-reg" style="display:none;">' +
@@ -920,7 +951,7 @@
               '<span style="font-size:16px;color:var(--text,#604C57);">' + t('接收新品上架通知', 'Notify me about new items') + '<br><span style="font-size:13px;color:var(--muted,#A88E9B);">' + t('默认关闭 · 邮件通知服务尚未配置，启用前不会发送邮件', 'Off by default · email delivery not configured yet') + '</span></span>' +
               subToggleHtml('rg-notify', false) +
             '</div>' +
-            '<button class="buy-btn" id="rg-go" style="width:100%;padding:11px;background:var(--accent,#ffd9e6);color:var(--text,#604C57);font-size:17px;margin-top:14px;">' + t('注册', 'Create account') + '</button>' +
+            '<button class="buy-btn" id="rg-go" style="width:100%;padding:11px;background:#FCE1EA;color:#A04A68;font-size:17px;margin-top:14px;">' + t('注册', 'Create account') + '</button>' +
           '</div>' +
         '</div>';
       styleInputs(box);
@@ -971,7 +1002,7 @@
           };
           return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;">' +
               '<b style="font-size:17px;">' + t('基本资料', 'Basic info') + '</b>' +
-              '<button class="buy-btn" id="pf-edit" style="padding:7px 18px;background:var(--accent,#ffd9e6);color:var(--text,#604C57);">' + t('编辑', 'Edit') + '</button>' +
+              '<button class="buy-btn" id="pf-edit" style="padding:7px 18px;background:#FCE1EA;color:#A04A68;">' + t('编辑', 'Edit') + '</button>' +
             '</div>' +
             '<div style="display:grid;grid-template-columns:76px 1fr;row-gap:10px;column-gap:12px;align-items:baseline;">' +
               row(t('邮箱', 'Email'), USER.email || '') +
@@ -991,8 +1022,8 @@
             '</div>' +
             (errMsg ? '<p id="pf-err" style="color:var(--danger,#D96570);font-size:14px;margin:10px 0 0;">' + esc(errMsg) + '</p>' : '') +
             '<div style="display:flex;gap:10px;margin-top:14px;">' +
-              '<button class="buy-btn" id="pf-save" style="padding:9px 22px;background:var(--accent,#ffd9e6);color:var(--text,#604C57);">' + t('保存', 'Save') + '</button>' +
-              '<button class="buy-btn" id="pf-cancel" style="padding:9px 22px;background:#fff;color:var(--muted);">' + t('取消', 'Cancel') + '</button>' +
+              '<button class="buy-btn" id="pf-save" style="padding:9px 22px;background:#FCE1EA;color:#A04A68;">' + t('保存', 'Save') + '</button>' +
+              '<button class="buy-btn" id="pf-cancel" style="padding:9px 22px;background:#fff;color:var(--muted);border:1.5px solid #FFD9E6;">' + t('取消', 'Cancel') + '</button>' +
             '</div>';
         }
         function paintProfile(p, editing, errMsg) {
@@ -1310,7 +1341,7 @@
       }).join('') +
       '<div class="card" style="padding:14px;display:flex;justify-content:space-between;align-items:center;">' +
         '<span style="font-size:17px;">' + t('已选小计', 'Selected subtotal') + '</span><b style="font-size:20px;color:var(--price,#ff6fa5);">' + sym(subCur) + money(sub) + '</b></div>' +
-      '<button class="buy-btn" id="cart-go" style="width:100%;margin-top:12px;padding:12px;background:var(--accent,#ffd9e6);color:var(--text,#604C57);font-size:18px;font-weight:600;">' + t('去结算', 'Check out') + '</button>';
+      '<button class="buy-btn" id="cart-go" style="width:100%;margin-top:12px;padding:12px;background:#FCE1EA;color:#A04A68;font-size:18px;font-weight:600;">' + t('去结算', 'Check out') + '</button>';
     box.querySelectorAll('.ck-box').forEach(function (el) { el.addEventListener('click', function () {
       var x = CART[+el.getAttribute('data-i')]; x.checked = x.checked === false; saveCart(); renderCart();
     }); });

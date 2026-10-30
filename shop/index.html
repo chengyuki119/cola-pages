@@ -136,12 +136,12 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .product-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; row-gap: 8px; }
   .product-row .buy-btn, .product-row .card-edit-btn, .product-row .no-buy, .product-row .price { white-space: nowrap; flex-shrink: 0; }
   .card-edit-btn { border: none; background: var(--card-hover); color:var(--text,#604C57); font-size:14px; cursor: pointer; padding: 4px 12px; border-radius: 999px; font-family: inherit; transition: background .2s, color .2s; white-space: nowrap; }
-  .card-edit-btn:hover { background: var(--accent-soft); color: var(--text, #604C57); }
+  .card-edit-btn:hover { background: #FCE1EA; color: var(--text, #604C57); }
   .price { font-size:21px; font-weight: 700; color:var(--price,#ff6fa5); font-family: "Millo Body", -apple-system, "PingFang SC", sans-serif; }
   .price small { font-size:15px; font-weight: 400; }
-  .buy-btn {
+  .buy-btn { /* 主粉统一（她 20261029 §4） */
     border: none;
-    background: var(--accent-soft);
+    background: #FCE1EA;
     color: var(--accent-strong);
     font-size:16px;
     padding: 8px 18px;
@@ -149,7 +149,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     cursor: pointer;
     transition: background .2s;
   }
-  .buy-btn:hover { background:var(--accent,#ffd9e6); }
+  .buy-btn:hover { background:#F8D3E2; }
 
 
   /* 收藏心心 */
@@ -298,7 +298,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
   .pdp .pg-wrap { width: 100%; max-width: 100%; margin: 0 auto; }
   .pdp .pg-img { object-fit: contain !important; background: #fff; } /* 主图完整显示不裁切（她 2026-10-26）；列表卡仍 cover 填满 */
   .pdp .d-price > div:first-child { font-size: 28px !important; }
-  .pdp .d-actions .buy-btn { flex: 1; min-width: 120px; justify-content: center; padding: 13px 22px !important; font-size: 17px; }
+  .pdp .d-actions .buy-btn { /* 主粉统一（她 20261029 §4） */ flex: 1; min-width: 120px; justify-content: center; padding: 13px 22px !important; font-size: 17px; }
 }
   /* ===== 商城新增：视图 / 规格 / 订单 / 拼团 ===== */
   .sku-chip { border: 2px solid var(--accent-soft); background: #fff; color: var(--text); border-radius: 999px; padding: 7px 16px; font-size: 16px; font-family: inherit; cursor: pointer; transition: all .2s; }
@@ -838,7 +838,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     }, 300);
   }
 </script>
-<script src="/js/shop-app.js?v=20261029p28"></script>
+<script src="/js/shop-app.js?v=20261029p29"></script>
 <script src="/js/site-footer.js?v=20261028p18"></script>
 <script>
   // 统一 Footer（已有 <footer> 则替换其内容，不新建第二个）

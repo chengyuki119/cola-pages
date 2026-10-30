@@ -56,14 +56,14 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   }
   .back-link {
     display: inline-flex; align-items: center; gap: 8px;
-    color: var(--text);
-    font-size:17px;
+    color: #A04A68;
+    font-size:17px; font-weight:600;
     padding: 8px 14px;
     border-radius: 999px;
-    background: var(--card);
+    background: #FCE1EA; /* 与前台返回主页同款（她 20261029 §4 全站统一） */
     transition: background .2s;
   }
-  .back-link:hover { background: var(--card-hover); }
+  .back-link:hover { background: #F8D3E2; }
   /* 语言切换（与前台同款组件样式；admin 不加载 site.css，样式内联） */
   .lang-switch { display: flex; gap: 4px; background: var(--accent-soft, #FCE4EC); padding: 4px; border-radius: 999px; } /* 20261026s 她指定款：粉胶囊底座+白胶囊选中（前台后台同款） */
   .lang-btn { border: none; background: none; color: var(--muted); font-size:14px; font-family: inherit; padding: 5px 12px; border-radius: 999px; cursor: pointer; transition: background .2s, color .2s, box-shadow .2s; }
@@ -119,7 +119,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .gate input:focus { border-color: var(--accent-strong,#A04A68); }
   .gate button {
     width: 100%;
-    border: none; background: var(--accent,#ffd9e6); color: var(--text, #604C57);
+    border: none; background: #FCE1EA; color: #A04A68;
     font-size:17px; padding: 11px 24px; border-radius: 12px;
     cursor: pointer; transition: opacity .15s;
   }
@@ -150,7 +150,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .pp-wrap { position: relative; display: inline-block; margin-bottom: 18px; }
   .pp-btn {
     display: inline-flex; align-items: center; gap: 8px;
-    border: none; background: var(--card); color: var(--text);
+    border: 1.5px solid #FFD9E6; background: #fff; color: var(--text);
     font-size:16px; padding: 9px 14px;
     border-radius: 12px; cursor: pointer;
     transition: background .2s;
@@ -286,13 +286,13 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     border-radius: 999px; cursor: pointer;
     white-space: nowrap; flex-shrink: 0; /* 防窄容器挤压成一字一行（与规格区同类问题） */
   }
-  .btn-save { border: none; background: var(--accent,#ffd9e6); color: var(--text, #604C57); font-family: inherit; cursor: pointer; }
+  .btn-save { border: none; background: #FCE1EA; color: #A04A68; font-family: inherit; cursor: pointer; }
   .btn-cancel { background: var(--card-hover); color: var(--text); }
   /* 数字输入框不要浏览器原生上下小箭头（和自定义控件打架） */
   input[type="number"] { appearance: textfield; -moz-appearance: textfield; }
   input[type="number"]::-webkit-outer-spin-button,
   input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-  .btn-del { border: none; background: var(--accent,#FFD9E6); color: var(--text); font-family: inherit; cursor: pointer; }
+  .btn-del { border: none; background: #FBE3E6; color: #D96570; font-family: inherit; cursor: pointer; } /* 柔和危险色：与主粉按钮区分（她 20261029 §4） */
   /* 确认弹窗的确认按钮（此前无样式定义导致浏览器默认外观，她 20261026 第三轮 §3.2） */
   .btn-ok { border: none; background: var(--accent-strong,#A04A68); color: #fff; font-family: inherit; cursor: pointer; }
   /* 按钮组件统一：不管在不在 .actions 里，都是同一套圆角小按钮（不再有浏览器默认样式）*/
@@ -301,9 +301,9 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     padding: 7px 16px; border-radius: 999px; cursor: pointer;
     transition: background .2s, opacity .2s;
   }
-  .btn-mini:hover { background: var(--card-hover); }
+  .btn-mini:hover { background: #FFF0F5; }
   .btn-ok:hover { background: #8d3d5a; }
-  .btn-del:hover { background: #f0c3da; }
+  .btn-del:hover { background: #F6D0D8; }
   .btn-save:hover { opacity: .85; }
   .dy-chips { display: flex; gap: 6px; flex-wrap: wrap; }
   /* 她 2026-10-28 16:02：重复选项改成和「保存」按钮同款实底粉胶囊（去描边），选中态深玫瑰底白字（白字只配深玫瑰底的既定规则） */
@@ -339,7 +339,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .combo-opt { display: block; width: 100%; border: none; background: none; text-align: left; padding: 9px 12px; font-size:16px; cursor: pointer; border-radius: 8px; color: var(--text); font-family: inherit; line-height: 1.4; }
   .combo-opt:hover { background: var(--card-hover); }
   .dy-chip input { display: none !important; } /* radio 只当状态用，彻底不占布局；!important 压过后方 input[type=radio] 全局规则的 display:inline-block（同等优先级靠后胜出，p17 没压住导致白圈露出来） */
-  .btn-mini { border: none; background: var(--card); color: var(--text); font-family: inherit; cursor: pointer; }
+  .btn-mini { border: 1.5px solid #FFD9E6; background: #fff; color: var(--text); font-family: inherit; cursor: pointer; } /* 白底+可见描边：不再隐形（她 20261029 §4） */
   /* 头像 / 主页背景图上传区：两行对齐，隐藏原生 file 控件 */
   .hm-upload-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
   .hm-upload-row + .hm-upload-row { margin-top: 12px; }
@@ -590,9 +590,9 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .btn-save-tb {
     border: none; font-family: inherit; font-size: 16px; padding: 7px 16px;
     border-radius: 999px; cursor: pointer; white-space: nowrap; flex-shrink: 0;
-    background: var(--accent,#ffd9e6); color: var(--text, #604C57); transition: background .2s, opacity .2s;
+    background: #FCE1EA; color: #A04A68; transition: background .2s, opacity .2s;
   }
-  .btn-save-tb:hover { background: #f0c3da; }
+  .btn-save-tb:hover { background: #F8D3E2; }
   .btn-save-tb:disabled { opacity: .55; cursor: default; }
 .toast {
     position: fixed; bottom: 32px; left: 50%;
@@ -783,8 +783,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         .aix-answer { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 4px 4px 0; background: #fff; border: 1px dashed var(--accent-soft); border-radius: 10px; padding: 7px 10px; font-size:15px; color: var(--text); max-width: 100%; }
         .aix-answer em { font-style: normal; color: var(--muted); font-size:14px; }
         .aix-answer .spacer { flex: 1; }
-        .aix-add { margin: 4px 4px 0; border: none; border-radius: 999px; background: #f3b96d; color: #fff; font-size:14px; padding: 4px 12px; cursor: pointer; font-family: inherit; }
-        .aix-add:hover { background: #eda94e; }
+        .aix-add { margin: 4px 4px 0; border: none; border-radius: 999px; background: #FCE1EA; color: #A04A68; font-size:14px; padding: 4px 12px; cursor: pointer; font-family: inherit; } /* 橙底白字废除：全站统一主粉（她 20261029 §4） */
+        .aix-add:hover { background: #F8D3E2; }
         .aix-form { margin: 10px 4px 2px; background: #fff; border: 1px solid var(--card-hover); border-radius: 12px; padding: 12px; }
         .aix-form b { display: block; font-size:16px; margin-bottom: 8px; }
         .aix-form input, .aix-form textarea { width: 100%; box-sizing: border-box; border: 1px solid var(--card-hover); border-radius: 10px; background: var(--bg); padding: 8px 12px; font-size:16px; font-family: inherit; color: var(--text); outline: none; margin-bottom: 8px; }
@@ -6312,9 +6312,9 @@ function loadEmailLog() {
   </div>
 </div>
 <style>
-  /* 非删除类确认按钮：浅粉底白字（与全站按钮规范一致） */
-  .lo-mask .btn-ok { background: var(--accent,#ffd9e6); color: var(--text, #604C57); }
-  .lo-mask .btn-ok:hover { background: #ffc9dc; }
+  /* 确认弹窗按钮统一：深玫瑰底白字（白字只配深玫瑰底的既定规则；20261029 删掉旧的浅粉覆盖避免两套矛盾） */
+  .lo-mask .btn-ok { background: var(--accent-strong,#A04A68); color: #fff; }
+  .lo-mask .btn-ok:hover { background: #8d3d5a; }
 </style>
 
 <script>
@@ -6372,7 +6372,7 @@ function loadEmailLog() {
 </script>
 
 
-<script src="js/admin-shop.js?v=20261029p24"></script>
+<script src="js/admin-shop.js?v=20261029p29"></script>
 <script src="js/admin-crm.js?v=20261028p19"></script>
 <script src="js/admin-vip.js?v=20261028p19"></script>
 <script src="js/vendor/jsQR.js?v=20261028p19"></script>
