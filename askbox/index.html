@@ -4,7 +4,7 @@
     <link rel="preload" href="/fonts/Millo-RiceSoyMilk80.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/fonts/Millo-RiceSoyMilk90.woff2" as="font" type="font/woff2" crossorigin>
 <meta charset="UTF-8">
-  <script src="/js/lang-path.js?v=20261031D"></script>
+  <script src="/js/lang-path.js?v=20261031E"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>联系我们 · Yuki / 柚子</title>
 <link rel="manifest" href="/manifest.json">
@@ -114,9 +114,9 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .f-label:first-of-type { margin-top: 0; }
   .topic-chips { display: flex; flex-wrap: wrap; gap: 8px; }
   .ask-card .topic-chips button {
-    border: none; border-radius: 999px;
+    border: 1.6px solid var(--opt-bd, #FFD1E0); border-radius: 999px;
     background: #fff; color: var(--text, #604C57);
-    font-family: inherit; font-size:16px; padding: 7px 16px;
+    font-family: inherit; font-size:16px; padding: 5.4px 14.4px;
     cursor: pointer; transition: background .15s, color .15s;
   }
   .ask-card .topic-chips button.active { background: var(--accent-soft); color: var(--accent-strong); }
@@ -125,8 +125,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .contact-hint { font-size:15px; color: var(--muted); margin-top: 10px; line-height: 1.6; }
   .ask-card button {
     align-self: flex-end; margin-top: 12px;
-    border: none; background: #FCE1EA; color: #A98D96;
-    font-size:17px; padding: 9px 22px; border-radius: 999px;
+    border: 1.6px solid #FFD1E0; background: #FCE1EA; color: #A98D96;
+    font-size:17px; padding: 7.4px 20.4px; border-radius: 999px;
     cursor: pointer; transition: background .2s;
   }
   .ask-card button:hover { background: var(--accent, #FFD9E6); }
@@ -186,12 +186,18 @@ h2::after { content: " ♥"; font-size: .75em; }
   .subpage-header { background: var(--accent-soft,#FCE4EC); padding: 84px 0 40px; width: 100%; margin-left: 0; } /* 她 20261030 §10：100vw 含滚动条宽会溢出 8px；body 无内边距，100% 即满宽 */
   .subpage-header h1, .subpage-header p.sub { max-width: 1000px; margin-left: auto; margin-right: auto; padding-left: 24px; padding-right: 24px; box-sizing: border-box; }
 </style>
-  <link rel="stylesheet" href="/site-menu.css?v=20261031D">
+  <link rel="stylesheet" href="/site-menu.css?v=20261031E">
   <script src="/site-menu.js" defer></script>
   <style>a { color: inherit; text-decoration: none; }</style>
 <script>/* 主题色本地快照（无 site-common 页）；完整主题来自 site_settings.theme_colors */
 try { var __t = JSON.parse(localStorage.getItem('yuki-theme-colors') || 'null'); if (__t && typeof __t === 'object') { var __m = { text: '--text', muted: '--muted', bg: '--bg', card: '--card', accent: '--accent', accentSoft: '--accent-soft', accentStrong: '--accent-strong', price: '--price', success: '--success', warning: '--warning', danger: '--danger' }, __r = document.documentElement.style; Object.keys(__m).forEach(function (k) { if (__t[k]) __r.setProperty(__m[k], __t[k]); }); } } catch (e) {}</script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261031D">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261031E">
+  <style id="ask-submit-stroke">
+    /* 她 20261031 02:21：联系我们页的按钮要有可见描边（主题里主按钮的描边色与填充同色，看不出来） */
+    .ask-card > button { border-color: #FFD1E0 !important; }
+    .ask-card > button:hover { border-color: #F5BFD1 !important; }
+    .ask-card > button:active { border-color: #EFB0C5 !important; }
+  </style>
 </head>
 <body>
 <header class="topbar">
@@ -453,7 +459,7 @@ try { var __t = JSON.parse(localStorage.getItem('yuki-theme-colors') || 'null');
   loadWall();
 </script>
 <footer>© 2026 Yuki · Made with Cola</footer>
-<script src="/js/site-footer.js?v=20261031D"></script>
+<script src="/js/site-footer.js?v=20261031E"></script>
 <script>
   // 统一 Footer（已有 <footer> 则替换其内容，不新建第二个）
   function initSiteFooter() { renderSiteFooter(); }
