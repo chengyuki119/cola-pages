@@ -43,6 +43,11 @@
     '#tab-shopmgr .sm-p2-t { text-align:right; color:#81717A; }',
     '#tab-shopmgr .sm-p2-sum { font-size:14px; color:#81717A; margin-top:6px; }',
     '#tab-shopmgr .sm-danger-zone { border:1.5px dashed #FFD1E0; }',
+    /* 2026-10-30 §一：手机上「归档/删除」这类订单操作要真的能点得中（不缩到只剩 28px） */
+    '@media (max-width:760px){ #tab-shopmgr .sm-o-acts .btn-mini { padding:9px 14px; font-size:14px; min-height:36px; } #tab-shopmgr .sm-o-acts { gap:6px; } }',
+    /* 删除是危险操作：文字用危险色（button-theme.css 的全局颜色会盖掉内联样式，这里提高优先级） */
+    '#tab-shopmgr .sm-o-del { color:#C4636E !important; border-color:#F3D5D8 !important; }',
+    '#tab-shopmgr .sm-o-del:hover { background:#FDF0F1 !important; border-color:#EFB0B8 !important; }',
     '@media (max-width:720px){ #tab-shopmgr .sm-p2-row { grid-template-columns:32px 86px 1fr 30px; gap:6px; } }',
     '#tab-shopmgr .sm-order.open .sm-o-arrow { transform:rotate(90deg); }',
     '#tab-shopmgr .sm-o-body { border-top:1px solid var(--card-hover); margin-top:10px; padding-top:10px; display:flex; flex-direction:column; gap:10px; }',
@@ -144,8 +149,16 @@
       .then(function (r) { if (!r.ok) throw new Error('http'); if (okMsg) toast(okMsg); return true; })
       .catch(function () { toast('保存失败：数据库没连上（本次改动不会落库）'); return false; });
   }
-  function addLog(orderId, action, detail) {
-    return api('shop_order_logs', { method: 'POST', body: JSON.stringify({ order_id: orderId, actor: 'admin', action: action, detail: detail || '' }) }).catch(function () {});
+  /* 2026-10-30 §一：操作人写真实管理员邮箱（会话里就有），以后查“谁删的”能查到人，不只一个 admin 字样 */
+  function adminActor() {
+    try {
+      var s = JSON.parse(localStorage.getItem('yuki-admin-session') || 'null');
+      if (s && s.email) return 'admin:' + s.email;
+    } catch (e) {}
+    return 'admin';
+  }
+  function addLog(orderId, action, detail, actor) {
+    return api('shop_order_logs', { method: 'POST', body: JSON.stringify({ order_id: orderId, actor: actor || adminActor(), action: action, detail: detail || '' }) }).catch(function () {});
   }
 
   var ST = {
@@ -192,7 +205,12 @@
 
   /* ── 数据加载（真 API 优先，失败回退可注入假数组）── */
   function loadOrders() {
-    return restGet('shop_orders?select=*&order=created_at.desc&limit=300')
+    return restGet('shop_orders?select=*&status=neq.deleted&order=created_at.desc&limit=300')
+      .then(function (rows) {
+        // 再按「删除登记表」排一次（触发器还没允许 deleted 时，靠这张表把已删单挡在外面）
+        if (window.YkOrderDel) return window.YkOrderDel.filter(arr(rows));
+        return arr(rows);
+      })
       .then(function (rows) { SM.orders = arr(rows); SM._oFailed = false; })
       .catch(function () { SM.orders = arr(window.SHOP_ORDERS); SM._oFailed = true; })
       .then(function () { renderOrders(); renderStats(); });
@@ -450,6 +468,9 @@
   function filteredOrders() {
     var q = SM.osearch.toLowerCase();
     return SM.orders.filter(function (o) {
+      // 2026-10-30 §二：已删除的订单永远不进任何列表（含「已归档」筛选），不是隐藏而是不再属于可见集合
+      if (window.YkOrderDel && window.YkOrderDel.isDel(o.id)) return false;
+      if (o.status === 'deleted') return false;
       // 她 20261030 §7.3：删除走归档（软删），不删真数据；归档单默认不出现在列表里
       if (SM.ofilter !== 'archived' && o.status === 'archived') return false;
       if (SM.ofilter && o.status !== SM.ofilter) return false;
@@ -714,7 +735,8 @@
         '<button type="button" class="btn-mini sm-act-export1">导出这一单</button>' +
         '<button type="button" class="btn-mini sm-act-print1">打印这一单</button>' +
         '<button type="button" class="btn-del sm-act-archive">归档订单</button>' +
-        '<span style="font-size:12px;color:var(--muted,#81717A);">归档＝软删除，订单与收款流水都保留，可在「已归档」里恢复</span>' +
+        '<button type="button" class="btn-del sm-act-del">删除订单</button>' +
+        '<span style="font-size:12px;color:var(--muted,#81717A);">归档＝可恢复的软删除（订单与收款流水全保留）；删除＝从订单列表彻底移出，只能靠审计日志追溯</span>' +
         '</div>' +
         '</div>';
     }
@@ -735,6 +757,7 @@
         (o.status === 'archived'
           ? '<button type="button" class="btn-mini sm-o-restore" data-act="restore">恢复订单</button>'
           : '<button type="button" class="btn-mini sm-o-arch" data-act="archive">归档订单</button>') +
+        '<button type="button" class="btn-mini sm-o-del" data-act="delete" style="color:#C4636E;border-color:#F3D5D8;">删除订单</button>' +
       '</span>' +
       '<span class="sm-o-arrow">▸</span>' +
       '</div>' + progressHtml(o) + body + '</div>';
@@ -861,6 +884,65 @@
       .then(function (prev) {
         patchOrder(o.id, { status: prev }, '订单已恢复到「' + ((ST[prev] || [prev])[0]) + '」', 'restore', 'from:archived->' + prev);
       });
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     订单删除（2026-10-30 23:09 任务书）
+     跟「取消」「归档」的区别说清楚：
+       取消 → 订单还在，状态变 cancelled（钱的事继续走）
+       归档 → 软删除可恢复，在「已归档」里找得回来
+       删除 → 从订单管理里彻底移出，刷新/搜索/筛选/导出都不会再出现；
+              订单行本身、付款流水、退款流水、物流、日志都保留（不毁历史）
+     写法：status='deleted' + shop_order_logs 记一笔（单号/买家/金额/操作人/时间）
+     为什么不直接 DELETE 行：付款/退款流水、订单日志都指向这个 order_id，
+     硬删会把历史弄成断头，也不会真的让 RLS 更安全 —— 她要求「不影响付款和退款历史」。
+     ══════════════════════════════════════════════════════════════════ */
+  function deleteOrder(o) {
+    if (!o) return;
+    if (o.status === 'deleted') { toast('这笔订单已经删除过了'); return; }
+    var no = o.order_no || String(o.id).slice(0, 8);
+    var buyer = (o.address && o.address.name) || o.ship_name || o.email || '（没填买家名）';
+    var sym = o.currency === 'CNY' ? '\u00a5' : '$';
+    var amt = sym + fmtMoney(o.total);
+    var s = payStat(o);
+    var stName = (ST[o.status] || [o.status || '未知'])[0];
+    if (!window.confirm('删除订单 ' + no + '？\n\n' +
+      '买家：' + buyer + '\n' +
+      '订单金额：' + amt + '\n' +
+      '当前状态：' + stName +
+      (s.net > 0.005 ? '\n已收款：' + sym + fmtMoney(s.net) + '（删除不会自动退款）' : '') +
+      '\n\n删除后：\n' +
+      '· 这笔单从「订单管理」里彻底移出（刷新、搜索、筛选、导出都不会再出现）\n' +
+      '· 付款记录、退款记录、物流记录、操作日志全部保留\n' +
+      '· 不会删客户档案、商品资料，也不会影响其他订单\n' +
+      '· 删除后不能像「归档」那样一键恢复')) return;
+    if (!window.confirm('最后确认：确定删除订单 ' + no + '？\n\n这是一次不可逆操作，只会留下审计记录（单号／买家／金额／操作人／时间）。')) return;
+
+    var detail = 'order_no:' + no + '; buyer:' + buyer + '; total:' + fmtMoney(o.total) + '; from:' + (o.status || '') +
+      '; paid:' + fmtMoney(s.net) + '; at:' + new Date().toISOString();
+    var actor = adminActor();
+    if (!window.YkOrderDel) { toast('删除登记表没加载出来，刷新页面再试'); return Promise.resolve(false); }
+    var entry = {
+      id: o.id, order_no: no, buyer: buyer,
+      total: fmtMoney(o.total), currency: o.currency || 'USD',
+      from: o.status || '', paid: fmtMoney(s.net),
+      at: new Date().toISOString(), by: String(actor).replace(/^admin:/, '')
+    };
+    return window.YkOrderDel.mark(entry).then(function (ok) {
+      if (!ok) { toast('删除失败（订单还在）：没能写入删除登记表，可能是没有权限或网络断了'); return false; }
+      delete SM.osel[o.id];
+      SM.oopen[o.id] = false;
+      // 本地列表一并排掉，不等下次刷新
+      SM.orders = SM.orders.filter(function (x) { return x.id !== o.id; });
+      // 审计：即使以后连订单行都被清理，日志里的单号/买家/金额/人都还在
+      addLog(o.id, 'delete', detail, actor);
+      return true;
+    }).then(function (ok) {
+      if (!ok) return;
+      toast('已删除订单 ' + no);
+      renderOrders(); renderStats();
+      return true;
+    });
   }
 
   /* ═══ 拼团管理 ═══ */
@@ -1375,6 +1457,7 @@
 
     // 展开 / 收起（点头部；点操作区不收起）
     if (e.target.closest('.sm-o-arch')) { e.stopPropagation(); e.preventDefault(); archiveList([o]); return; }
+    if (e.target.closest('.sm-o-del')) { e.stopPropagation(); e.preventDefault(); deleteOrder(o); return; }
     if (e.target.closest('.sm-o-restore')) { e.stopPropagation(); e.preventDefault(); restoreOne(o); return; }
     if (e.target.closest('.sm-o-head')) {
       SM.oopen[id] = !SM.oopen[id];
@@ -1741,6 +1824,12 @@
       if (!window.confirm('确定取消订单 ' + name1 + '？\n\n取消后：\n· 订单标记为「已取消」，不再出现付款/发货按钮\n· 已有收款记录、物流和历史都保留\n· 买家侧的待付款提醒会停止')) return;
       if (!window.confirm('再确认一次：真的要取消 ' + name1 + ' 吗？')) return;
       patchOrder(id, { status: 'cancelled' }, '订单已取消（收款与历史都保留）', 'cancel', '取消订单');
+      return;
+    }
+    if (e.target.classList.contains('sm-act-del')) {
+      var od = byId(SM.orders, id);
+      if (!od) return;
+      deleteOrder(od);
       return;
     }
     if (e.target.classList.contains('sm-act-archive')) {
@@ -2694,7 +2783,7 @@
   function fetchAllOrders() {
     var all = [];
     function page(offset) {
-      return restGet('shop_orders?select=*&order=created_at.desc&limit=1000&offset=' + offset)
+      return restGet('shop_orders?select=*&status=neq.deleted&order=created_at.desc&limit=1000&offset=' + offset)
         .then(function (rows) {
           all = all.concat(arr(rows));
           if (arr(rows).length === 1000) return page(offset + 1000);
@@ -3026,6 +3115,7 @@
     progressHtml: progressHtml,
     archiveList: archiveList,
     restoreOne: restoreOne,
+    deleteOrder: deleteOrder,
     refreshArchBtn: refreshArchBtn,
     renderGroups: renderGroups,
     renderCoupons: renderCoupons,

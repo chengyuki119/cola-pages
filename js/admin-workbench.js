@@ -646,7 +646,7 @@
     var body = document.getElementById('wb-body');
     if (!body) return;
     body.innerHTML = '<div class="empty">加载中…</div>';
-    api('shop_orders?select=*&order=created_at.desc&limit=300').then(function (r) { return r.json(); }).then(function (rows) {
+    api('shop_orders?select=*&status=neq.deleted&order=created_at.desc&limit=300').then(function (r) { return r.json(); }).then(function (rows) { return window.YkOrderDel ? window.YkOrderDel.filter(rows) : rows; }).then(function (rows) {
       WB.orders = arr(rows);
       WB.reviewIdx = -1;
       renderOrders();

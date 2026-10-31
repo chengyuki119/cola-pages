@@ -79,11 +79,16 @@
     var detail = document.getElementById('vip-detail');
     detail.innerHTML = '<p style="color:var(--muted,#A88E9B);text-align:center;padding:18px 0;">' + t('加载客户数据…', 'Loading customer…') + '</p>';
     // 订单关联：customer_id 优先，email 兜底（只展示，不建客户不合并）
-    var byId = api('shop_orders?select=*&customer_id=eq.' + c.id + '&order=created_at.desc&limit=100');
-    var byMail = c.email ? api('shop_orders?select=*&email=eq.' + encodeURIComponent(c.email) + '&order=created_at.desc&limit=100') : Promise.resolve({ json: function () { return Promise.resolve([]); } });
+    var byId = api('shop_orders?select=*&status=neq.deleted&customer_id=eq.' + c.id + '&order=created_at.desc&limit=100');
+    var byMail = c.email ? api('shop_orders?select=*&status=neq.deleted&email=eq.' + encodeURIComponent(c.email) + '&order=created_at.desc&limit=100') : Promise.resolve({ json: function () { return Promise.resolve([]); } });
     api('shop_payments?select=order_id,status,amount&order=created_at.desc&limit=1000').then(function (r) { return r.json(); }).catch(function () { return []; }).then(function (pays) {
       VIP.payments = pays || [];
       Promise.all([byId.then(function (r) { return r.json(); }), byMail.then(function (r) { return r.json(); })]).then(function (res) {
+    return Promise.all([
+      window.YkOrderDel ? window.YkOrderDel.filter(res[0] || []) : (res[0] || []),
+      window.YkOrderDel ? window.YkOrderDel.filter(res[1] || []) : (res[1] || [])
+    ]);
+  }).then(function (res) {
         var seen = {}, orders = [];
         (res[0] || []).forEach(function (o) { if (!seen[o.id]) { seen[o.id] = 1; o.__via = 'id'; orders.push(o); } });
         (res[1] || []).forEach(function (o) { if (!seen[o.id]) { seen[o.id] = 1; o.__via = 'email'; orders.push(o); } });

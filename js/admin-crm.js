@@ -37,7 +37,7 @@
   function loadCust() {
     api('shop_customers?select=*&order=created_at.desc').then(function (r) { return r.json(); }).then(function (rows) {
       CUST.list = rows || [];
-      api('shop_orders?select=customer_id,user_id,status,total,order_no,order_source,email&order=created_at.desc&limit=500').then(function (r2) { return r2.json(); }).then(function (ords) {
+      api('shop_orders?select=customer_id,user_id,status,total,order_no,order_source,email&status=neq.deleted&order=created_at.desc&limit=500').then(function (r2) { return r2.json(); }).then(function (ords) { return window.YkOrderDel ? window.YkOrderDel.filter(ords) : ords; }).then(function (ords) {
         CUST.orders = ords || [];
         renderCustRows();
       });

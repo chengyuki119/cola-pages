@@ -690,7 +690,7 @@
     showView('orders');
     var box = document.getElementById('view-orders');
     box.innerHTML = '<h2 style="font-size:22px;margin-bottom:14px;">' + t('我的订单', 'My Orders') + '</h2><p style="color:var(--muted);text-align:center;">' + t('加载中…', 'Loading…') + '</p>';
-    api('shop_orders?select=*&order=created_at.desc&limit=50').then(function (r) { return r.json(); }).then(function (rows) {
+    api('shop_orders?select=*&status=neq.deleted&order=created_at.desc&limit=50').then(function (r) { return r.json(); }).then(function (rows) {
       rows = rows || [];
       if (!rows.length) { box.innerHTML += '<p style="color:var(--muted);text-align:center;padding:30px 0;">' + t('还没有订单，去小铺逛逛吧～', 'No orders yet — go shopping~') + '</p>'; return; }
       box.innerHTML = '<h2 style="font-size:22px;margin-bottom:14px;">' + t('我的订单', 'My Orders') + '</h2>' +

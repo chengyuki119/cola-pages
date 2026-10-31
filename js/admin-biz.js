@@ -771,7 +771,7 @@
       UNITS.products.forEach(function (p) { UNITS.pmap[p.id] = p; });
       renderUnitRows();
     }).catch(function () {});
-    api('shop_orders?select=id,order_no,status&order=created_at.desc&limit=200').then(function (r) { return r.json(); }).then(function (rows) {
+    api('shop_orders?select=id,order_no,status&status=neq.deleted&order=created_at.desc&limit=200').then(function (r) { return r.json(); }).then(function (rows) { return window.YkOrderDel ? window.YkOrderDel.filter(rows) : rows; }).then(function (rows) {
       UNITS.orders = Array.isArray(rows) ? rows : [];
       UNITS.omap = {};
       UNITS.orders.forEach(function (o) { UNITS.omap[o.id] = o; });

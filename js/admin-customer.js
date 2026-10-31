@@ -137,8 +137,9 @@
     if (listCard) listCard.innerHTML = '<p style="color:#81717A;text-align:center;padding:22px 0;font-size:15px;">' + t('正在读取客户…') + '</p>';
     api('shop_customers?select=*&order=created_at.desc&limit=500').then(function (r) { return r.json(); }).then(function (rows) {
       S.list = Array.isArray(rows) ? rows : [];
-      return api('shop_orders?select=id,order_no,customer_id,user_id,email,status,total,currency,items,created_at&order=created_at.desc&limit=1000')
+      return api('shop_orders?select=id,order_no,customer_id,user_id,email,status,total,currency,items,created_at&status=neq.deleted&order=created_at.desc&limit=1000')
         .then(function (r2) { return r2.json(); })
+        .then(function (ords) { return window.YkOrderDel ? window.YkOrderDel.filter(Array.isArray(ords) ? ords : []) : (Array.isArray(ords) ? ords : []); })
         .then(function (ords) { S.orders = Array.isArray(ords) ? ords : []; })
         .catch(function () { S.orders = []; });
     }).then(function () {

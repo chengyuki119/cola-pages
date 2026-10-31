@@ -702,7 +702,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     body:not(.adm-in) .wrap .adm-head { margin: 0 var(--adm-edge, 40px) 22px; justify-content: center; }
   </style>
   <script src="site-menu.js" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261031u">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261031v">
   <style>
     /* ═══ 她 20261030 §5：后台字体统一加深（三档，仅后台生效）═══
        主要文字 #55464E ｜ 普通正文 #62545B ｜ 辅助文字 #81717A
@@ -1459,6 +1459,64 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     options.headers = Object.assign(headers, options.headers || {});
     return authedFetch(SUPABASE_URL + '/rest/v1/' + path, options);
   }
+  /* ══════════════════════════════════════════════════════════════════
+     订单删除登记表（2026-10-30 §一）
+     为什么不直接改 status='deleted'：库里有订单状态机触发器，只放行
+       pending→reviewing→paid→shipped→completed / refunding→refunded / →cancelled
+     这几条；任何别写状态（包括 archived、deleted）都会被它拒掉：
+       “不允许的订单状态变更：pending → deleted（已退款/已取消为终态）”
+     要真的新增一个终态必须改触发器（属于改数据库，要她跑 SQL）。
+     所以现在先用「删除登记表」：site_settings.shop_orders_deleted（纯数据，不动表结构），
+     订单行、收款、退款、物流、日志一律保留，只把这几笔从所有列表/统计/导出里排掉。
+     以后触发器允许 deleted 了，代码里已经写好的 status=neq.deleted 会直接接上，不用重做。
+     ══════════════════════════════════════════════════════════════════ */
+  window.YkOrderDel = (function () {
+    var KEY = 'shop_orders_deleted';
+    var ids = null, loading = null;
+    function parse(rows) {
+      var raw = rows && rows[0] ? rows[0].value : '[]';
+      var list = [];
+      try { list = typeof raw === 'string' ? JSON.parse(raw) : raw; } catch (e) { list = []; }
+      return Array.isArray(list) ? list : [];
+    }
+    function load(force) {
+      if (ids && !force) return Promise.resolve(ids);
+      if (loading && !force) return loading;
+      loading = api('site_settings?select=value&key=eq.' + KEY)
+        .then(function (r) { return r.json(); })
+        .then(function (rows) {
+          var set = {};
+          parse(rows).forEach(function (x) { if (x && x.id) set[x.id] = x; });
+          ids = set;
+          return set;
+        })
+        .catch(function () { ids = ids || {}; return ids; });
+      return loading;
+    }
+    function filterOrderRows(rows) {
+      return load().then(function (set) {
+        return (rows || []).filter(function (o) { return o && !set[o.id]; });
+      });
+    }
+    function isDel(id) { return !!(ids && ids[id]); }
+    function mark(entry) {
+      return load(true).then(function () {
+        return api('site_settings?select=value&key=eq.' + KEY).then(function (r) { return r.json(); });
+      }).then(function (rows) {
+        var list = parse(rows).filter(function (x) { return x && x.id !== entry.id; });
+        list.push(entry);
+        return api('site_settings?on_conflict=key', {
+          method: 'POST',
+          body: JSON.stringify([{ key: KEY, value: JSON.stringify(list.slice(-2000)) }])
+        });
+      }).then(function (r) {
+        if (!r || !r.ok) return false;
+        ids = ids || {}; ids[entry.id] = entry;
+        return true;
+      }).catch(function () { return false; });
+    }
+    return { load: load, filter: filterOrderRows, isDel: isDel, mark: mark, reset: function () { ids = null; loading = null; } };
+  })();
   function tryRefresh() {
     if (!REFRESH) return Promise.reject();
     return fetch(SUPABASE_URL + '/auth/v1/token?grant_type=refresh_token', {
@@ -6662,18 +6720,18 @@ function loadEmailLog() {
 </script>
 
 
-<script src="js/admin-shop.js?v=20261031u"></script>
-<script src="js/admin-import.js?v=20261031u"></script>
-<script src="js/admin-crm.js?v=20261031u"></script>
-<script src="js/admin-vip.js?v=20261031u" data-legacy="1"></script>
-<script src="js/admin-customer.js?v=20261031u"></script>
-<script src="js/admin-invite.js?v=20261031u"></script>
-<script src="js/vendor/jsQR.js?v=20261031u"></script>
-<script src="js/vendor/qrcode-generator.js?v=20261031u"></script>
-<script src="js/vendor/JsBarcode.all.min.js?v=20261031u"></script>
-<script src="js/admin-workbench.js?v=20261031u"></script>
-<script src="js/admin-biz.js?v=20261031u"></script>
-<script src="js/admin-export.js?v=20261031u"></script>
+<script src="js/admin-shop.js?v=20261031v"></script>
+<script src="js/admin-import.js?v=20261031v"></script>
+<script src="js/admin-crm.js?v=20261031v"></script>
+<script src="js/admin-vip.js?v=20261031v" data-legacy="1"></script>
+<script src="js/admin-customer.js?v=20261031v"></script>
+<script src="js/admin-invite.js?v=20261031v"></script>
+<script src="js/vendor/jsQR.js?v=20261031v"></script>
+<script src="js/vendor/qrcode-generator.js?v=20261031v"></script>
+<script src="js/vendor/JsBarcode.all.min.js?v=20261031v"></script>
+<script src="js/admin-workbench.js?v=20261031v"></script>
+<script src="js/admin-biz.js?v=20261031v"></script>
+<script src="js/admin-export.js?v=20261031v"></script>
 <footer style="padding:18px 0 0; text-align:center;">© 2026 Yuki · Made with Cola</footer>
 </body>
 </html>

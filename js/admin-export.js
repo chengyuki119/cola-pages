@@ -148,7 +148,8 @@
 
   /* ── 数据加载 ── */
   function loadOrders() {
-    return restGet('shop_orders?select=*&order=created_at.desc&limit=500')
+    return restGet('shop_orders?select=*&status=neq.deleted&order=created_at.desc&limit=500')
+      .then(function (rows) { return window.YkOrderDel ? window.YkOrderDel.filter(rows) : rows; })
       .then(function (rows) { return arr(rows); })
       .catch(function () { return arr(window.SHOP_ORDERS); }); // 未连库时回退到可注入的假数组
   }
