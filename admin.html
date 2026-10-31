@@ -887,7 +887,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         <div id="newprod-wrap" style="display:none;margin-top:14px;">
         <h3>上架新商品</h3>
         <details class="p-sec" data-sec="media" open>
-          <summary><span class="p-sec-step">①</span>商品图片<span class="p-sec-tip">第一张自动当封面 · 最多 9 张</span></summary>
+          <summary><span class="p-sec-step">①</span>商品图片<span class="p-sec-tip">第一张自动当封面 · 最多 6 张</span></summary>
           <div class="form-grid">
             <div class="full fld-inline"><label class="btn-mini hm-file-btn">选择图片<input id="p-file" type="file" accept="image/*" multiple hidden></label><span class="hm-file-name" id="p-file-name">未选择图片</span></div>
             <div class="p-preview full" id="p-preview"><span class="pv-empty">选了图片会在这里预览</span></div>
@@ -1881,7 +1881,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     loadProducts();
   });
   var pendingFiles = [];
-  var PROD_IMG_MAX = 9; // 商品主图上限（她 20261030 §2.2：要清楚显示当前数量和最大数量）
+  var PROD_IMG_MAX = 6; // 商品主图上限（她 20261030 §2.2：要清楚显示当前数量和最大数量）
   function renderPendingPreview() { // 上架前预览：第一张=封面，可拖动排序，也可点按钮设封面/删除
     var box = document.getElementById('p-preview');
     box.classList.add('ph-strip');
