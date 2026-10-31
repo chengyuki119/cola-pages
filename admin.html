@@ -71,7 +71,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
 
   .wrap { width: 100%; max-width: none; margin: 0; padding: 0; box-sizing: border-box; } /* 20261029 她任务书：不再限宽，改用统一的 50px 边距体系 */
   /* 后台标题行 + 侧栏宽度变量（她 20261026t 任务书 §1：标题与右侧内容面板左缘对齐；变量复用避免魔法数重复） */
-  :root { --adm-side-w: 190px; --adm-gap: 40px; --adm-edge: 40px; /* 她 20261029 03:22：屏左 40px | 控制台 | 40px | 工作台 | 40px */
+  :root { --adm-side-w: 224px; --adm-gap: 28px; --adm-edge: 28px; /* 她 20261030 §3：菜单加宽、留白收紧（屏左 28 | 控制台 224 | 28 | 工作台 | 28） */
           --adm-btn-home: #FCE1EA; --adm-btn-home-t: #A98D96; --adm-btn-exit: #EEE5F8; --adm-btn-exit-t: #6E5A73; }
   .adm-head { display: flex; align-items: center; gap: 14px; position: relative; }
   .adm-head h1 { margin: 0; } /* 归零 h1 默认上下边距：标题文字顶与控制台顶齐平（否则低 20px） */
@@ -205,8 +205,11 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       position: static; display: block;
       box-shadow: none; border: 1px solid var(--card-hover);
       width: 100%; max-height: none; overflow: visible;
-      padding: 10px 6px; /* 首尾条目不贴控制台上下边（她 20261029 验收反馈） */
+      padding: 8px 7px; /* 首尾条目不贴控制台上下边（她 20261029 验收反馈） */
     }
+    /* 她 20261030 §3：桌面端菜单条目加高、字距放松，消除「太松散」与「字太小」 */
+    #pp-menu .tab-btn { font-size: 16.5px; padding: 11px 13px; line-height: 1.35; }
+    #pp-menu .pp-group { font-size: 13px; padding: 10px 13px 4px; }
   }
   /* ── 手机端：抽屉式导航（她 20261028 总任务书 B4：不再让完整侧栏常驻挤压内容）
      「当前页面 ▾」按钮恢复显示，点开浮层选页；内容区全宽。桌面端不变。 ── */
@@ -637,7 +640,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     body:not(.adm-in) .wrap .adm-head { margin: 0 var(--adm-edge, 40px) 22px; justify-content: center; }
   </style>
   <script src="site-menu.js" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261031k">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261031m">
   <style>
     /* ═══ 她 20261030 §5：后台字体统一加深（三档，仅后台生效）═══
        主要文字 #55464E ｜ 普通正文 #62545B ｜ 辅助文字 #81717A
@@ -663,7 +666,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
 </head>
 <body>
 <header class="topbar">
-  <div class="lang-switch" id="admin-lang">
+  <div class="lang-switch" id="admin-lang" style="display:none;">
     <button class="lang-btn" data-lang="zh" type="button">简体中文</button>
     <button class="lang-btn" data-lang="en" type="button">English</button>
   </div>
@@ -883,8 +886,15 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         <button class="btn-mini" id="btn-toggle-newprod" style="padding:9px 20px;font-size:15px;">＋ 添加新商品</button>
         <div id="newprod-wrap" style="display:none;margin-top:14px;">
         <h3>上架新商品</h3>
+        <details class="p-sec" data-sec="media" open>
+          <summary><span class="p-sec-step">①</span>商品图片<span class="p-sec-tip">第一张自动当封面 · 最多 9 张</span></summary>
+          <div class="form-grid">
+            <div class="full fld-inline"><label class="btn-mini hm-file-btn">选择图片<input id="p-file" type="file" accept="image/*" multiple hidden></label><span class="hm-file-name" id="p-file-name">未选择图片</span></div>
+            <div class="p-preview full" id="p-preview"><span class="pv-empty">选了图片会在这里预览</span></div>
+          </div>
+        </details>
         <details class="p-sec" data-sec="basic" open>
-          <summary><span class="p-sec-step">①</span>基本信息<span class="p-sec-tip">名称必填，价格库存可留空</span></summary>
+          <summary><span class="p-sec-step">②</span>基本信息<span class="p-sec-tip">名称必填，价格库存可留空</span></summary>
           <div class="form-grid">
             <input id="p-name" placeholder="商品名称 *">
             <input id="p-price" placeholder="价格，如 39.9（可留空）">
@@ -892,17 +902,15 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
             <input id="p-stock" type="number" min="0" placeholder="库存数量（0 = 售尽）">
           </div>
         </details>
-        <details class="p-sec" data-sec="media" open>
-          <summary><span class="p-sec-step">②</span>图片与描述<span class="p-sec-tip">可留空，上架后随时补</span></summary>
+        <details class="p-sec" data-sec="desc" open>
+          <summary><span class="p-sec-step">③</span>商品描述<span class="p-sec-tip">中英文分开写，可留空</span></summary>
           <div class="form-grid">
-            <div class="full fld-inline"><label class="btn-mini hm-file-btn">选择图片<input id="p-file" type="file" accept="image/*" multiple hidden></label><span class="hm-file-name" id="p-file-name">未选择图片</span></div>
-            <div class="p-preview full" id="p-preview"><span class="pv-empty">选了图片会在这里预览</span></div>
-            <textarea id="p-desc" class="full" style="min-height:56px;" placeholder="商品描述：材料、尺寸、细节…"></textarea>
+            <textarea id="p-desc" class="full" style="min-height:56px;" placeholder="中文描述：材料、尺寸、细节…"></textarea>
             <textarea id="p-desc-en" class="full" style="min-height:56px;" placeholder="英文描述 Description in English（切到 English 时显示，可留空）"></textarea>
           </div>
         </details>
         <details class="p-sec" data-sec="extra">
-          <summary><span class="p-sec-step">③</span>标签与成本<span class="p-sec-tip">可选；成本只有你自己看得到</span></summary>
+          <summary><span class="p-sec-step">④</span>标签与成本<span class="p-sec-tip">可选；成本只有你自己看得到</span></summary>
           <div class="form-grid">
             <input id="p-tag" placeholder="标签，如 手作 / 毛线 / 黏土（点输入框可选已有标签）">
             <input id="p-cost" type="number" min="0" step="0.01" placeholder="成本，只有你自己能看到">
@@ -1271,9 +1279,9 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   })();
   // 语言切换（她 20261026 最终合并版 §1.1）：与前台同一存储键 yuki-lang；切换后重载让 t() 动态文案生效
   (function () {
-    var cur = 'zh';
-    try { cur = localStorage.getItem('yuki-lang') === 'en' ? 'en' : 'zh'; } catch (e) {}
-    window.LANG = cur;
+    // 她 20261030 §9.2：后台统一中文，不跟随前台语言切换（后台语言按钮已隐藏）
+    window.LANG = 'zh';
+    document.documentElement.lang = 'zh-CN';
     var box = document.getElementById('admin-lang');
     if (!box) return;
     function paint() { box.querySelectorAll('.lang-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.lang === window.LANG); }); }
@@ -1873,17 +1881,21 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     loadProducts();
   });
   var pendingFiles = [];
-  function renderPendingPreview() { // 上架前预览：第一张=封面，可拖动排序
+  var PROD_IMG_MAX = 9; // 商品主图上限（她 20261030 §2.2：要清楚显示当前数量和最大数量）
+  function renderPendingPreview() { // 上架前预览：第一张=封面，可拖动排序，也可点按钮设封面/删除
     var box = document.getElementById('p-preview');
     box.classList.add('ph-strip');
     box.setAttribute('data-kind', 'pnew');
     if (!pendingFiles.length) { box.innerHTML = '<span class="pv-empty">选了图片会在这里预览</span>'; return; }
-    box.innerHTML = pendingFiles.map(function (f, idx) {
+    box.innerHTML = '<div style="width:100%;font-size:13px;color:var(--muted,#81717A);margin-bottom:2px;">已选 ' + pendingFiles.length + ' / ' + PROD_IMG_MAX + ' 张 · 第一张是封面，可拖动排序或点「设为封面」</div>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;width:100%;">' + pendingFiles.map(function (f, idx) {
       return '<div class="pv ph-tile' + (idx === 0 ? ' ph-cover' : '') + '" draggable="true" data-idx="' + idx + '" title="拖动可调整顺序" style="cursor:grab;position:relative;">' +
         '<img src="' + URL.createObjectURL(f) + '" alt="">' +
-        (idx === 0 ? '<span style="position:absolute;left:3px;bottom:3px;background:var(--accent-strong,#A98D96);color:#fff;border-radius:999px;padding:0 6px;font-size:10px;line-height:14px;">封面</span>' : '') +
+        '<button type="button" class="pv-del" data-idx="' + idx + '" title="删除这张" style="position:absolute;top:2px;right:2px;width:18px;height:18px;line-height:1;font-size:12px;border:none;border-radius:50%;background:rgba(255,255,255,.92);color:#A98D96;cursor:pointer;padding:0;">✕</button>' +
+        (idx === 0 ? '<span style="position:absolute;left:3px;bottom:3px;background:var(--accent-strong,#A98D96);color:#fff;border-radius:999px;padding:0 6px;font-size:10px;line-height:14px;">封面</span>'
+                   : '<button type="button" class="pv-cover" data-idx="' + idx + '" title="设为封面（自动挪到第一位）" style="position:absolute;left:3px;bottom:3px;border:none;border-radius:999px;padding:1px 6px;font-size:10px;line-height:14px;background:rgba(255,255,255,.92);color:#A98D96;cursor:pointer;">设封面</button>') +
         '</div>';
-    }).join('');
+    }).join('') + '</div>';
   }
   function productStripHtml(items) { // 商品多图：第一张=封面，可拖动排序（与前台顺序一致）
     if (!items || !items.length) return '';
@@ -1911,15 +1923,37 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     productStripRefresh(card2);
   }
   document.getElementById('p-file').addEventListener('change', function () {
-    pendingFiles = Array.prototype.slice.call(this.files || []);
+    var picked = Array.prototype.slice.call(this.files || []);
     var label = document.getElementById('p-file-name');
+    if (pendingFiles.length + picked.length > PROD_IMG_MAX) {
+      picked = picked.slice(0, Math.max(0, PROD_IMG_MAX - pendingFiles.length));
+      if (typeof toast === 'function') toast('商品主图最多 ' + PROD_IMG_MAX + ' 张，已自动取前 ' + picked.length + ' 张');
+    }
+    pendingFiles = picked;
     if (!pendingFiles.length) {
       renderPendingPreview();
       label.textContent = '未选择图片';
+      this.value = '';
       return;
     }
-    label.textContent = '已选 ' + pendingFiles.length + ' 张（第一张默认封面，可拖动排序）';
+    label.textContent = '已选 ' + pendingFiles.length + ' / ' + PROD_IMG_MAX + ' 张（第一张默认封面，可拖动排序或点「设封面」）';
     renderPendingPreview();
+  });
+  // 上架预览条：删除 / 设为封面（她 20261030 §2.2：每个图独立管理，设封面后自动移到第一位）
+  document.getElementById('p-preview').addEventListener('click', function (e) {
+    var del = e.target.closest('.pv-del');
+    if (del) {
+      pendingFiles.splice(parseInt(del.getAttribute('data-idx'), 10), 1);
+      renderPendingPreview();
+      var lb = document.getElementById('p-file-name');
+      if (lb) lb.textContent = pendingFiles.length ? '已选 ' + pendingFiles.length + ' / ' + PROD_IMG_MAX + ' 张（第一张默认封面）' : '未选择图片';
+      return;
+    }
+    var cov = e.target.closest('.pv-cover');
+    if (cov) {
+      var k = parseInt(cov.getAttribute('data-idx'), 10);
+      if (k > 0) { var f = pendingFiles.splice(k, 1)[0]; pendingFiles.unshift(f); renderPendingPreview(); }
+    }
   });
   function uploadShopFiles(files) {
     return Promise.all(files.map(function (f) {
@@ -6455,15 +6489,15 @@ function loadEmailLog() {
 </script>
 
 
-<script src="js/admin-shop.js?v=20261031k"></script>
-<script src="js/admin-crm.js?v=20261031k"></script>
-<script src="js/admin-vip.js?v=20261031k"></script>
-<script src="js/vendor/jsQR.js?v=20261031k"></script>
-<script src="js/vendor/qrcode-generator.js?v=20261031k"></script>
-<script src="js/vendor/JsBarcode.all.min.js?v=20261031k"></script>
-<script src="js/admin-workbench.js?v=20261031k"></script>
-<script src="js/admin-biz.js?v=20261031k"></script>
-<script src="js/admin-export.js?v=20261031k"></script>
+<script src="js/admin-shop.js?v=20261031m"></script>
+<script src="js/admin-crm.js?v=20261031m"></script>
+<script src="js/admin-vip.js?v=20261031m"></script>
+<script src="js/vendor/jsQR.js?v=20261031m"></script>
+<script src="js/vendor/qrcode-generator.js?v=20261031m"></script>
+<script src="js/vendor/JsBarcode.all.min.js?v=20261031m"></script>
+<script src="js/admin-workbench.js?v=20261031m"></script>
+<script src="js/admin-biz.js?v=20261031m"></script>
+<script src="js/admin-export.js?v=20261031m"></script>
 <footer style="padding:18px 0 0; text-align:center;">© 2026 Yuki · Made with Cola</footer>
 </body>
 </html>

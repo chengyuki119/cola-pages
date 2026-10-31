@@ -219,7 +219,11 @@
   // ===== 商品详情（淘宝式规格联动）=====
   var DETAIL = null; // {p, sku, qty}
   function variantsOf(p) {
-    return (Array.isArray(p.variants) && p.variants.length) ? p.variants : null;
+    // 她 20261030 §3.3：冻结的规格前台不展示、也不能买（frozen 存在 variants JSON 里，不动表结构）
+    var all = (Array.isArray(p.variants) && p.variants.length) ? p.variants : null;
+    if (!all) return null;
+    var live = all.filter(function (v) { return v && v.frozen !== true; });
+    return live.length ? live : null;
   }
   function currentVariant(p, sku) {
     var vs = variantsOf(p);

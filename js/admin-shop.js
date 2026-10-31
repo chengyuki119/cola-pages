@@ -856,8 +856,28 @@
   function smVarRenderRows(card) {
     var box = card.querySelector('.sm-var-rows');
     if (!box) return;
+    var head = card.querySelector('.sm-var-batchbar');
+    if (!head) {
+      head = document.createElement('div');
+      head.className = 'sm-var-batchbar';
+      head.style.cssText = 'display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:2px 0 10px;';
+      head.innerHTML = '<span class="hint" style="margin:0;">批量：</span>' +
+        '<input class="sm-batch-price" type="number" min="0" step="0.01" placeholder="统一价格" style="width:120px;padding:7px 10px;border-radius:10px;border:1.5px solid #FFD1E0;background:#FFF7FA;color:#55464E;font-size:14px;font-family:inherit;">' +
+        '<button type="button" class="btn-mini sm-apply-price" style="padding:7px 12px;font-size:14px;">套用价格</button>' +
+        '<input class="sm-batch-stock" type="number" min="0" placeholder="统一库存" style="width:120px;padding:7px 10px;border-radius:10px;border:1.5px solid #FFD1E0;background:#FFF7FA;color:#55464E;font-size:14px;font-family:inherit;">' +
+        '<button type="button" class="btn-mini sm-apply-stock" style="padding:7px 12px;font-size:14px;">套用库存</button>';
+      box.parentNode.insertBefore(head, box);
+    }
     box.innerHTML = arr(card.__variants).length ? arr(card.__variants).map(function (v, i) {
-      return '<div class="sm-var-row" data-i="' + i + '">' +
+      return '<div class="sm-var-row' + (v.frozen ? ' is-frozen' : '') + '" data-i="' + i + '" style="' + (v.frozen ? 'opacity:.62;' : '') + '">' +
+        '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px;">' +
+          '<b style="font-size:14px;color:#55464E;">规格 ' + (i + 1) + '</b>' +
+          (v.frozen ? '<span style="font-size:12px;color:#A98D96;background:#FCE1EA;border-radius:999px;padding:1px 8px;">已冻结</span>' : '') +
+          '<span style="flex:1;"></span>' +
+          '<button type="button" class="btn-mini sm-var-up" data-i="' + i + '" title="上移"' + (i === 0 ? ' disabled' : '') + ' style="padding:4px 10px;font-size:13px;">↑</button>' +
+          '<button type="button" class="btn-mini sm-var-down" data-i="' + i + '" title="下移"' + (i === arr(card.__variants).length - 1 ? ' disabled' : '') + ' style="padding:4px 10px;font-size:13px;">↓</button>' +
+          '<button type="button" class="btn-mini sm-var-freeze" data-i="' + i + '" style="padding:4px 10px;font-size:13px;">' + (v.frozen ? '解冻' : '冻结') + '</button>' +
+        '</div>' +
         '<div class="sm-var-grid">' +
           '<div><label>规格名（买家看到的）</label><input class="sv-name" placeholder="如：粉色款" value="' + escAttr(v.name || '') + '"></div>' +
           '<div><label>SKU（区分用·唯一）</label><input class="sv-sku" placeholder="如：PINK-1" value="' + escAttr(v.sku || '') + '"></div>' +
@@ -885,7 +905,7 @@
     var body = {};
     if (wEl) body.weight_oz = wEl.value.trim() === '' ? null : parseFloat(wEl.value);
     var clean = vlist.filter(function (v) { return v.sku || v.name; }).map(function (v) {
-      return { sku: v.sku || '', name: v.name || '', price: fmtMoney(v.price), stock: parseInt(v.stock, 10) || 0, images: arr(v.images) };
+      return { sku: v.sku || '', name: v.name || '', price: fmtMoney(v.price), stock: parseInt(v.stock, 10) || 0, images: arr(v.images), frozen: v.frozen === true };
     });
     if (card.__p || clean.length) body.variants = clean;
     if (!Object.keys(body).length) return;
@@ -911,7 +931,7 @@
       v.stock = row.querySelector('.sv-stock').value.trim();
     });
     return ADDVAR.list.filter(function (v) { return v.sku || v.name; }).map(function (v) {
-      return { sku: v.sku || '', name: v.name || '', price: fmtMoney(v.price), stock: parseInt(v.stock, 10) || 0, images: arr(v.images) };
+      return { sku: v.sku || '', name: v.name || '', price: fmtMoney(v.price), stock: parseInt(v.stock, 10) || 0, images: arr(v.images), frozen: v.frozen === true };
     });
   };
   window.smAddVarReset = function () { ADDVAR.list = []; smVarRenderRows(document.getElementById('tab-shop')); };
@@ -923,7 +943,7 @@
     block.className = 'sm-var-block';
     block.style.marginTop = '14px';
     block.innerHTML = '<details class="p-sec" data-sec="variants">' +
-      '<summary><span class="p-sec-step">④</span>商品规格<span class="p-sec-tip">可选；一个规格＝买家看到的一个选项</span></summary>' +
+      '<summary><span class="p-sec-step">⑤</span>商品规格<span class="p-sec-tip">可选；一个规格＝买家看到的一个选项</span></summary>' +
       '<div style="padding:14px 16px 16px;">' +
       '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;">' +
       '<span class="hint" style="flex:1;min-width:180px;">不留空就用上面的商品价/库存</span>' +
@@ -939,6 +959,29 @@
     form.addEventListener('click', function (e) {
       if (e.target.classList.contains('sm-var-add')) { ADDVAR.list.push({ sku: '', name: '', price: '', stock: '', images: [] }); smVarRenderRows(form); return; }
       if (e.target.classList.contains('sm-var-del')) { ADDVAR.list.splice(parseInt(e.target.getAttribute('data-i'), 10), 1); smVarRenderRows(form); return; }
+      // 她 20261030 §3：上移 / 下移 / 冻结 / 批量设置
+      if (e.target.classList.contains('sm-var-up') || e.target.classList.contains('sm-var-down')) {
+        var ii = parseInt(e.target.getAttribute('data-i'), 10);
+        var to = ii + (e.target.classList.contains('sm-var-up') ? -1 : 1);
+        if (to >= 0 && to < ADDVAR.list.length) { var mv = ADDVAR.list.splice(ii, 1)[0]; ADDVAR.list.splice(to, 0, mv); smVarRenderRows(form); }
+        return;
+      }
+      if (e.target.classList.contains('sm-var-freeze')) {
+        var fi = parseInt(e.target.getAttribute('data-i'), 10);
+        var fv = ADDVAR.list[fi];
+        if (fv) { fv.frozen = !fv.frozen; smVarRenderRows(form); toast(fv.frozen ? '已冻结：前台不能再买这个规格' : '已解冻'); }
+        return;
+      }
+      if (e.target.classList.contains('sm-apply-price') || e.target.classList.contains('sm-apply-stock')) {
+        var isPrice = e.target.classList.contains('sm-apply-price');
+        var inp = form.querySelector(isPrice ? '.sm-batch-price' : '.sm-batch-stock');
+        var val = inp ? inp.value.trim() : '';
+        if (val === '') { toast('先填一个值'); return; }
+        ADDVAR.list.forEach(function (v) { if (isPrice) v.price = val; else v.stock = val; });
+        smVarRenderRows(form);
+        toast(isPrice ? '已把 ' + ADDVAR.list.length + ' 个规格的价格改成 ' + val : '已把 ' + ADDVAR.list.length + ' 个规格的库存改成 ' + val);
+        return;
+      }
       var imgdel = e.target.closest('.sm-var-imgdel');
       if (imgdel) { var v = ADDVAR.list[parseInt(imgdel.getAttribute('data-i'), 10)]; if (v && arr(v.images)) { v.images.splice(parseInt(imgdel.getAttribute('data-k'), 10), 1); smVarRenderRows(form); } }
       var imgmv = e.target.closest('.sm-var-imgmv');
@@ -1693,6 +1736,20 @@
       if (e.target.classList.contains('sm-var-del')) {
         card.__variants.splice(parseInt(e.target.getAttribute('data-i'), 10), 1);
         smVarRenderRows(card);
+        return;
+      }
+      // 她 20261030 §3：上移 / 下移 / 冻结
+      if (e.target.classList.contains('sm-var-up') || e.target.classList.contains('sm-var-down')) {
+        var ii2 = parseInt(e.target.getAttribute('data-i'), 10);
+        var to2 = ii2 + (e.target.classList.contains('sm-var-up') ? -1 : 1);
+        card.__variants = arr(card.__variants);
+        if (to2 >= 0 && to2 < card.__variants.length) { var mv2 = card.__variants.splice(ii2, 1)[0]; card.__variants.splice(to2, 0, mv2); smVarRenderRows(card); }
+        return;
+      }
+      if (e.target.classList.contains('sm-var-freeze')) {
+        var fi2 = parseInt(e.target.getAttribute('data-i'), 10);
+        var fv2 = arr(card.__variants)[fi2];
+        if (fv2) { fv2.frozen = !fv2.frozen; smVarRenderRows(card); toast(fv2.frozen ? '已冻结：前台不能再买这个规格' : '已解冻'); }
         return;
       }
       var imgdel = e.target.closest('.sm-var-imgdel');

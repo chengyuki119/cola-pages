@@ -142,10 +142,13 @@
   section { margin-bottom: 56px; }
   .section-sub { color: var(--muted); font-size:16px; margin: -12px 0 14px; }
   h2 {
-    font-size:21px;
+    font-size:24px;
     margin-bottom: 18px;
     display: flex; align-items: center; gap: 8px;
   }
+  /* 她 20261030 §1：五级字体层级——一级 31 / 二级 24 / 三级 19 / 正文 16 / 辅助 13-14 */
+  h3 { font-size: 19px; }
+  .txt-aux { font-size: 13px; }
   h2::before { content: ""; width: 4px; height: 18px; background: var(--accent-soft, #FCE4EC); border-radius: 2px; }
 
   /* ===== 社交链接 ===== */
