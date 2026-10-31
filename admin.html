@@ -367,6 +367,15 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .p-preview .pv { width: 64px; height: 64px; border-radius: 10px; overflow: hidden; background: var(--card); flex-shrink: 0; }
   .p-preview .pv img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .p-preview .pv-empty { font-size: 15px; color: var(--muted); }
+  /* 她 20261030 §11：上架表单分区折叠，字段一个不少，只是分成三块各自收起 */
+  .p-sec { border: 1.5px solid #FFE3EC; border-radius: 14px; margin: 0 0 12px; background: #fff; overflow: hidden; }
+  .p-sec > summary { padding: 11px 16px; font-weight: 600; font-size: 15px; background: #FFF7FA; color: #55464E; cursor: pointer; list-style: none; display: flex; align-items: center; gap: 8px; }
+  .p-sec > summary::-webkit-details-marker { display: none; }
+  .p-sec > summary::after { content: "▾"; margin-left: auto; color: #A98D96; font-size: 13px; transition: transform .18s; }
+  .p-sec[open] > summary::after { transform: rotate(180deg); }
+  .p-sec > .form-grid { padding: 14px 16px 16px; }
+  .p-sec .p-sec-step { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #FCE1EA; color: #A98D96; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+  .p-sec .p-sec-tip { font-weight: 400; font-size: 13px; color: #81717A; }
   .logout {
     background: var(--adm-btn-exit, #EEE5F8);
     border: none;
@@ -628,7 +637,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     body:not(.adm-in) .wrap .adm-head { margin: 0 var(--adm-edge, 40px) 22px; justify-content: center; }
   </style>
   <script src="site-menu.js" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261031j">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261031k">
   <style>
     /* ═══ 她 20261030 §5：后台字体统一加深（三档，仅后台生效）═══
        主要文字 #55464E ｜ 普通正文 #62545B ｜ 辅助文字 #81717A
@@ -874,18 +883,31 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         <button class="btn-mini" id="btn-toggle-newprod" style="padding:9px 20px;font-size:15px;">＋ 添加新商品</button>
         <div id="newprod-wrap" style="display:none;margin-top:14px;">
         <h3>上架新商品</h3>
-        <div class="form-grid">
-          <input id="p-name" placeholder="商品名称 *">
-          <input id="p-price" placeholder="价格，如 39.9（可留空）">
-          <div class="full cur-row"><div class="cur-line"><span style="font-size:15px;color:var(--muted);">货币</span><button type="button" class="cur-chip" data-cur="CNY">¥ 人民币</button><button type="button" class="cur-chip on" data-cur="USD">$ 美元</button></div><p class="cur-hint">每件商品各自选，金额不会自动换算</p></div>
-          <input id="p-stock" type="number" min="0" placeholder="库存数量（0 = 售尽）">
-          <input id="p-cost" type="number" min="0" step="0.01" placeholder="成本，只有你自己能看到">
-          <input id="p-tag" placeholder="标签，如 手作 / 毛线 / 黏土（点输入框可选已有标签）">
-          <div class="full fld-inline"><label class="btn-mini hm-file-btn">选择图片<input id="p-file" type="file" accept="image/*" multiple hidden></label><span class="hm-file-name" id="p-file-name">未选择图片</span></div>
-          <textarea id="p-desc" class="full" style="min-height:56px;" placeholder="商品描述：材料、尺寸、细节…"></textarea>
-          <textarea id="p-desc-en" class="full" style="min-height:56px;" placeholder="英文描述 Description in English（切到 English 时显示，可留空）"></textarea>
-        </div>
-        <div class="p-preview" id="p-preview"><span class="pv-empty">选了图片会在这里预览</span></div>
+        <details class="p-sec" data-sec="basic" open>
+          <summary><span class="p-sec-step">①</span>基本信息<span class="p-sec-tip">名称必填，价格库存可留空</span></summary>
+          <div class="form-grid">
+            <input id="p-name" placeholder="商品名称 *">
+            <input id="p-price" placeholder="价格，如 39.9（可留空）">
+            <div class="full cur-row"><div class="cur-line"><span style="font-size:15px;color:var(--muted);">货币</span><button type="button" class="cur-chip" data-cur="CNY">¥ 人民币</button><button type="button" class="cur-chip on" data-cur="USD">$ 美元</button></div><p class="cur-hint">每件商品各自选，金额不会自动换算</p></div>
+            <input id="p-stock" type="number" min="0" placeholder="库存数量（0 = 售尽）">
+          </div>
+        </details>
+        <details class="p-sec" data-sec="media" open>
+          <summary><span class="p-sec-step">②</span>图片与描述<span class="p-sec-tip">可留空，上架后随时补</span></summary>
+          <div class="form-grid">
+            <div class="full fld-inline"><label class="btn-mini hm-file-btn">选择图片<input id="p-file" type="file" accept="image/*" multiple hidden></label><span class="hm-file-name" id="p-file-name">未选择图片</span></div>
+            <div class="p-preview full" id="p-preview"><span class="pv-empty">选了图片会在这里预览</span></div>
+            <textarea id="p-desc" class="full" style="min-height:56px;" placeholder="商品描述：材料、尺寸、细节…"></textarea>
+            <textarea id="p-desc-en" class="full" style="min-height:56px;" placeholder="英文描述 Description in English（切到 English 时显示，可留空）"></textarea>
+          </div>
+        </details>
+        <details class="p-sec" data-sec="extra">
+          <summary><span class="p-sec-step">③</span>标签与成本<span class="p-sec-tip">可选；成本只有你自己看得到</span></summary>
+          <div class="form-grid">
+            <input id="p-tag" placeholder="标签，如 手作 / 毛线 / 黏土（点输入框可选已有标签）">
+            <input id="p-cost" type="number" min="0" step="0.01" placeholder="成本，只有你自己能看到">
+          </div>
+        </details>
         <div class="actions">
           <button class="btn-save" id="btn-add-product">上架这个商品</button>
           <button class="btn-mini" id="btn-prod-draft" style="padding:9px 18px;">存为草稿</button>
@@ -6433,15 +6455,15 @@ function loadEmailLog() {
 </script>
 
 
-<script src="js/admin-shop.js?v=20261031j"></script>
-<script src="js/admin-crm.js?v=20261031j"></script>
-<script src="js/admin-vip.js?v=20261031j"></script>
-<script src="js/vendor/jsQR.js?v=20261031j"></script>
-<script src="js/vendor/qrcode-generator.js?v=20261031j"></script>
-<script src="js/vendor/JsBarcode.all.min.js?v=20261031j"></script>
-<script src="js/admin-workbench.js?v=20261031j"></script>
-<script src="js/admin-biz.js?v=20261031j"></script>
-<script src="js/admin-export.js?v=20261031j"></script>
+<script src="js/admin-shop.js?v=20261031k"></script>
+<script src="js/admin-crm.js?v=20261031k"></script>
+<script src="js/admin-vip.js?v=20261031k"></script>
+<script src="js/vendor/jsQR.js?v=20261031k"></script>
+<script src="js/vendor/qrcode-generator.js?v=20261031k"></script>
+<script src="js/vendor/JsBarcode.all.min.js?v=20261031k"></script>
+<script src="js/admin-workbench.js?v=20261031k"></script>
+<script src="js/admin-biz.js?v=20261031k"></script>
+<script src="js/admin-export.js?v=20261031k"></script>
 <footer style="padding:18px 0 0; text-align:center;">© 2026 Yuki · Made with Cola</footer>
 </body>
 </html>

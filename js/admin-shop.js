@@ -922,12 +922,15 @@
     var block = document.createElement('div');
     block.className = 'sm-var-block';
     block.style.marginTop = '14px';
-    block.innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;">' +
-      '<b style="font-size:16px;color:var(--text);">商品规格（可选）</b>' +
-      '<span class="hint" style="flex:1;min-width:180px;">一个规格＝买家看到的一个选项；不留空就用上面的商品价/库存</span>' +
+    block.innerHTML = '<details class="p-sec" data-sec="variants">' +
+      '<summary><span class="p-sec-step">④</span>商品规格<span class="p-sec-tip">可选；一个规格＝买家看到的一个选项</span></summary>' +
+      '<div style="padding:14px 16px 16px;">' +
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;">' +
+      '<span class="hint" style="flex:1;min-width:180px;">不留空就用上面的商品价/库存</span>' +
       '<button type="button" class="btn-mini sm-var-add" style="background:#FCE1EA;color:#A98D96;padding:9px 20px;font-size:15px;">＋ 添加规格</button></div>' +
       '<div class="sm-var-rows"></div>' +
-      '<p class="hint" style="margin:6px 0 0;">每个规格可以传自己的图，第一张就是这个选项的封面；和编辑商品里的是同一套，上架时一起保存。</p>';
+      '<p class="hint" style="margin:6px 0 0;">每个规格可以传自己的图，第一张就是这个选项的封面；和编辑商品里的是同一套，上架时一起保存。</p>' +
+      '</div></details>';
     actions.parentNode.insertBefore(block, actions); // 她 2026-10-25 表单加了 wrapper：actions 不再是 .card 直接子节点，改插到同父级
   })();
   (function () {
