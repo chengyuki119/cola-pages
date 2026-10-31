@@ -158,11 +158,13 @@
       try { isEn = (window.YK && window.YK.lang === 'en') || /^en/i.test(document.documentElement.lang || ''); } catch (e) {}
       var list = (links || []).filter(function (l) { return ALLOW.indexOf(l.icon) !== -1; });
       /* 她 20261031 02:00：主页的社交媒体区改成纯图标横排（不显示平台名、不显示账号），
-         其他页的页脚保持原来的纵向文字列表 —— 只对首页 (/, /zh/) 生效 */
+         其他页的页脚保持原来的纵向文字列表 —— 只对首页 (/, /zh/) 生效
+         她 20261031 02:10：再把「关于 Snow Yuzu」页正文里那排纯图标挪到该页页脚，也用纯图标横排 */
       var pn = '';
       try { pn = location.pathname.replace(/index\.html$/i, '').replace(/\/+$/, ''); } catch (e) {}
       var isHome = (pn === '' || pn === '/zh');
-      if (isHome) {
+      var isAbout = (pn === '/about' || pn === '/zh/about');
+      if (isHome || isAbout) {
         box.classList.add('sy-iconrow-mode');
         box.innerHTML = list.map(function (l) {
           var nm = (isEn && NAME_EN[l.name]) ? NAME_EN[l.name] : l.name;
