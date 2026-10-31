@@ -1301,8 +1301,8 @@
   function loadQcDetail() {
     var u = QC.unit;
     var jobs = [];
-    // 商品（select=* 兼容以后给 products 加 item_type 的扩展）
-    jobs.push(api(u.product_id ? 'products?id=eq.' + u.product_id + '&select=*' : 'products?id=eq.00000000-0000-0000-0000-000000000000&select=*')
+    // 商品（显式列名：products 的表级 SELECT 已撤销，select=* 会报 permission denied）
+    jobs.push(api(u.product_id ? 'products?id=eq.' + u.product_id + '&select=id,name,price,stock,image_url,tag,description' : 'products?id=eq.00000000-0000-0000-0000-000000000000&select=id')
       .then(function (r) { return r.json(); }).then(function (rows) { QC.product = (rows && rows[0]) || null; }).catch(function () { QC.product = null; }));
     jobs.push(api('shop_qc_templates?select=*&order=updated_at.desc').then(function (r) { return r.json(); }).then(function (rows) { QC.tpls = Array.isArray(rows) ? rows : []; }).catch(function () { QC.tpls = []; }));
     jobs.push(api('shop_qc_records?unit_id=eq.' + u.id + '&select=*&order=created_at.desc')

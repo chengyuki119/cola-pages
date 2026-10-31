@@ -702,7 +702,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     body:not(.adm-in) .wrap .adm-head { margin: 0 var(--adm-edge, 40px) 22px; justify-content: center; }
   </style>
   <script src="site-menu.js" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261031r">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261031s">
   <style>
     /* ═══ 她 20261030 §5：后台字体统一加深（三档，仅后台生效）═══
        主要文字 #55464E ｜ 普通正文 #62545B ｜ 辅助文字 #81717A
@@ -2271,15 +2271,45 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       renderShopTags();
     }).catch(function () { toast('保存失败'); });
   });
+  // 成本读取：走管理员专用接口 rpc/shop_product_costs（SQL 跑过之后生效）。
+  // 函数还没建时退回直读 products.cost，保证旧库、老版本也照常显示。
+  function loadCostMap() {
+    return api('rpc/shop_product_costs', { method: 'POST', body: '{}' })
+      .then(function (r) { if (!r.ok) throw new Error('rpc'); return r.json(); })
+      .then(function (rows) {
+        var m = {};
+        (Array.isArray(rows) ? rows : []).forEach(function (x) { m[x.product_id] = x.cost; });
+        return m;
+      })
+      .catch(function () {
+        return api('products?select=id,cost&limit=500')
+          .then(function (r) { if (!r.ok) throw new Error('fallback'); return r.json(); })
+          .then(function (rows) {
+            var m = {};
+            (Array.isArray(rows) ? rows : []).forEach(function (x) { m[x.id] = x.cost; });
+            return m;
+          })
+          .catch(function () { return {}; });
+      });
+  }
   function loadProducts() {
     var tryLoad = function (withImages, withCur) {
-      return api('products?select=id,name,price' + (withCur ? ',currency' : '') + ',description,tag,image_url' + (withImages ? ',images' : '') + ',sold,stock,cost,display_only,created_at&order=created_at.desc&limit=200')
+      return api('products?select=id,name,price' + (withCur ? ',currency' : '') + ',description,tag,image_url' + (withImages ? ',images' : '') + ',sold,stock,display_only,created_at&order=created_at.desc&limit=200')
         .then(function (r) { return r.json(); })
         .then(function (rows) { if (!Array.isArray(rows)) throw new Error(); return rows; });
     };
     // currency 列还没建（未跑 SQL9）时逐层降级：多图 → 单图 → 无货币列
     tryLoad(true, true).catch(function () { return tryLoad(false, true); })
       .catch(function () { return tryLoad(false, false); })
+      .then(function (rows) {
+        // 成本单独取一次再合并（products 列级权限跑过之后，anon/顾客已经读不到 cost）
+        return loadCostMap().then(function (costMap) {
+          (rows || []).forEach(function (p) {
+            if (costMap && Object.prototype.hasOwnProperty.call(costMap, p.id)) p.cost = costMap[p.id];
+          });
+          return rows;
+        });
+      })
       .then(function (rows) {
         var list = document.getElementById('product-list');
         PRODUCT_CACHE = {};
@@ -6628,18 +6658,18 @@ function loadEmailLog() {
 </script>
 
 
-<script src="js/admin-shop.js?v=20261031r"></script>
-<script src="js/admin-import.js?v=20261031r"></script>
-<script src="js/admin-crm.js?v=20261031r"></script>
-<script src="js/admin-vip.js?v=20261031r" data-legacy="1"></script>
-<script src="js/admin-customer.js?v=20261031r"></script>
-<script src="js/admin-invite.js?v=20261031r"></script>
-<script src="js/vendor/jsQR.js?v=20261031r"></script>
-<script src="js/vendor/qrcode-generator.js?v=20261031r"></script>
-<script src="js/vendor/JsBarcode.all.min.js?v=20261031r"></script>
-<script src="js/admin-workbench.js?v=20261031r"></script>
-<script src="js/admin-biz.js?v=20261031r"></script>
-<script src="js/admin-export.js?v=20261031r"></script>
+<script src="js/admin-shop.js?v=20261031s"></script>
+<script src="js/admin-import.js?v=20261031s"></script>
+<script src="js/admin-crm.js?v=20261031s"></script>
+<script src="js/admin-vip.js?v=20261031s" data-legacy="1"></script>
+<script src="js/admin-customer.js?v=20261031s"></script>
+<script src="js/admin-invite.js?v=20261031s"></script>
+<script src="js/vendor/jsQR.js?v=20261031s"></script>
+<script src="js/vendor/qrcode-generator.js?v=20261031s"></script>
+<script src="js/vendor/JsBarcode.all.min.js?v=20261031s"></script>
+<script src="js/admin-workbench.js?v=20261031s"></script>
+<script src="js/admin-biz.js?v=20261031s"></script>
+<script src="js/admin-export.js?v=20261031s"></script>
 <footer style="padding:18px 0 0; text-align:center;">© 2026 Yuki · Made with Cola</footer>
 </body>
 </html>

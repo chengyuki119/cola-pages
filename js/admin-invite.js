@@ -92,10 +92,20 @@
       subject: 'Snow Yuzu 后台管理员邀请 ♡（邀请码 ' + code + '）',
       body: inviteBody(name, code, until)
     };
-    api('email_log', { method: 'POST', headers: { 'Prefer': 'return=representation' }, body: JSON.stringify(row) })
-      .then(function (r) {
-        if (!r.ok) throw new Error('queue');
-        return r.json().catch(function () { return []; });
+    // 入队优先走受信任接口：SQL 跑过之后 email_log 只接受服务端/受信任 RPC 写入，
+    // 匿名和普通登录态直写都会被 RLS 挡（42501）。函数还没建时退回直写队列，兼容旧库。
+    api('rpc/shop_mail_enqueue', {
+      method: 'POST',
+      body: JSON.stringify({ p_kind: row.kind, p_to: row.to_email, p_subject: row.subject, p_body: row.body, p_ref: row.ref_id })
+    })
+      .then(function (r) { if (!r.ok) throw new Error('rpc'); return r.json(); })
+      .then(function (id) { return [{ id: id }]; })
+      .catch(function () {
+        return api('email_log', { method: 'POST', headers: { 'Prefer': 'return=representation' }, body: JSON.stringify(row) })
+          .then(function (r) {
+            if (!r.ok) throw new Error('queue');
+            return r.json().catch(function () { return []; });
+          });
       })
       .then(function (rows) {
         var id = rows && rows[0] && rows[0].id;
@@ -128,7 +138,7 @@
     var box = document.getElementById('inv-list');
     if (!box) return;
     var want = [KIND, 'invite', 'admin_invite', 'auth_invite'];
-    api('email_log?select=kind,ref_id,to_email,subject,status,attempts,last_error,created_at,sent_at&order=created_at.desc&limit=200')
+    api('email_log?select=kind,ref_id,to_email,subject,status,attempts,created_at,sent_at&order=created_at.desc&limit=200')
       .then(function (r) { return r.json(); })
       .then(function (rows) {
         rows = (Array.isArray(rows) ? rows : []).filter(function (m) { return want.indexOf(m.kind) !== -1; });
