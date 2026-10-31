@@ -40,6 +40,7 @@ function kindMeta(kind: string): { sub: string; marketing: boolean } {
   if (/^contact_notify/.test(k)) return { sub: '客户留言', marketing: false };
   if (/^reply/.test(k)) return { sub: '站长回复', marketing: false };
   if (/^birthday/.test(k)) return { sub: '生日快乐', marketing: false };
+  if (/^admin_invite/.test(k)) return { sub: '管理员邀请', marketing: false };
   if (/^account/.test(k)) return { sub: '账号通知', marketing: false };
   return { sub: '通知', marketing: false };
 }
@@ -94,7 +95,7 @@ function renderHtml(kind: string, bodyText: string): { html: string; unsubUrl: s
   const SUB_EN: Record<string, string> = {
     '新品上架': 'New Arrival', '订单确认': 'Order Confirmation', '付款成功': 'Payment Confirmed',
     '发货通知': 'Shipping Notification', '售后通知': 'After-Sales Notice', '订单通知': 'Order Update',
-    '客户留言': 'New Message', '站长回复': 'A Reply from Snow Yuzu', '账号通知': 'Account Notice',
+    '客户留言': 'New Message', '站长回复': 'A Reply from Snow Yuzu', '管理员邀请': 'Admin Invitation', '账号通知': 'Account Notice',
     '通知': 'Notice',
   };
   const subLabel = isEn ? (SUB_EN[meta.sub] || 'Notice') : meta.sub;

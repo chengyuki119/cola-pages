@@ -20,7 +20,7 @@ const SERVICE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? Deno.env.get('SERVI
 const ANONC = Deno.env.get('SUPABASE_ANON_KEY') ?? Deno.env.get('SUPABASE_PUBLISHABLE_KEY') ?? '';
 const SITE = 'https://yukicheng.com';
 const INVITE_DAYS = 7;
-const KIND = 'account_invite';
+const KIND = 'admin_invite';
 
 const CORS: Record<string, string> = {
   'Access-Control-Allow-Origin': '*',
@@ -63,36 +63,46 @@ function mailOk(email: string): boolean {
   return !/(@test\.com|@example\.(com|org|net)|@testlocal\.invalid|\.invalid$|\.test$|@localhost)$/i.test(email);
 }
 
-/* ── 邀请邮件正文（她 20261030 18:56 §三 的可爱风，主题与开头逐字保留）── */
+/* ── 邀请邮件正文 ──
+   这段是她在任务书 §三 里给的原始文案，逐字照抄，一个字也没有续写。
+   只做两件事：把 {{admin_email}} 换成真实邮箱、把 {{initial_password}} 换成一次性初始码。
+   她原文里没有写后台地址，这里也不自作主张加。
+   已有的邮箱（重复邀请）不改密码，所以那一行必须如实写成「你原来的密码」。 ── */
 function inviteSubject(): string {
   return '欢迎加入小柚的小世界！(｡･ω･｡)ﾉ♡';
 }
 function inviteBody(name: string, email: string, code: string, until: string, isNew: boolean): string {
-  const who = (name || '').trim();
-  const lines = [
-    '嗨嗨～(｡･ω･｡)ﾉ♡ 欢迎来到小柚的小世界！',
+  const pwLine = isNew
+    ? '初始密码：' + code
+    : '初始密码：就用你原来的密码（这个邮箱之前已经注册过了）';
+  return [
+    '嗨嗨～(｡･ω･｡)ﾉ♡',
     '',
-    (who ? who + '，' : '') + '小柚想请你一起打理这个小小店铺的后台～',
+    '欢迎来到小柚的小世界！',
+    '',
+    '很开心能邀请你成为小柚小世界的一员管理者 (´▽`ʃ♡ƪ)',
+    '',
+    '这里收藏着小柚亲手制作的小物、可爱的色卡、喜欢的娃娃。',
+    '',
+    '以后也请多多关照啦！希望你能在这里自在地逛逛，看看小柚认真经营的小小世界，一起守护这里的可爱与温柔 ♡',
+    '',
+    '你的后台账号已经为你准备好啦：',
     '',
     '登录邮箱：' + email,
-  ];
-  if (isNew) {
-    lines.push('一次性初始密码：' + code);
-    lines.push('（只能用这一次，第一次登录会请你改成自己的六位数字密码）');
-  } else {
-    lines.push('（这个邮箱已经注册过了，登录就用你原来的密码；忘记的话跟小柚说一声）');
-  }
-  lines.push('');
-  lines.push('后台地址：' + SITE + '/admin.html');
-  lines.push('');
-  lines.push('进去以后你能看到订单、顾客、留言和商品，但只能看，不能改价格、不能改订单金额、不能删数据。');
-  lines.push('');
-  lines.push('这封邀请到 ' + until + ' 前有效。如果不是你本人，忽略它就好～');
-  lines.push('');
-  lines.push('等你来玩呀 ♡');
-  lines.push('Snow Yuzu · 小柚');
-  lines.push(SITE + '/');
-  return lines.join('\n');
+    '',
+    pwLine,
+    '',
+    '第一次登录时，请按照页面提示设置属于你自己的六位数字密码哦。',
+    '',
+    '小小提醒：你拥有的是只读管理权限，可以查看授权的后台内容，但不能修改或删除数据。请记得保管好自己的登录信息，不要把密码告诉其他人。',
+    '',
+    '那么，欢迎加入小柚的小世界！',
+    '',
+    '希望这里的每一个小角落，都能给你带来一点点开心 ( ˶ˆᗜˆ˵ )',
+    '',
+    '—— Snow Yuzu',
+    '和你分享一点可爱日常的小柚 ♡',
+  ].join('\n');
 }
 
 /* ── 调用者身份 ── */
@@ -223,6 +233,22 @@ Deno.serve(async (req: Request) => {
   const name = String(p.name || '').trim().slice(0, 40);
   const note = String(p.note || '').trim().slice(0, 200);
 
+  /* ────────── 预览（不发、不建号、不入队，纯只读）────────── */
+  if (action === 'preview') {
+    const isNew = !(await findUser(email));
+    const sampleCode = '123456';
+    return json({
+      ok: true,
+      to: email,
+      subject: inviteSubject(),
+      body: inviteBody(name, email, sampleCode, '2026-11-07', isNew),
+      is_new_user: isNew,
+      badge: '管理员邀请',
+      note: isNew ? '这是「新邮箱」的版本，初始密码位置会填真实的一次性邀请码。'
+                  : '这是「邮箱已有账号」的版本，密码位置会写成沿用原来的密码。',
+    });
+  }
+
   /* ────────── 发邀请 ────────── */
   if (action === 'invite') {
     if (!mailOk(email)) return json({ ok: false, error: '邮箱格式不对，或者是测试/占位域名（这类地址不发信）' }, 400);
@@ -336,7 +362,7 @@ Deno.serve(async (req: Request) => {
   /* ────────── 只看状态 ────────── */
   if (action === 'status') {
     const list = await readInvites();
-    const mails = await restGet('email_log?select=id,kind,ref_id,to_email,status,attempts,last_error,created_at,sent_at&kind=eq.' + KIND + '&order=created_at.desc&limit=100');
+    const mails = await restGet('email_log?select=id,kind,ref_id,to_email,status,attempts,last_error,created_at,sent_at&kind=in.(admin_invite,account_invite)&order=created_at.desc&limit=100');
     const admins = await restGet('shop_admins?select=user_id,role,must_set_password,created_at');
     return json({ ok: true, invites: list, mails, admins });
   }
