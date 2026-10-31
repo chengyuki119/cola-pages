@@ -237,3 +237,19 @@
 .idx-link,
 .idx-link:hover,
 .idx-link.current { color: #62545B !important; }
+/* ═══════════════════════════════════════════════════════════════
+   她 20261031 §一：全站顶栏汉堡菜单位置统一
+   规则只有这一条，所有页面共用（不逐页打补丁）：
+   顶栏最右 = 汉堡按钮；它左边 = 购物车；中间 logo 绝对居中。
+   桌面端 / 移动端 / 滚不滚动 / 页面多宽都一样。
+   ═══════════════════════════════════════════════════════════════ */
+.topbar { display: flex; align-items: center; justify-content: space-between; }
+.topbar-right { margin-left: auto; flex: 0 0 auto; flex-wrap: nowrap; }
+.topbar-right .topbar-cart { order: 1; }
+.topbar-right .burger { order: 2; margin-left: 0; }
+/* 兼容：万一哪一页把汉堡直接挂在顶栏下（不在 .topbar-right 里），也推到最右 */
+.topbar > .burger { order: 9; margin-left: auto; }
+.topbar > #topbar-cart { order: 8; }
+/* 右侧留白：桌面 16px、手机 10px，与原来一致（不改尺寸/位置，只锁死右边界） */
+.topbar { padding-right: 16px; }
+@media (max-width: 400px) { .topbar { padding-right: 10px; } }

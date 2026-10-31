@@ -21,7 +21,7 @@
     --font-data: "Millo Body", -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { scroll-behavior: smooth; color-scheme: light; }
+  html { scroll-behavior: smooth; color-scheme: light; scrollbar-gutter: stable; }
   body {
     background: var(--bg);
     color: var(--text);

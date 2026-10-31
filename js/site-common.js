@@ -1118,6 +1118,15 @@ window.addEventListener('storage', function (e) {
 });
 // 页面门禁：mode 'exclusive'（默认，柚子专属白名单）| 'photos'（任意登录用户可看）
 // resolve(true) = 可渲染；false = 已渲染权限提示页（调用方必须停止数据加载）
+// 权限提示页 / 重试页隐藏正文时，必须保留顶栏：汉堡菜单要求全站任何页面都在最右（她 20261031）
+function ykKeepChrome(el) {
+  if (!el || el.nodeType !== 1) return true;
+  var tag = el.tagName;
+  if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'LINK' || tag === 'NOSCRIPT') return true;
+  if (el.classList && (el.classList.contains('topbar') || el.classList.contains('menu-mask') || el.classList.contains('site-menu'))) return true;
+  if (el.id === 'menu' || el.id === 'idx-wrap' || el.id === 'sm-phone-bar') return true;
+  return false;
+}
 function ykGatePage(mode) {
   mode = mode || 'exclusive';
   var check = (mode === 'photos')
@@ -1134,7 +1143,7 @@ function ykGatePage(mode) {
     if (res.ok === 'retry') {
       // 网络/服务抖动：不下「普通用户」的结论，给重试入口
       var wrapR = document.createElement('div');
-      wrapR.style.cssText = 'min-height:62vh;display:flex;align-items:center;justify-content:center;padding:30px 16px;';
+      wrapR.style.cssText = 'min-height:62vh;display:flex;align-items:center;justify-content:center;padding:76px 16px 30px;';
       wrapR.innerHTML = '<div style="background:var(--card,#FFFFFF);border-radius:22px;padding:44px 34px;max-width:480px;width:100%;text-align:center;">' +
         '<div style="font-size:34px;color:var(--text,#604C57);line-height:1;">♥</div>' +
         '<h2 style="font-size:20px;color:var(--text,#604C57);margin:14px 0 8px;">' + (en ? 'Checking your identity…' : '身份确认没成功') + '</h2>' +
@@ -1143,7 +1152,7 @@ function ykGatePage(mode) {
         '</div>';
       document.body.insertBefore(wrapR, document.body.firstChild);
       var othersR = document.querySelectorAll('body > *:not(:first-child)');
-      for (var jR = 0; jR < othersR.length; jR++) othersR[jR].style.display = 'none';
+      for (var jR = 0; jR < othersR.length; jR++) { if (!ykKeepChrome(othersR[jR])) othersR[jR].style.display = 'none'; }
       document.getElementById('yk-retry').addEventListener('click', function () { YK_EXCLUSIVE_MEMO = null; location.reload(); });
       return false;
     }
@@ -1151,7 +1160,7 @@ function ykGatePage(mode) {
     // 权限提示页（与 404 页同款风格：粉色卡居中）
     var en = window.LANG === 'en';
     var wrap = document.createElement('div');
-    wrap.style.cssText = 'min-height:62vh;display:flex;align-items:center;justify-content:center;padding:30px 16px;';
+    wrap.style.cssText = 'min-height:62vh;display:flex;align-items:center;justify-content:center;padding:76px 16px 30px;';
     var logged = !!ykSession();
     var title = (mode === 'photos') ? (en ? 'Photos are for logged-in visitors' : '照片展示要登录后才能看哦') : (en ? 'Yuki Members Only' : '此内容仅限柚子专属账号查看');
     var btns = '';
@@ -1175,7 +1184,7 @@ function ykGatePage(mode) {
       '</p>' + btns + '</div>';
     document.body.insertBefore(wrap, document.body.firstChild);
     var others = document.querySelectorAll('body > *:not(:first-child)');
-    for (var i = 0; i < others.length; i++) others[i].style.display = 'none';
+    for (var i = 0; i < others.length; i++) { if (!ykKeepChrome(others[i])) others[i].style.display = 'none'; }
     var lo = document.getElementById('yk-logout');
     if (lo) lo.addEventListener('click', ykExclusiveLogout);
     return false;

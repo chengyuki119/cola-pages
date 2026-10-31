@@ -622,3 +622,86 @@ input[type="radio"]:checked::after {
   background-color: transparent !important;
   color: var(--btn-fg-d) !important;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   她 20261031 §2.1：全站「选中态不显示边框」
+   ---------------------------------------------------------------------------
+   只加"选中/聚焦"这一层，不改任何尺寸、位置、圆角、间距：
+     · 选中态描边色 = 透明（border 宽度还在，所以按钮不会变窄/跳位）
+     · 鼠标点击后不再出现系统默认的黑色/深灰焦点环
+     · 键盘 Tab 仍然有柔和的粉色焦点环（无障碍不丢，只是换成粉色）
+     · 输入框 / 下拉框 / 复选框的边框一律不动
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* 1) 选中态：描边透明（宽度保留 → 不改几何） */
+[aria-pressed="true"],
+[aria-selected="true"],
+[data-selected="true"],
+.opt.is-on, .opt.on,
+.sel-opt.active, .cat-opt.active, .combo-opt.active,
+.bjd-chip.active, .bjd-chip.on, .bjd-chip.is-on,
+.dy-chip.active, .dy-chip.on,
+.ev-chip.active, .chip.on, .cur-chip.on,
+.sku-chip.on, .sku-chip.active, .pr-opt.active,
+.pf-chip.on, .paytab.on, .vis-chip.on, .vis-chip.vis-on,
+.adm-subtab.active, .tab-btn.active, .sm-tab.active,
+.pp-menu .tab-btn.active,
+.aix-pager button.cur, .aix-pager button.active,
+.msg-filters button.active, .aix-filters button.active,
+.topic-chips button.active,
+#sc-pop .sc-opt.active, #share-pop .sc-opt.active {
+  border-color: transparent !important;
+}
+
+/* 2) 焦点：鼠标/触摸点过之后不留黑色环；键盘操作仍有粉色环 */
+button:focus,
+[role="button"]:focus,
+.btn:focus,
+.btn-mini:focus,
+.btn-save:focus,
+.btn-del:focus,
+.btn-ok:focus,
+.tab-btn:focus,
+.chip:focus,
+.opt:focus,
+a:focus {
+  outline: none;
+}
+button:focus:not(:focus-visible),
+[role="button"]:focus:not(:focus-visible),
+.btn:focus:not(:focus-visible),
+.btn-mini:focus:not(:focus-visible),
+.tab-btn:focus:not(:focus-visible),
+.chip:focus:not(:focus-visible),
+a:focus:not(:focus-visible),
+[tabindex]:focus:not(:focus-visible) {
+  outline: none !important;
+  box-shadow: none !important;
+}
+button:focus-visible,
+[role="button"]:focus-visible,
+.btn:focus-visible,
+.btn-mini:focus-visible,
+.btn-save:focus-visible,
+.btn-del:focus-visible,
+.btn-ok:focus-visible,
+.tab-btn:focus-visible,
+.chip:focus-visible,
+.opt:focus-visible,
+a:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid #E9B3C6 !important;
+  outline-offset: 2px;
+}
+
+/* 3) 点击瞬间：不新增深色描边（保留原有淡粉 active 底色） */
+button:active, [role="button"]:active, .btn:active, .btn-mini:active, .chip:active, .opt:active {
+  outline: none;
+}
+
+/* 4) 输入控件保持原样：这里只做"别被我误伤"的兜底声明 */
+input:not([type="checkbox"]):not([type="radio"]),
+select,
+textarea {
+  outline-offset: 1px;
+}
