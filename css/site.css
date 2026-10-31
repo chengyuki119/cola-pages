@@ -34,6 +34,8 @@
 
   h1, h2, .subpage-title { font-family: var(--font-heading); }
   h3, .bjd-size-h, .bjd-chip, .cal-day, .cal-head b, .f-data { font-family: var(--font-data); }
+  /* 20261031 字号统一：small 不再走浏览器默认 0.833em（当时实测 14.2px） */
+  small { font-size: 14px; }
 
   /* ===== 顶部白色长条：左语言 · 中 logo · 右菜单 ===== */
   .topbar {
@@ -115,7 +117,7 @@
   }
   .hero-name { padding-bottom: 10px; text-align: center; }
   .hero-name h1 {
-    font-size:27px; font-weight: 600; text-align: left;
+    font-size:30px; font-weight: 700; text-align: left; /* 20261031 字号统一：一级标题 30–34px，原 27px/600 不在层级内 */
     color: var(--text); letter-spacing: .5px;
     text-shadow: 0 1px 2px rgba(255,255,255,.9), 0 0 8px rgba(255,255,255,.65); /* 白色柔光晕，压住封面照片，字不发虚 */
   }

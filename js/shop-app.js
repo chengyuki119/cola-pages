@@ -139,7 +139,7 @@
     (root || document).querySelectorAll('input, textarea').forEach(function (i) {
       if (i.dataset.styled) return;
       i.dataset.styled = '1';
-      i.style.cssText = 'width:100%;padding:11px 14px;font-size:17px;border:1.5px solid var(--accent-soft,#FCE4EC);border-radius:12px;background:#fff;outline:none;color:var(--text,#604C57);font-family:inherit;box-sizing:border-box;transition:border-color .15s;box-shadow:0 2px 10px rgba(255,143,171,.06);';
+      i.style.cssText = 'width:100%;padding:11px 14px;font-size:16px;border:1.5px solid var(--accent-soft,#FCE4EC);border-radius:12px;background:#fff;outline:none;color:var(--text,#604C57);font-family:inherit;box-sizing:border-box;transition:border-color .15s;box-shadow:0 2px 10px rgba(255,143,171,.06);';
       i.addEventListener('focus', function () { i.style.borderColor = 'var(--accent-strong,#A98D96)'; });
       i.addEventListener('blur', function () { i.style.borderColor = 'var(--accent-soft,#FCE4EC)'; });
     });
@@ -936,7 +936,7 @@
           '<div id="ac-login">' +
             '<input id="li-email" placeholder="Email" style="width:100%;margin-bottom:14px;">' +
             '<input id="li-pw" type="password" placeholder="' + t('密码', 'Password') + '" style="width:100%;margin-bottom:16px;">' +
-            '<button class="buy-btn" id="li-go" style="width:100%;padding:11px;background:#FCE1EA;color:#A98D96;font-size:17px;">' + t('登录', 'Log in') + '</button>' +
+            '<button class="buy-btn" id="li-go" style="width:100%;padding:11px;background:#FCE1EA;color:#A98D96;font-size:16px;">' + t('登录', 'Log in') + '</button>' +
             '<button id="li-forgot" style="background:none;border:none;color:var(--muted);font-family:inherit;font-size:15px;margin-top:14px;cursor:pointer;">' + t('忘记密码？发重置邮件', 'Forgot password? Send reset email') + '</button>' +
           '</div>' +
           '<div id="ac-reg" style="display:none;">' +
@@ -954,7 +954,7 @@
               '<span style="font-size:16px;color:var(--text,#604C57);">' + t('接收新品上架通知', 'Notify me about new items') + '<br><span style="font-size:13px;color:var(--muted,#A88E9B);">' + t('默认关闭 · 邮件通知服务尚未配置，启用前不会发送邮件', 'Off by default · email delivery not configured yet') + '</span></span>' +
               subToggleHtml('rg-notify', false) +
             '</div>' +
-            '<button class="buy-btn" id="rg-go" style="width:100%;padding:11px;background:#FCE1EA;color:#A98D96;font-size:17px;margin-top:14px;">' + t('注册', 'Create account') + '</button>' +
+            '<button class="buy-btn" id="rg-go" style="width:100%;padding:11px;background:#FCE1EA;color:#A98D96;font-size:16px;margin-top:14px;">' + t('注册', 'Create account') + '</button>' +
           '</div>' +
         '</div>';
       styleInputs(box);
