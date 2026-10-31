@@ -702,7 +702,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     body:not(.adm-in) .wrap .adm-head { margin: 0 var(--adm-edge, 40px) 22px; justify-content: center; }
   </style>
   <script src="site-menu.js" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261031n">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261031p">
   <style>
     /* ═══ 她 20261030 §5：后台字体统一加深（三档，仅后台生效）═══
        主要文字 #55464E ｜ 普通正文 #62545B ｜ 辅助文字 #81717A
@@ -782,7 +782,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         <div class="pp-group">商城管理</div>
         <button class="tab-btn" data-tab="shop">小铺上架</button>
         <button class="tab-btn" data-tab="shopmgr">订单管理</button>
-        <button class="tab-btn" data-tab="vip">VIP 客户查询</button>
+        <button class="tab-btn" data-tab="vip">客户与会员</button>
         <button class="tab-btn" data-tab="pos">线下开单</button>
         <div class="pp-sub">互动管理</div>
         <button class="tab-btn" data-tab="messages">联系与留言管理</button>
@@ -936,10 +936,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     </div>
     <div class="adm-subtabs" id="shopmgr-subtabs" style="display:none;">
       <button class="adm-subtab" data-sub="shopmgr">订单列表</button>
-      <button class="adm-subtab" data-sub="crm">客户管理</button>
+      <button class="adm-subtab" data-sub="vip">客户与会员</button>
       <button class="adm-subtab" data-sub="workbench">订单工作台</button>
-      <button class="adm-subtab" data-sub="export">订单导出</button>
-      <button class="adm-subtab" data-sub="print">清单打印</button>
     </div>
 
     <!-- 小铺管理 -->
@@ -1712,12 +1710,12 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     setTimeout(function () { try { window.scrollTo(0, 0); } catch (e) {} }, 80); // 异步渲染后再次确认（不刷新页面、不清表单）
     if (name === 'works') renderWorks();
     if (name === 'reviews') loadReviewsAdmin();
-    if (name === 'system') loadEmailLog();
+    if (name === 'system') { loadEmailLog(); if (window.AdminInvite) window.AdminInvite.boot(); }
     if (name === 'days') renderDays(); // 每次切到重要日子都重渲染，避免 settings 迟到导致自动列表空白
     if (name === 'crm' && window.CRM) CRM.bootCrm();
     if (name === 'pos' && window.CRM) CRM.bootPos();
     if (name === 'mailsync' && window.CRM) CRM.bootMailsync();
-    if (name === 'vip' && window.bootVip) window.bootVip();
+    if (name === 'vip' && window.CustomerPage) window.CustomerPage.boot(); // 她 20261030 §2：客户管理与 VIP 已合并为一页
     if (name === 'mailtpl' && window.CRM) CRM.bootMailtpl();
     if (name === 'theme' && window.CRM) CRM.bootTheme();
     if (name === 'workbench' && window.WB) WB.bootWorkbench();
@@ -6342,8 +6340,42 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     <h3 style="margin:0 0 12px;">邮件发送记录（最近 30 封）</h3>
     <div id="email-log-list" style="font-size:15px; line-height:1.9; max-height:420px; overflow-y:auto;"><p class="empty">加载中…</p></div>
     <p style="color:var(--muted); font-size:14px; line-height:1.8; margin:12px 0 0;">
-      发件邮箱：snowyuzustudio@gmail.com（需在 Supabase 配置 SMTP_USER / SMTP_PASS 后才会真实发信，未配置前队列保留不丢弃）。
+      发件邮箱：snowyuzustudio@gmail.com（需在 Supabase 配置 SMTP_USER / SMTP_PASS 后才会真实发信，未配置前队列保留不丢弃）。<br>
+      <b style="color:#C4636E;">注意：这里的「服务商已接受」只代表 Gmail SMTP 收下了这封信，不代表对方已经收到。</b>Gmail SMTP 不回传投递结果，也没有退信回执；要确认真实送达，只能让对方查收件箱/垃圾箱。
     </p>
+  </div>
+
+  <!-- 她 20261030 §4：管理员邀请 + 邮件链路自检 -->
+  <div class="card" style="max-width:none;margin-top:14px;" id="admin-invite-card">
+  <style>
+    #admin-invite-card .inv-row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    #admin-invite-card .inv-row #inv-email { flex:1; min-width:220px; }
+    #admin-invite-card .inv-row #inv-name { width:160px; }
+    #admin-invite-card .inv-foot { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; align-items:center; }
+    @media (max-width: 760px) {
+      #admin-invite-card .inv-row > * { width:100% !important; min-width:0 !important; }
+      #admin-invite-card .inv-row #inv-send { margin-top:6px; }
+      #admin-invite-card .inv-foot { gap:8px; margin-top:20px; }
+      #admin-invite-card .inv-foot { gap:8px; }
+      #admin-invite-card .inv-foot > * { width:100%; text-align:center; }
+      #admin-invite-card #inv-list, #admin-invite-card #mail-diag { line-height:2; }
+    }
+  </style>
+    <h3 style="margin:0 0 6px;">管理员邀请（真实发信，不是只显示成功）</h3>
+    <p style="color:var(--muted);font-size:14px;line-height:1.8;margin:0 0 12px;">
+      邀请信走和订单邮件同一条队列（email_log → email-worker → Gmail SMTP）。这里显示的每个状态都是队列里的真实状态。
+    </p>
+    <div class="inv-row">
+      <input id="inv-email" placeholder="被邀请人的邮箱">
+      <input id="inv-name" placeholder="称呼（可不填）">
+      <button type="button" class="btn-save" id="inv-send">发出邀请</button>
+    </div>
+    <div id="inv-list" style="margin-top:14px;font-size:15px;line-height:1.9;"><p class="empty">加载中…</p></div>
+    <div id="mail-diag" style="margin-top:16px;"></div>
+    <div class="inv-foot">
+      <button type="button" class="btn-mini" id="mail-diag-run">邮件链路自检</button>
+      <span style="font-size:13px;color:var(--muted);align-self:center;">只读检查，不发信、不改数据</span>
+    </div>
   </div>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px;align-items:start;margin-top:14px;">
   <div class="card" style="max-width:none;margin:0;">
@@ -6382,7 +6414,7 @@ function loadEmailLog() {
   if (!box) return;
   api('email_log?select=kind,to_email,subject,status,attempts,last_error,created_at,sent_at&order=created_at.desc&limit=30').then(function (r) { return r.json(); }).then(function (rows) {
     if (!rows || !rows.length) { box.innerHTML = '<p class="empty">还没有发送记录</p>'; return; }
-    var ST = { pending: ['待发送', 'warn'], sending: ['发送中', ''], sent: ['已发送', 'ok'], failed: ['失败（将重试）', 'warn'], dead: ['失败（已停）', 'off'] };
+    var ST = { pending: ['待发送', 'warn'], sending: ['发送中', ''], sent: ['服务商已接受（无回执）', 'ok'], delivered: ['投递成功（有回执）', 'ok'], failed: ['发送失败（将重试）', 'warn'], dead: ['发送失败（已停）', 'off'], bounced: ['已退信', 'off'] };
     box.innerHTML = rows.map(function (m) {
       var st = ST[m.status] || ST.pending;
       var t = m.sent_at ? new Date(m.sent_at).toLocaleString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })
@@ -6596,16 +6628,18 @@ function loadEmailLog() {
 </script>
 
 
-<script src="js/admin-shop.js?v=20261031n"></script>
-<script src="js/admin-import.js?v=20261031n"></script>
-<script src="js/admin-crm.js?v=20261031n"></script>
-<script src="js/admin-vip.js?v=20261031n"></script>
-<script src="js/vendor/jsQR.js?v=20261031n"></script>
-<script src="js/vendor/qrcode-generator.js?v=20261031n"></script>
-<script src="js/vendor/JsBarcode.all.min.js?v=20261031n"></script>
-<script src="js/admin-workbench.js?v=20261031n"></script>
-<script src="js/admin-biz.js?v=20261031n"></script>
-<script src="js/admin-export.js?v=20261031n"></script>
+<script src="js/admin-shop.js?v=20261031p"></script>
+<script src="js/admin-import.js?v=20261031p"></script>
+<script src="js/admin-crm.js?v=20261031p"></script>
+<script src="js/admin-vip.js?v=20261031p" data-legacy="1"></script>
+<script src="js/admin-customer.js?v=20261031p"></script>
+<script src="js/admin-invite.js?v=20261031p"></script>
+<script src="js/vendor/jsQR.js?v=20261031p"></script>
+<script src="js/vendor/qrcode-generator.js?v=20261031p"></script>
+<script src="js/vendor/JsBarcode.all.min.js?v=20261031p"></script>
+<script src="js/admin-workbench.js?v=20261031p"></script>
+<script src="js/admin-biz.js?v=20261031p"></script>
+<script src="js/admin-export.js?v=20261031p"></script>
 <footer style="padding:18px 0 0; text-align:center;">© 2026 Yuki · Made with Cola</footer>
 </body>
 </html>

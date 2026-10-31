@@ -626,6 +626,8 @@
         '</div></details>' +
         '<div class="sm-act sm-danger-zone"><span class="lbl">订单操作</span>' +
         (dead ? '<span style="font-size:13px;color:var(--muted);">已终态，不能重复取消</span>' : '<button type="button" class="btn-mini sm-act-cancel">取消订单</button>') +
+        '<button type="button" class="btn-mini sm-act-export1">导出这一单</button>' +
+        '<button type="button" class="btn-mini sm-act-print1">打印这一单</button>' +
         '<button type="button" class="btn-del sm-act-archive">删除订单</button>' +
         '<span style="font-size:12px;color:var(--muted,#81717A);">删除＝归档，订单与收款流水都保留</span>' +
         '</div>' +
@@ -1104,9 +1106,12 @@
     '</div>' +
     '<div id="sm-sec-orders">' +
     '<div class="sm-toolbar"><div class="dy-chips" id="sm-o-chips"></div>' +
-    '<input id="sm-o-search" placeholder="搜订单号 / 邮箱" autocomplete="off">' +
+    '<input id="sm-o-search" placeholder="搜订单号 / 买家姓名 / 邮箱 / 商品名" autocomplete="off">' +
     '<button type="button" class="btn-mini" id="sm-o-new" style="white-space:nowrap;">＋ 手动建单</button>' +
-    '<button type="button" class="btn-mini" id="sm-o-export" style="white-space:nowrap;">导出 CSV</button></div>' +
+    /* 她 20261030 §3：导出与装箱打印并入订单列表，不再单独入口 */
+    '<button type="button" class="btn-mini" id="sm-o-export" style="white-space:nowrap;">导出（当前筛选）</button>' +
+    '<button type="button" class="btn-mini" id="sm-o-export-sel" style="white-space:nowrap;">导出（已选）</button>' +
+    '<button type="button" class="btn-mini" id="sm-o-print" style="white-space:nowrap;">打印装箱清单</button></div>' +
     '<div id="sm-o-list"><p class="sm-empty">加载中…</p></div>' +
     '</div>' +
     '<div id="sm-sec-groups" style="display:none;">' +
@@ -1566,6 +1571,18 @@
     }
     if (e.target.classList.contains('sm-act-note')) { // 内部备注
       patchOrder(id, { admin_note: card.querySelector('.sm-admin-note').value }, '内部备注已保存');
+      return;
+    }
+    if (e.target.classList.contains('sm-act-export1')) {
+      var oe = byId(SM.orders, id);
+      if (oe && window.EXPORT && window.EXPORT.quickExport) window.EXPORT.quickExport([oe], 'xls');
+      else toast('导出模块未加载，刷新一下再试');
+      return;
+    }
+    if (e.target.classList.contains('sm-act-print1')) {
+      var op = byId(SM.orders, id);
+      if (op && window.EXPORT && window.EXPORT.quickPrint) window.EXPORT.quickPrint([op]);
+      else toast('打印模块未加载，刷新一下再试');
       return;
     }
     /* 她 20261030 §7.3：取消 / 删除都必须二次确认；删除走归档（软删），不抹掉订单和收款流水 */
@@ -2742,7 +2759,26 @@
 
   // ── 绑定入口 ──
   document.getElementById('sm-o-new').addEventListener('click', openManualOrder);
-  document.getElementById('sm-o-export').addEventListener('click', openExport);
+  /* 她 20261030 §3：导出/打印直接调 EXPORT 的同一套逻辑；旧的单页 CSV 逻辑保留但不再单独入口 */
+  document.getElementById('sm-o-export').addEventListener('click', function () {
+    var rows = filteredOrders();
+    if (!rows.length) { toast('当前筛选下没有订单'); return; }
+    if (window.EXPORT && window.EXPORT.quickExport) window.EXPORT.quickExport(rows, 'xls');
+    else exportOrdersCSV(rows); // 旧版兜底（EXPORT 未加载时）
+  });
+  document.getElementById('sm-o-export-sel').addEventListener('click', function () {
+    var rows = SM.orders.filter(function (o) { return SM.osel[o.id]; });
+    if (!rows.length) { toast('先在左边勾选要导出的订单'); return; }
+    if (window.EXPORT && window.EXPORT.quickExport) window.EXPORT.quickExport(rows, 'xls');
+    else exportOrdersCSV(rows);
+  });
+  document.getElementById('sm-o-print').addEventListener('click', function () {
+    var selRows = SM.orders.filter(function (o) { return SM.osel[o.id]; });
+    var rows = selRows.length ? selRows : filteredOrders();
+    if (!rows.length) { toast('没有可打印的订单'); return; }
+    if (window.EXPORT && window.EXPORT.quickPrint) window.EXPORT.quickPrint(rows);
+    else toast('打印模块未加载，刷新一下再试');
+  });
   // 设置页追加政策编辑器
   var secSettings = document.getElementById('sm-sec-settings');
   if (secSettings) {

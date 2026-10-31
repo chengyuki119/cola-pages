@@ -183,6 +183,10 @@
     });
     return { paid: n2(paid), refunded: n2(refunded), cnt: recs.length, recs: recs };
   }
+  function kindSum(o, ctx, kind) {
+    return n2((ctx.pay[String(o.id)] || []).filter(function (r) { return r.kind === kind; })
+      .reduce(function (t2, r) { return t2 + num(r.amount); }, 0));
+  }
   function payDetailLines(recs) {
     return recs.map(function (r) {
       var seg = [KIND_LABEL[r.kind] || r.kind || '其他', '$' + num(r.amount).toFixed(2)];
@@ -279,6 +283,19 @@
       ['定制要求汇总', function (o) {
         return arr(o.items).filter(function (it) { return it && it.note; })
           .map(function (it) { return (it.name || '') + '×' + num(it.qty) + '：' + it.note; }).join('\n');
+      }]
+    ] },
+    { id: 'plan', label: '⑧ 定金与尾款', cols: [
+      ['定金应收', function (o) { return money(o.deposit_due); }],
+      ['定金已收', function (o, ctx) { return money(kindSum(o, ctx, 'deposit')); }],
+      ['尾款应收', function (o) { return money(o.balance_due); }],
+      ['尾款已收', function (o, ctx) { return money(kindSum(o, ctx, 'final')); }],
+      ['已收合计', function (o, ctx) { return money(payAgg(o, ctx).paid); }],
+      ['剩余待收', function (o, ctx) { var a = payAgg(o, ctx); return money(Math.max(0, num(o.total) - a.paid + a.refunded)); }],
+      ['收款进度', function (o, ctx) {
+        var a = payAgg(o, ctx); var t2 = num(o.total);
+        var pct = t2 > 0 ? Math.round((a.paid - a.refunded) / t2 * 100) : 0;
+        return { v: pct + '%', n: pct };
       }]
     ] },
     { id: 'ship', label: '⑦ 物流信息', cols: [
@@ -692,7 +709,9 @@
       var kinds = its.length;
       var totalQty = its.reduce(function (t2, it) { return t2 + num(it && it.qty); }, 0);
       return '<div class="blk">' +
-        '<div class="blk-no">' + esc(o.order_no || '(无单号)') + '</div>' +
+        '<div class="blk-no">' + esc(o.order_no || '(无单号)') + '<span class="blk-st ' + (['cancelled', 'refunded', 'archived'].indexOf(o.status) >= 0 ? 'void' : '') + '">' + esc(ST_LABEL[o.status] || o.status || '') + '</span></div>' +
+        (['cancelled', 'refunded', 'archived'].indexOf(o.status) >= 0
+          ? '<div class="void-bar">' + t('这张单是「', 'This order is ') + esc(ST_LABEL[o.status] || o.status) + t('」状态，不要发出去', ' — do not ship') + '</div>' : '') +
         (meta ? '<div class="meta">' + esc(meta) + '</div>' : '') +
         '<table><thead><tr><th style="width:76px;">图</th><th>商品名称</th><th style="width:110px;">规格/SKU</th>' +
         '<th style="width:52px;">数量</th><th>定制要求</th><th style="width:56px;">备货 ✓</th></tr></thead>' +
@@ -700,12 +719,14 @@
         '<div class="stats">' + t('商品种类数', 'Item kinds') + ' <b>' + kinds + '</b> · ' + t('总数量', 'Total qty') + ' <b>' + totalQty + '</b>' +
         ' · ' + t('下单时间', 'Placed at') + ' ' + esc(fmtDT(o.created_at)) + '</div>' +
         (o.admin_note ? '<div class="note">' + t('内部备注', 'Admin note') + '：' + esc(o.admin_note) + '</div>' : '') +
+        (o.note ? '<div class="note">' + t('买家备注', 'Buyer note') + '：' + esc(o.note) + '</div>' : '') +
         '</div>';
     }).join('');
     return '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">' +
       '<meta name="viewport" content="width=device-width,initial-scale=1">' +
       '<title>Snow Yuzu 商品清单</title><style>' +
       'body{font-family:-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;color:#3a2e36;margin:24px;}' +
+      '@page{size:auto;margin:12mm;}' +
       '.brand{font-size:26px;font-weight:800;letter-spacing:3px;color:#33232d;}' +
       '.gen-time{color:#9a8a92;font-size:13px;margin-top:4px;}' +
       '.no-print{margin-top:14px;}' +
@@ -714,6 +735,9 @@
       '.blk{border:1.5px solid #e9dbe1;border-radius:14px;padding:18px;margin-top:18px;page-break-after:always;}' +
       '.blk:last-child{page-break-after:auto;}' +
       '.blk-no{color:#e0559a;font-weight:700;font-size:17px;letter-spacing:.5px;}' +
+      '.blk-st{margin-left:10px;font-size:12px;font-weight:600;color:#6d5d66;border:1px solid #e9dbe1;border-radius:999px;padding:1px 10px;letter-spacing:0;}' +
+      '.blk-st.void{color:#c0405a;border-color:#c0405a;}' +
+      '.void-bar{margin:10px 0 0;border:1.5px solid #c0405a;background:#fff4f5;color:#c0405a;font-weight:700;font-size:14px;padding:8px 12px;border-radius:10px;}' +
       '.meta{font-size:13px;color:#6d5d66;margin:6px 0 12px;word-break:break-all;}' +
       'table{width:100%;border-collapse:collapse;font-size:13px;}' +
       'th,td{border:1px solid #e9dbe1;padding:8px;text-align:left;vertical-align:middle;word-break:break-word;}' +
@@ -750,10 +774,41 @@
     injectCss();
     ptBoot(root);
   }
-  window.EXPORT = { bootExport: bootExport, bootPrint: bootPrint };
+  window.EXPORT = { bootExport: bootExport, bootPrint: bootPrint,
+    /* 她 20261030 §3：给订单列表直接调用的两个函数，复用同一套导出/打印逻辑，不另写一份 */
+    quickExport: function (orders, kind, done) {
+      orders = arr(orders);
+      if (!orders.length) { toast('先选订单或调一下筛选'); return; }
+      var ids = orders.map(function (o) { return String(o.id); });
+      toast('正在准备导出…');
+      Promise.all([fetchPayRecords(ids), fetchPackages(ids)]).then(function (res) {
+        var ctx = { pay: indexBy(res[0], 'order_id'), pkg: indexBy(res[1], 'order_id') };
+        var all = {}; GROUPS.forEach(function (g) { all[g.id] = true; });
+        var data = buildExport(orders, ctx, all);
+        exGenerate(kind || 'xls', 'Snow Yuzu-订单导出-' + stamp() + (kind === 'csv' ? '.csv' : '.xls'), data, orders.length);
+        if (typeof done === 'function') done();
+      }).catch(function () { toast('导出失败，检查网络后重试'); });
+    },
+    quickPrint: function (orders) {
+      orders = arr(orders);
+      if (!orders.length) { toast('先在列表里选要打印的订单'); return; }
+      var html = buildPrintHtml(orders);
+      var win = null;
+      try { win = window.open('', '_blank'); } catch (e) {}
+      if (win && win.document) {
+        win.document.open(); win.document.write(html); win.document.close();
+        toast('打印页已生成（' + orders.length + ' 笔订单）');
+      } else {
+        download('Snow Yuzu-装箱清单-' + stamp() + '.html', html, 'text/html;charset=utf-8;');
+        toast('弹窗被拦了，已改成下载 HTML，打开后点打印即可');
+      }
+    }
+  };
 
-  // 兜底自动挂载：admin.html 手动调用过也只会渲染一次
-  function autoBoot() { bootExport(); bootPrint(); }
+  // 她 20261030 §3：导出/打印已并入订单列表，不再自动挂载两个独立页（函数保留，?tab 参数或手动调用仍可用）
+  function autoBoot() {
+    if (/[?&]panel=(export|print)/.test(location.search)) { bootExport(); bootPrint(); }
+  }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', autoBoot);
   else autoBoot();
 })();
