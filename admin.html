@@ -379,6 +379,68 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .p-sec > .form-grid { padding: 14px 16px 16px; }
   .p-sec .p-sec-step { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #FCE1EA; color: #A98D96; font-size: 13px; font-weight: 700; flex-shrink: 0; }
   .p-sec .p-sec-tip { font-weight: 400; font-size: 13px; color: #81717A; }
+  /* 她 20261030 §2.2/§3.1：上架表单改成一条连续表单——不再用一堆大卡片，只用小标题 + 间距分段 */
+  .pf { border: 1.5px solid #FFE3EC; border-radius: 16px; background: #fff; padding: 2px 18px; }
+  .pf-sec { padding: 14px 0; border-bottom: 1px dashed #FFE9F0; }
+  .pf-sec:last-child { border-bottom: none; }
+  .pf-h { display: flex; align-items: baseline; gap: 8px; margin: 0 0 10px; flex-wrap: wrap; }
+  .pf-h b { font-size: 17px; font-weight: 700; color: #55464E; }
+  .pf-tip { font-size: 13px; color: #81717A; }
+  .pf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; }
+  .pf-row.one { grid-template-columns: 1fr; }
+  .pf-row > * { min-width: 0; }
+  .pf-imgrow { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-start; }
+  .pf-addimg { width: 76px; height: 76px; border-radius: 14px; border: 1.5px dashed #FFD1E0; background: #FFF7FA; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; color: #A98D96; flex-shrink: 0; }
+  .pf-addimg:hover { background: #FCE1EA; border-color: #F5BFD1; }
+  .pf-addimg span { font-size: 24px; line-height: 1; }
+  .pf-addimg em { font-size: 12px; font-style: normal; }
+  .pf-fileline { display: flex; align-items: center; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+  .pf-count { font-size: 13px; color: #81717A; }
+  #p-preview.ph-strip { display: flex; gap: 8px; flex-wrap: wrap; }
+  @media (max-width: 720px) { .pf-row { grid-template-columns: 1fr; } .pf { padding: 2px 14px; } }
+  /* 她 20261030 §13：仅移动端 SKU 编辑页的底部固定操作栏 */
+  #sm-phone-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9000; display: none; gap: 10px; padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px)); background: #FFF7FA; border-top: 1.5px solid #FFD1E0; box-shadow: 0 -4px 14px rgba(169, 141, 150, .12); }
+  #sm-phone-bar button { flex: 1; border-radius: 12px; font-family: inherit; font-size: 17px; font-weight: 600; padding: 12px 0; cursor: pointer; }
+  #sm-phone-bar .sm-pb-back { background: #FFF7FA; border: 1.5px solid #FFD1E0; color: #A98D96; }
+  #sm-phone-bar .sm-pb-save { background: #FCE1EA; border: 1.5px solid #F5BFD1; color: #A98D96; }
+  #sm-phone-bar .sm-pb-back:active { background: #FCE1EA; }
+  #tab-profile { display: flex; flex-direction: column; }
+  #tab-profile > .card:nth-of-type(2) { order: -1; } /* 她 20261030 §11：头像与背景图放在最上方，资料表单在下 */
+  #sm-phone-bar .sm-pb-save:active { background: #F8D3E2; }
+  /* 她 20261030 §3.4：批量导入商品弹窗 */
+  #imp-mask { position: fixed; inset: 0; z-index: 9500; display: none; align-items: flex-start; justify-content: center; background: rgba(90, 70, 80, .35); overflow: auto; padding: 24px 12px; }
+  .imp-box { width: 100%; max-width: 1180px; background: #fff; border-radius: 18px; border: 1.5px solid #FFD1E0; box-shadow: 0 18px 48px rgba(169, 141, 150, .28); overflow: hidden; }
+  .imp-top { display: flex; align-items: center; gap: 12px; padding: 14px 18px; background: #FFF7FA; border-bottom: 1.5px solid #FFE3EC; }
+  .imp-top b { font-size: 21px; color: #55464E; }
+  .imp-top-tip { font-size: 13px; color: #81717A; flex: 1; }
+  .imp-x { border: none; background: #FCE1EA; color: #A98D96; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 15px; }
+  .imp-body { padding: 6px 18px 16px; max-height: calc(100vh - 140px); overflow: auto; }
+  .imp-sec { padding: 14px 0; border-bottom: 1px dashed #FFE9F0; }
+  .imp-sec:last-child { border-bottom: none; }
+  .imp-h { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+  .imp-h b { font-size: 17px; color: #55464E; }
+  .imp-h span { font-size: 13px; color: #81717A; }
+  .imp-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .imp-drop { display: flex; align-items: center; justify-content: center; min-height: 76px; border: 1.5px dashed #FFD1E0; border-radius: 14px; background: #FFF7FA; color: #A98D96; font-size: 15px; cursor: pointer; }
+  .imp-drop:hover { background: #FCE1EA; }
+  .imp-file-name { font-size: 13px; color: #81717A; margin-top: 6px; }
+  .imp-img-list { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .imp-imgpill { font-size: 12px; color: #81717A; background: #FFF7FA; border: 1.5px solid #FFE3EC; border-radius: 999px; padding: 2px 10px; }
+  .imp-map { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 8px 14px; }
+  .imp-maprow { display: grid; grid-template-columns: 92px 1fr; gap: 8px; align-items: center; font-size: 14px; color: #55464E; }
+  .imp-tbl-wrap { overflow: auto; max-height: 44vh; border: 1.5px solid #FFE3EC; border-radius: 12px; }
+  .imp-tbl { border-collapse: collapse; width: 100%; font-size: 13px; }
+  .imp-tbl th { position: sticky; top: 0; background: #FFF7FA; color: #55464E; font-weight: 600; padding: 8px 6px; text-align: left; white-space: nowrap; border-bottom: 1.5px solid #FFE3EC; }
+  .imp-tbl td { padding: 5px 6px; border-bottom: 1px solid #FFF0F5; color: #62545B; vertical-align: top; }
+  .imp-tbl tr.bad td { background: #FFF4F5; }
+  .imp-tbl tr.warn td { background: #FFFBF3; }
+  .imp-tbl input { width: 120px; font-size: 13px; padding: 5px 8px; border-radius: 8px; }
+  .imp-chk { max-width: 220px; }
+  .imp-st { border: 1.5px solid #FFD1E0; background: #FFF7FA; color: #A98D96; border-radius: 999px; padding: 2px 10px; font-size: 12px; cursor: pointer; font-family: inherit; }
+  .imp-note { font-size: 13px; color: #81717A; margin: 10px 0 0; line-height: 1.6; }
+  .imp-done { font-size: 17px; color: #55464E; margin: 6px 0; }
+  .imp-foot { display: flex; gap: 10px; justify-content: flex-end; padding: 14px 0 4px; flex-wrap: wrap; }
+  @media (max-width: 720px) { .imp-body { padding: 4px 12px 12px; } .imp-map { grid-template-columns: 1fr; } .imp-top b { font-size: 19px; } .imp-top-tip { display: none; } }
   .logout {
     background: var(--adm-btn-exit, #EEE5F8);
     border: none;
@@ -640,7 +702,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     body:not(.adm-in) .wrap .adm-head { margin: 0 var(--adm-edge, 40px) 22px; justify-content: center; }
   </style>
   <script src="site-menu.js" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261031m">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261031n">
   <style>
     /* ═══ 她 20261030 §5：后台字体统一加深（三档，仅后台生效）═══
        主要文字 #55464E ｜ 普通正文 #62545B ｜ 辅助文字 #81717A
@@ -884,42 +946,45 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     <div id="tab-shop" style="display:none;">
       <div class="card">
         <button class="btn-mini" id="btn-toggle-newprod" style="padding:9px 20px;font-size:15px;">＋ 添加新商品</button>
+        <button class="btn-mini" id="btn-prod-bulk-toggle" style="padding:9px 18px;font-size:15px;">批量导入商品</button>
         <div id="newprod-wrap" style="display:none;margin-top:14px;">
         <h3>上架新商品</h3>
-        <details class="p-sec" data-sec="media" open>
-          <summary><span class="p-sec-step">①</span>商品图片<span class="p-sec-tip">第一张自动当封面 · 最多 6 张</span></summary>
-          <div class="form-grid">
-            <div class="full fld-inline"><label class="btn-mini hm-file-btn">选择图片<input id="p-file" type="file" accept="image/*" multiple hidden></label><span class="hm-file-name" id="p-file-name">未选择图片</span></div>
-            <div class="p-preview full" id="p-preview"><span class="pv-empty">选了图片会在这里预览</span></div>
+        <div class="pf">
+        <div class="pf-sec" data-sec="media">
+          <div class="pf-h"><b>商品图片</b><span class="pf-tip">正方形小图 · 最多 6 张 · 第一张自动是封面</span></div>
+          <div class="pf-imgrow">
+            <label class="pf-addimg" for="p-file" title="选择图片"><span>＋</span><em>上传</em></label>
+            <input id="p-file" type="file" accept="image/*" multiple hidden>
+            <div class="p-preview" id="p-preview"><span class="pv-empty">还没有图片</span></div>
           </div>
-        </details>
-        <details class="p-sec" data-sec="basic" open>
-          <summary><span class="p-sec-step">②</span>基本信息<span class="p-sec-tip">名称必填，价格库存可留空</span></summary>
-          <div class="form-grid">
+          <div class="pf-fileline"><span class="hm-file-name" id="p-file-name">未选择图片</span><span class="pf-count" id="p-img-count">0 / 6</span></div>
+          <input id="p-file-replace" type="file" accept="image/*" hidden>
+        </div>
+        <div class="pf-sec" data-sec="basic">
+          <div class="pf-h"><b>基本信息</b><span class="pf-tip">名称必填，其余可以留空后再补</span></div>
+          <div class="pf-row">
             <input id="p-name" placeholder="商品名称 *">
-            <input id="p-price" placeholder="价格，如 39.9（可留空）">
-            <div class="full cur-row"><div class="cur-line"><span style="font-size:15px;color:var(--muted);">货币</span><button type="button" class="cur-chip" data-cur="CNY">¥ 人民币</button><button type="button" class="cur-chip on" data-cur="USD">$ 美元</button></div><p class="cur-hint">每件商品各自选，金额不会自动换算</p></div>
-            <input id="p-stock" type="number" min="0" placeholder="库存数量（0 = 售尽）">
+            <input id="p-price" placeholder="商品价格，如 39.9">
+            <div class="cur-row" style="grid-column:1/-1;"><div class="cur-line"><span style="font-size:15px;color:var(--muted);">货币</span><button type="button" class="cur-chip" data-cur="CNY">¥ 人民币</button><button type="button" class="cur-chip on" data-cur="USD">$ 美元</button></div><p class="cur-hint">每件商品各自选，金额不会自动换算</p></div>
+            <input id="p-unit" placeholder="商品单位，如 个 / 件 / 套（选填）">
+            <input id="p-stock" type="number" min="0" placeholder="商品库存（0 = 售尽）">
+            <input id="p-cost" type="number" min="0" step="0.01" placeholder="商品成本（只有你自己看得到）">
+            <input id="p-sku" placeholder="商品编码（选填，唯一编号）">
+            <input id="p-cat" placeholder="商品分类（点一下可选已有分类）">
+            <input id="p-tag" placeholder="商品标签，如 手作 / 毛线 / 黏土">
           </div>
-        </details>
-        <details class="p-sec" data-sec="desc" open>
-          <summary><span class="p-sec-step">③</span>商品描述<span class="p-sec-tip">中英文分开写，可留空</span></summary>
-          <div class="form-grid">
-            <textarea id="p-desc" class="full" style="min-height:56px;" placeholder="中文描述：材料、尺寸、细节…"></textarea>
-            <textarea id="p-desc-en" class="full" style="min-height:56px;" placeholder="英文描述 Description in English（切到 English 时显示，可留空）"></textarea>
+        </div>
+        <div class="pf-sec" data-sec="desc">
+          <div class="pf-h"><b>商品介绍</b><span class="pf-tip">中英文分开写，可留空</span></div>
+          <div class="pf-row one">
+            <textarea id="p-desc" style="min-height:64px;" placeholder="中文介绍：材料、尺寸、细节…"></textarea>
+            <textarea id="p-desc-en" style="min-height:64px;" placeholder="英文介绍 Description in English（切到 English 时显示，可留空）"></textarea>
           </div>
-        </details>
-        <details class="p-sec" data-sec="extra">
-          <summary><span class="p-sec-step">④</span>标签与成本<span class="p-sec-tip">可选；成本只有你自己看得到</span></summary>
-          <div class="form-grid">
-            <input id="p-tag" placeholder="标签，如 手作 / 毛线 / 黏土（点输入框可选已有标签）">
-            <input id="p-cost" type="number" min="0" step="0.01" placeholder="成本，只有你自己能看到">
-          </div>
-        </details>
-        <div class="actions">
-          <button class="btn-save" id="btn-add-product">上架这个商品</button>
-          <button class="btn-mini" id="btn-prod-draft" style="padding:9px 18px;">存为草稿</button>
-          <button class="btn-mini" id="btn-prod-bulk-toggle" style="padding:9px 18px;">批量导入商品</button>
+        </div>
+        </div>
+        <div class="actions" style="margin-top:14px;">
+          <button class="btn-save" id="btn-add-product">发布商品</button>
+          <button class="btn-mini" id="btn-prod-draft" style="padding:9px 18px;">保存草稿</button>
         </div>
         <div id="bulk-wrap" style="display:none;margin-top:14px;">
           <textarea id="bulk-text" style="width:100%;min-height:110px;box-sizing:border-box;border:1.5px solid var(--accent-soft,#FCE4EC);border-radius:14px;background:#fff;padding:12px 14px;font-size:16px;color:var(--text,#62545B);font-family:inherit;resize:vertical;outline:none;" placeholder="一行一个商品：名称，价格，库存，标签&#10;例如：&#10;毛线小兔，39.9，3，手作&#10;黏土小熊，52，1，黏土"></textarea>
@@ -1882,20 +1947,22 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   });
   var pendingFiles = [];
   var PROD_IMG_MAX = 6; // 商品主图上限（她 20261030 §2.2：要清楚显示当前数量和最大数量）
-  function renderPendingPreview() { // 上架前预览：第一张=封面，可拖动排序，也可点按钮设封面/删除
+  function renderPendingPreview() { // 上架前预览：第一张=封面，可拖动排序，也可点按钮设封面/删除/替换
     var box = document.getElementById('p-preview');
     box.classList.add('ph-strip');
     box.setAttribute('data-kind', 'pnew');
-    if (!pendingFiles.length) { box.innerHTML = '<span class="pv-empty">选了图片会在这里预览</span>'; return; }
-    box.innerHTML = '<div style="width:100%;font-size:13px;color:var(--muted,#81717A);margin-bottom:2px;">已选 ' + pendingFiles.length + ' / ' + PROD_IMG_MAX + ' 张 · 第一张是封面，可拖动排序或点「设为封面」</div>' +
-      '<div style="display:flex;gap:8px;flex-wrap:wrap;width:100%;">' + pendingFiles.map(function (f, idx) {
-      return '<div class="pv ph-tile' + (idx === 0 ? ' ph-cover' : '') + '" draggable="true" data-idx="' + idx + '" title="拖动可调整顺序" style="cursor:grab;position:relative;">' +
-        '<img src="' + URL.createObjectURL(f) + '" alt="">' +
+    var cnt = document.getElementById('p-img-count');
+    if (cnt) cnt.textContent = pendingFiles.length + ' / ' + PROD_IMG_MAX;
+    if (!pendingFiles.length) { box.innerHTML = '<span class="pv-empty">还没有图片</span>'; return; }
+    box.innerHTML = pendingFiles.map(function (f, idx) {
+      return '<div class="pv ph-tile' + (idx === 0 ? ' ph-cover' : '') + '" draggable="true" data-idx="' + idx + '" title="拖动可调整顺序" style="width:76px;height:76px;border-radius:14px;overflow:hidden;cursor:grab;position:relative;border:1.5px solid #FFE3EC;background:#fff;">' +
+        '<img src="' + URL.createObjectURL(f) + '" alt="" style="width:100%;height:100%;object-fit:cover;display:block;">' +
         '<button type="button" class="pv-del" data-idx="' + idx + '" title="删除这张" style="position:absolute;top:2px;right:2px;width:18px;height:18px;line-height:1;font-size:12px;border:none;border-radius:50%;background:rgba(255,255,255,.92);color:#A98D96;cursor:pointer;padding:0;">✕</button>' +
+        '<button type="button" class="pv-swap" data-idx="' + idx + '" title="换一张图" style="position:absolute;top:2px;left:2px;width:18px;height:18px;line-height:1;font-size:10px;border:none;border-radius:50%;background:rgba(255,255,255,.92);color:#A98D96;cursor:pointer;padding:0;">换</button>' +
         (idx === 0 ? '<span style="position:absolute;left:3px;bottom:3px;background:var(--accent-strong,#A98D96);color:#fff;border-radius:999px;padding:0 6px;font-size:10px;line-height:14px;">封面</span>'
                    : '<button type="button" class="pv-cover" data-idx="' + idx + '" title="设为封面（自动挪到第一位）" style="position:absolute;left:3px;bottom:3px;border:none;border-radius:999px;padding:1px 6px;font-size:10px;line-height:14px;background:rgba(255,255,255,.92);color:#A98D96;cursor:pointer;">设封面</button>') +
         '</div>';
-    }).join('') + '</div>';
+    }).join('');
   }
   function productStripHtml(items) { // 商品多图：第一张=封面，可拖动排序（与前台顺序一致）
     if (!items || !items.length) return '';
@@ -1953,7 +2020,24 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     if (cov) {
       var k = parseInt(cov.getAttribute('data-idx'), 10);
       if (k > 0) { var f = pendingFiles.splice(k, 1)[0]; pendingFiles.unshift(f); renderPendingPreview(); }
+      return;
     }
+    var sw = e.target.closest('.pv-swap');// 她 20261030 §2.2：单张图支持替换
+    if (sw) {
+      swapIdx = parseInt(sw.getAttribute('data-idx'), 10);
+      var ri = document.getElementById('p-file-replace');
+      ri.value = '';
+      ri.click();
+    }
+  });
+  var swapIdx = -1;
+  document.getElementById('p-file-replace').addEventListener('change', function () {
+    var f = (this.files || [])[0];
+    if (!f || swapIdx < 0 || swapIdx >= pendingFiles.length) { swapIdx = -1; return; }
+    pendingFiles[swapIdx] = f;
+    swapIdx = -1;
+    renderPendingPreview();
+    if (typeof toast === 'function') toast('已替换这一张');
   });
   function uploadShopFiles(files) {
     return Promise.all(files.map(function (f) {
@@ -1968,7 +2052,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   var pCur = 'USD'; // 新增商品的货币选择（每件商品独立，不换算）
   document.getElementById('tab-shop').addEventListener('click', function (e) {
     var chip = e.target.closest('.cur-chip');
-    if (!chip || !chip.closest('.form-grid')) return; // 只响应上架表单里的胶囊
+    if (!chip || !chip.closest('#newprod-wrap')) return; // 只响应上架表单里的胶囊（她 20261030 §3.1：连续表单已不用 .form-grid，改成看容器）
     pCur = chip.getAttribute('data-cur') || 'USD';
     chip.parentNode.querySelectorAll('.cur-chip').forEach(function (x) { x.classList.toggle('on', x === chip); });
   });
@@ -1981,6 +2065,9 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       stock: document.getElementById('p-stock').value.trim(),
       cost: document.getElementById('p-cost').value.trim(),
       tag: document.getElementById('p-tag').value.trim(),
+      unit: document.getElementById('p-unit') ? document.getElementById('p-unit').value.trim() : '',
+      sku: document.getElementById('p-sku') ? document.getElementById('p-sku').value.trim() : '',
+      cat: document.getElementById('p-cat') ? document.getElementById('p-cat').value.trim() : '',
       desc: document.getElementById('p-desc').value.trim(),
       descEn: document.getElementById('p-desc-en').value.trim()
     };
@@ -1992,6 +2079,9 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     document.getElementById('p-stock').value = d.stock || '';
     document.getElementById('p-cost').value = d.cost || '';
     document.getElementById('p-tag').value = d.tag || '';
+    var _u = document.getElementById('p-unit'); if (_u) _u.value = d.unit || '';
+    var _s = document.getElementById('p-sku'); if (_s) _s.value = d.sku || '';
+    var _c = document.getElementById('p-cat'); if (_c) _c.value = d.cat || '';
     document.getElementById('p-desc').value = d.desc || '';
     document.getElementById('p-desc-en').value = d.descEn || '';
   }
@@ -2015,6 +2105,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     obs.observe(w, { attributes: true, attributeFilter: ['style'] });
   })();
   document.getElementById('btn-prod-bulk-toggle').addEventListener('click', function () {
+    // 她 20261030 §3.4：独立入口 → 真正的批量导入模块（Excel/CSV + 模板 + 预览 + 草稿）
+    if (window.YkImport) { window.YkImport.open(); return; }
     var w = document.getElementById('bulk-wrap');
     var open = w.style.display !== 'none';
     w.style.display = open ? 'none' : '';
@@ -2068,6 +2160,13 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
 
     uploadShopFiles(pendingFiles).then(function (urls) {
       var body = { name: name, price: price, description: desc, description_en: document.getElementById('p-desc-en').value.trim(), tag: tag, image_url: urls[0] || null, stock: stock === '' ? 1 : parseInt(stock, 10), cost: cost === '' ? null : parseFloat(cost), currency: pCur };
+      // 她 20261030 §3.1：新增单位 / 编码 / 分类——列还没建时下面会自动降级，不丢其他字段
+      var _unit = document.getElementById('p-unit') ? document.getElementById('p-unit').value.trim() : '';
+      var _sku = document.getElementById('p-sku') ? document.getElementById('p-sku').value.trim() : '';
+      var _cat = document.getElementById('p-cat') ? document.getElementById('p-cat').value.trim() : '';
+      if (_unit) body.unit = _unit;
+      if (_sku) body.sku = _sku;
+      if (_cat) body.category = _cat;
       var av = window.smAddVarCollect ? window.smAddVarCollect() : []; // 上架时一并提交规格（她 2026-10-25 要求上架页也能加规格）
       if (av.length) body.variants = av;
       if (urls.length > 1) body.images = urls; // 多图：images 列还没建时下面会自动降级为只存主图
@@ -2083,6 +2182,14 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
             return tryPost(b, true).then(function (r2) {
               if (!r2.ok) throw new Error();
               toast('多图列还没建，已先存主图；跑「小铺多图.sql」后重传即可');
+              return r2;
+            });
+          }
+          if (b.unit || b.sku || b.category) { // unit/sku/category 列还没建：去掉这三个重试，其余字段照常入库
+            delete b.unit; delete b.sku; delete b.category;
+            return tryPost(b, true).then(function (r2) {
+              if (!r2.ok) throw new Error();
+              toast('单位/编码/分类的列还没建，这次先只存名称价格等；跑建列 SQL 后可以再补');
               return r2;
             });
           }
@@ -6489,15 +6596,16 @@ function loadEmailLog() {
 </script>
 
 
-<script src="js/admin-shop.js?v=20261031m"></script>
-<script src="js/admin-crm.js?v=20261031m"></script>
-<script src="js/admin-vip.js?v=20261031m"></script>
-<script src="js/vendor/jsQR.js?v=20261031m"></script>
-<script src="js/vendor/qrcode-generator.js?v=20261031m"></script>
-<script src="js/vendor/JsBarcode.all.min.js?v=20261031m"></script>
-<script src="js/admin-workbench.js?v=20261031m"></script>
-<script src="js/admin-biz.js?v=20261031m"></script>
-<script src="js/admin-export.js?v=20261031m"></script>
+<script src="js/admin-shop.js?v=20261031n"></script>
+<script src="js/admin-import.js?v=20261031n"></script>
+<script src="js/admin-crm.js?v=20261031n"></script>
+<script src="js/admin-vip.js?v=20261031n"></script>
+<script src="js/vendor/jsQR.js?v=20261031n"></script>
+<script src="js/vendor/qrcode-generator.js?v=20261031n"></script>
+<script src="js/vendor/JsBarcode.all.min.js?v=20261031n"></script>
+<script src="js/admin-workbench.js?v=20261031n"></script>
+<script src="js/admin-biz.js?v=20261031n"></script>
+<script src="js/admin-export.js?v=20261031n"></script>
 <footer style="padding:18px 0 0; text-align:center;">© 2026 Yuki · Made with Cola</footer>
 </body>
 </html>

@@ -30,6 +30,20 @@
     '#tab-shopmgr .sm-o-total { color:var(--text,#62545B); font-weight:600; }',
     '#tab-shopmgr .sm-o-time, #tab-shopmgr .sm-o-cnt { font-size:15px; color:var(--muted); }',
     '#tab-shopmgr .sm-o-arrow { margin-left:auto; color:var(--muted); transition:transform .15s; }',
+    /* 她 20261030 §6.2：定金＋尾款订单的第二行收款进度条（按实际到账） */
+    '#tab-shopmgr .sm-o-buyer { font-size:15px; color:var(--text,#62545B); }',
+    '#tab-shopmgr .sm-o-pay2 { margin-top:8px; padding:8px 12px; border:1.5px solid #FFE3EC; border-radius:12px; background:#FFF7FA; }',
+    '#tab-shopmgr .sm-p2-head { display:flex; align-items:center; gap:10px; font-size:14px; color:#55464E; margin-bottom:4px; }',
+    '#tab-shopmgr .sm-p2-state { font-size:13px; font-weight:600; }',
+    '#tab-shopmgr .sm-p2-state.bad { color:#C4636E !important; }',
+    '#tab-shopmgr .sm-p2-row { display:grid; grid-template-columns:36px minmax(90px,max-content) 1fr 34px; gap:8px; align-items:center; font-size:13px; color:#62545B; margin:3px 0; }',
+    '#tab-shopmgr .sm-p2-k { color:#81717A; }',
+    '#tab-shopmgr .sm-p2-bar { display:block; height:7px; border-radius:999px; background:#FFE3EC; overflow:hidden; }',
+    '#tab-shopmgr .sm-p2-bar i { display:block; height:100%; border-radius:999px; transition:width .25s; }',
+    '#tab-shopmgr .sm-p2-t { text-align:right; color:#81717A; }',
+    '#tab-shopmgr .sm-p2-sum { font-size:14px; color:#81717A; margin-top:6px; }',
+    '#tab-shopmgr .sm-danger-zone { border:1.5px dashed #FFD1E0; }',
+    '@media (max-width:720px){ #tab-shopmgr .sm-p2-row { grid-template-columns:32px 86px 1fr 30px; gap:6px; } }',
     '#tab-shopmgr .sm-order.open .sm-o-arrow { transform:rotate(90deg); }',
     '#tab-shopmgr .sm-o-body { border-top:1px solid var(--card-hover); margin-top:10px; padding-top:10px; display:flex; flex-direction:column; gap:10px; }',
     '#tab-shopmgr .sm-io-row { display:flex; align-items:center; gap:8px; font-size:16px; }',
@@ -142,12 +156,13 @@
     shipped:   ['已发货',   '#b3ace0'],
     completed: ['已完成',   'var(--success,#5FA777)'],
     cancelled: ['已取消',   '#c4bcb6'],
+    archived: ['已归档', '#c4bcb6'],
     refunding: ['退款处理', 'var(--warning,#E0A458)'],
     refunded:  ['已退款',   '#c4bcb6']
   };
   var O_CHIPS = [['', '全部'], ['pending', '待付款'], ['reviewing', '待审核'], ['paid', '待发货'],
                  ['shipped', '已发货'], ['completed', '已完成'], ['rejected', '凭证有误'],
-                 ['refunding', '退款中'], ['refunded', '已退款'], ['cancelled', '已取消']];
+                 ['refunding', '退款中'], ['refunded', '已退款'], ['cancelled', '已取消'], ['archived', '已归档']];
   var G_ST = { open: ['进行中', 'var(--success,#5FA777)'], success: ['已成团', 'var(--success,#5FA777)'], failed: ['已失败', '#c4bcb6'], cancelled: ['已取消', '#c4bcb6'] };
   var AS_ST = { open: ['待处理', 'var(--warning,#E0A458)'], done: ['已结案', 'var(--success,#5FA777)'], rejected: ['已拒绝', '#c4bcb6'] };
 
@@ -248,6 +263,60 @@
     var refunded = ps.filter(function (x) { return x.status === 'refunded'; }).reduce(function (t, x) { return t + num(x.amount); }, 0);
     return { paid: paid, refunded: refunded };
   }
+  /* 她 20261030 §6.2：定金＋尾款订单的第二行收款进度（必须按实际到账算，不能按应收算）
+     应收定金/应收尾款优先读 shop_orders.deposit_due / balance_due（列未建时以已收代替并在界面注明） */
+  function payPlan(o) {
+    var mn = payNet(o), pi = payInfo(o);
+    var depPaid = 0, finPaid = 0, fullPaid = 0;
+    mn.rows.filter(function (x) { return x.kind !== 'refund'; }).forEach(function (x) {
+      if (x.kind === 'deposit') depPaid += num(x.amount);
+      else if (x.kind === 'final') finPaid += num(x.amount);
+      else fullPaid += num(x.amount);
+    });
+    fullPaid += pi.paid; // Stripe 实收归入「其他/全款」，不当定金尾款用
+    var total = num(o.total);
+    var depDue = (o.deposit_due != null && o.deposit_due !== '') ? num(o.deposit_due) : null;
+    var finDue = (o.balance_due != null && o.balance_due !== '') ? num(o.balance_due) : null;
+    var isPlan = !!(depDue || finDue || depPaid > 0 || finPaid > 0);
+    if (!isPlan) return null;
+    var guessed = false;
+    if (depDue == null) { depDue = depPaid; guessed = true; }
+    if (finDue == null) finDue = Math.max(0, total - depDue);
+    var paidAll = depPaid + finPaid + fullPaid;
+    var rem = total - paidAll;
+    var pct = total > 0 ? Math.min(100, Math.round(paidAll / total * 100)) : 0;
+    var warn = '';
+    if (rem < -0.005) warn = '超收 $' + fmtMoney(-rem);
+    else if (Math.abs((depDue + finDue) - total) > 0.02) warn = '应收不符：定金＋尾款 $' + fmtMoney(depDue + finDue) + ' ≠ 总额 $' + fmtMoney(total);
+    var state;
+    if (warn) state = warn;
+    else if (depPaid <= 0.005) state = '定金待收';
+    else if (depPaid + 0.005 < depDue) state = '定金部分收款';
+    else if (finPaid <= 0.005) state = '定金已收 · 尾款待收';
+    else if (finPaid + 0.005 < finDue) state = '尾款部分收款';
+    else state = '已结清';
+    return { depDue: depDue, depPaid: depPaid, finDue: finDue, finPaid: finPaid, paidAll: paidAll, rem: rem, pct: pct, warn: warn, state: state, guessed: guessed, total: total };
+  }
+  function pay2Html(o) {
+    var p = payPlan(o);
+    if (!p) return ''; // 一次性全款订单不显示第二行（她 §6.2）
+    var barW = function (paid, due) { return due > 0 ? Math.max(0, Math.min(100, Math.round(paid / due * 100))) : (paid > 0 ? 100 : 0); };
+    var col = p.warn ? '#C4636E' : '#A98D96';
+    var line = function (label, paid, due) {
+      var w = barW(paid, due);
+      return '<div class="sm-p2-row"><span class="sm-p2-k">' + label + '</span>' +
+        '<span class="sm-p2-v">$' + fmtMoney(paid) + ' / $' + fmtMoney(due) + '</span>' +
+        '<span class="sm-p2-bar"><i style="width:' + w + '%;background:' + (w >= 100 ? '#A98D96' : '#F2A9C4') + ';"></i></span>' +
+        '<span class="sm-p2-t">' + (w >= 100 ? '已收' : (paid > 0 ? '部分' : '待收')) + '</span></div>';
+    };
+    return '<div class="sm-o-pay2">' +
+      '<div class="sm-p2-head"><b>定金 / 尾款</b><span class="sm-p2-state' + (p.warn ? ' bad' : '') + '" style="color:' + col + ';">' + esc(p.state) + '</span></div>' +
+      line('定金', p.depPaid, p.depDue) + line('尾款', p.finPaid, p.finDue) +
+      '<div class="sm-p2-sum">已收总额 <b style="color:var(--price,#ff6fa5);">$' + fmtMoney(p.paidAll) + '</b>' +
+      (p.rem > 0.005 ? ' · 剩余待收 <b style="color:#f3b96d;">$' + fmtMoney(p.rem) + '</b>' : ' · <b style="color:var(--price,#ff6fa5);">已结清</b>') +
+      ' · 收款进度 <b>' + p.pct + '%</b>' + (p.guessed ? ' · <span style="color:var(--muted,#81717A);">应收定金列未建，暂按已收计</span>' : '') + '</div>' +
+      '</div>';
+  }
   function payLabel(o) { // 付款状态（与订单状态分开展示，不把已付款和已发货混为一谈；含人工收款台账）
     var pi = payInfo(o);
     var mn = payNet(o);
@@ -296,11 +365,14 @@
   function filteredOrders() {
     var q = SM.osearch.toLowerCase();
     return SM.orders.filter(function (o) {
+      // 她 20261030 §7.3：删除走归档（软删），不删真数据；归档单默认不出现在列表里
+      if (SM.ofilter !== 'archived' && o.status === 'archived') return false;
       if (SM.ofilter && o.status !== SM.ofilter) return false;
       if (q) {
         var a = o.address || {};
-        var hay = [o.order_no, o.email, a.name, a.phone].map(function (x) { return String(x || '').toLowerCase(); });
-        if (!hay.some(function (h) { return h.indexOf(q) !== -1; })) return false; // 编号/邮箱/姓名/电话都可搜（她 2026-10-25）
+        var names = arr(o.items).map(function (it) { return it.name; }); // 她 §6.3：商品名称也要能搜
+        var hay = [o.order_no, o.email, a.name, a.phone].concat(names).map(function (x) { return String(x || '').toLowerCase(); });
+        if (!hay.some(function (h) { return h.indexOf(q) !== -1; })) return false; // 编号/邮箱/姓名/电话/商品名都可搜
       }
       return true;
     });
@@ -431,7 +503,7 @@
     var open = !!SM.oopen[o.id];
     var st = ST[o.status] || [o.status, '#c4bcb6'];
     var ship = num(o.subtotal) - num(o.discount) + num(o.shipping_actual != null ? o.shipping_actual : o.shipping_est) + num(o.service_fee);
-    var dead = o.status === 'refunded' || o.status === 'cancelled'; // 终态：不再出现付款/发货按钮（她 2026-10-25）
+    var dead = o.status === 'refunded' || o.status === 'cancelled' || o.status === 'archived'; // 终态：不再出现付款/发货按钮（她 2026-10-25）
     var payL = payLabel(o);
     var body = '';
     if (open) {
@@ -509,7 +581,7 @@
           return out;
         })() +
         '</div></details>' +
-        '<details class="sm-sec" data-sec="ship" open><summary class="sm-sec-sum"><span class="sm-sec-step">④</span>发货与备注</summary><div class="sm-sec-body">' +
+        '<details class="sm-sec" data-sec="ship"><summary class="sm-sec-sum"><span class="sm-sec-step">④</span>发货与备注</summary><div class="sm-sec-body">' +
         (dead ? '<div class="sm-line"><span class="lbl">发货</span>' + (o.status === 'refunded' ? '已退款 · 无需发货' : '已取消 · 无需发货') +
             (o.tracking ? '（历史物流：' + esc(o.carrier || '') + ' ' + esc(o.tracking) + '）' : '') + '</div>' : '') +
         (dead ? '' :
@@ -552,6 +624,11 @@
         '<button type="button" class="btn-mini sm-act-note">保存备注</button>' +
         '</div>' +
         '</div></details>' +
+        '<div class="sm-act sm-danger-zone"><span class="lbl">订单操作</span>' +
+        (dead ? '<span style="font-size:13px;color:var(--muted);">已终态，不能重复取消</span>' : '<button type="button" class="btn-mini sm-act-cancel">取消订单</button>') +
+        '<button type="button" class="btn-del sm-act-archive">删除订单</button>' +
+        '<span style="font-size:12px;color:var(--muted,#81717A);">删除＝归档，订单与收款流水都保留</span>' +
+        '</div>' +
         '</div>';
     }
     return '<div class="card sm-order' + (open ? ' open' : '') + '" data-id="' + escAttr(o.id) + '">' +
@@ -559,14 +636,15 @@
       '<span class="ck-box sm-osel' + (SM.osel[o.id] ? ' on' : '') + '" data-id="' + escAttr(o.id) + '" style="width:18px;height:18px;border-radius:6px;border:2px solid var(--border,#FFD9E6);flex-shrink:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;line-height:1;color:var(--text,#62545B);background:' + (SM.osel[o.id] ? 'var(--accent-soft,#FCE4EC)' : '#fff') + '">' + (SM.osel[o.id] ? '<svg viewBox=\"0 0 16 16\" width=\"11\" height=\"11\" style=\"display:block;\"><path d=\"M3.2 8.6 L6.6 11.8 L12.8 4.6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>' : '') + '</span>' +
       '<span class="sm-o-no">' + esc(o.order_no || '') + '</span>' +
       '<span class="sold-badge" style="background:' + st[1] + ';">' + esc(dead ? (st[0] + ' · 无需发货') : st[0]) + '</span>' +
-      '<span class="sold-badge" style="background:#fff;border:1.5px solid var(--accent-soft,#FCE4EC);color:var(--muted,#81717A);">付款：' + esc(payL) + '</span>' +
+      '<span class="sold-badge" style="background:#fff;border:1.5px solid var(--accent-soft,#FCE4EC);color:var(--muted,#81717A);">收款：' + esc(payL) + '</span>' +
+      '<span class="sm-o-buyer">' + esc((o.address && o.address.name) || o.ship_name || '') + '</span>' +
       '<span class="sm-o-mail">' + esc(o.email || '') + '</span>' +
       ((o.note || o.coupon_code) ? '<span class="sm-o-cnt" title="' + escAttr((o.note ? '备注：' + o.note : '') + (o.coupon_code ? (o.note ? '；' : '') + '优惠码：' + o.coupon_code : '')) + '">' + (o.note ? '' : '') + (o.coupon_code ? '' : '') + '</span>' : '') +
       '<span class="sm-o-cnt">' + arr(o.items).length + ' 件</span>' +
       '<span class="sm-o-total" style="color:var(--price,#ff6fa5);font-weight:700;">$' + fmtMoney(o.total) + '</span>' +
       '<span class="sm-o-time">' + fmtTime(o.created_at) + '</span>' +
       '<span class="sm-o-arrow">▸</span>' +
-      '</div>' + body + '</div>';
+      '</div>' + pay2Html(o) + body + '</div>';
   }
   // 虚拟物流 6 状态 chip 渲染（TEST- 单号）
   var TRACK_STEPS = ['已创建运单', '已发货', '运输途中', '到达当地配送站', '派送中', '已送达'];
@@ -941,22 +1019,18 @@
   };
   window.smAddVarReset = function () { ADDVAR.list = []; smVarRenderRows(document.getElementById('tab-shop')); };
   (function () {
-    var form = document.querySelector('#tab-shop .card');
-    var actions = form && form.querySelector('.actions');
-    if (!form || !actions || form.querySelector('.sm-var-block')) return;
+    var form = document.querySelector('#tab-shop .pf') || document.querySelector('#tab-shop .card');
+    if (!form || document.querySelector('.sm-var-block')) return;
     var block = document.createElement('div');
-    block.className = 'sm-var-block';
-    block.style.marginTop = '14px';
-    block.innerHTML = '<details class="p-sec" data-sec="variants">' +
-      '<summary><span class="p-sec-step">⑤</span>商品规格<span class="p-sec-tip">可选；一个规格＝买家看到的一个选项</span></summary>' +
-      '<div style="padding:14px 16px 16px;">' +
+    block.className = 'sm-var-block pf-sec';
+    block.setAttribute('data-sec', 'variants');
+    block.innerHTML = '<div class="pf-h"><b>商品规格</b><span class="pf-tip">可选；一个规格＝买家看到的一个选项，全部留空＝单规格</span></div>' +
       '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;">' +
-      '<span class="hint" style="flex:1;min-width:180px;">不留空就用上面的商品价/库存</span>' +
+      '<span class="hint" style="flex:1;min-width:180px;">不填价格/库存就用上面的商品价/库存</span>' +
       '<button type="button" class="btn-mini sm-var-add" style="background:#FCE1EA;color:#A98D96;padding:9px 20px;font-size:15px;">＋ 添加规格</button></div>' +
       '<div class="sm-var-rows"></div>' +
-      '<p class="hint" style="margin:6px 0 0;">每个规格可以传自己的图，第一张就是这个选项的封面；和编辑商品里的是同一套，上架时一起保存。</p>' +
-      '</div></details>';
-    actions.parentNode.insertBefore(block, actions); // 她 2026-10-25 表单加了 wrapper：actions 不再是 .card 直接子节点，改插到同父级
+      '<p class="hint" style="margin:6px 0 0;">每个规格可以传自己的图（与商品主图分开），第一张就是这个选项的封面。</p>';
+    form.appendChild(block); // 连续表单里直接接在「商品介绍」后面（保存按钮在 .pf 之外）
   })();
   (function () {
     var form = document.getElementById('tab-shop');
@@ -1492,6 +1566,27 @@
     }
     if (e.target.classList.contains('sm-act-note')) { // 内部备注
       patchOrder(id, { admin_note: card.querySelector('.sm-admin-note').value }, '内部备注已保存');
+      return;
+    }
+    /* 她 20261030 §7.3：取消 / 删除都必须二次确认；删除走归档（软删），不抹掉订单和收款流水 */
+    if (e.target.classList.contains('sm-act-cancel')) {
+      var o1 = byId(SM.orders, id);
+      var name1 = o1 ? (o1.order_no || '') : '';
+      if (!window.confirm('确定取消订单 ' + name1 + '？\n\n取消后：\n· 订单标记为「已取消」，不再出现付款/发货按钮\n· 已有收款记录、物流和历史都保留\n· 买家侧的待付款提醒会停止')) return;
+      if (!window.confirm('再确认一次：真的要取消 ' + name1 + ' 吗？')) return;
+      patchOrder(id, { status: 'cancelled' }, '订单已取消（收款与历史都保留）', 'cancel', '取消订单');
+      return;
+    }
+    if (e.target.classList.contains('sm-act-archive')) {
+      var o2 = byId(SM.orders, id);
+      if (!o2) return;
+      var name2 = o2.order_no || '';
+      var pi2 = payInfo(o2), mn2 = payNet(o2);
+      var paid2 = pi2.paid + mn2.paid;
+      var warn2 = paid2 > 0.005 ? '\n\n注意：这张单已经收到 $' + fmtMoney(paid2) + '，归档不会退回钱，财务流水也保留。' : '';
+      if (!window.confirm('删除（归档）订单 ' + name2 + '？\n\n· 归档后默认不在列表里显示，可在「已归档」筛选里找回\n· 订单、收款记录、物流、聊天记录全部保留，不是真删\n· 这个操作可逆（重新设为其他状态即可）' + warn2)) return;
+      if (!window.confirm('最后确认：归档 ' + name2 + '？')) return;
+      patchOrder(id, { status: 'archived' }, '订单已归档（数据都还在，可在「已归档」里找回）', 'archive', '归档订单');
       return;
     }
   });
@@ -2694,6 +2789,8 @@
     loadShip: loadShip,
     renderStats: renderStats,
     renderOrders: renderOrders,
+    payPlan: payPlan,
+    pay2Html: pay2Html,
     renderGroups: renderGroups,
     renderCoupons: renderCoupons,
     renderAftersale: renderAftersale,
@@ -2701,3 +2798,55 @@
     renderSettings: renderSettings
   };
 })();
+
+  /* 她 20261030 §13：移动端 SKU 编辑页专用的底部固定「返回 / 保存」栏。
+     只在手机宽度、并且真的在编规格时出现；桌面端一律不出现，也不扩展到其他后台页面。 */
+  (function () {
+    function isPhone() { return window.matchMedia('(max-width: 760px)').matches; }
+    function bar() { return document.getElementById('sm-phone-bar'); }
+    var target = null;
+    function show(on, tgt) {
+      var b = bar(); if (!b) return;
+      if (!on || !isPhone()) { b.style.display = 'none'; target = null; return; }
+      target = tgt || null;
+      b.style.display = 'flex';
+    }
+    function boot() {
+      if (bar()) return;
+      var b = document.createElement('div');
+      b.id = 'sm-phone-bar';
+      b.innerHTML = '<button type="button" class="sm-pb-back">返回</button><button type="button" class="sm-pb-save">保存</button>';
+      document.body.appendChild(b);
+      b.querySelector('.sm-pb-back').addEventListener('click', function () {
+        if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+        show(false);
+        var blk = target && target.querySelector('.sm-var-block');
+        if (blk && blk.scrollIntoView) blk.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      });
+      b.querySelector('.sm-pb-save').addEventListener('click', function () {
+        var btn = null;
+        if (target && target.id === 'newprod-wrap') btn = document.getElementById('btn-add-product');
+        if (target && !btn) btn = target.querySelector('.btn-save-edit');
+        if (btn) { btn.click(); show(false); }
+        else if (typeof toast === 'function') toast('没找到保存按钮，往上滑看一下');
+      });
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+    // 进入规格编辑（点＋添加规格，或聚焦规格输入框）时才出现
+    document.addEventListener('focusin', function (e) {
+      if (!isPhone()) return;
+      var blk = e.target.closest && e.target.closest('.sm-var-block');
+      if (!blk || !document.getElementById('tab-shop')) return;
+      var stub = document.getElementById('tab-shop');
+      if (!stub || stub.style.display === 'none') return;
+      show(true, blk.closest('#newprod-wrap') || blk.closest('.card'));
+    });
+    document.addEventListener('click', function (e) {
+      if (!isPhone()) return;
+      if (e.target.closest && e.target.closest('.sm-var-add')) {
+        var blk = e.target.closest('.sm-var-block');
+        if (blk) show(true, blk.closest('#newprod-wrap') || blk.closest('.card'));
+      }
+    });
+    window.addEventListener('resize', function () { if (!isPhone()) show(false); });
+  })();
