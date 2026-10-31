@@ -445,10 +445,16 @@
   function renderStats() {
     var box = document.getElementById('sm-stats');
     if (!box) return;
-    var reviewing = SM.orders.filter(function (o) { return o.status === 'reviewing'; }).length;
-    var paid = SM.orders.filter(function (o) { return o.status === 'paid'; }).length;
+    // 统计只算「当前这个人的可见订单」：已删除、已归档都不计入
+    var vis = SM.orders.filter(function (o) {
+      if (o.status === 'deleted') return false;
+      if (window.YkOrderDel && window.YkOrderDel.isDel(o.id)) return false;
+      return !isArchived(o);
+    });
+    var reviewing = vis.filter(function (o) { return o.status === 'reviewing'; }).length;
+    var paid = vis.filter(function (o) { return o.status === 'paid'; }).length;
     var openG = SM.groups.filter(function (g) { return g.status === 'open'; }).length;
-    var confirmed = SM.orders.filter(function (o) { return ['paid', 'shipped', 'completed'].indexOf(o.status) !== -1; })
+    var confirmed = vis.filter(function (o) { return ['paid', 'shipped', 'completed'].indexOf(o.status) !== -1; })
       .reduce(function (t, o) { return t + num(o.total); }, 0);
     box.innerHTML =
       '<div class="sm-stat"><b data-stat="reviewing">' + reviewing + '</b><span>待审核付款</span></div>' +
@@ -468,12 +474,16 @@
   function filteredOrders() {
     var q = SM.osearch.toLowerCase();
     return SM.orders.filter(function (o) {
-      // 2026-10-30 §二：已删除的订单永远不进任何列表（含「已归档」筛选），不是隐藏而是不再属于可见集合
+      // 2026-10-31：已删除的永远不进任何列表；已归档的只在「已归档」里出现
       if (window.YkOrderDel && window.YkOrderDel.isDel(o.id)) return false;
       if (o.status === 'deleted') return false;
-      // 她 20261030 §7.3：删除走归档（软删），不删真数据；归档单默认不出现在列表里
-      if (SM.ofilter !== 'archived' && o.status === 'archived') return false;
-      if (SM.ofilter && o.status !== SM.ofilter) return false;
+      var arch = isArchived(o);
+      if (SM.ofilter === 'archived') {
+        if (!arch) return false;
+      } else {
+        if (arch) return false;
+        if (SM.ofilter && o.status !== SM.ofilter) return false;
+      }
       if (q) {
         var a = o.address || {};
         var names = arr(o.items).map(function (it) { return it.name; }); // 她 §6.3：商品名称也要能搜
@@ -744,7 +754,7 @@
       '<div class="sm-o-head">' +
       '<span class="ck-box sm-osel' + (SM.osel[o.id] ? ' on' : '') + '" data-id="' + escAttr(o.id) + '" style="width:18px;height:18px;border-radius:6px;border:2px solid var(--border,#FFD9E6);flex-shrink:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;line-height:1;color:var(--text,#62545B);background:' + (SM.osel[o.id] ? 'var(--accent-soft,#FCE4EC)' : '#fff') + '">' + (SM.osel[o.id] ? '<svg viewBox=\"0 0 16 16\" width=\"11\" height=\"11\" style=\"display:block;\"><path d=\"M3.2 8.6 L6.6 11.8 L12.8 4.6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>' : '') + '</span>' +
       '<span class="sm-o-no">' + esc(o.order_no || '') + '</span>' +
-      '<span class="sold-badge" style="background:' + st[1] + ';">' + esc(dead ? (st[0] + ' · 无需发货') : st[0]) + '</span>' +
+      '<span class="sold-badge" style="background:' + st[1] + ';">' + esc(dead ? (st[0] + ' · 无需发货') : (isArchived(o) ? (st[0] + ' · 已归档') : st[0])) + '</span>' +
       '<span class="sold-badge" style="background:#fff;border:1.5px solid var(--accent-soft,#FCE4EC);color:var(--muted,#81717A);">收款：' + esc(payL) + '</span>' +
       '<span class="sm-o-buyer">' + esc((o.address && o.address.name) || o.ship_name || '') + '</span>' +
       '<span class="sm-o-mail">' + esc(o.email || '') + '</span>' +
@@ -754,7 +764,7 @@
       '<span class="sm-o-time">' + fmtTime(o.created_at) + '</span>' +
       /* 她 20261031 §二：归档入口必须一眼看到 —— 放在第一行、带文字，不藏在展开后的角落里 */
       '<span class="sm-o-acts">' +
-        (o.status === 'archived'
+        (isArchived(o)
           ? '<button type="button" class="btn-mini sm-o-restore" data-act="restore">恢复订单</button>'
           : '<button type="button" class="btn-mini sm-o-arch" data-act="archive">归档订单</button>') +
         '<button type="button" class="btn-mini sm-o-del" data-act="delete" style="color:#C4636E;border-color:#F3D5D8;">删除订单</button>' +
@@ -837,6 +847,30 @@
      她 20261031 §二：归档 / 恢复（软删、二次确认、可恢复、流水全保留）
      ═══════════════════════════════════════════════════════════════════ */
   function selOrders() { return SM.orders.filter(function (o) { return SM.osel[o.id]; }); }
+  /* 2026-10-31：归档不再改订单状态（状态机触发器不允许 archived），
+     改成「按用户作用域的归档标记」：只影响当前这个人的列表，别人照旧看得见。 */
+  function isArchived(o) {
+    if (!o) return false;
+    if (window.YkOrderDel && window.YkOrderDel.isArch(o.id)) return true;
+    return o.status === 'archived'; // 老数据兼容
+  }
+  function markEntry(o) {
+    var s = payStat(o);
+    return {
+      id: o.id,
+      order_no: o.order_no || String(o.id).slice(0, 8),
+      buyer: (o.address && o.address.name) || o.ship_name || o.email || '',
+      total: num(o.total), currency: o.currency || 'USD', paid: s.net,
+      from: o.status || '', at: new Date().toISOString(),
+      by: String(adminActor()).replace(/^admin:/, '')
+    };
+  }
+  /* 后端是表 + RPC 时，审计由服务端自己写（带 auth.uid()）；只有后备模式才在前端补日志 */
+  function auditLocal(orderId, action, detail) {
+    var be = (window.YkOrderDel && window.YkOrderDel.info) ? window.YkOrderDel.info().backend : '';
+    if (be === 'rpc') return;
+    addLog(orderId, action, detail);
+  }
   function refreshArchBtn() {
     var b = document.getElementById('sm-o-arch-sel');
     if (!b) return;
@@ -846,8 +880,14 @@
     b.style.opacity = n ? '1' : '.55';
   }
   function archiveList(list) {
-    list = (list || []).filter(function (o) { return o && o.status !== 'archived'; });
-    if (!list.length) { toast('这些订单已经归档过了'); return; }
+    var skipped = 0;
+    list = (list || []).filter(function (o) {
+      if (!o) return false;
+      if (isArchived(o)) { skipped++; return false; }              // 已归档不重复归档
+      if (window.YkOrderDel && window.YkOrderDel.isDel(o.id)) { skipped++; return false; } // 已删除的不能归档
+      return true;
+    });
+    if (!list.length) { toast('这些订单已经归档过、或者已经删除了'); return; }
     var nos = list.slice(0, 5).map(function (o) { return o.order_no || o.id; }).join('、') + (list.length > 5 ? ' 等 ' + list.length + ' 笔' : '');
     var buyers = list.slice(0, 3).map(function (o) { return (o.address && o.address.name) || o.ship_name || ''; }).filter(Boolean).join('、');
     var total = list.reduce(function (t, o) { return t + num(o.total); }, 0);
@@ -855,35 +895,45 @@
     if (!window.confirm('把 ' + list.length + ' 笔订单归档？\n\n单号：' + nos +
       (buyers ? '\n买家：' + buyers : '') +
       '\n订单金额合计：$' + fmtMoney(total) +
-      '\n\n归档后：会从正常订单列表移出，可在「已归档」筛选中找回。' +
-      '\n订单、商品明细、定金尾款收款与退款流水全部保留，不是真删。')) return;
+      '\n\n归档后：只从你自己的订单列表里收进「已归档」，别人（管理员／其他操作人／买家）看到的照旧。' +
+      '\n订单状态不变，不会触发邮件、不会退款，收款与退款流水全部保留，随时可以恢复。')) return;
     if (!window.confirm('再确认一次：确定归档 ' + list.length + ' 笔订单？' +
       (got > 0.005 ? '\n\n其中已收款合计 $' + fmtMoney(got) + '：归档不会自动退款，收款与退款流水都会保留。' : ''))) return;
-    var i = 0;
+    if (!window.YkOrderDel) { toast('标记模块没加载出来，刷新页面再试'); return; }
+    var i = 0, fail = 0, firstErr = '';
     (function next() {
-      if (i >= list.length) { toast('已归档 ' + list.length + ' 笔（可在「已归档」里恢复）'); renderOrders(); return; }
+      if (i >= list.length) {
+        var okN = list.length - fail;
+        if (fail) toast('归档完成 ' + okN + ' 笔，失败 ' + fail + ' 笔：' + (firstErr || '原因未知'));
+        else toast('已归档 ' + okN + ' 笔（可在「已归档」里恢复）' + (skipped ? '；另有 ' + skipped + ' 笔跳过' : ''));
+        renderOrders(); renderStats();
+        return;
+      }
       var o = list[i++];
       var prev = o.status;
-      restWrite('shop_orders?id=eq.' + o.id, 'PATCH', { status: 'archived' }).then(function (ok) {
-        if (ok) { o.status = 'archived'; addLog(o.id, 'archive', 'from:' + prev); delete SM.osel[o.id]; }
+      window.YkOrderDel.mark(markEntry(o), 'archived').then(function (res) {
+        if (res && res.ok) {
+          delete SM.osel[o.id];
+          auditLocal(o.id, 'archive', 'order_no:' + (o.order_no || '') + '; from:' + (prev || ''));
+        } else {
+          fail++; if (!firstErr) firstErr = (res && res.reason) || '未知原因';
+        }
         next();
       });
     })();
   }
   function restoreOne(o) {
-    var s = payStat(o);
-    var guess = s.net > 0.005 ? 'paid' : 'pending';
-    if (!window.confirm('恢复订单 ' + (o.order_no || '') + '？\n\n恢复后会重新出现在正常订单列表，收款与退款流水不变。')) return;
-    restGet('shop_order_logs?select=detail&order_id=eq.' + o.id + '&action=eq.archive&order=created_at.desc&limit=1')
-      .then(function (rows) {
-        var d = (arr(rows)[0] || {}).detail || '';
-        var m = /from:([a-z]+)/.exec(d);
-        return (m && m[1] && m[1] !== 'archived') ? m[1] : guess;
-      })
-      .catch(function () { return guess; })
-      .then(function (prev) {
-        patchOrder(o.id, { status: prev }, '订单已恢复到「' + ((ST[prev] || [prev])[0]) + '」', 'restore', 'from:archived->' + prev);
-      });
+    if (!o) return;
+    var no = o.order_no || String(o.id).slice(0, 8);
+    if (!window.YkOrderDel) { toast('标记模块没加载出来，刷新页面再试'); return; }
+    if (!window.confirm('恢复订单 ' + no + '？\n\n恢复后会重新出现在你自己的正常订单列表里；' +
+      '订单状态、收款与退款流水都不变。')) return;
+    window.YkOrderDel.unmark(o.id, 'archived').then(function (res) {
+      if (!res || !res.ok) { toast('恢复失败：' + ((res && res.reason) || '未知原因')); return; }
+      auditLocal(o.id, 'unarchive', 'order_no:' + no + '; from:archived');
+      toast('订单已恢复到正常列表');
+      renderOrders(); renderStats();
+    });
   }
 
   /* ══════════════════════════════════════════════════════════════════
@@ -899,7 +949,7 @@
      ══════════════════════════════════════════════════════════════════ */
   function deleteOrder(o) {
     if (!o) return;
-    if (o.status === 'deleted') { toast('这笔订单已经删除过了'); return; }
+    if (o.status === 'deleted' || (window.YkOrderDel && window.YkOrderDel.isDel(o.id))) { toast('这笔订单已经删除过了'); return; }
     var no = o.order_no || String(o.id).slice(0, 8);
     var buyer = (o.address && o.address.name) || o.ship_name || o.email || '（没填买家名）';
     var sym = o.currency === 'CNY' ? '\u00a5' : '$';
@@ -920,25 +970,19 @@
 
     var detail = 'order_no:' + no + '; buyer:' + buyer + '; total:' + fmtMoney(o.total) + '; from:' + (o.status || '') +
       '; paid:' + fmtMoney(s.net) + '; at:' + new Date().toISOString();
-    var actor = adminActor();
-    if (!window.YkOrderDel) { toast('删除登记表没加载出来，刷新页面再试'); return Promise.resolve(false); }
-    var entry = {
-      id: o.id, order_no: no, buyer: buyer,
-      total: fmtMoney(o.total), currency: o.currency || 'USD',
-      from: o.status || '', paid: fmtMoney(s.net),
-      at: new Date().toISOString(), by: String(actor).replace(/^admin:/, '')
-    };
-    return window.YkOrderDel.mark(entry).then(function (ok) {
-      if (!ok) { toast('删除失败（订单还在）：没能写入删除登记表，可能是没有权限或网络断了'); return false; }
+    if (!window.YkOrderDel) { toast('标记模块没加载出来，刷新页面再试'); return Promise.resolve(false); }
+    return window.YkOrderDel.mark(markEntry(o), 'deleted').then(function (res) {
+      if (!res || !res.ok) {
+        // 真实原因照原样给她，不再用「可能是没权限或网络断了」糊过去
+        toast('删除失败（订单还在）：' + ((res && res.reason) || '服务端没有返回原因'));
+        return false;
+      }
       delete SM.osel[o.id];
       SM.oopen[o.id] = false;
       // 本地列表一并排掉，不等下次刷新
       SM.orders = SM.orders.filter(function (x) { return x.id !== o.id; });
-      // 审计：即使以后连订单行都被清理，日志里的单号/买家/金额/人都还在
-      addLog(o.id, 'delete', detail, actor);
-      return true;
-    }).then(function (ok) {
-      if (!ok) return;
+      // 审计：后端是表 + RPC 时由服务端写（带 auth.uid），后备模式才在前端补
+      auditLocal(o.id, 'delete', detail);
       toast('已删除订单 ' + no);
       renderOrders(); renderStats();
       return true;

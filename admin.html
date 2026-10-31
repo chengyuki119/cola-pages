@@ -702,7 +702,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     body:not(.adm-in) .wrap .adm-head { margin: 0 var(--adm-edge, 40px) 22px; justify-content: center; }
   </style>
   <script src="site-menu.js" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261031v">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261031w">
   <style>
     /* ═══ 她 20261030 §5：后台字体统一加深（三档，仅后台生效）═══
        主要文字 #55464E ｜ 普通正文 #62545B ｜ 辅助文字 #81717A
@@ -1466,56 +1466,187 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
      这几条；任何别写状态（包括 archived、deleted）都会被它拒掉：
        “不允许的订单状态变更：pending → deleted（已退款/已取消为终态）”
      要真的新增一个终态必须改触发器（属于改数据库，要她跑 SQL）。
-     所以现在先用「删除登记表」：site_settings.shop_orders_deleted（纯数据，不动表结构），
+     （2026-10-31 更新：已改成按用户作用域的表 shop_order_marks + RPC，见下面的新实现；
+       旧的全局 site_settings.shop_orders_deleted 只作为后备读取，不再写入。）
      订单行、收款、退款、物流、日志一律保留，只把这几笔从所有列表/统计/导出里排掉。
      以后触发器允许 deleted 了，代码里已经写好的 status=neq.deleted 会直接接上，不用重做。
      ══════════════════════════════════════════════════════════════════ */
+  /* 2026-10-31 重写：按「用户作用域」记标记，绝不再用一份全局名单。
+     · 首选后端：表 shop_order_marks + RPC shop_order_marks / shop_order_mark / shop_order_unmark
+       （SQL 见 site/supabase/sql/20261031_order_view_marks.sql；RPC 里用 auth.uid() 认人，前端伪造不了）
+     · 后备后端：site_settings 里按登录者分键 order_view_marks:<uid>，用 PATCH→POST 写入
+       （PATCH 命中 0 行才 POST，且带 Prefer: resolution=merge-duplicates ——
+         之前 409 duplicate key 就是漏了这个头）
+     两条路都只标记「这个人自己的视图」，订单行、付款、退款、物流、日志一个字节都不改。 */
   window.YkOrderDel = (function () {
-    var KEY = 'shop_orders_deleted';
-    var ids = null, loading = null;
-    function parse(rows) {
-      var raw = rows && rows[0] ? rows[0].value : '[]';
-      var list = [];
-      try { list = typeof raw === 'string' ? JSON.parse(raw) : raw; } catch (e) { list = []; }
-      return Array.isArray(list) ? list : [];
+    var LEGACY = 'shop_orders_deleted';
+    var KINDS = ['deleted', 'archived'];
+    var uid = null, MK = null, loading = null, backend = 'unknown', lastErr = '';
+
+    function jwtSub() {
+      try {
+        var t = ACCESS;
+        if (!t) { var s = JSON.parse(localStorage.getItem('yuki-admin-session') || 'null'); t = s && (s.a || s.access_token); }
+        if (!t) return '';
+        var p = String(t).split('.')[1] || '';
+        p = p.replace(/-/g, '+').replace(/_/g, '/');
+        while (p.length % 4) p += '=';
+        var js = JSON.parse(decodeURIComponent(escape(atob(p))));
+        return js && js.sub ? js.sub : '';
+      } catch (e) { return ''; }
     }
+    function myUid() { if (!uid) uid = jwtSub(); return uid || ''; }
+    function keyName() { return 'order_view_marks:' + (myUid() || 'anon'); }
+    function emptyMk() { return { deleted: {}, archived: {} }; }
+    function pack(mk) {
+      return {
+        deleted: Object.keys(mk.deleted).map(function (k) { return mk.deleted[k]; }),
+        archived: Object.keys(mk.archived).map(function (k) { return mk.archived[k]; })
+      };
+    }
+    function absorb(raw, mk) {
+      /* 兼容四种形态：{deleted:[],archived:[]} / 旧全局数组 / JSON 字符串 / null */
+      var v = raw;
+      if (typeof v === 'string') { try { v = JSON.parse(v); } catch (e) { v = null; } }
+      if (Array.isArray(v)) { v.forEach(function (x) { if (x && x.id) mk.deleted[x.id] = x; }); return mk; }
+      if (v && typeof v === 'object') {
+        KINDS.forEach(function (k) {
+          if (Array.isArray(v[k])) v[k].forEach(function (x) { if (x && x.id) mk[k][x.id] = x; });
+        });
+      }
+      return mk;
+    }
+    function readSettings(key) {
+      return api('site_settings?select=value&key=eq.' + encodeURIComponent(key))
+        .then(function (r) { return r.ok ? r.json() : []; })
+        .then(function (rows) { return rows && rows[0] ? rows[0].value : null; })
+        .catch(function () { return null; });
+    }
+    function writeSettings(mk) {
+      var patchBody = JSON.stringify({ value: pack(mk) });
+      return api('site_settings?key=eq.' + encodeURIComponent(keyName()), {
+        method: 'PATCH', body: patchBody, headers: { Prefer: 'return=representation' }
+      }).then(function (r) {
+        if (!r.ok) return r.text().then(function (t) { return { ok: false, status: r.status, text: t }; });
+        return r.json().then(function (rows) {
+          if (rows && rows.length) return { ok: true };
+          // 这一行还不存在（第一次用）→ 插入；merge-duplicates 保证不会 409
+          var insBody = JSON.stringify([{ key: keyName(), value: pack(mk) }]);
+          return api('site_settings?on_conflict=key', {
+            method: 'POST', body: insBody,
+            headers: { Prefer: 'resolution=merge-duplicates,return=representation' }
+          }).then(function (r2) {
+            if (!r2.ok) return r2.text().then(function (t) { return { ok: false, status: r2.status, text: t }; });
+            return { ok: true };
+          });
+        });
+      }).catch(function (e) { return { ok: false, status: 0, text: String((e && e.message) || e) }; });
+    }
+
     function load(force) {
-      if (ids && !force) return Promise.resolve(ids);
+      if (MK && !force) return Promise.resolve(MK);
       if (loading && !force) return loading;
-      loading = api('site_settings?select=value&key=eq.' + KEY)
-        .then(function (r) { return r.json(); })
-        .then(function (rows) {
-          var set = {};
-          parse(rows).forEach(function (x) { if (x && x.id) set[x.id] = x; });
-          ids = set;
-          return set;
-        })
-        .catch(function () { ids = ids || {}; return ids; });
+      loading = (function () {
+        var mk = emptyMk();
+        return rpcAdmin('shop_order_marks', {}).then(function (res) {
+          if (res && res.ok === true) {
+            backend = 'rpc';
+            KINDS.forEach(function (k) {
+              (res[k] || []).forEach(function (x) {
+                if (!x) return;
+                var id = x.id || x.order_id;
+                if (!id) return;
+                x.id = id; mk[k][id] = x;
+              });
+            });
+            MK = mk;
+            return mk;
+          }
+          if (res && res.ok === false) { lastErr = res.msg || res.code || ''; }
+          return null;
+        }).catch(function () { return null; }).then(function (done) {
+          if (done) return done;
+          backend = 'settings';
+          return readSettings(keyName())
+            .then(function (v) { absorb(v, mk); return readSettings(LEGACY); })
+            .then(function (v2) { absorb(v2, mk); MK = mk; return mk; })
+            .catch(function () { MK = mk; return mk; });
+        });
+      })();
       return loading;
     }
+
+    function isDel(id) { return !!(MK && MK.deleted && MK.deleted[id]); }
+    function isArch(id) { return !!(MK && MK.archived && MK.archived[id]); }
+    /* filter：只排「已删除」（其他模块沿用旧行为，不改它们） */
     function filterOrderRows(rows) {
       return load().then(function (set) {
-        return (rows || []).filter(function (o) { return o && !set[o.id]; });
+        return (rows || []).filter(function (o) { return o && !(set.deleted && set.deleted[o.id]); });
       });
     }
-    function isDel(id) { return !!(ids && ids[id]); }
-    function mark(entry) {
-      return load(true).then(function () {
-        return api('site_settings?select=value&key=eq.' + KEY).then(function (r) { return r.json(); });
-      }).then(function (rows) {
-        var list = parse(rows).filter(function (x) { return x && x.id !== entry.id; });
-        list.push(entry);
-        return api('site_settings?on_conflict=key', {
-          method: 'POST',
-          body: JSON.stringify([{ key: KEY, value: JSON.stringify(list.slice(-2000)) }])
+    /* filterActive：删除 + 归档都排掉（订单列表/工作台这种「待处理」视图用） */
+    function filterActive(rows) {
+      return load().then(function (set) {
+        return (rows || []).filter(function (o) {
+          return o && !(set.deleted && set.deleted[o.id]) && !(set.archived && set.archived[o.id]);
         });
-      }).then(function (r) {
-        if (!r || !r.ok) return false;
-        ids = ids || {}; ids[entry.id] = entry;
-        return true;
-      }).catch(function () { return false; });
+      });
     }
-    return { load: load, filter: filterOrderRows, isDel: isDel, mark: mark, reset: function () { ids = null; loading = null; } };
+
+    function mark(entry, kind) {
+      kind = kind === 'archived' ? 'archived' : 'deleted';
+      if (!entry || !entry.id) return Promise.resolve({ ok: false, reason: '订单缺少 id，无法标记' });
+      return load().then(function () {
+        if (!myUid()) return { ok: false, reason: '登录已失效，请重新登录后台再试' };
+        if (backend === 'rpc') {
+          return rpcAdmin('shop_order_mark', { p_order_id: entry.id, p_kind: kind }).then(function (res) {
+            if (res && res.ok) { MK[kind][entry.id] = entry; return { ok: true, msg: res.msg || '' }; }
+            return { ok: false, reason: (res && (res.msg || res.code)) || '服务端没有返回结果', code: res && res.code };
+          });
+        }
+        var old = MK[kind][entry.id];
+        MK[kind][entry.id] = entry;
+        return writeSettings(MK).then(function (res) {
+          if (res.ok) return { ok: true };
+          if (old) MK[kind][entry.id] = old; else delete MK[kind][entry.id];
+          lastErr = 'HTTP ' + res.status + ' ' + String(res.text || '').slice(0, 200);
+          return { ok: false, reason: '写入标记失败：' + lastErr };
+        });
+      });
+    }
+
+    function unmark(id, kind) {
+      kind = kind === 'deleted' ? 'deleted' : 'archived';
+      return load().then(function () {
+        if (!myUid()) return { ok: false, reason: '登录已失效，请重新登录后台再试' };
+        if (backend === 'rpc') {
+          return rpcAdmin('shop_order_unmark', { p_order_id: id, p_kind: kind }).then(function (res) {
+            if (res && res.ok) { delete MK[kind][id]; return { ok: true, msg: res.msg || '' }; }
+            return { ok: false, reason: (res && (res.msg || res.code)) || '服务端没有返回结果' };
+          });
+        }
+        var old = MK[kind][id];
+        if (!old) return { ok: false, reason: '这笔订单没有对应的标记' };
+        delete MK[kind][id];
+        return writeSettings(MK).then(function (res) {
+          if (res.ok) return { ok: true };
+          MK[kind][id] = old;
+          lastErr = 'HTTP ' + res.status + ' ' + String(res.text || '').slice(0, 200);
+          return { ok: false, reason: '写入标记失败：' + lastErr };
+        });
+      });
+    }
+
+    function marksOf(kind) {
+      var set = (MK && MK[kind]) || {};
+      return Object.keys(set).map(function (k) { return set[k]; });
+    }
+    return {
+      load: load, filter: filterOrderRows, filterActive: filterActive,
+      isDel: isDel, isArch: isArch, mark: mark, unmark: unmark, marksOf: marksOf,
+      reset: function () { MK = null; loading = null; uid = null; backend = 'unknown'; },
+      info: function () { return { backend: backend, uid: myUid(), deleted: marksOf('deleted').length, archived: marksOf('archived').length, lastErr: lastErr }; }
+    };
   })();
   function tryRefresh() {
     if (!REFRESH) return Promise.reject();
@@ -6720,18 +6851,18 @@ function loadEmailLog() {
 </script>
 
 
-<script src="js/admin-shop.js?v=20261031v"></script>
-<script src="js/admin-import.js?v=20261031v"></script>
-<script src="js/admin-crm.js?v=20261031v"></script>
-<script src="js/admin-vip.js?v=20261031v" data-legacy="1"></script>
-<script src="js/admin-customer.js?v=20261031v"></script>
-<script src="js/admin-invite.js?v=20261031v"></script>
-<script src="js/vendor/jsQR.js?v=20261031v"></script>
-<script src="js/vendor/qrcode-generator.js?v=20261031v"></script>
-<script src="js/vendor/JsBarcode.all.min.js?v=20261031v"></script>
-<script src="js/admin-workbench.js?v=20261031v"></script>
-<script src="js/admin-biz.js?v=20261031v"></script>
-<script src="js/admin-export.js?v=20261031v"></script>
+<script src="js/admin-shop.js?v=20261031w"></script>
+<script src="js/admin-import.js?v=20261031w"></script>
+<script src="js/admin-crm.js?v=20261031w"></script>
+<script src="js/admin-vip.js?v=20261031w" data-legacy="1"></script>
+<script src="js/admin-customer.js?v=20261031w"></script>
+<script src="js/admin-invite.js?v=20261031w"></script>
+<script src="js/vendor/jsQR.js?v=20261031w"></script>
+<script src="js/vendor/qrcode-generator.js?v=20261031w"></script>
+<script src="js/vendor/JsBarcode.all.min.js?v=20261031w"></script>
+<script src="js/admin-workbench.js?v=20261031w"></script>
+<script src="js/admin-biz.js?v=20261031w"></script>
+<script src="js/admin-export.js?v=20261031w"></script>
 <footer style="padding:18px 0 0; text-align:center;">© 2026 Yuki · Made with Cola</footer>
 </body>
 </html>
