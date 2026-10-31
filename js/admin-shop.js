@@ -2210,6 +2210,19 @@
     renderOrders();
   }, true);
 
+  /* 订单编号一律找数据库要，前端不算号（2026-10-30 23:41 任务书）
+     优先 rpc/shop_alloc_order_no（末尾补位版，需先跑 20261031_order_no_alloc.sql）
+     没跑过就退回老的 rpc/shop_next_order_no（只递增不补位），保证不会因为缺函数而建不了单 */
+  function nextOrderNo() {
+    return api('rpc/shop_alloc_order_no', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ p_hold_minutes: 30 }) })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (no) {
+        if (no) return no;
+        return api('rpc/shop_next_order_no', { method: 'POST', body: '{}' })
+          .then(function (r2) { return r2.ok ? r2.json() : null; });
+      })
+      .catch(function () { return null; });
+  }
   // ── 手动建单 ──
   var MO_ITEMS = [];
   function genOrderNo() {
@@ -2767,7 +2780,7 @@
           return r.json().catch(function () { return {}; }).then(function (d) {
             var msg = (d && (d.message || d.msg)) || '';
             if (attempt < 1 && /duplicate|unique|重复/.test(msg)) { // 编号撞车自动换号重试一次（并发兜底）
-              return api('rpc/shop_next_order_no', { method: 'POST', body: '{}' }).then(function (r2) { return r2.ok ? r2.json() : null; }).then(function (no) {
+              return nextOrderNo().then(function (no) {
                 if (no) { body.order_no = no; var noEl = f.querySelector('.mo-no'); if (noEl) noEl.value = no; }
                 return submitOrder(attempt + 1);
               });
@@ -2777,7 +2790,7 @@
         });
       };
       // 订单编号只在保存时申请（20261029 她反馈：开弹窗就预占号，不开单号码也一直变/被烧掉）
-      api('rpc/shop_next_order_no', { method: 'POST', body: '{}' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (no) {
+      nextOrderNo().then(function (no) {
         if (!no) throw new Error('拿不到订单编号');
         body.order_no = no;
         var noEl = f.querySelector('.mo-no'); if (noEl) noEl.value = no;
