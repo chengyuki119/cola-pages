@@ -848,9 +848,14 @@
       .catch(function () { build(local); });
   }
   function smVarImgHtml(v, i) {
-    return arr(v.images).map(function (u, k) {
+    var imgs = arr(v.images);
+    return imgs.map(function (u, k) {
       return '<span style="position:relative;display:inline-block;"><img src="' + escAttr(u) + '">' +
-        '<button type="button" class="sm-var-imgdel" data-i="' + i + '" data-k="' + k + '" title="删除图片">✕</button></span>';
+        '<button type="button" class="sm-var-imgdel" data-i="' + i + '" data-k="' + k + '" title="删除图片">✕</button>' +
+        (imgs.length > 1 && k > 0 ? '<button type="button" class="sm-var-imgmv" data-i="' + i + '" data-k="' + k + '" data-d="-1" title="往前一位（第一位＝这个规格的封面）" style="position:absolute;left:1px;bottom:1px;width:15px;height:15px;line-height:1;font-size:10px;padding:0;border:none;border-radius:50%;background:rgba(255,255,255,.92);color:#A98D96;cursor:pointer;">‹</button>' : '') +
+        (imgs.length > 1 && k < imgs.length - 1 ? '<button type="button" class="sm-var-imgmv" data-i="' + i + '" data-k="' + k + '" data-d="1" title="往后一位" style="position:absolute;right:1px;bottom:1px;width:15px;height:15px;line-height:1;font-size:10px;padding:0;border:none;border-radius:50%;background:rgba(255,255,255,.92);color:#A98D96;cursor:pointer;">›</button>' : '') +
+        (k === 0 && imgs.length > 1 ? '<span style="position:absolute;left:1px;bottom:1px;background:#A98D96;color:#fff;border-radius:999px;padding:0 4px;font-size:9px;line-height:12px;">封面</span>' : '') +
+        '</span>';
     }).join('');
   }
   function smVarRenderRows(card) {
