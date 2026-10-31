@@ -95,6 +95,21 @@
           box.innerHTML = '<p style="color:var(--muted,#A88E9B);text-align:center;padding:30px 0;">' + syT('社交账号配置即将上线，先去首页逛逛吧 ♡', 'Social links coming soon ♡') + '</p>';
           return;
         }
+        if (mode === 'row') { ensureRowStyle(); box.classList.add('sy-rowlist'); box.innerHTML = links.map(function (l) {
+            var iconSvg = (window.ykSocialIcon ? window.ykSocialIcon(l.icon, 22) : '');
+            var name = syName(l.name);
+            var sub = l.sub ? esc(sySub(l)).replace('@', '@<wbr>') : syT('账号整理中', 'account coming soon');
+            var inner = '<span class="sy-rc-top">' + iconSvg + '<b>' + name + '</b></span>' +
+                        '<span class="sy-rc-sub">' + sub + '</span>';
+            var icon = l.icon || '';
+            if (icon === 'wechat' && l.sub) return '<a class="sy-rowcard" href="javascript:void(0)" data-sy-copy="' + escAttr(l.sub) + '" title="' + escAttr(syT('点击复制微信号：', 'Tap to copy: ') + l.sub) + '">' + inner + '</a>';
+            if (icon === 'gmail') { var full = (l.sub || '').indexOf('@') >= 0 ? l.sub : (l.sub || '') + '@gmail.com'; return '<a class="sy-rowcard" href="javascript:void(0)" data-sy-mail="' + escAttr(full) + '">' + inner + '</a>'; }
+            if (l.url) return '<a class="sy-rowcard" href="' + escAttr(l.url) + '" target="_blank" rel="noopener">' + inner + '</a>';
+            return '<span class="sy-rowcard" style="cursor:default;">' + inner + '</span>';
+          }).join('') + '<div id="sy-mail-pop" style="display:none;"></div>';
+          bindSocialActions(box);
+          return;
+        }
         if (mode === 'text') {
           box.innerHTML = links.map(function (l) {
             var iconSvg = (window.ykSocialIcon ? window.ykSocialIcon(l.icon, 20) : ''); // §7 品牌 Logo
@@ -120,6 +135,28 @@
         box.innerHTML = '<p style="color:var(--muted,#A88E9B);text-align:center;padding:30px 0;">' + syT('加载失败，请刷新重试', 'Failed to load, please refresh') + '</p>';
       });
   };
+
+  /* —— 找我的横排卡片：
+     外框 flex-wrap，项目 flex:1 1 120px → 宽度够就一排尽量摆满，放不下才换行（不缩放图标和文字）
+     每个项目两排：① 图标 + 加粗平台名（垂直居中） ② 账号 / 邮箱 / 联系方式 —— */
+  function ensureRowStyle() {
+    if (document.getElementById('sy-rowcard-style')) return;
+    var st = document.createElement('style');
+    st.id = 'sy-rowcard-style';
+    st.textContent =
+      '.sy-rowlist{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px 18px;align-items:stretch;}' +
+      '.sy-rowcard{min-width:0;box-sizing:border-box;display:flex;flex-direction:column;gap:7px;' +
+        'padding:14px 16px;background:#FFF7FA;border:1.5px solid #FFD1E0;border-radius:16px;text-decoration:none;' +
+        'color:#62545B;transition:background .18s,border-color .18s;}' +
+      'a.sy-rowcard:hover{background:#FCE1EA;border-color:#F5BFD1;}' +
+      '.sy-rowcard .sy-rc-top{display:flex;align-items:center;gap:8px;min-width:0;}' +
+      '.sy-rowcard .sy-rc-top .sy-sicon{margin-right:0 !important;}' +
+      '.sy-rowcard .sy-rc-top b{font-size:17px;font-weight:700;color:#55464E;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}' +
+      '.sy-rowcard .sy-rc-sub{font-size:15px;line-height:1.55;color:#81717A;word-break:break-word;overflow-wrap:anywhere;}' +
+      '@media (min-width:600px){.sy-rowcard .sy-rc-sub{padding-left:30px;}}' +
+      '@media (max-width:599px){.sy-rowlist{grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px 10px;}.sy-rowcard{padding:12px 13px;border-radius:14px;}.sy-rowcard .sy-rc-top b{font-size:16px;}.sy-rowcard .sy-rc-sub{font-size:14px;}}';
+    document.head.appendChild(st);
+  }
 
   /* —— §4.3 复制与 Gmail 展开逻辑（social-cards 内部自足，不依赖页面其它脚本） —— */
   function syCopyText(text, done) {

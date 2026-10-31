@@ -95,6 +95,11 @@
       '.sy-footer-social{margin-top:10px;display:flex;flex-direction:column;align-items:flex-start;gap:0;}' +
       '.sy-footer-social .sy-sicon{display:inline-block;vertical-align:middle;line-height:0;filter:saturate(1);transition:opacity .2s;}' +
       '.sy-footer-social .sy-sicon svg{vertical-align:middle;}' +
+      /* 首页专用：纯图标横排（她 20261031：只留 Logo，均匀间距，不缩放） */
+      '.sy-footer-social.sy-iconrow-mode{flex-direction:row;flex-wrap:wrap;align-items:center;gap:10px;margin-top:6px;}' +
+      '.sy-footer-social.sy-iconrow-mode .sy-ic{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;text-decoration:none;transition:opacity .2s;}' +
+      '.sy-footer-social.sy-iconrow-mode .sy-ic:hover{opacity:.75;}' +
+      '.sy-footer-social.sy-iconrow-mode .sy-ic .sy-sicon{margin-right:0 !important;}' +
       '.sy-footer-social .sy-footer-link:hover .sy-sicon{opacity:.78;}' +
       '.sy-footer-link{color:var(--muted,#A88E9B);font-size:15px;line-height:2.15;text-decoration:none;transition:color .2s;}' +
       '.sy-footer-link:hover{color:var(--price,#FF6FA5);}' +
@@ -151,7 +156,27 @@
       var SUB_EN = { '小柚的服务器': "Yuki's server" };
       var isEn = false;
       try { isEn = (window.YK && window.YK.lang === 'en') || /^en/i.test(document.documentElement.lang || ''); } catch (e) {}
-      box.innerHTML = (links || []).filter(function (l) { return ALLOW.indexOf(l.icon) !== -1; }).map(function (l) {
+      var list = (links || []).filter(function (l) { return ALLOW.indexOf(l.icon) !== -1; });
+      /* 她 20261031 02:00：主页的社交媒体区改成纯图标横排（不显示平台名、不显示账号），
+         其他页的页脚保持原来的纵向文字列表 —— 只对首页 (/, /zh/) 生效 */
+      var pn = '';
+      try { pn = location.pathname.replace(/index\.html$/i, '').replace(/\/+$/, ''); } catch (e) {}
+      var isHome = (pn === '' || pn === '/zh');
+      if (isHome) {
+        box.classList.add('sy-iconrow-mode');
+        box.innerHTML = list.map(function (l) {
+          var nm = (isEn && NAME_EN[l.name]) ? NAME_EN[l.name] : l.name;
+          var ico = (typeof window.ykSocialIcon === 'function') ? window.ykSocialIcon(l.icon, 20) : '';
+          ico = ico.replace('vertical-align:-4px', 'vertical-align:middle');
+          var sub = l.sub ? String((isEn && (l.subEn || SUB_EN[l.sub])) || l.sub) : '';
+          if (l.url) return '<a class="sy-ic" href="' + esc(l.url) + '"' + (l.url.indexOf('mailto:') === 0 ? '' : ' target="_blank" rel="noopener"') + ' aria-label="' + esc(nm) + '" title="' + esc(nm) + '">' + ico + '</a>';
+          if (sub) return '<span class="sy-ic" data-sy-copy="' + esc(sub) + '" role="button" tabindex="0" aria-label="' + esc(nm) + '" title="' + esc(isEn ? 'Tap to copy: ' : '点击复制：') + esc(sub) + '">' + ico + '</span>';
+          return '<span class="sy-ic" aria-label="' + esc(nm) + '" title="' + esc(nm) + '">' + ico + '</span>';
+        }).join('');
+        bindFooterCopy();
+        return;
+      }
+      box.innerHTML = list.map(function (l) {
         var nm = (isEn && NAME_EN[l.name]) ? NAME_EN[l.name] : l.name;
         /* 她 20261031 §7：每个平台前面加真实品牌 Logo（官方图形 + 官方色，20px），对齐、可点、hover 微变，微信仍复制 */
         var ico = (typeof window.ykSocialIcon === 'function') ? window.ykSocialIcon(l.icon, 20) : '';
