@@ -317,6 +317,91 @@
       ' · 收款进度 <b>' + p.pct + '%</b>' + (p.guessed ? ' · <span style="color:var(--muted,#81717A);">应收定金列未建，暂按已收计</span>' : '') + '</div>' +
       '</div>';
   }
+  /* ═══════════════════════════════════════════════════════════════════════
+     她 20261031 §三/§五：所有订单都显示真实可视付款进度条
+     - 全款单：一条总进度条
+     - 定金尾款单：定金 + 尾款 + 总进度三条
+     - 数据全部来自「有效收款流水 - 退款流水」，不读也不写死百分比
+     ═══════════════════════════════════════════════════════════════════════ */
+  var PAY_BAR_HIDE = ['shipped', 'completed', 'cancelled', 'archived']; // §七：这四种不显示进度条
+  function payStat(o) {
+    var pi = payInfo(o), mn = payNet(o);
+    var dep = 0, fin = 0, other = 0, depDue0 = null, finDue0 = null;
+    mn.rows.forEach(function (x) {
+      if (x.kind === 'refund') return;
+      if (x.kind === 'deposit') dep += num(x.amount);
+      else if (x.kind === 'final') fin += num(x.amount);
+      else other += num(x.amount);
+    });
+    var flowGross = dep + fin + other + pi.paid;
+    var legacy = 0, noFlow = false;
+    if (flowGross <= 0.005 && num(o.pay_amount) > 0) { legacy = num(o.pay_amount); noFlow = true; }
+    var gross = flowGross + legacy;
+    var refunded = pi.refunded + mn.refunded;
+    var net = Math.max(0, gross - refunded);
+    var due = num(o.total);
+    var remaining = Math.max(0, due - net);
+    var over = due > 0 ? Math.max(0, net - due) : Math.max(0, net);
+    var pct = due > 0 ? Math.min(100, net / due * 100) : (net > 0 ? 100 : 0);
+    if (o.deposit_due != null && o.deposit_due !== '') depDue0 = num(o.deposit_due);
+    if (o.balance_due != null && o.balance_due !== '') finDue0 = num(o.balance_due);
+    var isPlan = (depDue0 != null || finDue0 != null || dep > 0 || fin > 0);
+    var depDue = depDue0, finDue = finDue0;
+    if (isPlan) {
+      if (depDue == null) depDue = dep;
+      if (finDue == null) finDue = Math.max(0, due - depDue);
+    }
+    var st;
+    if (refunded > 0.005 && net <= 0.005) st = '已全额退款';
+    else if (due <= 0) st = '应收 $0';
+    else if (net >= due - 0.005) st = '已付清';
+    else if (net > 0.005) st = '部分付款';
+    else st = '未付款';
+    return {
+      dep: dep, fin: fin, other: other, depDue: depDue, finDue: finDue, isPlan: isPlan,
+      gross: gross, refunded: refunded, net: net, due: due, remaining: remaining, over: over,
+      pct: pct, state: st, noFlow: noFlow, legacy: legacy,
+      incomplete: (net <= 0.005 && ['paid', 'completed', 'shipped'].indexOf(o.status) !== -1 && gross <= 0.005)
+    };
+  }
+  function fmtPct(v) {
+    var r = Math.round(v * 100) / 100;
+    return (Math.abs(r - Math.round(r)) < 0.005 ? String(Math.round(r)) : r.toFixed(2)) + '%';
+  }
+  function pbSlot(got, due) {
+    var pct = due > 0 ? Math.max(0, Math.min(1, got / due)) * 100 : (got > 0 ? 100 : 0);
+    return '<span class="sm-pb-slot"><i style="width:' + (Math.round(pct * 100) / 100) + '%;"></i></span>';
+  }
+  function pbLine(label, got, due) {
+    var pct = due > 0 ? Math.max(0, Math.min(1, got / due)) * 100 : (got > 0 ? 100 : 0);
+    var tag = pct >= 99.995 ? '已收' : (got > 0.005 ? '部分' : '待收');
+    return '<div class="sm-pb-line"><span class="sm-pb-k">' + label + '</span>' +
+      '<span class="sm-pb-v">$' + fmtMoney(got) + ' / $' + fmtMoney(due) + '</span>' +
+      pbSlot(got, due) +
+      '<span class="sm-pb-t">' + tag + ' · ' + fmtPct(pct) + '</span></div>';
+  }
+  function progressHtml(o) {
+    if (PAY_BAR_HIDE.indexOf(o.status) !== -1) return ''; // 已发货/已完成/已取消/已归档不显示
+    var s = payStat(o);
+    if (s.due <= 0 && s.net <= 0) return '';
+    var head = '<div class="sm-paybar-top"><b>付款进度</b>' +
+      '<span class="sm-pb-state' + (s.state === '已付清' ? ' ok' : (s.over > 0 || s.refunded > 0 ? ' warn' : '')) + '">' + esc(s.state) + '</span></div>';
+    var lines = '';
+    if (s.isPlan) {
+      lines = pbLine('定金', s.dep, s.depDue) + pbLine('尾款', s.fin, s.finDue);
+    }
+    lines += pbLine(s.isPlan ? '总付款' : '付款', s.net, s.due);
+    var sum = '已收 <b>$' + fmtMoney(s.net) + '</b> / 应收 <b>$' + fmtMoney(s.due) + '</b>' +
+      ' · 剩余待收 <b>' + (s.remaining > 0.005 ? '$' + fmtMoney(s.remaining) : '$0.00') + '</b>' +
+      ' · 进度 <b>' + fmtPct(s.pct) + '</b>';
+    if (s.refunded > 0.005) sum += ' · 已退款 <b>$' + fmtMoney(s.refunded) + '</b>';
+    if (s.over > 0.005) sum += ' · <span class="sm-pb-extra">超收 $' + fmtMoney(s.over) + '</span>';
+    var tips = '';
+    if (s.noFlow) tips += '<div class="sm-pb-tip">按订单里的付款金额 $' + fmtMoney(s.legacy) + ' 计算（这张单没有收款流水记录）</div>';
+    if (s.incomplete) tips += '<div class="sm-pb-tip bad">这张单标记为已付款，但找不到收款流水；进度不伪造，显示为 0%</div>';
+    return '<div class="sm-paybar" data-paybar="1">' + head + lines +
+      '<div class="sm-pb-sum">' + sum + '</div>' + tips + '</div>';
+  }
   function payLabel(o) { // 付款状态（与订单状态分开展示，不把已付款和已发货混为一谈；含人工收款台账）
     var pi = payInfo(o);
     var mn = payNet(o);
@@ -628,8 +713,8 @@
         (dead ? '<span style="font-size:13px;color:var(--muted);">已终态，不能重复取消</span>' : '<button type="button" class="btn-mini sm-act-cancel">取消订单</button>') +
         '<button type="button" class="btn-mini sm-act-export1">导出这一单</button>' +
         '<button type="button" class="btn-mini sm-act-print1">打印这一单</button>' +
-        '<button type="button" class="btn-del sm-act-archive">删除订单</button>' +
-        '<span style="font-size:12px;color:var(--muted,#81717A);">删除＝归档，订单与收款流水都保留</span>' +
+        '<button type="button" class="btn-del sm-act-archive">归档订单</button>' +
+        '<span style="font-size:12px;color:var(--muted,#81717A);">归档＝软删除，订单与收款流水都保留，可在「已归档」里恢复</span>' +
         '</div>' +
         '</div>';
     }
@@ -645,8 +730,14 @@
       '<span class="sm-o-cnt">' + arr(o.items).length + ' 件</span>' +
       '<span class="sm-o-total" style="color:var(--price,#ff6fa5);font-weight:700;">$' + fmtMoney(o.total) + '</span>' +
       '<span class="sm-o-time">' + fmtTime(o.created_at) + '</span>' +
+      /* 她 20261031 §二：归档入口必须一眼看到 —— 放在第一行、带文字，不藏在展开后的角落里 */
+      '<span class="sm-o-acts">' +
+        (o.status === 'archived'
+          ? '<button type="button" class="btn-mini sm-o-restore" data-act="restore">恢复订单</button>'
+          : '<button type="button" class="btn-mini sm-o-arch" data-act="archive">归档订单</button>') +
+      '</span>' +
       '<span class="sm-o-arrow">▸</span>' +
-      '</div>' + pay2Html(o) + body + '</div>';
+      '</div>' + progressHtml(o) + body + '</div>';
   }
   // 虚拟物流 6 状态 chip 渲染（TEST- 单号）
   var TRACK_STEPS = ['已创建运单', '已发货', '运输途中', '到达当地配送站', '派送中', '已送达'];
@@ -680,6 +771,7 @@
       signedPay(img.getAttribute('data-paypath')).then(function (u) { if (u) img.src = u; });
     });
     Array.prototype.forEach.call(list.querySelectorAll('.sm-order.open'), function (card) { loadPkgs(card); });
+    refreshArchBtn();
   }
 
   // ── 包裹管理（多包裹物流，shop_packages 表）──
@@ -716,6 +808,59 @@
       renderOrders(); renderStats();
       return true;
     });
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     她 20261031 §二：归档 / 恢复（软删、二次确认、可恢复、流水全保留）
+     ═══════════════════════════════════════════════════════════════════ */
+  function selOrders() { return SM.orders.filter(function (o) { return SM.osel[o.id]; }); }
+  function refreshArchBtn() {
+    var b = document.getElementById('sm-o-arch-sel');
+    if (!b) return;
+    var n = selOrders().length;
+    b.textContent = n ? '归档所选（' + n + '）' : '归档所选';
+    b.disabled = !n;
+    b.style.opacity = n ? '1' : '.55';
+  }
+  function archiveList(list) {
+    list = (list || []).filter(function (o) { return o && o.status !== 'archived'; });
+    if (!list.length) { toast('这些订单已经归档过了'); return; }
+    var nos = list.slice(0, 5).map(function (o) { return o.order_no || o.id; }).join('、') + (list.length > 5 ? ' 等 ' + list.length + ' 笔' : '');
+    var buyers = list.slice(0, 3).map(function (o) { return (o.address && o.address.name) || o.ship_name || ''; }).filter(Boolean).join('、');
+    var total = list.reduce(function (t, o) { return t + num(o.total); }, 0);
+    var got = list.reduce(function (t, o) { return t + payStat(o).net; }, 0);
+    if (!window.confirm('把 ' + list.length + ' 笔订单归档？\n\n单号：' + nos +
+      (buyers ? '\n买家：' + buyers : '') +
+      '\n订单金额合计：$' + fmtMoney(total) +
+      '\n\n归档后：会从正常订单列表移出，可在「已归档」筛选中找回。' +
+      '\n订单、商品明细、定金尾款收款与退款流水全部保留，不是真删。')) return;
+    if (!window.confirm('再确认一次：确定归档 ' + list.length + ' 笔订单？' +
+      (got > 0.005 ? '\n\n其中已收款合计 $' + fmtMoney(got) + '：归档不会自动退款，收款与退款流水都会保留。' : ''))) return;
+    var i = 0;
+    (function next() {
+      if (i >= list.length) { toast('已归档 ' + list.length + ' 笔（可在「已归档」里恢复）'); renderOrders(); return; }
+      var o = list[i++];
+      var prev = o.status;
+      restWrite('shop_orders?id=eq.' + o.id, 'PATCH', { status: 'archived' }).then(function (ok) {
+        if (ok) { o.status = 'archived'; addLog(o.id, 'archive', 'from:' + prev); delete SM.osel[o.id]; }
+        next();
+      });
+    })();
+  }
+  function restoreOne(o) {
+    var s = payStat(o);
+    var guess = s.net > 0.005 ? 'paid' : 'pending';
+    if (!window.confirm('恢复订单 ' + (o.order_no || '') + '？\n\n恢复后会重新出现在正常订单列表，收款与退款流水不变。')) return;
+    restGet('shop_order_logs?select=detail&order_id=eq.' + o.id + '&action=eq.archive&order=created_at.desc&limit=1')
+      .then(function (rows) {
+        var d = (arr(rows)[0] || {}).detail || '';
+        var m = /from:([a-z]+)/.exec(d);
+        return (m && m[1] && m[1] !== 'archived') ? m[1] : guess;
+      })
+      .catch(function () { return guess; })
+      .then(function (prev) {
+        patchOrder(o.id, { status: prev }, '订单已恢复到「' + ((ST[prev] || [prev])[0]) + '」', 'restore', 'from:archived->' + prev);
+      });
   }
 
   /* ═══ 拼团管理 ═══ */
@@ -1111,6 +1256,8 @@
     /* 她 20261030 §3：导出与装箱打印并入订单列表，不再单独入口 */
     '<button type="button" class="btn-mini" id="sm-o-export" style="white-space:nowrap;">导出（当前筛选）</button>' +
     '<button type="button" class="btn-mini" id="sm-o-export-sel" style="white-space:nowrap;">导出（已选）</button>' +
+    /* 她 20261031 §二：批量归档入口，勾了单就能点，不用去展开订单找 */
+    '<button type="button" class="btn-mini" id="sm-o-arch-sel" style="white-space:nowrap;">归档所选</button>' +
     '<button type="button" class="btn-mini" id="sm-o-print" style="white-space:nowrap;">打印装箱清单</button></div>' +
     '<div id="sm-o-list"><p class="sm-empty">加载中…</p></div>' +
     '</div>' +
@@ -1227,6 +1374,8 @@
     }
 
     // 展开 / 收起（点头部；点操作区不收起）
+    if (e.target.closest('.sm-o-arch')) { e.stopPropagation(); e.preventDefault(); archiveList([o]); return; }
+    if (e.target.closest('.sm-o-restore')) { e.stopPropagation(); e.preventDefault(); restoreOne(o); return; }
     if (e.target.closest('.sm-o-head')) {
       SM.oopen[id] = !SM.oopen[id];
       renderOrders();
@@ -2779,6 +2928,15 @@
     if (window.EXPORT && window.EXPORT.quickPrint) window.EXPORT.quickPrint(rows);
     else toast('打印模块未加载，刷新一下再试');
   });
+  /* 她 20261031 §二：批量归档 */
+  (function () {
+    var bs = document.getElementById('sm-o-arch-sel');
+    if (bs) bs.addEventListener('click', function () {
+      var rows = selOrders();
+      if (!rows.length) { toast('先在左边勾选要归档的订单'); return; }
+      archiveList(rows);
+    });
+  })();
   // 设置页追加政策编辑器
   var secSettings = document.getElementById('sm-sec-settings');
   if (secSettings) {
@@ -2813,6 +2971,43 @@
     document.head.appendChild(st);
   })();
 
+  /* ═══ 她 20261031 §四：真实付款进度条样式（粉色填充 + 浅灰粉槽）═══ */
+  (function () {
+    if (document.getElementById('sm-paybar-style')) return;
+    var st = document.createElement('style');
+    st.id = 'sm-paybar-style';
+    st.textContent = [
+      '.sm-paybar{margin:6px 0 10px;padding:10px 12px;background:#FFF7FA;border:1px solid #FFE9F1;border-radius:12px;}',
+      '.sm-paybar-top{display:flex;align-items:center;gap:8px;font-size:14px;color:#55464E;}',
+      '.sm-pb-state{font-size:12px;padding:2px 10px;border-radius:999px;background:#FCE1EA;color:#A98D96;font-weight:600;}',
+      '.sm-pb-state.ok{background:#FCE1EA;color:#A98D96;}',
+      '.sm-pb-state.warn{background:#FBE3E6;color:#C4636E;}',
+      '.sm-pb-line{display:grid;grid-template-columns:52px 134px minmax(60px,1fr) 108px;gap:8px;align-items:center;margin-top:7px;font-size:13px;color:#62545B;}',
+      '.sm-pb-k{font-weight:600;color:#55464E;}',
+      '.sm-pb-v{white-space:nowrap;color:#81717A;font-variant-numeric:tabular-nums;}',
+      '.sm-pb-slot{display:block;height:10px;border-radius:999px;background:#F4E9EE;overflow:hidden;}',
+      '.sm-pb-slot i{display:block;height:100%;border-radius:999px;background:#F2A9C4;transition:width .35s ease;}',
+      '.sm-pb-t{text-align:right;white-space:nowrap;color:#81717A;}',
+      '.sm-pb-sum{margin-top:9px;font-size:13px;color:#81717A;}',
+      '.sm-pb-sum b{color:#55464E;}',
+      '.sm-pb-extra{color:#C4636E;}',
+      '.sm-pb-tip{margin-top:6px;font-size:12px;color:#81717A;}',
+      '.sm-pb-tip.bad{color:#C4636E;}',
+      '.sm-o-acts{display:inline-flex;gap:6px;flex-shrink:0;margin-left:auto;}',
+      '.sm-o-head .sm-o-acts + .sm-o-arrow{margin-left:8px;}',
+      '#tab-shopmgr .sm-o-head .sm-o-acts + .sm-o-arrow{margin-left:8px;}',
+      '.sm-o-acts .btn-mini{padding:4px 12px;font-size:13px;white-space:nowrap;}',
+      '@media (max-width:760px){',
+      '  .sm-paybar{padding:9px 10px;}',
+      '  .sm-pb-line{grid-template-columns:42px minmax(0,1fr);row-gap:5px;}',
+      '  .sm-pb-slot{grid-column:1 / -1;}',
+      '  .sm-pb-t{grid-column:1 / -1;text-align:left;}',
+      '  .sm-o-acts{margin-left:auto;}',
+      '}'
+    ].join('');
+    document.head.appendChild(st);
+  })();
+
   window.ShopAdmin = {
     sm: SM,
     loadAll: loadAll,
@@ -2827,6 +3022,11 @@
     renderOrders: renderOrders,
     payPlan: payPlan,
     pay2Html: pay2Html,
+    payStat: payStat,
+    progressHtml: progressHtml,
+    archiveList: archiveList,
+    restoreOne: restoreOne,
+    refreshArchBtn: refreshArchBtn,
     renderGroups: renderGroups,
     renderCoupons: renderCoupons,
     renderAftersale: renderAftersale,
