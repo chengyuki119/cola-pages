@@ -95,6 +95,29 @@
           box.innerHTML = '<p style="color:var(--muted,#A88E9B);text-align:center;padding:30px 0;">' + syT('社交账号配置即将上线，先去首页逛逛吧 ♡', 'Social links coming soon ♡') + '</p>';
           return;
         }
+        /* mode='icons'（她 20261031 02:03 版）：「关于 Snow Yuzu」页底部只保留五个 Logo，
+           横向一排、整体居中、间距均匀；不显示平台名与账号文字；Logo 图形/颜色/大小与链接全部不变 */
+        if (mode === 'icons') {
+          ensureIconRowStyle();
+          box.classList.add('sy-iconrow');
+          var oldPop = document.getElementById('sy-mail-pop');
+          if (oldPop && oldPop.parentNode) oldPop.parentNode.removeChild(oldPop);
+          box.innerHTML = links.map(function (l) {
+            var ico = (window.ykSocialIcon ? window.ykSocialIcon(l.icon, 22) : '');
+            ico = ico.replace('vertical-align:-4px', 'vertical-align:middle');
+            var nm = syName(l.name);
+            var icon = l.icon || '';
+            if (icon === 'wechat' && l.sub) return '<a class="sy-iclink" href="javascript:void(0)" data-sy-copy="' + escAttr(l.sub) + '" aria-label="' + nm + '" title="' + escAttr(syT('点击复制微信号：', 'Tap to copy: ') + l.sub) + '">' + ico + '</a>';
+            if (icon === 'gmail') { var full = (l.sub || '').indexOf('@') >= 0 ? l.sub : (l.sub || '') + '@gmail.com'; return '<a class="sy-iclink" href="javascript:void(0)" data-sy-mail="' + escAttr(full) + '" aria-label="' + nm + '" title="' + nm + '">' + ico + '</a>'; }
+            if (l.url) return '<a class="sy-iclink" href="' + escAttr(l.url) + '" target="_blank" rel="noopener" aria-label="' + nm + '" title="' + nm + '">' + ico + '</a>';
+            return '<span class="sy-iclink" aria-label="' + nm + '" title="' + nm + '">' + ico + '</span>';
+          }).join('');
+          // Gmail 展开面板放在横排容器外面，避免成为 flex 项目把图标挤歪
+          var pop = document.createElement('div'); pop.id = 'sy-mail-pop'; pop.style.display = 'none';
+          if (box.parentNode) box.parentNode.insertBefore(pop, box.nextSibling);
+          bindSocialActions(box);
+          return;
+        }
         if (mode === 'row') { ensureRowStyle(); box.classList.add('sy-rowlist'); box.innerHTML = links.map(function (l) {
             var iconSvg = (window.ykSocialIcon ? window.ykSocialIcon(l.icon, 22) : '');
             var name = syName(l.name);
@@ -135,6 +158,20 @@
         box.innerHTML = '<p style="color:var(--muted,#A88E9B);text-align:center;padding:30px 0;">' + syT('加载失败，请刷新重试', 'Failed to load, please refresh') + '</p>';
       });
   };
+
+  /* —— 关于 Snow Yuzu 页底部：纯 Logo 横排（居中、间距均匀、无文字） —— */
+  function ensureIconRowStyle() {
+    if (document.getElementById('sy-iconrow-style')) return;
+    var st = document.createElement('style');
+    st.id = 'sy-iconrow-style';
+    st.textContent =
+      '.sy-iconrow{display:flex;flex-wrap:nowrap;justify-content:center;align-items:center;gap:22px;padding:6px 0 2px;}' +
+      '.sy-iconrow .sy-iclink{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:22px;height:22px;line-height:0;text-decoration:none;background:none;border:0;transition:opacity .2s;}' +
+      '.sy-iconrow .sy-iclink:hover{opacity:.75;}' +
+      '.sy-iconrow .sy-iclink .sy-sicon{margin-right:0 !important;vertical-align:middle;}' +
+      '@media (max-width:480px){.sy-iconrow{gap:16px;}}';
+    document.head.appendChild(st);
+  }
 
   /* —— 找我的横排卡片：
      外框 flex-wrap，项目 flex:1 1 120px → 宽度够就一排尽量摆满，放不下才换行（不缩放图标和文字）
