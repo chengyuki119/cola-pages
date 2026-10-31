@@ -411,8 +411,10 @@
   .cal-day .dots { position: absolute; left: 50%; transform: translateX(-50%); bottom: 1px; display: flex; gap: 2px; align-items: center; }
   .cal-day .dots i { width: 4px; height: 4px; border-radius: 50%; display: block; }
   .cal-day .dots em { font-style: normal; font-size:12px; line-height: 1; color: var(--muted); }
-  .cal-date-big { font-size: min(17px, 4vw); font-weight: 700; white-space: nowrap; }
-  .cal-side-sub { font-size: min(17px, 4vw); color: var(--text); margin: 12px 0 4px; font-weight: 700; }
+  .cal-date-big { font-size: 17px; font-weight: 700; white-space: nowrap; }
+  .cal-side-sub { font-size: 17px; color: var(--text); margin: 12px 0 4px; font-weight: 700; }
+  /* 手机端收窄时不出现小数像素（原 min(17px,4vw) 在 390px 下算成 15.016px） */
+  @media (max-width: 420px) { .cal-date-big, .cal-side-sub { font-size: 15px; } }
   .cal-ev { padding: 2px 0; font-size:15px; color: var(--muted); cursor: pointer; }
   .cal-ev .ev-sub { font-size:14px; color: var(--muted); }
   .cal-ev .ev-detail { display: none; font-size:15px; color: var(--text); background: var(--card-hover); border-radius: 8px; padding: 6px 10px; margin-top: 4px; }

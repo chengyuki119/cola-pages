@@ -86,13 +86,15 @@
       '.sy-footer{max-width:1400px;margin:26px auto 22px;padding:0 24px;font-family:inherit;box-sizing:border-box;}' +
       '.sy-footer-inner{border-top:1px solid var(--accent,#FFD9E6);padding-top:30px;}' +
       '.sy-footer-cols{display:grid;grid-template-columns:repeat(4,1fr);gap:26px 36px;}' +
+      '.sy-footer-col{text-align:left;}' +
       '@media (max-width:899px){.sy-footer-cols{grid-template-columns:1fr 1fr;}}' +
       '@media (max-width:559px){.sy-footer{padding:0 18px 6px;margin-bottom:30px;}.sy-footer-cols{grid-template-columns:1fr;gap:22px;}}' +
       '.sy-footer-head{display:inline-block;font-size:15px;font-weight:700;color:var(--text,#604C57);margin-bottom:12px;letter-spacing:.03em;text-decoration:none;}' +
       '.sy-footer-head:hover{color:var(--price,#FF6FA5);}' +
       '.sy-footer-links{display:flex;flex-direction:column;align-items:flex-start;}' +
       '.sy-footer-social{margin-top:10px;display:flex;flex-direction:column;align-items:flex-start;gap:0;}' +
-      '.sy-footer-social .sy-sicon{filter:saturate(1);transition:opacity .2s;}' +
+      '.sy-footer-social .sy-sicon{display:inline-block;vertical-align:middle;line-height:0;filter:saturate(1);transition:opacity .2s;}' +
+      '.sy-footer-social .sy-sicon svg{vertical-align:middle;}' +
       '.sy-footer-social .sy-footer-link:hover .sy-sicon{opacity:.78;}' +
       '.sy-footer-link{color:var(--muted,#A88E9B);font-size:15px;line-height:2.15;text-decoration:none;transition:color .2s;}' +
       '.sy-footer-link:hover{color:var(--price,#FF6FA5);}' +
@@ -153,6 +155,8 @@
         var nm = (isEn && NAME_EN[l.name]) ? NAME_EN[l.name] : l.name;
         /* 她 20261031 §7：每个平台前面加真实品牌 Logo（官方图形 + 官方色，20px），对齐、可点、hover 微变，微信仍复制 */
         var ico = (typeof window.ykSocialIcon === 'function') ? window.ykSocialIcon(l.icon, 20) : '';
+        /* 页脚每行只有一个行高，图标改成基线对齐到行中心（ykSocialIcon 默认的 -4px 适合名片式排版，在页脚会偏高 3.3px） */
+        ico = ico.replace('vertical-align:-4px', 'vertical-align:middle');
         var sub = l.sub ? String((isEn && (l.subEn || SUB_EN[l.sub])) || l.sub) : '';
         if (l.url) return '<a class="sy-footer-link" href="' + esc(l.url) + '"' + (l.url.indexOf('mailto:') === 0 ? '' : ' target="_blank" rel="noopener"') + '>' + ico + '<span style="display:inline-block;vertical-align:middle;">' + esc(nm) + '</span></a>';
         if (sub) return '<span class="sy-footer-link" data-sy-copy="' + esc(sub) + '" style="cursor:pointer;" title="' + esc(isEn ? 'Tap to copy: ' : '点击复制：') + esc(sub) + '">' + ico + '<span style="display:inline-block;vertical-align:middle;">' + esc(nm) + '：' + esc(sub) + '</span></span>';

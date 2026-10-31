@@ -399,7 +399,7 @@
         rows = arr(rows).map(function (g) { if (g.status === 'open' && new Date(g.deadline) < new Date()) g.status = 'failed'; return g; });
         var box = document.getElementById('view-groups');
         var stMap = { open: [t('进行中', 'Open'), 'var(--success,#5FA777)'], success: [t('已成团', 'Success'), 'var(--success,#5FA777)'], failed: [t('已失败', 'Failed'), '#c4bcb6'], cancelled: [t('已取消', 'Cancelled'), '#c4bcb6'] };
-        box.innerHTML = '<h2 style="font-size:22px;margin-bottom:14px;">' + t('拼团', 'Group Buys') + '</h2>' +
+        box.innerHTML = '<h2 style="font-size:24px;margin-bottom:14px;">' + t('拼团', 'Group Buys') + '</h2>' +
           (!rows.length ? '<p style="color:var(--muted);text-align:center;padding:30px 0;">' + t('还没有进行中的拼团，来发一个～', 'No group buys yet — start one!') + '</p>' :
           '<div class="grid">' + rows.map(function (g) {
             var st = stMap[g.status] || stMap.open;
@@ -568,7 +568,7 @@
       }
       var joinGid = sessionStorage.getItem('yuki-join-group') || '';
       box.innerHTML =
-        '<h2 style="font-size:22px;margin-bottom:14px;">' + t('确认订单', 'Checkout') + '</h2>' +
+        '<h2 style="font-size:24px;margin-bottom:14px;">' + t('确认订单', 'Checkout') + '</h2>' +
         '<div class="card" style="padding:18px;margin-bottom:14px;"><b style="font-size:17px;">' + t('商品', 'Items') + '</b>' +
           sel.map(function (x) { return '<div style="display:flex;justify-content:space-between;font-size:16px;margin-top:6px;"><span>' + esc(x.name) + ' × ' + x.qty + '</span><span style="color:var(--price,#ff6fa5);">' + sym(cur) + money(x.price * x.qty) + '</span></div>'; }).join('') +
           '<div style="display:flex;justify-content:space-between;font-size:17px;margin-top:10px;border-top:1px dashed var(--accent-soft);padding-top:8px;"><span>' + t('商品小计', 'Subtotal') + '</span><b style="color:var(--price,#ff6fa5);">' + sym(cur) + money(sub) + '</b></div>' +
@@ -689,11 +689,11 @@
     if (!USER) { pendingAfterLogin = 'orders'; renderAccount(); toast(t('先登录查看订单哦', 'Log in to see orders')); return; }
     showView('orders');
     var box = document.getElementById('view-orders');
-    box.innerHTML = '<h2 style="font-size:22px;margin-bottom:14px;">' + t('我的订单', 'My Orders') + '</h2><p style="color:var(--muted);text-align:center;">' + t('加载中…', 'Loading…') + '</p>';
+    box.innerHTML = '<h2 style="font-size:24px;margin-bottom:14px;">' + t('我的订单', 'My Orders') + '</h2><p style="color:var(--muted);text-align:center;">' + t('加载中…', 'Loading…') + '</p>';
     api('shop_orders?select=*&status=neq.deleted&order=created_at.desc&limit=50').then(function (r) { return r.json(); }).then(function (rows) {
       rows = rows || [];
       if (!rows.length) { box.innerHTML += '<p style="color:var(--muted);text-align:center;padding:30px 0;">' + t('还没有订单，去小铺逛逛吧～', 'No orders yet — go shopping~') + '</p>'; return; }
-      box.innerHTML = '<h2 style="font-size:22px;margin-bottom:14px;">' + t('我的订单', 'My Orders') + '</h2>' +
+      box.innerHTML = '<h2 style="font-size:24px;margin-bottom:14px;">' + t('我的订单', 'My Orders') + '</h2>' +
         '<div id="order-list">' + rows.map(function (o) { return orderCard(o); }).join('') + '</div>';
       rows.forEach(function (o) { bindOrderCard(o, box, focusId); });
     });
@@ -927,7 +927,7 @@
     var box = document.getElementById('view-account');
     if (!USER) {
       box.innerHTML =
-        '<h2 style="font-size:22px;margin-bottom:14px;">' + t('登录', 'Log in') + '</h2>' +
+        '<h2 style="font-size:24px;margin-bottom:14px;">' + t('登录', 'Log in') + '</h2>' +
         '<div class="card" style="padding:18px;">' +
           '<div style="display:flex;gap:8px;margin-bottom:14px;">' +
             '<button class="buy-btn acct-tab on" data-v="login" style="padding:8px 20px;">' + t('登录', 'Log in') + '</button>' +
@@ -1054,7 +1054,7 @@
           }
         }
         box.innerHTML =
-          '<h2 style="font-size:22px;margin-bottom:14px;">' + t('Profile 编辑', 'Profile') + '</h2>' +
+          '<h2 style="font-size:24px;margin-bottom:14px;">' + t('Profile 编辑', 'Profile') + '</h2>' +
           '<div class="card" id="pf-card" style="padding:18px;margin-bottom:14px;"></div>' +
           '<div class="card" style="padding:18px;margin-bottom:14px;">' +
             '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">' +
@@ -1317,12 +1317,12 @@
   }
   function renderCart() {
     var box = document.getElementById('view-cart');
-    if (!CART.length) { box.innerHTML = '<h2 style="font-size:22px;margin-bottom:14px;">' + t('购物车', 'Cart') + '</h2><p style="color:var(--muted);text-align:center;padding:30px 0;">' + t('购物车空空的，去小铺逛逛～', 'Cart is empty — go shopping~') + '</p>'; showView('cart'); return; }
+    if (!CART.length) { box.innerHTML = '<h2 style="font-size:24px;margin-bottom:14px;">' + t('购物车', 'Cart') + '</h2><p style="color:var(--muted);text-align:center;padding:30px 0;">' + t('购物车空空的，去小铺逛逛～', 'Cart is empty — go shopping~') + '</p>'; showView('cart'); return; }
     var selI = CART.filter(function (x) { return x.checked !== false; });
     var sub = 0, subCur = cartCur(selI);
     selI.forEach(function (x) { sub += x.price * x.qty; });
     box.innerHTML =
-      '<h2 style="font-size:22px;margin-bottom:14px;">' + t('购物车', 'Cart') + '</h2>' +
+      '<h2 style="font-size:24px;margin-bottom:14px;">' + t('购物车', 'Cart') + '</h2>' +
       CART.map(function (x, i) {
         return '<div class="card" style="padding:14px 16px;margin-bottom:10px;display:flex;gap:12px;align-items:center;">' +
           '<span class="ck-box" data-i="' + i + '" style="width:20px;height:20px;border-radius:6px;border:2px solid var(--cb-bd,#FFD1E0);flex-shrink:0;cursor:pointer;background:' + (x.checked !== false ? 'var(--cb-on,#F2A9C4)' : 'var(--cb-bg,#FFF7FA)') + ';display:inline-flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;line-height:1;color:' + (x.checked !== false ? 'var(--cb-mark,#fff)' : 'var(--text,#604C57)') + ';">' + (x.checked !== false ? '<svg viewBox=\"0 0 16 16\" width=\"12\" height=\"12\" style=\"display:block;\"><path d=\"M3.2 8.6 L6.6 11.8 L12.8 4.6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>' : '') + '</span>' +
@@ -1544,14 +1544,14 @@
     showView('myreviews');
     var ids = myIds('yuki-my-reviews');
     if (!ids.length) {
-      box.innerHTML = '<h2 style="font-size:22px;margin-bottom:14px;">' + t('评价', 'Reviews') + '</h2>' +
+      box.innerHTML = '<h2 style="font-size:24px;margin-bottom:14px;">' + t('评价', 'Reviews') + '</h2>' +
         '<p style="color:var(--muted);text-align:center;padding:30px 0;font-size:17px;">' + t('还没有发过评价。在小铺「评价返图」发的会显示在这里（按这台设备记录）。', 'No reviews yet. Ones you post in Reviews will show up here (recorded on this device).') + '</p>';
       return;
     }
-    box.innerHTML = '<h2 style="font-size:22px;margin-bottom:14px;">' + t('评价', 'Reviews') + '</h2><p style="color:var(--muted);text-align:center;">' + t('加载中…', 'Loading…') + '</p>';
+    box.innerHTML = '<h2 style="font-size:24px;margin-bottom:14px;">' + t('评价', 'Reviews') + '</h2><p style="color:var(--muted);text-align:center;">' + t('加载中…', 'Loading…') + '</p>';
     api('reviews?select=*&id=in.(' + ids.join(',') + ')&order=created_at.desc').then(function (r) { return r.json(); }).then(function (rows) {
       rows = rows || [];
-      box.innerHTML = '<h2 style="font-size:22px;margin-bottom:14px;">' + t('评价', 'Reviews') + '</h2>' +
+      box.innerHTML = '<h2 style="font-size:24px;margin-bottom:14px;">' + t('评价', 'Reviews') + '</h2>' +
         (rows.length ? rows.map(function (rv) {
           return '<div class="card" style="padding:16px;margin-bottom:12px;">' +
             '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;"><b style="font-size:16px;">' + esc(rv.name || t('匿名', 'Anonymous')) + '</b>' +
@@ -1572,14 +1572,14 @@
     showView('myquestions');
     var ids = myIds('yuki-my-questions');
     if (!ids.length) {
-      box.innerHTML = '<h2 style="font-size:22px;margin-bottom:14px;">' + t('留言', 'Messages') + '</h2>' +
+      box.innerHTML = '<h2 style="font-size:24px;margin-bottom:14px;">' + t('留言', 'Messages') + '</h2>' +
         '<p style="color:var(--muted);text-align:center;padding:30px 0;font-size:17px;">' + t('还没有发过留言。在「匿名留言」投递的会显示在这里（按这台设备记录，仍是匿名的）。', 'No messages yet. Ones you send in Ask Box will show up here (recorded on this device, still anonymous).') + '</p>';
       return;
     }
-    box.innerHTML = '<h2 style="font-size:22px;margin-bottom:14px;">' + t('留言', 'Messages') + '</h2><p style="color:var(--muted);text-align:center;">' + t('加载中…', 'Loading…') + '</p>';
+    box.innerHTML = '<h2 style="font-size:24px;margin-bottom:14px;">' + t('留言', 'Messages') + '</h2><p style="color:var(--muted);text-align:center;">' + t('加载中…', 'Loading…') + '</p>';
     api('questions?select=id,content,reply,created_at,replied_at&id=in.(' + ids.join(',') + ')&order=created_at.desc').then(function (r) { return r.json(); }).then(function (rows) {
       rows = rows || [];
-      box.innerHTML = '<h2 style="font-size:22px;margin-bottom:14px;">' + t('留言', 'Messages') + '</h2>' +
+      box.innerHTML = '<h2 style="font-size:24px;margin-bottom:14px;">' + t('留言', 'Messages') + '</h2>' +
         (rows.length ? rows.map(function (q) {
           return '<div class="card" style="padding:16px;margin-bottom:12px;">' +
             '<p style="font-size:16px;line-height:1.7;">' + esc(q.content) + '</p>' +
