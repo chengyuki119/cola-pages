@@ -702,7 +702,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     body:not(.adm-in) .wrap .adm-head { margin: 0 var(--adm-edge, 40px) 22px; justify-content: center; }
   </style>
   <script src="site-menu.js" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261031s">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261031t">
   <style>
     /* ═══ 她 20261030 §5：后台字体统一加深（三档，仅后台生效）═══
        主要文字 #55464E ｜ 普通正文 #62545B ｜ 辅助文字 #81717A
@@ -6381,6 +6381,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     #admin-invite-card .inv-row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
     #admin-invite-card .inv-row #inv-email { flex:1; min-width:220px; }
     #admin-invite-card .inv-row #inv-name { width:160px; }
+    #admin-invite-card .inv-row #inv-note { width:180px; }
     #admin-invite-card .inv-foot { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; align-items:center; }
     @media (max-width: 760px) {
       #admin-invite-card .inv-row > * { width:100% !important; min-width:0 !important; }
@@ -6393,12 +6394,15 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   </style>
     <h3 style="margin:0 0 6px;">管理员邀请（真实发信，不是只显示成功）</h3>
     <p style="color:var(--muted);font-size:14px;line-height:1.8;margin:0 0 12px;">
-      邀请信走和订单邮件同一条队列（email_log → email-worker → Gmail SMTP）。这里显示的每个状态都是队列里的真实状态。
+      点「发送邀请」会同时做三件事：① 给对方建一个后台账号，初始密码就是邀请码，只能用一次，首次登录必须改成自己的六位数字；
+      ② 给他<b>只读</b>权限（能看订单、顾客、留言、商品，不能改价、不能改订单金额、不能删数据）；
+      ③ 把邀请信放进发信队列，由 Worker 用 Gmail 真的发出去。下面的状态全部来自队列，不是「点了就当成功」。
     </p>
     <div class="inv-row">
       <input id="inv-email" placeholder="被邀请人的邮箱">
       <input id="inv-name" placeholder="称呼（可不填）">
-      <button type="button" class="btn-save" id="inv-send">发出邀请</button>
+      <input id="inv-note" placeholder="备注（可不填）">
+      <button type="button" class="btn-save" id="inv-send">发送邀请</button>
     </div>
     <div id="inv-list" style="margin-top:14px;font-size:15px;line-height:1.9;"><p class="empty">加载中…</p></div>
     <div id="mail-diag" style="margin-top:16px;"></div>
@@ -6658,18 +6662,18 @@ function loadEmailLog() {
 </script>
 
 
-<script src="js/admin-shop.js?v=20261031s"></script>
-<script src="js/admin-import.js?v=20261031s"></script>
-<script src="js/admin-crm.js?v=20261031s"></script>
-<script src="js/admin-vip.js?v=20261031s" data-legacy="1"></script>
-<script src="js/admin-customer.js?v=20261031s"></script>
-<script src="js/admin-invite.js?v=20261031s"></script>
-<script src="js/vendor/jsQR.js?v=20261031s"></script>
-<script src="js/vendor/qrcode-generator.js?v=20261031s"></script>
-<script src="js/vendor/JsBarcode.all.min.js?v=20261031s"></script>
-<script src="js/admin-workbench.js?v=20261031s"></script>
-<script src="js/admin-biz.js?v=20261031s"></script>
-<script src="js/admin-export.js?v=20261031s"></script>
+<script src="js/admin-shop.js?v=20261031t"></script>
+<script src="js/admin-import.js?v=20261031t"></script>
+<script src="js/admin-crm.js?v=20261031t"></script>
+<script src="js/admin-vip.js?v=20261031t" data-legacy="1"></script>
+<script src="js/admin-customer.js?v=20261031t"></script>
+<script src="js/admin-invite.js?v=20261031t"></script>
+<script src="js/vendor/jsQR.js?v=20261031t"></script>
+<script src="js/vendor/qrcode-generator.js?v=20261031t"></script>
+<script src="js/vendor/JsBarcode.all.min.js?v=20261031t"></script>
+<script src="js/admin-workbench.js?v=20261031t"></script>
+<script src="js/admin-biz.js?v=20261031t"></script>
+<script src="js/admin-export.js?v=20261031t"></script>
 <footer style="padding:18px 0 0; text-align:center;">© 2026 Yuki · Made with Cola</footer>
 </body>
 </html>
