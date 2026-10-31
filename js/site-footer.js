@@ -157,37 +157,17 @@
       var isEn = false;
       try { isEn = (window.YK && window.YK.lang === 'en') || /^en/i.test(document.documentElement.lang || ''); } catch (e) {}
       var list = (links || []).filter(function (l) { return ALLOW.indexOf(l.icon) !== -1; });
-      /* 她 20261031 02:00：主页的社交媒体区改成纯图标横排（不显示平台名、不显示账号），
-         其他页的页脚保持原来的纵向文字列表 —— 只对首页 (/, /zh/) 生效
-         她 20261031 02:10：再把「关于 Snow Yuzu」页正文里那排纯图标挪到该页页脚，也用纯图标横排 */
-      var pn = '';
-      try { pn = location.pathname.replace(/index\.html$/i, '').replace(/\/+$/, ''); } catch (e) {}
-      var isHome = (pn === '' || pn === '/zh');
-      var isAbout = (pn === '/about' || pn === '/zh/about');
-      if (isHome || isAbout) {
-        box.classList.add('sy-iconrow-mode');
-        box.innerHTML = list.map(function (l) {
-          var nm = (isEn && NAME_EN[l.name]) ? NAME_EN[l.name] : l.name;
-          var ico = (typeof window.ykSocialIcon === 'function') ? window.ykSocialIcon(l.icon, 20) : '';
-          ico = ico.replace('vertical-align:-4px', 'vertical-align:middle');
-          var sub = l.sub ? String((isEn && (l.subEn || SUB_EN[l.sub])) || l.sub) : '';
-          if (l.url) return '<a class="sy-ic" href="' + esc(l.url) + '"' + (l.url.indexOf('mailto:') === 0 ? '' : ' target="_blank" rel="noopener"') + ' aria-label="' + esc(nm) + '" title="' + esc(nm) + '">' + ico + '</a>';
-          if (sub) return '<span class="sy-ic" data-sy-copy="' + esc(sub) + '" role="button" tabindex="0" aria-label="' + esc(nm) + '" title="' + esc(isEn ? 'Tap to copy: ' : '点击复制：') + esc(sub) + '">' + ico + '</span>';
-          return '<span class="sy-ic" aria-label="' + esc(nm) + '" title="' + esc(nm) + '">' + ico + '</span>';
-        }).join('');
-        bindFooterCopy();
-        return;
-      }
+      /* 她 20261031 02:15：页脚社交区**全站统一**成纯图标横排 —— 不显示平台名、不显示账号。
+         原先只有首页 (/、/zh/) 与关于页用横排、其余页是纵向文字列表，现在 39 个带页脚的页面全部走这里 */
+      box.classList.add('sy-iconrow-mode');
       box.innerHTML = list.map(function (l) {
         var nm = (isEn && NAME_EN[l.name]) ? NAME_EN[l.name] : l.name;
-        /* 她 20261031 §7：每个平台前面加真实品牌 Logo（官方图形 + 官方色，20px），对齐、可点、hover 微变，微信仍复制 */
         var ico = (typeof window.ykSocialIcon === 'function') ? window.ykSocialIcon(l.icon, 20) : '';
-        /* 页脚每行只有一个行高，图标改成基线对齐到行中心（ykSocialIcon 默认的 -4px 适合名片式排版，在页脚会偏高 3.3px） */
         ico = ico.replace('vertical-align:-4px', 'vertical-align:middle');
         var sub = l.sub ? String((isEn && (l.subEn || SUB_EN[l.sub])) || l.sub) : '';
-        if (l.url) return '<a class="sy-footer-link" href="' + esc(l.url) + '"' + (l.url.indexOf('mailto:') === 0 ? '' : ' target="_blank" rel="noopener"') + '>' + ico + '<span style="display:inline-block;vertical-align:middle;">' + esc(nm) + '</span></a>';
-        if (sub) return '<span class="sy-footer-link" data-sy-copy="' + esc(sub) + '" style="cursor:pointer;" title="' + esc(isEn ? 'Tap to copy: ' : '点击复制：') + esc(sub) + '">' + ico + '<span style="display:inline-block;vertical-align:middle;">' + esc(nm) + '：' + esc(sub) + '</span></span>';
-        return '<span class="sy-footer-link" style="cursor:default;">' + ico + '<span style="display:inline-block;vertical-align:middle;">' + esc(nm) + '</span></span>';
+        if (l.url) return '<a class="sy-ic" href="' + esc(l.url) + '"' + (l.url.indexOf('mailto:') === 0 ? '' : ' target="_blank" rel="noopener"') + ' aria-label="' + esc(nm) + '" title="' + esc(nm) + '">' + ico + '</a>';
+        if (sub) return '<span class="sy-ic" data-sy-copy="' + esc(sub) + '" role="button" tabindex="0" aria-label="' + esc(nm) + '" title="' + esc(isEn ? 'Tap to copy: ' : '点击复制：') + esc(sub) + '">' + ico + '</span>';
+        return '<span class="sy-ic" aria-label="' + esc(nm) + '" title="' + esc(nm) + '">' + ico + '</span>';
       }).join('');
       bindFooterCopy();
     };

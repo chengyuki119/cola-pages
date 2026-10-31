@@ -1125,6 +1125,8 @@ function ykKeepChrome(el) {
   if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'LINK' || tag === 'NOSCRIPT') return true;
   if (el.classList && (el.classList.contains('topbar') || el.classList.contains('menu-mask') || el.classList.contains('site-menu'))) return true;
   if (el.id === 'menu' || el.id === 'idx-wrap' || el.id === 'sm-phone-bar') return true;
+  /* 她 20261031 02:15：页脚在每个页面都要在（包含登录门禁页）—— 否则 /photos/、/bjdselfie/ 未登录时整块页脚被隐藏成 0 高 */
+  if (tag === 'FOOTER' || (el.classList && el.classList.contains('sy-footer'))) return true;
   return false;
 }
 function ykGatePage(mode) {
