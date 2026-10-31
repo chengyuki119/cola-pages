@@ -34,7 +34,8 @@
     '/terms-of-service/',
     '/return-policy/',
     '/shipping-policy/',
-    '/bjdselfie/'
+    '/bjdselfie/',
+    '/invite/'
   ];
 
   var path = location.pathname || '/';

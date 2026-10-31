@@ -27,22 +27,59 @@ const SITE = 'https://yukicheng.com'; // 正式域名（她 2026-10-28 任务书
 const BRAND = 'Snow Yuzu';
 const OFFICIAL_MAIL = 'snowyuzustudio@gmail.com';
 
-// ── 邮件类型 → 独立副标题（不与品牌名混排）；isMarketing 决定是否带退订 ──
-function kindMeta(kind: string): { sub: string; marketing: boolean } {
+// ── 邮件类型 → 独立副标题 + 版式家族（三家版式：交易 / 通知 / 营销）──
+//   2026-10-30 22:56 任务书 §1.2：不同类邮件不能长得一模一样，也不能靠随机改内容躲垃圾过滤。
+//   所以拆成三套固定版式：交易类左对齐像小票、通知类居中像便签、营销类大图在前。
+function kindMeta(kind: string): { sub: string; marketing: boolean; tone: 'transaction' | 'notice' | 'marketing' } {
   const k = kind || '';
-  if (/^new_product/.test(k)) return { sub: '新品上架', marketing: true };
-  if (/^order_created/.test(k)) return { sub: '订单确认', marketing: false };
-  if (/^order_confirm/.test(k)) return { sub: '订单确认', marketing: false };
-  if (/^order_paid/.test(k)) return { sub: '付款成功', marketing: false };
-  if (/^order_shipped/.test(k)) return { sub: '发货通知', marketing: false };
-  if (/^order_refund|^order_cancel|^after_sales/.test(k)) return { sub: '售后通知', marketing: false };
-  if (/^order_/.test(k)) return { sub: '订单通知', marketing: false };
-  if (/^contact_notify/.test(k)) return { sub: '客户留言', marketing: false };
-  if (/^reply/.test(k)) return { sub: '站长回复', marketing: false };
-  if (/^birthday/.test(k)) return { sub: '生日快乐', marketing: false };
-  if (/^admin_invite/.test(k)) return { sub: '管理员邀请', marketing: false };
-  if (/^account/.test(k)) return { sub: '账号通知', marketing: false };
-  return { sub: '通知', marketing: false };
+  if (/^new_product/.test(k)) return { sub: '新品上架', marketing: true, tone: 'marketing' };
+  if (/^order_created/.test(k)) return { sub: '订单确认', marketing: false, tone: 'transaction' };
+  if (/^order_confirm/.test(k)) return { sub: '订单确认', marketing: false, tone: 'transaction' };
+  if (/^order_paid/.test(k)) return { sub: '付款成功', marketing: false, tone: 'transaction' };
+  if (/^order_shipped/.test(k)) return { sub: '发货通知', marketing: false, tone: 'transaction' };
+  if (/^order_refund|^order_cancel|^after_sales/.test(k)) return { sub: '售后通知', marketing: false, tone: 'transaction' };
+  if (/^order_/.test(k)) return { sub: '订单通知', marketing: false, tone: 'transaction' };
+  if (/^contact_notify/.test(k)) return { sub: '客户留言', marketing: false, tone: 'notice' };
+  if (/^reply/.test(k)) return { sub: '站长回复', marketing: false, tone: 'notice' };
+  if (/^birthday/.test(k)) return { sub: '生日快乐', marketing: false, tone: 'notice' };
+  if (/^admin_invite/.test(k)) return { sub: '管理员邀请', marketing: false, tone: 'notice' };
+  if (/^account/.test(k)) return { sub: '账号通知', marketing: false, tone: 'notice' };
+  return { sub: '通知', marketing: false, tone: 'notice' };
+}
+
+/* ── 纯文本版（task 2026-10-30 §1.2）──
+   以前 text 部分直接把带 [商品卡片]/| 分隔符的内部正文丢给收件人，
+   HTML 是一套、纯文本是一堆机器标记 —— 这是垃圾邮件评分里很实的减分项。
+   这里把同一份数据渲成人能读的纯文本，链接保留。 */
+function plainText(bodyText: string): string {
+  let t = bodyText.split('[lang:en]').join('');
+  const rowsOf = (block: string) => block.split('\n').map((l) => l.trim()).filter((l) => l && l.indexOf('|') >= 0);
+  t = t.replace(/\[商品卡片\]\s*\n([\s\S]*?)(?=\n\s*\n|$)/g, (_m, block: string) => {
+    const out = rowsOf(block).map((l) => {
+      const p = l.split('|');
+      const sku = (p[1] || '').trim();
+      const qty = (p[2] || '1').trim();
+      const price = (p[3] || '').trim();
+      return '· ' + (p[0] || '').trim() + (sku ? '（' + sku + '）' : '') + ' ×' + qty + (price ? '  ' + price : '');
+    });
+    return '\n' + out.join('\n') + '\n';
+  });
+  t = t.replace(/\[金额\]\s*\n([\s\S]*?)(?=\n\s*\n|$)/g, (_m, block: string) => {
+    const out = rowsOf(block).map((l) => { const p = l.split('|'); return (p[0] || '').trim() + '：' + (p[1] || '').trim(); });
+    return '\n' + out.join('\n') + '\n';
+  });
+  t = t.replace(/\[物流\]\s*\n([\s\S]*?)(?=\n\s*\n|$)/g, (_m, block: string) => {
+    const out = block.split('\n').map((l) => l.trim()).filter(Boolean).map((l) => {
+      if (l.indexOf('|') < 0) return l;
+      const p = l.split('|');
+      return (p[0] || '').trim() + '：' + (p[1] || '').trim();
+    });
+    return '\n' + out.join('\n') + '\n';
+  });
+  t = t.split('[生日图案]').join('').split('[后台按钮]').join('').split('[商品图片]').join('');
+  t = t.replace(/商品链接：(\S+)/g, '$1').replace(/退订链接：(\S+)/g, '$1');
+  t = t.replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+  return t + '\n\n—\nSnow Yuzu · ' + SITE + '\n';
 }
 
 function esc(s: string): string {
@@ -228,19 +265,48 @@ function renderHtml(kind: string, bodyText: string): { html: string; unsubUrl: s
     ? '<div style="margin-top:10px;"><a href="' + unsubUrl + '" style="color:#A88E9B;text-decoration:underline;">Unsubscribe</a>'
       + '<span style="color:#c9b6c2;"> · ' + (isEn ? 'Unsubscribing stops new-arrival emails only. Order emails are not affected.' : '退订后不再收到上新通知，订单相关邮件不受影响') + '</span></div>'
     : '';
+  // ── 三套版式（2026-10-30 22:56 任务书 §1.2）──
+  //   交易：左对齐小票感 + 顶部窄条；通知：居中便签；营销：徽章在前、品牌在后、大图优先
+  const tone = meta.tone;
+  let headerHtml = '';
+  let cardStyle = '';
+  let bodyPad = '';
+  let topStrip = '';
+  if (tone === 'transaction') {
+    headerHtml = '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">'
+      + '<tr>'
+      + '<td align="left" valign="middle" style="font-size:20px;font-weight:800;color:#604C57;letter-spacing:2px;">' + BRAND + '</td>'
+      + '<td align="right" valign="middle"><span style="display:inline-block;background:#FFF1F5;color:#604C57;font-size:12px;font-weight:600;padding:4px 12px;border-radius:8px;letter-spacing:1px;">' + esc(subLabel) + '</span></td>'
+      + '</tr></table>'
+      + '<div style="height:2px;background:#FFD9E6;margin:12px 0 18px;border-radius:2px;"></div>';
+    cardStyle = 'border-radius:18px;';
+    bodyPad = '22px 24px 18px';
+    topStrip = '<div style="background:#FFF7FA;border-bottom:1px solid #FFE9F1;padding:9px 24px;font-size:12px;color:#A88E9B;letter-spacing:.5px;">'
+      + (isEn ? 'Order update · no reply needed' : '订单相关通知 · 无需回复') + '</div>';
+  } else if (tone === 'marketing') {
+    headerHtml = '<div style="text-align:center;margin-bottom:14px;">'
+      + '<span style="display:inline-block;background:#FCE4EC;color:#604C57;font-size:12px;font-weight:600;padding:4px 16px;border-radius:999px;letter-spacing:2px;">' + esc(subLabel) + '</span>'
+      + '<div style="font-size:28px;font-weight:800;color:#604C57;letter-spacing:5px;margin-top:10px;">' + BRAND + '</div>'
+      + '</div>';
+    cardStyle = 'border-radius:26px;';
+    bodyPad = '24px 26px 22px';
+  } else {
+    headerHtml = '<div style="text-align:center;margin-bottom:18px;">'
+      + '<div style="font-size:26px;font-weight:800;color:#604C57;letter-spacing:3px;">' + BRAND + '</div>'
+      + '<div style="margin-top:8px;"><span style="display:inline-block;background:#FCE4EC;color:#604C57;font-size:12px;font-weight:600;padding:4px 16px;border-radius:999px;letter-spacing:2px;">' + esc(subLabel) + '</span></div>'
+      + '</div>';
+    cardStyle = 'border-radius:24px;';
+    bodyPad = '26px 28px 22px';
+  }
   const html = '<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">'
     // 手机端商品图 72px（客户端不支持 <style>/媒体查询时安全降级回内联的 100px）
     + '<style>@media only screen and (max-width:480px){.yk-item-img{width:72px !important;height:72px !important}.yk-item-td{width:72px !important}}</style></head>'
     + '<body style="margin:0;padding:0;background:#FFF8FA;">'
     + '<div style="max-width:600px;margin:0 auto;padding:28px 20px;font-family:\'Millo Body\',-apple-system,BlinkMacSystemFont,\'PingFang SC\',\'Segoe UI\',\'Microsoft YaHei\',sans-serif;">'
-    // 页眉：品牌名加大加粗 + 类型独立副标题
-    + '<div style="text-align:center;margin-bottom:18px;">'
-    + '<div style="font-size:26px;font-weight:800;color:#604C57;letter-spacing:3px;">' + BRAND + '</div>'
-    + '<div style="margin-top:8px;"><span style="display:inline-block;background:#FCE4EC;color:#604C57;'
-    + 'font-size:12px;font-weight:600;padding:4px 16px;border-radius:999px;letter-spacing:2px;">' + esc(subLabel) + '</span></div>'
-    + '</div>'
-    + '<div style="background:#ffffff;border-radius:24px;overflow:hidden;border:1px solid #ffd9e6;">'
-    + '<div style="padding:26px 28px 22px;font-size:15px;line-height:1.9;color:#604C57;white-space:normal;">' + body + cta + adminCta + '</div>'
+    + headerHtml
+    + '<div style="background:#ffffff;' + cardStyle + 'overflow:hidden;border:1px solid #ffd9e6;">'
+    + topStrip
+    + '<div style="padding:' + bodyPad + ';font-size:15px;line-height:1.9;color:#604C57;white-space:normal;">' + body + cta + adminCta + '</div>'
     // 页脚分行：品牌名 / 官方邮箱 / 联系客服 / 退订
     + '<div style="border-top:1px solid #ffd9e6;padding:18px 28px 22px;font-size:12px;color:#A88E9B;line-height:2;">'
     + '<div style="font-size:13px;font-weight:700;color:#604C57;letter-spacing:1px;">' + BRAND + '</div>'
@@ -320,6 +386,12 @@ async function processQueue(): Promise<Response> {
       const rendered = renderHtml(row.kind ?? '', row.body);
       // List-Unsubscribe 头（营销邮件）：One-Click POST endpoint + 页面 URL 备用
       const headers: Record<string, string> = {};
+      const toneNow = kindMeta(row.kind ?? '').tone;
+      if (toneNow === 'transaction') {
+        // 交易通知不是自动应答对象：告诉邮件客户端不要拿它去触发休假/自动回复
+        headers['X-Auto-Response-Suppress'] = 'OOF, AutoReply';
+        headers['Auto-Submitted'] = 'auto-generated';
+      }
       if (kindMeta(row.kind ?? '').marketing && rendered.unsubUrl) {
         const token = extractUnsubToken(row.body);
         const oneClick = token ? SUPABASE_URL + '/functions/v1/email-worker?unsub=' + token : '';
@@ -330,13 +402,15 @@ async function processQueue(): Promise<Response> {
         from: '"' + BRAND + '" <' + SMTP_USER + '>',
         to: row.to_email,
         subject: row.subject.split('[lang:en]').join(''), // 顾客可见标题绝不带语言标记
-        text: (row.body || '').split('[lang:en]').join(''),
+        text: plainText(row.body || ''),                 // 纯文本版：同一份内容，人可读，不再丢机器标记
         html: rendered.html,
         replyTo: SMTP_USER, // 客户直接回复邮件 → 到官方邮箱
         headers,
       });
       await mark(row.id, 'sent', null);
       sent++;
+      // 同一批不在一秒内连发一堆：给 SMTP 一点节奏，避免看起来像批量发信
+      await new Promise((r) => setTimeout(r, 250));
     } catch (e) {
       const msg = String(e && (e as any).message ? (e as any).message : e).slice(0, 500);
       const attempts = (row.attempts ?? 0) + 1;

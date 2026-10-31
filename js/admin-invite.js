@@ -58,6 +58,59 @@
     });
   }
 
+  /* ── 邀请记录的读写（直连 site_settings；只有登录的管理员能写）── */
+  function restApi(path, options) {
+    if (typeof window.api === 'function') return window.api(path, options);
+    var t = token();
+    var headers = { 'Content-Type': 'application/json' };
+    if (window.SUPABASE_ANON_KEY) headers.apikey = window.SUPABASE_ANON_KEY;
+    if (t) headers.Authorization = 'Bearer ' + t;
+    return fetch(SUPABASE_URL + '/rest/v1/' + path, {
+      method: (options && options.method) || 'GET',
+      headers: headers,
+      body: options && options.body ? options.body : undefined
+    });
+  }
+
+  function readInvites() {
+    return restApi('site_settings?select=value&key=eq.admin_invites')
+      .then(function (r) { return r.json(); })
+      .then(function (rows) {
+        var raw = rows && rows[0] ? rows[0].value : '[]';
+        var list;
+        try { list = typeof raw === 'string' ? JSON.parse(raw) : raw; } catch (e) { list = []; }
+        return Array.isArray(list) ? list : [];
+      });
+  }
+
+  function writeInvites(list) {
+    return restApi('site_settings?on_conflict=key', {
+      method: 'POST',
+      body: JSON.stringify([{ key: 'admin_invites', value: JSON.stringify(list) }])
+    });
+  }
+
+  /* ── 删除单条邀请记录（两次确认；只删这一行记录，不碰账号、邮件记录、订单）── */
+  function deleteInvite(code, email, accTxt) {
+    if (!window.confirm('删除这条邀请记录？\n\n邮箱：' + (email || '—') + '\n邀请码：' + code + (accTxt ? '\n账号：' + accTxt : '') +
+      '\n\n只会从这张列表里删掉这一条。')) return;
+    var warn = '';
+    if (accTxt && /可用|等对方/.test(accTxt)) warn = '\n\n⚠ 这个邮箱现在仍然有后台权限。删掉记录后，你在列表里就看不到它的来源了，账号本身仍然可用。';
+    if (!window.confirm('再确认一次：确定删除 ' + (email || code) + ' 这条邀请记录？' + warn +
+      '\n\n· 不会删除管理员账号，也不会改任何密码\n· 不会删除这封邮件的发送记录\n· 不会动订单、顾客、收款数据')) return;
+    readInvites().then(function (list) {
+      var next = list.filter(function (x) { return String(x.code) !== String(code); });
+      if (next.length === list.length) { toastMsg('列表里已经找不到这条记录了，刷新一下看看'); return null; }
+      return writeInvites(next).then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status + (r.statusText ? ' ' + r.statusText : ''));
+        toastMsg('已删除这条邀请记录（账号没有动）');
+        loadList();
+      });
+    }).catch(function (e) {
+      toastMsg('删除失败：' + (e && e.message ? e.message : '网络错误') + '（记录还在，没有删掉）');
+    });
+  }
+
   /* ── 发邀请 ── */
   function sendInvite() {
     var emailEl = document.getElementById('inv-email');
@@ -68,12 +121,12 @@
     var name = (nameEl.value || '').trim();
     var note = (noteEl && noteEl.value || '').trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { toastMsg('邮箱格式不对，检查一下'); return; }
-    if (!window.confirm('给 ' + email + ' 发管理员邀请？\n\n· 会给他建一个只读后台账号\n· 初始密码 = 邀请码，只能用一次\n· 邀请信真的会发出去（发没发出去之后看下面状态）')) return;
+    if (!window.confirm('给 ' + email + ' 发管理员邀请？\n\n· 会给他建一个只读后台账号\n· 信里只有一条一次性的设置密码链接，没有明文密码\n· 邀请信真的会发出去（发没发出去之后看下面状态）')) return;
 
     btn.disabled = true; btn.textContent = '正在建账号 + 入队…';
     fnCall({ action: 'invite', email: email, name: name, note: note }).then(function (r) {
       if (r.ok) {
-        toastMsg('邀请已入队：' + (r.message || ('邀请码 ' + r.code)));
+        toastMsg(r.link ? ('邀请已入队，设置密码链接：' + r.link) : ('邀请已入队：' + (r.message || ('邀请码 ' + r.code))));
         emailEl.value = ''; if (nameEl) nameEl.value = ''; if (noteEl) noteEl.value = '';
         loadList();
         setTimeout(loadList, 6000); // 队列通常几秒内就会被 Worker 取走，回来再看一眼真实状态
@@ -139,6 +192,9 @@
       else if (a.must_set_password) accTxt = '<span style="color:#E0A458;">等对方首次登录改密码</span>';
       else accTxt = '<span style="color:#5FA777;">可用（' + (a.role === 'owner' ? '全权限' : '只读') + '）</span>';
       var expired = !v.revoked && (v.until || '') < new Date().toISOString().slice(0, 10);
+      var accPlain = v.revoked ? '已撤销' : (!a ? '没有后台权限' : (a.must_set_password ? '等对方首次登录改密码' : ('可用（' + (a.role === 'owner' ? '全权限' : '只读') + '）')));
+      var linkState = v.used_at ? '<span style="color:#A98D96;">链接已使用</span>'
+        : (v.link ? (expired ? '<span style="color:#C4636E;">链接已过期</span>' : '<span style="color:#E0A458;">链接未使用</span>') : '');
       return '<div style="padding:11px 0;border-bottom:1px dashed #FFE3EC;">' +
         '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">' +
           '<b style="flex:1;min-width:200px;color:#55464E;">' + esc(v.email) +
@@ -152,11 +208,15 @@
           ' · 账号 ' + accTxt +
           (v.note ? ' · 备注 ' + esc(v.note) : '') +
         '</div>' +
+        (v.link ? '<div style="margin-top:3px;font-size:13px;color:#81717A;line-height:1.9;word-break:break-all;">设置密码链接：' +
+          '<a href="' + esc(v.link) + '" target="_blank" rel="noopener" style="color:#A98D96;">' + esc(v.link) + '</a> ' + linkState +
+          ' <button type="button" class="btn-mini" data-act="copylink" data-link="' + esc(v.link) + '" style="font-size:12px;padding:3px 10px;">复制链接</button></div>' : ''),
         (m && m.last_error ? '<div style="margin-top:4px;font-size:13px;color:#C4636E;">上次错误：' + esc(m.last_error) + '</div>' : '') +
         '<div style="margin-top:7px;display:flex;gap:8px;flex-wrap:wrap;">' +
           (v.revoked ? '' :
             '<button type="button" class="btn-mini" data-act="resend" data-code="' + esc(v.code) + '">重新发送</button>' +
             '<button type="button" class="btn-mini" data-act="revoke" data-code="' + esc(v.code) + '" data-email="' + esc(v.email) + '">撤销邀请</button>') +
+          '<button type="button" class="btn-mini" data-act="del" data-code="' + esc(v.code) + '" data-email="' + esc(v.email) + '" data-acc="' + esc(accPlain) + '" style="color:#C4636E;border-color:#F3D5D8;">删除记录</button>' +
         '</div>' +
       '</div>';
     }).join('');
@@ -169,7 +229,15 @@
     box.querySelectorAll('button[data-act]').forEach(function (b) {
       b.addEventListener('click', function () {
         var code = b.getAttribute('data-code');
-        if (b.getAttribute('data-act') === 'resend') resend(code);
+        var act = b.getAttribute('data-act');
+        if (act === 'resend') resend(code);
+        else if (act === 'del') deleteInvite(code, b.getAttribute('data-email'), b.getAttribute('data-acc'));
+        else if (act === 'copylink') {
+          var link = b.getAttribute('data-link') || '';
+          var done = function () { toastMsg('链接已复制'); };
+          if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(link).then(done).catch(function () { window.prompt('手动复制这条链接：', link); });
+          else window.prompt('手动复制这条链接：', link);
+        }
         else revoke(code, b.getAttribute('data-email'));
       });
     });

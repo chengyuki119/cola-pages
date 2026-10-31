@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Admin Invitation · Snow Yuzu</title>
+<link rel="icon" href="/img/favicon.png">
+<style>
+  :root{
+    --bg:#FFF7FA; --card:#FFFFFF; --line:#FFD1E0; --line-soft:#FFE9F1;
+    --ink:#55464E; --ink2:#62545B; --muted:#81717A; --soft:#A98D96;
+    --btn-bg:#FFF7FA; --btn-bd:#FFD1E0; --btn-tx:#A98D96;
+    --btn-hv-bg:#FCE1EA; --btn-hv-bd:#F5BFD1;
+    --danger:#C4636E;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;min-height:100vh;background:var(--bg);
+    font-family:'Millo Body',-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;
+    color:var(--ink2);
+    display:flex;align-items:center;justify-content:center;padding:32px 16px;
+  }
+  .card{
+    width:100%;max-width:440px;background:var(--card);border:1.5px solid var(--line);
+    border-radius:24px;padding:30px 26px 26px;box-shadow:0 10px 30px rgba(196,138,159,.08);
+  }
+  .brand{text-align:center;font-size:24px;font-weight:800;letter-spacing:3px;color:var(--ink);}
+  .badge{
+    display:block;width:max-content;margin:10px auto 0;background:#FCE4EC;color:var(--ink);
+    font-size:12px;font-weight:600;letter-spacing:2px;padding:4px 16px;border-radius:999px;
+  }
+  h1{font-size:22px;line-height:1.5;margin:20px 0 8px;color:var(--ink);font-weight:700;text-align:center;}
+  .lead{margin:0 0 20px;font-size:15px;line-height:1.9;color:var(--muted);text-align:center;}
+  label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin:0 0 6px;}
+  input{
+    width:100%;padding:12px 16px;font-size:18px;letter-spacing:6px;text-align:center;
+    border:1.5px solid var(--line);border-radius:14px;background:#fff;color:var(--ink);
+    font-family:inherit;outline:none;
+  }
+  input:focus{border-color:var(--btn-hv-bd);}
+  .field{margin-bottom:14px;}
+  button.go{
+    width:100%;margin-top:6px;padding:13px 20px;font-size:15px;font-weight:600;font-family:inherit;
+    background:var(--btn-hv-bg);border:1.5px solid var(--btn-hv-bd);color:var(--ink);
+    border-radius:999px;cursor:pointer;transition:.18s;
+  }
+  button.go:hover{background:#F8D3E2;border-color:#EFB0C5;}
+  button.go:disabled{background:#F8F0F3;border-color:#EADCE2;color:#B9A5AE;cursor:default;}
+  .hint{margin:12px 0 0;font-size:13px;line-height:1.8;color:var(--danger);min-height:18px;text-align:center;}
+  .hint.ok{color:#5FA777;}
+  .foot{margin:20px 0 0;font-size:12px;line-height:1.8;color:var(--soft);text-align:center;}
+  a.btn{
+    display:block;text-align:center;margin-top:16px;padding:12px 20px;font-size:15px;font-weight:600;
+    background:var(--btn-hv-bg);border:1.5px solid var(--btn-hv-bd);color:var(--ink);
+    border-radius:999px;text-decoration:none;
+  }
+  .done-t{font-size:16px;line-height:1.9;color:var(--ink);text-align:center;margin:8px 0 0;}
+  [hidden]{display:none !important;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="brand">Snow Yuzu</div>
+  <div class="badge" id="badge">Admin Invitation</div>
+  <h1 id="h1">Set your admin password</h1>
+  <p class="lead" id="lead">This link works once. After you set a password, the link stops working.</p>
+
+  <div id="form" hidden>
+    <div class="field">
+      <label id="l1" for="pw1">6-digit password</label>
+      <input id="pw1" type="password" inputmode="numeric" autocomplete="new-password" maxlength="6" placeholder="••••••">
+    </div>
+    <div class="field">
+      <label id="l2" for="pw2">Type it again</label>
+      <input id="pw2" type="password" inputmode="numeric" autocomplete="new-password" maxlength="6" placeholder="••••••">
+    </div>
+    <button class="go" id="go">Save my password</button>
+    <p class="hint" id="hint"></p>
+  </div>
+
+  <div id="done" hidden>
+    <p class="done-t" id="doneTxt"></p>
+    <a class="btn" id="goAdmin" href="/admin.html">Go to the admin panel</a>
+  </div>
+
+  <p class="foot" id="foot">If you were not expecting this invitation, just close this page.</p>
+</div>
+
+<script>
+(function () {
+  var SUPABASE_URL = 'https://ukxrvcptwhlwvdanovgd.supabase.co';
+  var FN = SUPABASE_URL + '/functions/v1/admin-invite';
+  var isZh = (location.pathname || '').indexOf('/zh/') === 0;
+  var T = isZh ? {
+    badge: '管理员邀请',
+    h1: '设置你的后台密码',
+    lead: '这条链接只能使用一次。设置好密码之后，链接就失效了。',
+    l1: '六位数字密码', l2: '再输一次',
+    go: '保存我的密码', going: '正在保存…',
+    foot: '如果不是你要加入小柚的小世界，直接关掉这个页面就好。',
+    noToken: '链接不完整，可能被邮箱截断了。请让站长重新发一次邀请。',
+    len: '密码要正好六位数字哦。',
+    diff: '两次输入的密码不一样。',
+    ok: '密码设好了 ♡ 现在可以去后台了。',
+    bad: '这条链接用不了：',
+    net: '连不上服务器，检查一下网络再试。',
+    admin: '去后台登录'
+  } : {
+    badge: 'Admin Invitation',
+    h1: 'Set your admin password',
+    lead: 'This link works once. After you set a password, the link stops working.',
+    l1: '6-digit password', l2: 'Type it again',
+    go: 'Save my password', going: 'Saving…',
+    foot: 'If you were not expecting this invitation, just close this page.',
+    noToken: 'This link looks incomplete — mail apps sometimes cut long links. Ask for a fresh invitation.',
+    len: 'The password must be exactly 6 digits.',
+    diff: 'The two passwords do not match.',
+    ok: 'Your password is set ♡ You can head to the admin panel now.',
+    bad: 'This link cannot be used: ',
+    net: 'Cannot reach the server. Check your connection and try again.',
+    admin: 'Go to the admin panel'
+  };
+
+  function $(id) { return document.getElementById(id); }
+  function setTxt(id, v) { var el = $(id); if (el) el.textContent = v; }
+
+  setTxt('badge', T.badge); setTxt('h1', T.h1); setTxt('lead', T.lead);
+  setTxt('l1', T.l1); setTxt('l2', T.l2); setTxt('go', T.go); setTxt('foot', T.foot);
+  setTxt('goAdmin', T.admin);
+  document.title = T.h1 + ' · Snow Yuzu';
+  try { document.documentElement.lang = isZh ? 'zh-CN' : 'en'; } catch (e) {}
+
+  var params = new URLSearchParams(location.search);
+  var token = params.get('t') || params.get('token') || '';
+  var hint = $('hint');
+
+  if (!token) {
+    setTxt('lead', T.noToken);
+    hint.textContent = '';
+    return;
+  }
+  $('form').hidden = false;
+
+  var pw1 = $('pw1'), pw2 = $('pw2'), btn = $('go');
+  [pw1, pw2].forEach(function (el) {
+    el.addEventListener('input', function () {
+      el.value = el.value.replace(/\D/g, '').slice(0, 6); // 只留数字，最多六位
+      hint.textContent = ''; hint.className = 'hint';
+    });
+  });
+
+  btn.addEventListener('click', function () {
+    var a = pw1.value, b = pw2.value;
+    hint.className = 'hint';
+    if (!/^\d{6}$/.test(a)) { hint.textContent = T.len; return; }
+    if (a !== b) { hint.textContent = T.diff; return; }
+    btn.disabled = true; btn.textContent = T.going;
+    fetch(FN, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'accept', token: token, password: a })
+    }).then(function (r) {
+      return r.json().catch(function () { return { ok: false, error: 'HTTP ' + r.status }; });
+    }).then(function (j) {
+      if (j && j.ok) {
+        // 用完就把 token 从地址栏抹掉：刷新页面也不会重复提交
+        try { history.replaceState(null, '', location.pathname); } catch (e) {}
+        $('form').hidden = true;
+        $('done').hidden = false;
+        setTxt('h1', isZh ? '搞定啦' : 'All set');
+        setTxt('doneTxt', T.ok);
+        setTxt('lead', isZh ? '用刚刚设置的六位数字密码登录后台就可以啦。' : 'Sign in with the 6-digit password you just set.');
+        return;
+      }
+      hint.textContent = T.bad + ((j && j.error) ? j.error : '');
+      btn.disabled = false; btn.textContent = T.go;
+    }).catch(function () {
+      hint.textContent = T.net;
+      btn.disabled = false; btn.textContent = T.go;
+    });
+  });
+})();
+</script>
+</body>
+</html>
