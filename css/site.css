@@ -647,6 +647,7 @@
 .pg-btn { position: absolute; top: 50%; transform: translateY(-50%); width: 30px; height: 30px; border-radius: 50%; border: none; background: rgba(255,255,255,.92); color: var(--text); font-size: 16px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(180,120,150,.25); font-family: inherit; padding: 0; }
 .pg-prev { left: 8px; }
 .pg-next { right: 8px; }
+.pg-wrap { border-radius: var(--radius, 16px); } /* 详情大图框圆角（她 20261102：稿件详情框直角 → 全站卡片同款） */
 .pg-dots { position: static; display: flex; justify-content: center; gap: 4px; margin-top: 8px; }
 .pg-dot { width: 5px; height: 5px; border-radius: 999px; background: var(--accent,#FFD9E6); transition: width .2s, background .2s; }
 .pg-dot.on { width: 16px; background: var(--text); }
