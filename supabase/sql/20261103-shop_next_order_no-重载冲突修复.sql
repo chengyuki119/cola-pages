@@ -1,44 +1,66 @@
 -- ════════════════════════════════════════════════════════════════════════════
--- Snow Yuzu · shop_next_order_no 重载冲突修复（下单报 42725 function is not unique）
+-- Snow Yuzu · shop_next_order_no 重载冲突修复·第 2 步（终稿）
 -- 文件：supabase/sql/20261103-shop_next_order_no-重载冲突修复.sql
 -- 日期：2026-11-03
 --
--- 症状（测试号实测复现）：带规格下单 RPC 直接报
---   42725 function public.shop_next_order_no() is not unique
--- 根因：库里 shop_next_order_no 有多个同名不同参的重载（历史版本残留 + 昨天
---   重建时旧版定义又被建回来），shop_place_order 里无参调用 `shop_next_order_no()`
---   时 Postgres 分不清该用哪个 → 直接报错，整个下单链路被卡死。
--- 修法：只删掉已无人调用的老重载 shop_next_order_no(p_test boolean)，
---   保留「无参（统一分配器版，管理员）」和「(p_kind text)（POS 等老调用方在用）」。
---   幂等可重复执行；不动任何数据、不动订单号序列。
+-- 背景：上一条只删了最老的 (p_test boolean) 重载，但库里还有
+--   ① shop_next_order_no()          ——无参版（统一分配器，前台/后台建单在用）
+--   ② shop_next_order_no(p_kind text DEFAULT 'main') ——g12 老版（POS、订单导入在用）
+-- ② 带着 DEFAULT，所以无参调用依旧分不清用哪个 → 42725 下单仍然卡死。
+-- 修法：②原样重建但去掉 DEFAULT。POS / 订单导入都是显式传参不受影响；
+--   无参调用从此唯一命中①。不动数据、不动序列、幂等可重复跑。
 -- ════════════════════════════════════════════════════════════════════════════
 
+-- ── 1. 再兜一遍底：若有 (p_test boolean) 残留（不管带不带参数名）都删掉 ──────
 do $$
-declare r record; n int := 0;
+declare r record;
 begin
   for r in
     select p.oid, pg_get_function_identity_arguments(p.oid) as args
       from pg_proc p join pg_namespace n on n.oid = p.pronamespace
      where n.nspname = 'public' and p.proname = 'shop_next_order_no'
-       and pg_get_function_identity_arguments(p.oid) = 'p_test boolean'
+       and pg_get_function_identity_arguments(p.oid) in ('p_test boolean', 'boolean')
   loop
     execute format('drop function public.shop_next_order_no(%s)', r.args);
-    n := n + 1;
     raise notice '已删除老重载 shop_next_order_no(%)', r.args;
   end loop;
-  if n = 0 then raise notice '没有需要删除的老重载（可能已删过）'; end if;
 end $$;
 
--- ── 自检 1：跑完看剩下的重载列表，应该只剩「(空)」和「p_kind text」两种 ──────
-select pg_get_function_identity_arguments(p.oid) as 重载参数,
-       p.proname
+-- ── 2. (p_kind text) 版原样重建、仅去掉 DEFAULT ─────────────────────────────
+create or replace function public.shop_next_order_no(p_kind text)
+ RETURNS text
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+DECLARE v_key text; v_prefix text; v_n int;
+BEGIN
+  v_key := upper(p_kind); v_prefix := 'SY-';
+  IF p_kind = 'test' THEN v_prefix := 'SY-TEST-';
+  ELSIF p_kind = 'pos' THEN v_prefix := 'SY-POS-';
+  ELSIF p_kind = 'pos_test' THEN v_prefix := 'SY-POS-TEST-'; END IF;
+  IF NOT (p_kind IN ('main','test','pos','pos_test')) THEN
+    v_key := 'MAIN'; v_prefix := 'SY-';
+  END IF;
+  PERFORM pg_advisory_xact_lock(920251);
+  INSERT INTO public.shop_order_seq(day, last_no) VALUES (v_key, 0) ON CONFLICT (day) DO NOTHING;
+  SELECT GREATEST(s.last_no,
+    COALESCE((SELECT MAX((substring(o.order_no from '^' || v_prefix || '([0-9]{3,})$'))::int)
+      FROM public.shop_orders o WHERE o.order_no ~ ('^' || v_prefix || '[0-9]{3,}$')), 0))
+  INTO v_n FROM public.shop_order_seq s WHERE s.day = v_key FOR UPDATE;
+  v_n := v_n + 1;
+  UPDATE public.shop_order_seq SET last_no = v_n WHERE day = v_key;
+  RETURN v_prefix || lpad(v_n::text, 3, '0');
+END $function$;
+
+-- ── 自检 1：剩下的重载列表，应该恰好两行：「(空)」和「p_kind text」 ──────────
+select pg_get_function_identity_arguments(p.oid) as 重载参数
   from pg_proc p join pg_namespace n on n.oid = p.pronamespace
  where n.nspname = 'public' and p.proname = 'shop_next_order_no'
  order by 1;
 
--- ── 自检 2：无参调用候选必须恰好 1 个，expected = true 即修复生效 ────────────
+-- ── 自检 2：能零参调用的候选必须恰好 1 个，expected = true 即修复生效 ─────────
 select (count(*) = 1)::text as expected
   from pg_proc p join pg_namespace n on n.oid = p.pronamespace
  where n.nspname = 'public' and p.proname = 'shop_next_order_no'
-   and (pg_get_function_identity_arguments(p.oid) = ''
-        or pg_get_function_identity_arguments(p.oid) like '%default%');
+   and pg_get_function_arguments(p.oid) like '%default%';
