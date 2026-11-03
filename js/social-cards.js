@@ -45,7 +45,7 @@
   // 默认清单 = 主页「找到我」当前的静态配置（账号名/ID/链接逐字一致，2026-10-31 她最终版：只保留 Discord / Gmail / WeChat / TikTok / Instagram）；
   // 后台「主页管理」保存过 links 设置时以库里的为准
   var DEFAULT_LINKS = [
-    { icon: 'discord', name: 'Discord', sub: '小柚的服务器', subEn: "Yuki's server", url: 'https://discord.gg/aWSfnydGG' },
+    { icon: 'discord', name: 'Discord', sub: '小柚的服务器', subEn: "Yuki's server", url: 'https://discord.gg/4bxcVuSt' },
     { icon: 'gmail', name: 'Gmail', sub: 'snowyuzustudio@gmail.com', url: 'mailto:snowyuzustudio@gmail.com' },
     { icon: 'wechat', name: '微信', sub: 'yuki_060119', url: '' },
     { icon: 'tiktok', name: 'TikTok', sub: '@snowyuzu.studio', url: 'https://www.tiktok.com/@snowyuzu.studio' },

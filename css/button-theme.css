@@ -705,3 +705,43 @@ select,
 textarea {
   outline-offset: 1px;
 }
+
+/* ─────────────────────────────────────────────────────────────
+   20261102 她指定：保存类=深粉主按钮(#FCE1EA)，取消类=浅底(#FFF7FA+描边)
+   放在文件末尾以胜过前面 .btn-mini 统一组（该组把两者都压成了浅底）
+   ───────────────────────────────────────────────────────────── */
+.btn-save, .btn-save-tb, .btn-ok, .btn-save-link,
+.mo-save, .fx-save, .wm-save, .shop-tag-save, .ex-go, .po-save {
+  background-color: var(--btn-pri-bg) !important;
+  color: var(--btn-pri-fg) !important;
+}
+.btn-save:hover, .btn-save-tb:hover, .btn-ok:hover, .btn-save-link:hover,
+.mo-save:hover, .fx-save:hover, .wm-save:hover, .shop-tag-save:hover, .ex-go:hover, .po-save:hover {
+  background-color: var(--btn-pri-bg-h) !important;
+  color: var(--btn-pri-fg-h) !important;
+}
+.btn-save:active, .btn-save-tb:active, .btn-ok:active, .btn-save-link:active,
+.mo-save:active, .fx-save:active, .wm-save:active, .shop-tag-save:active, .ex-go:active, .po-save:active {
+  background-color: var(--btn-pri-bg-a) !important;
+  color: var(--btn-pri-fg-a) !important;
+}
+.btn-cancel, .btn-cancel-hm, .fx-cancel, .wm-cancel, .ke-edit, .wm-edit,
+.card-edit-btn, .cal-btn.wide, .lightbox-btn, #cal-form .ev-cancel,
+.ai-quick button, .sel-btn, .aix-filters .fclear {
+  background-color: var(--btn-bg) !important;
+  color: var(--btn-fg) !important;
+}
+.btn-cancel:hover, .btn-cancel-hm:hover, .fx-cancel:hover, .wm-cancel:hover,
+.ke-edit:hover, .wm-edit:hover, .card-edit-btn:hover, .cal-btn.wide:hover,
+.lightbox-btn:hover, #cal-form .ev-cancel:hover, .ai-quick button:hover,
+.sel-btn:hover, .aix-filters .fclear:hover {
+  background-color: var(--btn-bg-h) !important;
+  color: var(--btn-fg-h) !important;
+}
+.btn-cancel:active, .btn-cancel-hm:active, .fx-cancel:active, .wm-cancel:active,
+.ke-edit:active, .wm-edit:active, .card-edit-btn:active, .cal-btn.wide:active,
+.lightbox-btn:active, #cal-form .ev-cancel:active, .ai-quick button:active,
+.sel-btn:active, .aix-filters .fclear:active {
+  background-color: var(--btn-bg-a) !important;
+  color: var(--btn-fg-a) !important;
+}

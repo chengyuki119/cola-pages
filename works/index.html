@@ -14,7 +14,7 @@
 <link rel="stylesheet" href="/css/site.css?v=20261102A">
 <link rel="stylesheet" href="/site-menu.css?v=20261031E">
 <script src="/site-menu.js" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261031E">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261102B">
 </head>
 <body>
 
@@ -61,7 +61,7 @@
           <button type="button" class="bjd-chip" id="wf-reset" data-zh="重置筛选" data-en="Reset">重置筛选</button>
         </div>
       </div>
-      <div id="works-grid" style="display:grid;gap:14px;"></div>
+      <div id="works-grid" style="display:grid;gap:12px;"></div>
       <p id="works-empty" style="display:none;color:var(--muted);text-align:center;padding:30px 0;font-size:17px;"><span data-zh="还没有稿件，去后台「稿件管理」上传吧" data-en="No works yet. Upload in the admin Works tab.">还没有稿件，去后台「稿件管理」上传吧</span></p>
     </div>
   </div>
@@ -124,23 +124,17 @@
     return list;
   }
   function renderWorksFilter() {
+    // 20261102 她指定：稿件页单纯展示不用分类——画师/种类筛选行不再渲染，只留排序
     var box = document.getElementById('works-filter');
     if (!box) return;
-    var artists = [], cats = [];
-    WORKS_CACHE.forEach(function (w) {
-      if (w.artist && artists.indexOf(w.artist) === -1) artists.push(w.artist);
-      if (w.cat && cats.indexOf(w.cat) === -1) cats.push(w.cat);
-    });
-    if (!WORKS_CACHE.length || (!artists.length && !cats.length)) { box.style.display = 'none'; return; }
-    box.style.display = '';
     var ar = document.getElementById('wf-artist-row'), cr = document.getElementById('wf-cat-row');
-    if (ar) ar.style.display = artists.length ? '' : 'none';
-    if (cr) cr.style.display = cats.length ? '' : 'none';
+    if (ar) ar.style.display = 'none';
+    if (cr) cr.style.display = 'none';
+    if (!WORKS_CACHE.length) { box.style.display = 'none'; return; }
+    box.style.display = '';
     var chip = function (v, label, active) {
       return '<button type="button" class="bjd-chip' + (active ? ' active' : '') + '" data-v="' + escAttrDb(v) + '">' + label + '</button>';
     };
-    document.getElementById('wf-artist').innerHTML = artists.length ? chip('all', t('全部', 'All'), WF.artist === 'all') + artists.map(function (a) { return chip(a, escDb(a), WF.artist === a); }).join('') : '';
-    document.getElementById('wf-cat').innerHTML = cats.length ? chip('all', t('全部', 'All'), WF.cat === 'all') + cats.map(function (c) { return chip(c, escDb(c), WF.cat === c); }).join('') : '';
     document.getElementById('wf-sort').innerHTML =
       chip('new', t('最新优先', 'Newest first'), WF.sort === 'new') + chip('old', t('最早优先', 'Oldest first'), WF.sort === 'old');
   }

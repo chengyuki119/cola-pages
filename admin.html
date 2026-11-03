@@ -292,7 +292,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     white-space: nowrap; flex-shrink: 0; /* 防窄容器挤压成一字一行（与规格区同类问题） */
   }
   .btn-save { border: none; background: #FCE1EA; color: #A98D96; font-family: inherit; cursor: pointer; }
-  .btn-cancel { background: var(--card-hover); color: var(--text); }
+  .btn-cancel { background: #FFF7FA; color: var(--text); } /* 取消=浅底（她 20261102：保存深粉、取消浅底对调） */
   /* 数字输入框不要浏览器原生上下小箭头（和自定义控件打架） */
   input[type="number"] { appearance: textfield; -moz-appearance: textfield; }
   input[type="number"]::-webkit-outer-spin-button,
@@ -704,7 +704,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     body:not(.adm-in) .wrap .adm-head { margin: 0 var(--adm-edge, 40px) 22px; justify-content: center; }
   </style>
   <script src="site-menu.js" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261031E">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261102B">
   <style>
     /* ═══ 她 20261030 §5：后台字体统一加深（三档，仅后台生效）═══
        主要文字 #55464E ｜ 普通正文 #62545B ｜ 辅助文字 #81717A
@@ -1227,24 +1227,12 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       <div class="card">
         <h3>稿件管理</h3>
         <p class="sub" style="margin:-6px 0 12px;">和桓桓宝宝的稿件展示（/works/），后台改完前台同步；点「显示中」切换显隐</p>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
-          <span style="font-size:16px;color:var(--muted);flex-shrink:0;">种类管理</span>
-          <div id="work-cat-chips" style="display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:160px;"></div>
-          <input id="work-cat-new" placeholder="新种类名" style="border:none;border-radius:10px;background:var(--card);padding:8px 12px;font-size:16px;width:120px;outline:none;color:var(--text);">
-          <button class="btn-mini" id="btn-work-cat-add">+ 添加</button>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
-          <span style="font-size:16px;color:var(--muted);flex-shrink:0;">画师管理</span>
-          <div id="work-artist-chips" style="display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:160px;"></div>
-          <input id="work-artist-new" placeholder="新画师名" style="border:none;border-radius:10px;background:var(--card);padding:8px 12px;font-size:16px;width:120px;outline:none;color:var(--text);">
-          <button class="btn-mini" id="btn-work-artist-add">+ 添加</button>
-        </div>
-        <div id="works-list"></div>
-        <div class="actions" style="flex-wrap:wrap;">
+        <div class="actions" style="flex-wrap:wrap;justify-content:flex-start;margin:0 0 14px;">
           <button class="btn-mini" id="btn-work-add">+ 新增稿件</button>
           <button class="btn-mini btn-save-tb" id="btn-work-save">保存稿件改动</button>
           <span id="works-total" style="font-size:17px;font-weight:600;color:var(--text,#62545B);align-self:center;"></span>
         </div>
+        <div id="works-list"></div>
       </div>
     </div>
 
@@ -5751,8 +5739,9 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     if (tb) tb.textContent = EDIT_TYPE === 'card' ? '保存色卡改动' : '保存 BJD 改动';
   }
   document.getElementById('btn-work-add').addEventListener('click', function () {
-    WORKS.push(normWork({ createdAt: Date.now() }));
-    WORKS_EDIT = WORKS.length - 1;
+    // 20261102 她指定：新增稿件插到最前，编辑卡（稿件名称在最上）直接出现在页面顶部
+    WORKS.unshift(normWork({ createdAt: Date.now() }));
+    WORKS_EDIT = 0;
     renderWorks();
   });
   document.getElementById('btn-work-save').addEventListener('click', function () { // 工具栏保存：存改动并自动收起编辑区，与色卡/BJD 同一套
