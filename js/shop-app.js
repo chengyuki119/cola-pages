@@ -1661,5 +1661,12 @@
   loadUser();
   loadCart();
   enhanceList();
+  // 她 20261103：刷新落在详情时先切到详情视图（列表不渲染，防闪一下小铺页面）；
+  // 商品数据回来后 openDetail 自己填内容，滚动位置也由它恢复
+  (function () {
+    if (!new URLSearchParams(location.search).get('id')) return;
+    var box = document.getElementById('view-detail');
+    if (box) { box.style.minHeight = '55vh'; showView('detail'); }
+  })();
   refreshUser().then(function () { UID = null; paintNav(); route(); });
 })();
