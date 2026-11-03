@@ -241,7 +241,7 @@
       .then(renderAftersale);
   }
   function loadProducts() {
-    return restGet('products?select=id,name,name_en,cover_zh,cover_en,price,stock,variants,weight_oz,image_url,tag&order=created_at.desc&limit=200')
+    return restGet('products?select=id,name,name_en,cover_zh,cover_en,price,stock,variants,weight_oz,image_url,tag,cost,description,description_en&order=created_at.desc&limit=200')
       .catch(function () { // name_en/cover 列还没建：退回旧列，其余功能不受影响
         return restGet('products?select=id,name,price,stock,variants,weight_oz,image_url,tag&order=created_at.desc&limit=200');
       })
@@ -1192,7 +1192,7 @@
     };
     // 只信带 variants 字段的数据；缓存里没有就单独拉这个商品，绝不把已有规格当空（她 2026-10-25 遇到）
     if (local && Array.isArray(local.variants)) { build(local); return; }
-    restGet('products?select=id,name,name_en,cover_zh,cover_en,price,stock,variants,weight_oz,image_url,tag&id=eq.' + pid)
+    restGet('products?select=id,name,name_en,cover_zh,cover_en,price,stock,variants,weight_oz,image_url,tag,cost,description,description_en&id=eq.' + pid)
       .catch(function () { // 新列还没建：退回旧列
         return restGet('products?select=id,name,price,stock,variants,weight_oz,image_url,tag&id=eq.' + pid);
       })
