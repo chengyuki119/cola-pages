@@ -619,6 +619,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     if (s === '') return '';
     return /^\d+(\.\d+)?$/.test(s.replace(/[,\s]/g, '')) ? (parseFloat(s) || 0).toFixed(2) : s;
   }
+  function dispName(p) { return (LANG === 'en' && p.name_en) ? p.name_en : p.name; } // 她 20261102：商品名称双语
   function productCard(p) {
     var img = pagerWrapHtml(pagerImgsOf({ images: p.images, image_url: p.image_url }), p.name);
     var st = statusOf(p);
@@ -629,7 +630,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
       '<div class="product-img">' + img + '<span class="st ' + stCls + '">' + stText + '</span></div>' +
       '<div class="product-info">' +
       '<span class="product-tag">' + esc(p.tag || t('没有标签','Untagged')) + '</span>' +
-      '<h3>' + esc(p.name) + '</h3>' +
+      '<h3>' + esc(dispName(p)) + '</h3>' +
       '<div class="product-row">' +
       '<span class="price">' + (p.price ? '<small>' + ((p.currency || 'USD') === 'CNY' ? '¥' : '$') + '</small>' + esc(fmtPriceShop(p.price)) : '') + '</span>' +
       (st === 'on' ? '<span class="no-buy" style="font-size:14px;">' + t('请进详情选购', 'Open to buy') + '</span>' : '<span class="no-buy">' + (st === 'display' ? t('仅展示，不能下单','Not for sale') : '') + '</span>') +
@@ -659,7 +660,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
 
 
   function fetchProducts() { // images 列还没建时自动降级，不阻塞小铺页
-    var sel = 'id,name,price,currency,description,description_en,tag,image_url,images,sold,stock,display_only';
+    var sel = 'id,name,name_en,price,currency,description,description_en,tag,image_url,images,sold,stock,display_only'; // name_en 列没建时走降级分支
     return fetch(SUPABASE_URL + '/rest/v1/products?select=' + sel + '&order=created_at.desc&limit=100', {
       headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }
     }).then(function (r) { return r.json(); }).then(function (rows) {
@@ -845,7 +846,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     }, 300);
   }
 </script>
-<script src="/js/shop-app.js?v=20261102C"></script>
+<script src="/js/shop-app.js?v=20261102D"></script>
 <script src="/js/site-footer.js?v=20261031E"></script>
 <script>
   // 统一 Footer（已有 <footer> 则替换其内容，不新建第二个）

@@ -391,12 +391,13 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .pf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; }
   .pf-row.one { grid-template-columns: 1fr; }
   .pf-row > * { min-width: 0; }
-  .pf-imgrow { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-start; }
+  .pf-imgrow { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-start; }
   .pf-addimg { width: 76px; height: 76px; border-radius: 14px; border: 1.5px dashed #FFD1E0; background: #FFF7FA; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; color: #A98D96; flex-shrink: 0; }
   .pf-addimg:hover { background: #FCE1EA; border-color: #F5BFD1; }
   .pf-addimg span { font-size: 24px; line-height: 1; }
   .pf-addimg em { font-size: 12px; font-style: normal; }
-  .pf-fileline { display: flex; align-items: center; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+  .pf-fileline { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+  .pf-fileline .hm-file-name { font-size: 13px; color: #81717A; }
   .pf-count { font-size: 13px; color: #81717A; }
   #p-preview.ph-strip { display: flex; gap: 8px; flex-wrap: wrap; }
   @media (max-width: 720px) { .pf-row { grid-template-columns: 1fr; } .pf { padding: 2px 14px; } }
@@ -964,6 +965,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           <div class="pf-h"><b>基本信息</b><span class="pf-tip">名称必填，其余可以留空后再补</span></div>
           <div class="pf-row">
             <input id="p-name" placeholder="商品名称 *">
+            <input id="p-name-en" placeholder="商品名称 English（选填，英文页显示）">
             <input id="p-price" placeholder="商品价格，如 39.9">
             <div class="cur-row" style="grid-column:1/-1;"><div class="cur-line"><span style="font-size:15px;color:var(--muted);">货币</span><button type="button" class="cur-chip" data-cur="CNY">¥ 人民币</button><button type="button" class="cur-chip on" data-cur="USD">$ 美元</button></div><p class="cur-hint">每件商品各自选，金额不会自动换算</p></div>
             <input id="p-unit" placeholder="商品单位，如 个 / 件 / 套（选填）">
@@ -2134,8 +2136,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     box.innerHTML = pendingFiles.map(function (f, idx) {
       return '<div class="pv ph-tile' + (idx === 0 ? ' ph-cover' : '') + '" draggable="true" data-idx="' + idx + '" title="拖动可调整顺序" style="width:76px;height:76px;border-radius:14px;overflow:hidden;cursor:grab;position:relative;border:1.5px solid #FFE3EC;background:#fff;">' +
         '<img src="' + URL.createObjectURL(f) + '" alt="" style="width:100%;height:100%;object-fit:cover;display:block;">' +
-        '<button type="button" class="pv-del" data-idx="' + idx + '" title="删除这张" style="position:absolute;top:2px;right:2px;width:18px;height:18px;line-height:1;font-size:12px;border:none;border-radius:50%;background:rgba(255,255,255,.92);color:#A98D96;cursor:pointer;padding:0;">✕</button>' +
-        '<button type="button" class="pv-swap" data-idx="' + idx + '" title="换一张图" style="position:absolute;top:2px;left:2px;width:18px;height:18px;line-height:1;font-size:10px;border:none;border-radius:50%;background:rgba(255,255,255,.92);color:#A98D96;cursor:pointer;padding:0;">换</button>' +
+        '<button type="button" class="pv-del" data-idx="' + idx + '" title="删除这张" style="position:absolute;top:3px;right:3px;width:18px;height:18px;line-height:1;font-size:12px;border:none;border-radius:50%;background:rgba(255,255,255,.92);color:#A98D96;cursor:pointer;padding:0;">✕</button>' +
+        '<button type="button" class="pv-swap" data-idx="' + idx + '" title="换一张图" style="position:absolute;top:3px;left:3px;width:18px;height:18px;line-height:1;font-size:10px;border:none;border-radius:50%;background:rgba(255,255,255,.92);color:#A98D96;cursor:pointer;padding:0;">换</button>' +
         (idx === 0 ? '<span style="position:absolute;left:3px;bottom:3px;background:var(--accent-strong,#A98D96);color:#fff;border-radius:999px;padding:0 6px;font-size:10px;line-height:14px;">封面</span>'
                    : '<button type="button" class="pv-cover" data-idx="' + idx + '" title="设为封面（自动挪到第一位）" style="position:absolute;left:3px;bottom:3px;border:none;border-radius:999px;padding:1px 6px;font-size:10px;line-height:14px;background:rgba(255,255,255,.92);color:#A98D96;cursor:pointer;">设封面</button>') +
         '</div>';
@@ -2148,8 +2150,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       if (!src) return '';
       return '<div class="ph-tile' + (idx === 0 ? ' ph-cover' : '') + '" draggable="true" data-idx="' + idx + '" title="拖动可调整顺序" style="width:76px;height:76px;border-radius:14px;overflow:hidden;position:relative;background:var(--card);flex-shrink:0;cursor:grab;border:1.5px solid #FFE3EC;">' +
         '<img src="' + escAttr(src) + '" style="width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;">' +
-        '<button type="button" class="ph-del" data-idx="' + idx + '" title="删除这张" style="position:absolute;top:2px;right:2px;width:18px;height:18px;line-height:1;font-size:12px;border:none;border-radius:50%;background:rgba(255,255,255,.92);color:#A98D96;cursor:pointer;padding:0;">✕</button>' +
-        '<button type="button" class="ph-swap-btn" data-idx="' + idx + '" title="换一张图" style="position:absolute;top:2px;left:2px;width:18px;height:18px;line-height:1;font-size:10px;border:none;border-radius:50%;background:rgba(255,255,255,.92);color:#A98D96;cursor:pointer;padding:0;">换</button>' +
+        '<button type="button" class="ph-del" data-idx="' + idx + '" title="删除这张" style="position:absolute;top:3px;right:3px;width:18px;height:18px;line-height:1;font-size:12px;border:none;border-radius:50%;background:rgba(255,255,255,.92);color:#A98D96;cursor:pointer;padding:0;">✕</button>' +
+        '<button type="button" class="ph-swap-btn" data-idx="' + idx + '" title="换一张图" style="position:absolute;top:3px;left:3px;width:18px;height:18px;line-height:1;font-size:10px;border:none;border-radius:50%;background:rgba(255,255,255,.92);color:#A98D96;cursor:pointer;padding:0;">换</button>' +
         (idx === 0 ? '<span style="position:absolute;left:3px;bottom:3px;background:var(--accent-strong,#A98D96);color:#fff;border-radius:999px;padding:0 6px;font-size:10px;line-height:14px;">封面</span>'
                    : '<button type="button" class="ph-cover-btn" data-idx="' + idx + '" title="设为封面（自动挪到第一位）" style="position:absolute;left:3px;bottom:3px;border:none;border-radius:999px;padding:1px 6px;font-size:10px;line-height:14px;background:rgba(255,255,255,.92);color:#A98D96;cursor:pointer;">设封面</button>') +
         '</div>';
@@ -2189,7 +2191,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       this.value = '';
       return;
     }
-    label.textContent = '已选 ' + pendingFiles.length + ' / ' + PROD_IMG_MAX + ' 张（第一张默认封面，可拖动排序或点「设封面」）';
+    label.textContent = '已选 ' + pendingFiles.length + ' / ' + PROD_IMG_MAX + ' 张（可拖动排序 · 可点「设封面」）';
     renderPendingPreview();
   });
   // 上架预览条：删除 / 设为封面（她 20261030 §2.2：每个图独立管理，设封面后自动移到第一位）
@@ -2199,7 +2201,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       pendingFiles.splice(parseInt(del.getAttribute('data-idx'), 10), 1);
       renderPendingPreview();
       var lb = document.getElementById('p-file-name');
-      if (lb) lb.textContent = pendingFiles.length ? '已选 ' + pendingFiles.length + ' / ' + PROD_IMG_MAX + ' 张（第一张默认封面）' : '未选择图片';
+      if (lb) lb.textContent = pendingFiles.length ? '已选 ' + pendingFiles.length + ' / ' + PROD_IMG_MAX + ' 张' : '未选择图片';
       return;
     }
     var cov = e.target.closest('.pv-cover');
@@ -2247,6 +2249,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   function collectDraft() {
     return {
       name: document.getElementById('p-name').value.trim(),
+      nameEn: document.getElementById('p-name-en') ? document.getElementById('p-name-en').value.trim() : '',
       price: document.getElementById('p-price').value.trim(),
       stock: document.getElementById('p-stock').value.trim(),
       cost: document.getElementById('p-cost').value.trim(),
@@ -2261,6 +2264,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   function fillDraft(d) {
     if (!d) return;
     document.getElementById('p-name').value = d.name || '';
+    var _ne = document.getElementById('p-name-en'); if (_ne) _ne.value = d.nameEn || '';
     document.getElementById('p-price').value = d.price || '';
     document.getElementById('p-stock').value = d.stock || '';
     document.getElementById('p-cost').value = d.cost || '';
@@ -2350,9 +2354,11 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       var _unit = document.getElementById('p-unit') ? document.getElementById('p-unit').value.trim() : '';
       var _sku = document.getElementById('p-sku') ? document.getElementById('p-sku').value.trim() : '';
       var _cat = document.getElementById('p-cat') ? document.getElementById('p-cat').value.trim() : '';
+      var _nen = document.getElementById('p-name-en') ? document.getElementById('p-name-en').value.trim() : '';
       if (_unit) body.unit = _unit;
       if (_sku) body.sku = _sku;
       if (_cat) body.category = _cat;
+      if (_nen) body.name_en = _nen;
       var av = window.smAddVarCollect ? window.smAddVarCollect() : []; // 上架时一并提交规格（她 2026-10-25 要求上架页也能加规格）
       if (av.length) body.variants = av;
       if (urls.length > 1) body.images = urls; // 多图：images 列还没建时下面会自动降级为只存主图
@@ -2371,8 +2377,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
               return r2;
             });
           }
-          if (b.unit || b.sku || b.category) { // unit/sku/category 列还没建：去掉这三个重试，其余字段照常入库
-            delete b.unit; delete b.sku; delete b.category;
+          if (b.unit || b.sku || b.category || b.name_en) { // unit/sku/category/name_en 列还没建：去掉重试，其余字段照常入库
+            delete b.unit; delete b.sku; delete b.category; delete b.name_en;
             return tryPost(b, true).then(function (r2) {
               if (!r2.ok) throw new Error();
               toast('单位/编码/分类的列还没建，这次先只存名称价格等；跑建列 SQL 后可以再补');
@@ -2388,6 +2394,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       document.getElementById('newprod-wrap').style.display = 'none';
       document.getElementById('btn-toggle-newprod').textContent = '＋ 添加新商品';
       document.getElementById('p-name').value = '';
+      var _nec = document.getElementById('p-name-en'); if (_nec) _nec.value = '';
       document.getElementById('p-price').value = '';
       document.getElementById('p-stock').value = '';
       document.getElementById('p-cost').value = '';
@@ -2610,6 +2617,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         productStripHtml(card.__imgItems) +
         '<div class="edit-grid">' +
         '<input class="e-name" value="' + escAttr(p.name) + '" placeholder="商品名称">' +
+        '<input class="e-name-en" value="' + escAttr(p.name_en || '') + '" placeholder="商品名称 English（选填，英文页显示）">' +
         '<input class="e-price" value="' + escAttr(p.price) + '" placeholder="价格">' +
         '<div style="grid-column:1/-1;" class="cur-row"><div class="cur-line"><span style="font-size:14px;color:var(--muted);">货币</span>' +
           '<button type="button" class="cur-chip' + (card.__cur !== 'USD' ? ' on' : '') + '" data-cur="CNY">¥ 人民币</button>' +
@@ -2667,6 +2675,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     if (e.target.classList.contains('btn-save-edit')) {
       var body = {
         name: card.querySelector('.e-name').value.trim(),
+        name_en: (card.querySelector('.e-name-en') || { value: '' }).value.trim(),
         price: card.querySelector('.e-price').value.trim(),
         tag: card.querySelector('.e-tag').value.trim(),
         stock: card.querySelector('.e-stock').value === '' ? null : parseInt(card.querySelector('.e-stock').value, 10),
@@ -2688,6 +2697,10 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           if (b.images) { // images 列还没建：降级为只存主图
             delete b.images;
             return tryPatch(b, true);
+          }
+          if (b.name_en) { // name_en 列还没建：去掉重试，其余照常保存
+            var b3 = Object.assign({}, b); delete b3.name_en;
+            return tryPatch(b3, true);
           }
           throw new Error();
         });

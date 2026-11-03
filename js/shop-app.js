@@ -249,6 +249,7 @@
     showView('detail');
     paintDetail();
   }
+  function dispName(p) { return (LANG === 'en' && p.name_en) ? p.name_en : p.name; } // 她 20261102：商品名称双语
   function detailEl() {
     var d = DETAIL, p = d.p, vs = variantsOf(p), v = vs ? currentVariant(p, d.sku) : null;
     var st = v ? (variantStock(v) > 0 ? 'on' : 'out') : (p.sold || !(p.stock > 0) ? 'out' : 'on');
@@ -259,10 +260,10 @@
     el.innerHTML =
       '<a class="back-link" href="' + ykLink('/shop/') + '" style="margin-bottom:14px;display:inline-flex;">← ' + t('回小铺', 'Back to shop') + '</a>' +
       '<div class="pdp">' +
-        '<div class="d-pager" id="d-pager">' + pagerWrapHtml(imgs.map(normImg), p.name) + '</div>' +
+        '<div class="d-pager" id="d-pager">' + pagerWrapHtml(imgs.map(normImg), dispName(p)) + '</div>' +
         '<div class="d-info">' +
         '<div class="d-head" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">' +
-          '<h2 style="font-size:24px;margin:0;">' + esc(p.name) + '</h2>' +
+          '<h2 style="font-size:24px;margin:0;">' + esc(dispName(p)) + '</h2>' +
           '<span class="product-tag">' + esc(p.tag || t('没有标签', 'Untagged')) + '</span>' +
           '<button type="button" class="fav-btn detail-fav' + (isFav(p.id) ? ' on' : '') + '" data-fav="' + escAttr(p.id) + '" aria-label="' + t('收藏', 'Favorite') + '" style="margin-left:auto;">' + svgHeart(isFav(p.id)) + '</button>' +
         '</div>' +
