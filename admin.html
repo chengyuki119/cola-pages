@@ -293,6 +293,29 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   }
   .btn-save { border: none; background: #FCE1EA; color: #A98D96; font-family: inherit; cursor: pointer; }
   .btn-cancel { background: #FFF7FA; color: var(--text); } /* 取消=浅底（她 20261102：保存深粉、取消浅底对调） */
+  /* ═她 20261102：全后台输入/搜索框统一（她「所有搜索框 UI 都一样、字体全部统一、不管什么形态」）
+     统一口径 = 网站表单标准：16px 字 · 1.5px 粉描边(var(--accent)) · 12px 圆角 · 白底；
+     !important 压过各 JS 模板里散落的内联样式（15px/14px/#FFD9E6 1px/胶囊…全部归一）。 */
+  input:not([type]):not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]):not([type=color]):not([type=button]):not([type=submit]):not([type=reset]),
+  input[type=text], input[type=search], input[type=number], input[type=email], input[type=password],
+  input[type=date], input[type=time], input[type=url], input[type=tel], textarea, select {
+    font-size: 16px !important;
+    font-family: inherit !important;
+    border: 1.5px solid var(--accent,#FFD9E6) !important;
+    border-radius: 12px !important;
+    background: #fff !important;
+    color: var(--text,#604C57) !important;
+    padding: 10px 14px !important;
+    outline: none !important;
+    box-sizing: border-box !important;
+  }
+  /* 搜索壳内芯：边框由壳提供，内芯保持透明无边框（否则双层框）；
+     ID 前缀提权（统一规则的 :not() 链特异度极高，必须用 (1,x,x) 压回） */
+  #tab-messages .msg-searchbox input, #tab-ai .aix-searchbox input,
+  .msg-searchbox input, .aix-searchbox input {
+    border: none !important; background: transparent !important;
+    border-radius: 0 !important; padding: 8px 0 !important; min-width: 0 !important;
+  }
   /* 数字输入框不要浏览器原生上下小箭头（和自定义控件打架） */
   input[type="number"] { appearance: textfield; -moz-appearance: textfield; }
   input[type="number"]::-webkit-outer-spin-button,
@@ -805,8 +828,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       <style>
         /* 联系与留言管理（原匿名留言）：状态筛选 + 关键词搜索 + 状态流转 + 内部备注 */
         #tab-messages .msg-toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
-        #tab-messages .msg-searchbox { flex: 1; min-width: 220px; display: flex; align-items: center; gap: 6px; border: 1px solid var(--card-hover); border-radius: 999px; background: #fff; padding: 2px 8px 2px 16px; }
-        #tab-messages .msg-searchbox:focus-within { border-color: var(--accent-soft); }
+        #tab-messages .msg-searchbox { flex: 1; min-width: 220px; display: flex; align-items: center; gap: 6px; border: 1.5px solid var(--accent,#FFD9E6); border-radius: 12px; background: #fff; padding: 4px 10px 4px 14px; } /* 她 20261102：搜索框全后台统一形态 */
+        #tab-messages .msg-searchbox:focus-within { border-color: #F0B9D2; }
         #tab-messages .msg-searchbox input { flex: 1; min-width: 0; border: none; background: transparent; padding: 8px 0; font-size:16px; font-family: inherit; color: var(--text); outline: none; }
         #tab-messages .msg-searchbox .clear { width: 24px; height: 24px; border: none; border-radius: 50%; background: var(--card-hover); color: var(--text); font-size:16px; line-height: 1; cursor: pointer; flex-shrink: 0; display: none; font-family: inherit; }
         #tab-messages .msg-searchbox .clear.show { display: block; }
@@ -852,8 +875,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         .aix-stat b { display: block; font-size:23px; color:var(--text,#62545B); line-height: 1.3; }
         .aix-stat span { font-size:14px; color: var(--muted); }
         .aix-toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
-        .aix-searchbox { flex: 1; min-width: 200px; display: flex; align-items: center; gap: 6px; border: 1px solid var(--card-hover); border-radius: 999px; background: #fff; padding: 2px 8px 2px 16px; }
-        .aix-searchbox:focus-within { border-color: var(--accent-soft); }
+        .aix-searchbox { flex: 1; min-width: 200px; display: flex; align-items: center; gap: 6px; border: 1.5px solid var(--accent,#FFD9E6); border-radius: 12px; background: #fff; padding: 4px 10px 4px 14px; } /* 她 20261102：搜索框全后台统一形态 */
+        .aix-searchbox:focus-within { border-color: #F0B9D2; }
         .aix-searchbox input { flex: 1; min-width: 0; border: none; background: transparent; padding: 8px 0; font-size:16px; font-family: inherit; color: var(--text); outline: none; }
         .aix-searchbox .clear { width: 24px; height: 24px; border: none; border-radius: 50%; background: var(--card-hover); color: var(--text); font-size:16px; line-height: 1; cursor: pointer; flex-shrink: 0; display: none; font-family: inherit; }
         .aix-searchbox .clear.show { display: block; }
