@@ -959,6 +959,18 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
             <div class="p-preview" id="p-preview"><span class="pv-empty">还没有图片</span></div>
           </div>
           <div class="pf-fileline"><span class="hm-file-name" id="p-file-name">未选择图片</span><span class="pf-count" id="p-img-count">0 / 6</span></div>
+          <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;align-items:center;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:15px;color:var(--muted);">中文封面</span>
+              <span id="p-cov-zh-prev" style="width:56px;height:56px;border-radius:10px;border:1.5px dashed var(--accent-soft,#FFD9E6);display:inline-flex;align-items:center;justify-content:center;color:#A88E9B;font-size:20px;overflow:hidden;">♡</span>
+              <label class="btn-mini" style="cursor:pointer;">上传<input type="file" accept="image/*" hidden id="p-cov-zh"></label>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:15px;color:var(--muted);">English 封面</span>
+              <span id="p-cov-en-prev" style="width:56px;height:56px;border-radius:10px;border:1.5px dashed var(--accent-soft,#FFD9E6);display:inline-flex;align-items:center;justify-content:center;color:#A88E9B;font-size:20px;overflow:hidden;">♡</span>
+              <label class="btn-mini" style="cursor:pointer;">上传<input type="file" accept="image/*" hidden id="p-cov-en"></label>
+            </div>
+          </div>
           <input id="p-file-replace" type="file" accept="image/*" hidden>
         </div>
         <div class="pf-sec" data-sec="basic">
@@ -2227,6 +2239,23 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     renderPendingPreview();
     if (typeof toast === 'function') toast('已替换这一张');
   });
+  // ── 双语封面（她 20261102）：中文/English 各一张，前台按语言显示 ──
+  var pendingCoverZh = null, pendingCoverEn = null;
+  function renderCoverPrev() {
+    var z = document.getElementById('p-cov-zh-prev'), e = document.getElementById('p-cov-en-prev');
+    if (z) z.innerHTML = pendingCoverZh ? '<img src="' + URL.createObjectURL(pendingCoverZh) + '" style="width:100%;height:100%;object-fit:cover;display:block;">' : '♡';
+    if (e) e.innerHTML = pendingCoverEn ? '<img src="' + URL.createObjectURL(pendingCoverEn) + '" style="width:100%;height:100%;object-fit:cover;display:block;">' : '♡';
+  }
+  document.getElementById('p-cov-zh').addEventListener('change', function () {
+    pendingCoverZh = (this.files || [])[0] || null;
+    renderCoverPrev();
+    this.value = '';
+  });
+  document.getElementById('p-cov-en').addEventListener('change', function () {
+    pendingCoverEn = (this.files || [])[0] || null;
+    renderCoverPrev();
+    this.value = '';
+  });
   function uploadShopFiles(files) {
     return Promise.all(files.map(function (f) {
       return authedFetch(SUPABASE_URL + '/storage/v1/object/shop/' + Date.now() + '-' + Math.random().toString(36).slice(2, 6) + '-' + f.name.replace(/[^\w.\-]/g, '_'), {
@@ -2348,8 +2377,13 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     if (!name) { toast('商品名称总要有的呀'); return; }
     btn.disabled = true; btn.textContent = '上架中…';
 
+    var covJobs = [];
+    if (pendingCoverZh) covJobs.push(uploadShopFiles([pendingCoverZh]).then(function (u) { return ['cover_zh', u[0]]; }));
+    if (pendingCoverEn) covJobs.push(uploadShopFiles([pendingCoverEn]).then(function (u) { return ['cover_en', u[0]]; }));
+    Promise.all(covJobs).then(function (covPairs) {
     uploadShopFiles(pendingFiles).then(function (urls) {
       var body = { name: name, price: price, description: desc, description_en: document.getElementById('p-desc-en').value.trim(), tag: tag, image_url: urls[0] || null, stock: stock === '' ? 1 : parseInt(stock, 10), cost: cost === '' ? null : parseFloat(cost), currency: pCur };
+      covPairs.forEach(function (cp) { body[cp[0]] = cp[1]; });
       // 她 20261030 §3.1：新增单位 / 编码 / 分类——列还没建时下面会自动降级，不丢其他字段
       var _unit = document.getElementById('p-unit') ? document.getElementById('p-unit').value.trim() : '';
       var _sku = document.getElementById('p-sku') ? document.getElementById('p-sku').value.trim() : '';
@@ -2377,8 +2411,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
               return r2;
             });
           }
-          if (b.unit || b.sku || b.category || b.name_en) { // unit/sku/category/name_en 列还没建：去掉重试，其余字段照常入库
-            delete b.unit; delete b.sku; delete b.category; delete b.name_en;
+          if (b.unit || b.sku || b.category || b.name_en || b.cover_zh || b.cover_en) { // unit/sku/category/name_en/cover 列还没建：去掉重试，其余字段照常入库
+            delete b.unit; delete b.sku; delete b.category; delete b.name_en; delete b.cover_zh; delete b.cover_en;
             return tryPost(b, true).then(function (r2) {
               if (!r2.ok) throw new Error();
               toast('单位/编码/分类的列还没建，这次先只存名称价格等；跑建列 SQL 后可以再补');
@@ -2410,6 +2444,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       loadProducts();
     }).catch(function () { toast('上架失败，重试一下'); })
       .finally(function () { btn.disabled = false; btn.textContent = '上架这个商品'; });
+    }); // Promise.all(covJobs)
   });
 
   // ===== 标签管理：每个标签都能改名 / 删除，商品永远不丢（删了只会变成「没有标签」）=====
@@ -2490,7 +2525,12 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   }
   function loadProducts() {
     var tryLoad = function (withImages, withCur) {
-      return api('products?select=id,name,price' + (withCur ? ',currency' : '') + ',description,tag,image_url' + (withImages ? ',images' : '') + ',sold,stock,display_only,created_at&order=created_at.desc&limit=200')
+      var _sel = 'id,name,name_en,cover_zh,cover_en,price' + (withCur ? ',currency' : '') + ',description,tag,image_url' + (withImages ? ',images' : '') + ',sold,stock,display_only,created_at&order=created_at.desc&limit=200';
+      var _selOld = 'id,name,price,variants,weight_oz' + (withCur ? ',currency' : '') + ',description,tag,image_url' + (withImages ? ',images' : '') + ',sold,stock,display_only,created_at&order=created_at.desc&limit=200'; // variants/weight_oz 列已存在，必须带上（规格总库存依赖它）
+      return api('products?select=' + _sel).then(function (r) {
+        if (r.ok) return r;
+        return api('products?select=' + _selOld); // 新列还没建：退回旧列（name_en/封面暂不可编）
+      })
         .then(function (r) { return r.json(); })
         .then(function (rows) { if (!Array.isArray(rows)) throw new Error(); return rows; });
     };
@@ -2525,7 +2565,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
             : '';
           var off = isShopHidden(p.id);
           var st = off ? ['已下架', 'st-off'] : p.display_only ? ['仅展示', 'st-display'] : (p.sold || !(p.stock > 0)) ? ['售尽', 'st-out'] : ['在售', 'st-on'];
-          var stockInfo = '库存 ' + (p.stock == null ? '-' : p.stock);
+          var vsum = (Array.isArray(p.variants) && p.variants.length) ? p.variants.filter(function (v) { return v && v.frozen !== true; }).reduce(function (a, v) { return a + (parseInt(v.stock, 10) || 0); }, 0) : null; // 她 20261102：总库存=规格库存和
+          var stockInfo = vsum != null ? '库存 ' + vsum + '（按规格自动汇总）' : '库存 ' + (p.stock == null ? '-' : p.stock);
           var costInfo = p.cost == null ? '未填成本' : '成本 ¥' + p.cost;
           return '<div class="card shop-item" data-id="' + p.id + '" data-stock="' + (p.stock == null ? 0 : p.stock) + '">' +
             '<div class="thumb">' + thumb + '</div>' +
@@ -2535,8 +2576,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
             '<div class="private-line">' + stockInfo + ' · ' + costInfo + '（成本只有你自己能看到）</div>' +
             '<div class="actions" style="justify-content:flex-start;">' +
             '<button class="btn-mini btn-display">' + (p.display_only ? '恢复在售' : '设为仅展示') + '</button>' +
-            '<button class="btn-mini btn-minus">库存 -1</button>' +
-            '<button class="btn-mini btn-plus">库存 +1</button>' +
+            (vsum == null ? '<button class="btn-mini btn-minus">库存 -1</button><button class="btn-mini btn-plus">库存 +1</button>' : '') +
             '<button class="btn-mini btn-off">' + (off ? '重新上架' : '下架') + '</button>' +
             '<button class="btn-del btn-del-product">删除</button>' +
             '</div></div>' +
@@ -2627,6 +2667,11 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         '<input class="e-stock" type="number" min="0" value="' + (p.stock == null ? '' : p.stock) + '" placeholder="库存">' +
         '<input class="e-cost" type="number" step="0.01" value="' + (p.cost == null ? '' : p.cost) + '" placeholder="成本（仅自己可见）">' +
         '<div class="fld-inline" style="grid-column:1/-1;"><label class="btn-mini hm-file-btn">上传图片<input type="file" class="e-file" accept="image/*" multiple hidden></label><span class="hm-file-name e-file-name">' + (base0.length ? '已有 ' + base0.length + ' / ' + PROD_IMG_MAX + ' 张（第一张=封面）' : '还没有图片，点「上传图片」添加') + '</span><input type="file" class="e-file-replace" accept="image/*" hidden></div>' +
+        '<div style="grid-column:1/-1;display:flex;gap:16px;flex-wrap:wrap;align-items:center;">' +
+          '<div style="display:flex;align-items:center;gap:8px;"><span style="font-size:14px;color:var(--muted);">中文封面</span><span class="e-cov-prev" data-f="cover_zh" style="width:56px;height:56px;border-radius:10px;border:1.5px ' + (p.cover_zh ? 'solid' : 'dashed') + ' var(--accent-soft,#FFD9E6);display:inline-flex;align-items:center;justify-content:center;color:#A98E9B;font-size:20px;overflow:hidden;">' + (p.cover_zh ? '<img src="' + escAttr(p.cover_zh) + '" style="width:100%;height:100%;object-fit:cover;display:block;">' : '♡') + '</span><label class="btn-mini" style="cursor:pointer;">上传<input type="file" accept="image/*" hidden class="e-cov-file" data-f="cover_zh"></label></div>' +
+          '<div style="display:flex;align-items:center;gap:8px;"><span style="font-size:14px;color:var(--muted);">English 封面</span><span class="e-cov-prev" data-f="cover_en" style="width:56px;height:56px;border-radius:10px;border:1.5px ' + (p.cover_en ? 'solid' : 'dashed') + ' var(--accent-soft,#FFD9E6);display:inline-flex;align-items:center;justify-content:center;color:#A98E9B;font-size:20px;overflow:hidden;">' + (p.cover_en ? '<img src="' + escAttr(p.cover_en) + '" style="width:100%;height:100%;object-fit:cover;display:block;">' : '♡') + '</span><label class="btn-mini" style="cursor:pointer;">上传<input type="file" accept="image/*" hidden class="e-cov-file" data-f="cover_en"></label></div>' +
+          '<span class="hint" style="font-size:13px;color:var(--muted);">选图后自动上传保存；前台中文页显示中文封面，英文页显示 English 封面</span>' +
+        '</div>' +
         '<textarea class="e-desc" placeholder="商品描述">' + esc(p.description) + '</textarea>' +
         '<textarea class="e-desc-en" placeholder="英文描述 Description in English（切到 English 时显示，可留空）">' + esc(p.description_en || '') + '</textarea>' +
         '</div>' +
@@ -2669,6 +2714,25 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       });
       goEditTop(); // 打开商品编辑：自动回到页面最上面
     }
+    if (false) { // （封面走下方 change 监听，不在 click 里处理）
+      var cf = e.target, cfCard = cf.closest('.shop-item');
+      var cfField = cf.getAttribute('data-f');
+      if (!cf.files || !cf.files[0] || !cfCard) return;
+      var btn0 = cf.parentElement;
+      if (btn0) btn0.style.opacity = .6;
+      uploadShopFiles([cf.files[0]]).then(function (us) {
+        cfCard['__' + cfField] = us[0];
+        var prev = cfCard.querySelector('.e-cov-prev[data-f="' + cfField + '"]');
+        if (prev) { prev.style.borderStyle = 'solid'; prev.innerHTML = '<img src="' + escAttr(us[0]) + '" style="width:100%;height:100%;object-fit:cover;display:block;">'; }
+        var b = {}; b[cfField] = us[0];
+        return api('products?id=eq.' + cfCard.getAttribute('data-id'), { method: 'PATCH', body: JSON.stringify(b) }).then(function (r) {
+          if (r.ok) { toast('封面已保存'); return; }
+          toast('封面列还没建（跑「商品双语.sql」后生效），图已传好暂存本页');
+        });
+      }).catch(function () { toast('封面上传失败，重试一下'); })
+        .finally(function () { if (btn0) btn0.style.opacity = 1; });
+      return;
+    }
     if (e.target.classList.contains('btn-cancel-edit')) {
       loadProducts();
     }
@@ -2676,6 +2740,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       var body = {
         name: card.querySelector('.e-name').value.trim(),
         name_en: (card.querySelector('.e-name-en') || { value: '' }).value.trim(),
+        cover_zh: card.__cover_zh || (PRODUCT_CACHE[id] && PRODUCT_CACHE[id].cover_zh) || '',
+        cover_en: card.__cover_en || (PRODUCT_CACHE[id] && PRODUCT_CACHE[id].cover_en) || '',
         price: card.querySelector('.e-price').value.trim(),
         tag: card.querySelector('.e-tag').value.trim(),
         stock: card.querySelector('.e-stock').value === '' ? null : parseInt(card.querySelector('.e-stock').value, 10),
@@ -2698,8 +2764,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
             delete b.images;
             return tryPatch(b, true);
           }
-          if (b.name_en) { // name_en 列还没建：去掉重试，其余照常保存
-            var b3 = Object.assign({}, b); delete b3.name_en;
+          if (b.name_en || b.cover_zh !== undefined || b.cover_en !== undefined) { // name_en/cover 列还没建：去掉重试，其余照常保存
+            var b3 = Object.assign({}, b); delete b3.name_en; delete b3.cover_zh; delete b3.cover_en;
             return tryPatch(b3, true);
           }
           throw new Error();
@@ -6900,7 +6966,7 @@ function loadEmailLog() {
 </script>
 
 
-<script src="js/admin-shop.js?v=20261031E"></script>
+<script src="js/admin-shop.js?v=20261102E"></script>
 <script src="js/admin-import.js?v=20261031E"></script>
 <script src="js/admin-crm.js?v=20261031E"></script>
 <script src="js/admin-vip.js?v=20261031E" data-legacy="1"></script>

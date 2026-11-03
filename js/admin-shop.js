@@ -241,7 +241,10 @@
       .then(renderAftersale);
   }
   function loadProducts() {
-    return restGet('products?select=id,name,price,stock,variants,weight_oz,image_url,tag&order=created_at.desc&limit=200')
+    return restGet('products?select=id,name,name_en,cover_zh,cover_en,price,stock,variants,weight_oz,image_url,tag&order=created_at.desc&limit=200')
+      .catch(function () { // name_en/cover 列还没建：退回旧列，其余功能不受影响
+        return restGet('products?select=id,name,price,stock,variants,weight_oz,image_url,tag&order=created_at.desc&limit=200');
+      })
       .then(function (rows) { SM.products = arr(rows); })
       .catch(function () { SM.products = arr(window.SHOP_PRODUCTS); });
   }
@@ -1187,7 +1190,10 @@
     };
     // 只信带 variants 字段的数据；缓存里没有就单独拉这个商品，绝不把已有规格当空（她 2026-10-25 遇到）
     if (local && Array.isArray(local.variants)) { build(local); return; }
-    restGet('products?select=id,name,price,stock,variants,weight_oz,image_url,tag&id=eq.' + pid)
+    restGet('products?select=id,name,name_en,cover_zh,cover_en,price,stock,variants,weight_oz,image_url,tag&id=eq.' + pid)
+      .catch(function () { // 新列还没建：退回旧列
+        return restGet('products?select=id,name,price,stock,variants,weight_oz,image_url,tag&id=eq.' + pid);
+      })
       .then(function (rows) {
         var row = arr(rows)[0] || local;
         if (row) {
@@ -1261,7 +1267,7 @@
     var body = {};
     if (wEl) body.weight_oz = wEl.value.trim() === '' ? null : parseFloat(wEl.value);
     var clean = vlist.filter(function (v) { return v.sku || v.name; }).map(function (v) {
-      return { sku: v.sku || '', name: v.name || '', price: fmtMoney(v.price), stock: parseInt(v.stock, 10) || 0, images: arr(v.images), frozen: v.frozen === true };
+      return { sku: (v.sku || '').trim() || (v.name || '').trim(), name: v.name || '', price: fmtMoney(v.price), stock: parseInt(v.stock, 10) || 0, images: arr(v.images), frozen: v.frozen === true }; // SKU 留空时自动用规格名，保证下单 RPC 能精确匹配
     });
     if (card.__p || clean.length) body.variants = clean;
     if (!Object.keys(body).length) return;
@@ -1287,7 +1293,7 @@
       v.stock = row.querySelector('.sv-stock').value.trim();
     });
     return ADDVAR.list.filter(function (v) { return v.sku || v.name; }).map(function (v) {
-      return { sku: v.sku || '', name: v.name || '', price: fmtMoney(v.price), stock: parseInt(v.stock, 10) || 0, images: arr(v.images), frozen: v.frozen === true };
+      return { sku: (v.sku || '').trim() || (v.name || '').trim(), name: v.name || '', price: fmtMoney(v.price), stock: parseInt(v.stock, 10) || 0, images: arr(v.images), frozen: v.frozen === true }; // SKU 留空时自动用规格名，保证下单 RPC 能精确匹配
     });
   };
   window.smAddVarReset = function () { ADDVAR.list = []; smVarRenderRows(document.getElementById('tab-shop')); };

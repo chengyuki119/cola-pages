@@ -228,8 +228,10 @@
   function currentVariant(p, sku) {
     var vs = variantsOf(p);
     if (!vs) return null;
-    return vs.filter(function (v) { return v.sku === sku; })[0] || null;
+    // 兼容历史空 SKU 数据：sku 为空时按规格名匹配（她 20261102 建规格没填 SKU）
+    return vs.filter(function (v) { return (v.sku || v.name || '') === sku; })[0] || vs.filter(function (v) { return v.sku === sku; })[0] || null;
   }
+  function varKey(v) { return (v && (v.sku || v.name)) || ''; }
   function variantStock(v) { return v ? (parseInt(v.stock, 10) || 0) : 0; }
   function openDetail(id, sku, retry) {
     if (!PRODUCTS.length && !(retry > 20)) { setTimeout(function () { openDetail(id, sku, (retry || 0) + 1); }, 250); return; } // 等商品异步加载完
@@ -241,7 +243,7 @@
     if (vs) {
       var hit = sku ? currentVariant(p, sku) : null;
       if (!hit) hit = vs.filter(function (v) { return variantStock(v) > 0; })[0] || vs[0];
-      sku = hit.sku;
+      sku = varKey(hit);
     }
     DETAIL = { p: p, sku: sku || '', qty: 1 };
     box.innerHTML = '';
@@ -250,10 +252,19 @@
     paintDetail();
   }
   function dispName(p) { return (LANG === 'en' && p.name_en) ? p.name_en : p.name; } // 她 20261102：商品名称双语
+  function dispCover(p) { return (LANG === 'en' ? (p.cover_en || p.cover_zh) : (p.cover_zh || p.cover_en)) || ''; } // 双语封面：卡片与详情同图
+  var TAG_EN = { '手作': 'Handmade', '黏土': 'Clay', '毛线': 'Yarn', '贴纸': 'Sticker', '键帽': 'Keycap' }; // 标签英文展示
+  function dispTag(p) { var tag = p.tag || ''; if (LANG !== 'en') return tag; return TAG_EN[tag] || tag; }
+  function totalStock(p) { // 她 20261102：有规格的商品总库存=全部规格库存相加
+    var vs = Array.isArray(p.variants) ? p.variants.filter(function (v) { return v && v.frozen !== true; }) : [];
+    if (!vs.length) return null;
+    return vs.reduce(function (a, v) { return a + (parseInt(v.stock, 10) || 0); }, 0);
+  }
   function detailEl() {
     var d = DETAIL, p = d.p, vs = variantsOf(p), v = vs ? currentVariant(p, d.sku) : null;
     var st = v ? (variantStock(v) > 0 ? 'on' : 'out') : (p.sold || !(p.stock > 0) ? 'out' : 'on');
     var imgs = v && Array.isArray(v.images) && v.images.length ? v.images : (Array.isArray(p.images) && p.images.length ? p.images : (p.image_url ? [p.image_url] : []));
+    var dc = dispCover(p); if (dc && imgs.indexOf(dc) === -1) imgs = [dc].concat(imgs); // 她 20261102：详情第一张=当前语言封面（与列表卡同图）
     var price = v ? (v.price != null ? v.price : p.price) : p.price;
     var skuText = v ? (v.sku || '') : '';
     var el = document.createElement('div');
@@ -269,13 +280,13 @@
         '</div>' +
         '<div class="d-price">' +
           '<div style="font-size:26px;color:var(--price,#ff6fa5);font-weight:700;margin:10px 0;">' + sym(curOf(p, v)) + money(price) + '</div>' +
-          (skuText ? '<div style="font-size:15px;color:var(--muted);margin-bottom:6px;">SKU: ' + esc(skuText) + '</div>' : '') +
+          (skuText ? '<div style="font-size:15px;color:var(--muted);margin-bottom:6px;">' + t('规格', 'Option') + ': ' + esc(v && v.name ? v.name : skuText) + '</div>' : '') +
         '</div>' +
         (vs ?
           '<div class="d-variants" style="margin:10px 0;"><div style="font-size:16px;margin-bottom:6px;">' + t('规格', 'Option') + '</div><div id="d-variants" style="display:flex;gap:8px;flex-wrap:wrap;">' +
           vs.map(function (x) {
             var out = variantStock(x) <= 0;
-            return '<button type="button" class="sku-chip' + (x.sku === d.sku ? ' on' : '') + (out ? ' dis' : '') + '" data-sku="' + escAttr(x.sku) + '">' + esc(x.name || x.sku) + (out ? ' · ' + t('缺货', 'Out') : '') + '</button>';
+            return '<button type="button" class="sku-chip' + (varKey(x) === d.sku ? ' on' : '') + (out ? ' dis' : '') + '" data-sku="' + escAttr(varKey(x)) + '">' + esc(x.name || x.sku) + (out ? ' · ' + t('缺货', 'Out') : '') + '</button>';
           }).join('') + '</div></div>' : '') +
         (st === 'on' ?
           '<div class="d-notice card" style="padding:12px 14px;margin:12px 0 0;background:var(--bg,#FFFBFC);border:1.5px solid var(--accent-soft,#FCE4EC);">' +
@@ -289,7 +300,7 @@
               '<div style="display:flex;align-items:center;gap:12px;margin:0 0 12px;">' +
                 '<span style="font-size:16px;">' + t('数量', 'Qty') + '</span>' +
                 '<button type="button" class="qty-btn" data-d="-1">−</button><b id="d-qty">1</b><button type="button" class="qty-btn" data-d="1">＋</button>' +
-                '<span style="font-size:15px;color:var(--muted);">' + t('库存', 'Stock') + ' ' + (v ? variantStock(v) : (p.stock || 0)) + '</span>' +
+                '<span style="font-size:15px;color:var(--muted);">' + t('库存', 'Stock') + ' ' + (v ? variantStock(v) : (totalStock(p) != null ? totalStock(p) : (p.stock || 0))) + '</span>' +
               '</div>' +
               '<div style="display:flex;gap:10px;flex-wrap:wrap;margin:0;">' +
                 '<button class="buy-btn" id="d-add" style="padding:10px 22px;">' + t('加入购物车', 'Add to cart') + '</button>' +
@@ -335,7 +346,7 @@
     document.querySelectorAll('.qty-btn').forEach(function (b) {
       b.addEventListener('click', function () {
         var vs = variantsOf(p); var v = vs ? currentVariant(p, d.sku) : null;
-        var max = v ? variantStock(v) : (p.stock || 99);
+        var max = v ? variantStock(v) : (totalStock(p) != null ? Math.max(totalStock(p), 1) : (p.stock || 99));
         d.qty = Math.min(max, Math.max(1, d.qty + parseInt(b.getAttribute('data-d'), 10)));
         var el = document.getElementById('d-qty'); if (el) el.textContent = d.qty;
       });
@@ -1376,7 +1387,7 @@
     function tags() {
       var set = []; PRODUCTS.forEach(function (p) { if (p.tag && set.indexOf(p.tag) < 0) set.push(p.tag); });
       document.getElementById('q-tags').innerHTML = [''].concat(set).map(function (x) {
-        return '<button class="buy-btn q-tag' + (x === tag ? ' on' : '') + '" data-t="' + escAttr(x) + '" style="padding:6px 12px;font-size:14px;border-radius:999px;box-shadow:none;">' + esc(x || t('全部', 'All')) + '</button>';
+        return '<button class="buy-btn q-tag' + (x === tag ? ' on' : '') + '" data-t="' + escAttr(x) + '" style="padding:6px 12px;font-size:14px;border-radius:999px;box-shadow:none;">' + esc(x ? dispTag({ tag: x }) : t('全部', 'All')) + '</button>'; // 筛选 chip 也走标签翻译（她 20261102：英文界面不能出现「手作」）
       }).join('');
       bar.querySelectorAll('.q-tag').forEach(function (b) { b.addEventListener('click', function () { tag = b.getAttribute('data-t'); paint(); }); });
     }
@@ -1396,7 +1407,7 @@
       if (!past.length) { pastSec.style.display = 'none'; }
       else { pastSec.style.display = ''; pg.innerHTML = past.map(productCardShop).join(''); bindCards(pg); }
     }
-    function statusOfG(p) { if (p.display_only) return 'display'; if (p.sold || !(p.stock > 0)) return 'out'; return 'on'; }
+    function statusOfG(p) { if (p.display_only) return 'display'; if (p.sold) return 'out'; var ts = totalStock(p); if (ts != null) return ts > 0 ? 'on' : 'out'; if (!(p.stock > 0)) return 'out'; return 'on'; }
     window.__shopPaint = paint;
     document.getElementById('q-sort').addEventListener('click', function () {
       sortIdx = (sortIdx + 1) % 3; this.textContent = SORTS[sortIdx][1]; paint();
@@ -1407,7 +1418,10 @@
   }
   // 增强版商品卡：整卡进详情 + 加入购物车 + 保留「找我下单」
   function productCardShop(p) {
-    var img = pagerWrapHtml(pagerImgsOf({ images: p.images, image_url: p.image_url }), p.name);
+    var baseImgs = pagerImgsOf({ images: p.images, image_url: p.image_url });
+    var cov = dispCover(p);
+    var cardImgs = (cov && baseImgs.indexOf(cov) === -1) ? [cov].concat(baseImgs) : baseImgs; // 封面与详情页同图
+    var img = pagerWrapHtml(cardImgs, dispName(p));
     var st = statusOf(p);
     var stText = st === 'on' ? t('在售', 'On sale') : st === 'display' ? t('仅展示', 'Display only') : t('售尽', 'Sold out');
     var stCls = st === 'on' ? 'st-on' : st === 'display' ? 'st-display' : 'st-out';
@@ -1416,12 +1430,14 @@
       '<div class="product-img">' + img + '<span class="st ' + stCls + '">' + stText + '</span>' +
       '<button type="button" class="fav-btn' + (isFav(p.id) ? ' on' : '') + '" data-fav="' + escAttr(p.id) + '" aria-label="' + t('收藏', 'Favorite') + '">' + svgHeart(isFav(p.id)) + '</button></div>' +
       '<div class="product-info">' +
-      '<span class="product-tag">' + esc(p.tag || t('没有标签', 'Untagged')) + '</span>' +
-      '<h3>' + esc(p.name) + '</h3>' +
-      '<div class="product-row">' +
-      '<span class="price">' + (p.price ? priceHtml(curOf(p), fmtPriceShop(p.price)) : '') + '</span>' +
-      (st === 'on' ? '<button class="buy-btn cart-quick">' + t('加入购物车', 'Add to cart') + '</button>' : '<span class="no-buy">' + (st === 'display' ? t('仅展示，不能下单', 'Not for sale') : '') + '</span>') +
+      '<div style="display:flex;align-items:center;gap:8px;min-width:0;">' +
+      '<span class="product-tag" style="margin-bottom:0;">' + esc(dispTag(p) || t('没有标签', 'Untagged')) + '</span>' +
       productEditBtn(p) +
+      '</div>' +
+      '<h3 style="margin-top:6px;">' + esc(dispName(p)) + '</h3>' +
+      '<div class="product-row" style="margin-top:auto;">' +
+      '<span class="price">' + (p.price ? priceHtml(curOf(p), fmtPriceShop(p.price)) : '') + '</span>' +
+      (st === 'on' ? '<button class="buy-btn cart-quick" style="margin-left:auto;">' + t('加入购物车', 'Add to cart') + '</button>' : '<span class="no-buy">' + (st === 'display' ? t('仅展示，不能下单', 'Not for sale') : '') + '</span>') +
       '</div></div></div>';
   }
   function bindCards(scope) {
