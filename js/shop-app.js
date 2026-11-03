@@ -8,6 +8,9 @@
 
   // ===== 小工具 =====
   function esc(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+  function escBr(s) { // 她 20261103：商品介绍里的 Enter 换行要原样显示（textarea 的 \n → <br>）
+    return esc(s).replace(/\r\n|\r|\n/g, '<br>');
+  }
   function arr(x) { return Array.isArray(x) ? x : []; } // REST 报错/表未建时优雅兜底
   function money(v) { var n = parseFloat(v); return isNaN(n) ? '0.00' : n.toFixed(2); }
   /* ═══ 货币：商品可分别使用 CNY(¥) / USD($)；金额永不自动换算，符号跟商品 currency 字段走（小铺统一 $，无字段默认 USD，兼容旧购物车数据）═══ */
@@ -253,8 +256,22 @@
   }
   function dispName(p) { return (LANG === 'en' && p.name_en) ? p.name_en : p.name; } // 她 20261102：商品名称双语
   function dispCover(p) { return (LANG === 'en' ? (p.cover_en || p.cover_zh) : (p.cover_zh || p.cover_en)) || ''; } // 双语封面：卡片与详情同图
-  var TAG_EN = { '手作': 'Handmade', '黏土': 'Clay', '毛线': 'Yarn', '贴纸': 'Sticker', '键帽': 'Keycap' }; // 标签英文展示
-  function dispTag(p) { var tag = p.tag || ''; if (LANG !== 'en') return tag; return TAG_EN[tag] || tag; }
+  var TAG_EN = { '手作': 'Handmade', '黏土': 'Clay', '毛线': 'Yarn', '贴纸': 'Sticker', '键帽': 'Keycap', '现货': 'In Stock', '定制款': 'Made to Order', '瑕疵款': 'Imperfect', '专拍补价': 'Extra Payment', '整套款': 'Full Set', '新品': 'New', '限定': 'Limited', '色卡': 'Color Card', '稿件': 'Artwork', 'BJD': 'BJD' }; // 标签英文展示（后台可在标签管理里为每个标签配英文名，远端优先）
+  var TAG_EN_REMOTE = null; // site_settings.shop_tag_en：{中文标签: English 名}
+  (function () {
+    try {
+      fetch(SUPABASE_URL + '/rest/v1/site_settings?select=value&key=eq.shop_tag_en', { headers: { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY } })
+        .then(function (r) { return r.ok ? r.json() : []; }).then(function (rows) {
+          var v = Array.isArray(rows) && rows[0] ? rows[0].value : null;
+          if (v) { try { TAG_EN_REMOTE = typeof v === 'string' ? JSON.parse(v) : v; } catch (e) {} }
+        }).catch(function () {});
+    } catch (e) {}
+  })();
+  function dispTag(p) {
+    var tag = p.tag || ''; if (LANG !== 'en') return tag;
+    if (TAG_EN_REMOTE && TAG_EN_REMOTE[tag]) return TAG_EN_REMOTE[tag];
+    return TAG_EN[tag] || tag;
+  }
   function totalStock(p) { // 她 20261102：有规格的商品总库存=全部规格库存相加
     var vs = Array.isArray(p.variants) ? p.variants.filter(function (v) { return v && v.frozen !== true; }) : [];
     if (!vs.length) return null;
@@ -263,8 +280,7 @@
   function detailEl() {
     var d = DETAIL, p = d.p, vs = variantsOf(p), v = vs ? currentVariant(p, d.sku) : null;
     var st = v ? (variantStock(v) > 0 ? 'on' : 'out') : (p.sold || !(p.stock > 0) ? 'out' : 'on');
-    var imgs = v && Array.isArray(v.images) && v.images.length ? v.images : (Array.isArray(p.images) && p.images.length ? p.images : (p.image_url ? [p.image_url] : []));
-    var dc = dispCover(p); if (dc && imgs.indexOf(dc) === -1) imgs = [dc].concat(imgs); // 她 20261102：详情第一张=当前语言封面（与列表卡同图）
+    var imgs = v && Array.isArray(v.images) && v.images.length ? v.images : galleryImgs(p); // 她 20261103：详情图=当前语言封面置顶，语言封面不再混进普通图
     var price = v ? (v.price != null ? v.price : p.price) : p.price;
     var skuText = v ? (v.sku || '') : '';
     var el = document.createElement('div');
@@ -309,7 +325,7 @@
             '</div>'
           : '<div class="d-actions"><p class="no-buy" style="margin:14px 0;">' + (st === 'out' ? t('已售罄，看看别的吧～', 'Sold out — take a look at other items~') : t('仅展示，不能下单', 'Not for sale')) + '</p></div>') +
         '</div>' +
-        '<div class="d-desc"><p style="color:var(--muted);font-size:17px;line-height:1.8;margin:12px 0;">' + esc((window.LANG === 'en' && p.description_en) ? p.description_en : (p.description || '')) + '</p></div>' +
+        '<div class="d-desc"><p style="color:var(--muted);font-size:17px;line-height:1.8;margin:12px 0;white-space:pre-line;">' + escBr((window.LANG === 'en' && p.description_en) ? p.description_en : (p.description || '')) + '</p></div>' +
       '</div>' +
       // 20261028p18：键帽商品购买须知（手工/气泡/色差/兼容性/定制/规格；仅键帽类商品显示）
       (isKeycapProduct(p) ? '<div class="keycap-notes-wrap" id="keycap-notes"></div>' : '') +
@@ -582,7 +598,7 @@
       box.innerHTML =
         '<h2 style="font-size:24px;margin-bottom:14px;">' + t('确认订单', 'Checkout') + '</h2>' +
         '<div class="card" style="padding:18px;margin-bottom:14px;"><b style="font-size:17px;">' + t('商品', 'Items') + '</b>' +
-          sel.map(function (x) { return '<div style="display:flex;justify-content:space-between;font-size:16px;margin-top:6px;"><span>' + esc(x.name) + ' × ' + x.qty + '</span><span style="color:var(--price,#ff6fa5);">' + sym(cur) + money(x.price * x.qty) + '</span></div>'; }).join('') +
+          sel.map(function (x) { return '<div style="display:flex;justify-content:space-between;font-size:16px;margin-top:6px;"><span>' + esc(cartLive(x).name) + ' × ' + x.qty + '</span><span style="color:var(--price,#ff6fa5);">' + sym(cur) + money(x.price * x.qty) + '</span></div>'; }).join('') +
           '<div style="display:flex;justify-content:space-between;font-size:17px;margin-top:10px;border-top:1px dashed var(--accent-soft);padding-top:8px;"><span>' + t('商品小计', 'Subtotal') + '</span><b style="color:var(--price,#ff6fa5);">' + sym(cur) + money(sub) + '</b></div>' +
         '</div>' +
         '<div class="card" style="padding:18px;margin-bottom:14px;"><b style="font-size:17px;">' + t('收货地址', 'Shipping address') + '</b><div id="ck-addr" style="margin-top:8px;"></div>' +
@@ -1327,6 +1343,16 @@
     list.forEach(function (x) { var k = curOf(null, x); seen[k] = (seen[k] || 0) + 1; if (seen[k] > n) { n = seen[k]; c = k; } });
     return c || 'USD';
   }
+  function cartLive(x) { // 她 20261103：购物车里的商品名/图跟随当前语言（老购物车条目无 name_en，按 id 重查）
+    if (!x || !x.id) return x;
+    var p = PRODUCTS.filter(function (q) { return String(q.id) === String(x.id); })[0];
+    if (!p) return x;
+    var v = x.sku ? currentVariant(p, x.sku) : null;
+    return Object.assign({}, x, {
+      name: dispName(p),
+      image: (v && Array.isArray(v.images) && v.images.length ? v.images[0] : '') || dispCover(p) || (Array.isArray(p.images) && p.images[0]) || p.image_url || x.image || ''
+    });
+  }
   function renderCart() {
     var box = document.getElementById('view-cart');
     if (!CART.length) { box.innerHTML = '<h2 style="font-size:24px;margin-bottom:14px;">' + t('购物车', 'Cart') + '</h2><p style="color:var(--muted);text-align:center;padding:30px 0;">' + t('购物车空空的，去小铺逛逛～', 'Cart is empty — go shopping~') + '</p>'; showView('cart'); return; }
@@ -1336,11 +1362,12 @@
     box.innerHTML =
       '<h2 style="font-size:24px;margin-bottom:14px;">' + t('购物车', 'Cart') + '</h2>' +
       CART.map(function (x, i) {
+        var live = cartLive(x);
         return '<div class="card" style="padding:14px 16px;margin-bottom:10px;display:flex;gap:12px;align-items:center;">' +
           '<span class="ck-box" data-i="' + i + '" style="width:20px;height:20px;border-radius:6px;border:2px solid var(--cb-bd,#FFD1E0);flex-shrink:0;cursor:pointer;background:' + (x.checked !== false ? 'var(--cb-on,#F2A9C4)' : 'var(--cb-bg,#FFF7FA)') + ';display:inline-flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;line-height:1;color:' + (x.checked !== false ? 'var(--cb-mark,#fff)' : 'var(--text,#604C57)') + ';">' + (x.checked !== false ? '<svg viewBox=\"0 0 16 16\" width=\"12\" height=\"12\" style=\"display:block;\"><path d=\"M3.2 8.6 L6.6 11.8 L12.8 4.6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>' : '') + '</span>' +
-          (x.image ? '<img src="' + escAttr(normImg(x.image)) + '" style="width:64px;height:64px;border-radius:14px;object-fit:cover;flex-shrink:0;">' : '<div style="width:64px;height:64px;border-radius:14px;background:var(--accent-soft,#FCE4EC);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--muted,#A88E9B);font-size:22px;">♡</div>') +
+          (live.image ? '<img src="' + escAttr(normImg(live.image)) + '" style="width:64px;height:64px;border-radius:14px;object-fit:cover;flex-shrink:0;">' : '<div style="width:64px;height:64px;border-radius:14px;background:var(--accent-soft,#FCE4EC);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--muted,#A88E9B);font-size:22px;">♡</div>') +
           '<div style="flex:1;min-width:0;">' +
-            '<div style="font-size:16px;color:var(--text,#604C57);font-weight:600;">' + esc(x.name) + '</div>' +
+            '<div style="font-size:16px;color:var(--text,#604C57);font-weight:600;">' + esc(live.name) + '</div>' +
             (x.sku ? '<div style="font-size:13px;color:var(--muted,#A88E9B);margin-top:2px;">' + t('规格', 'Option') + '：' + esc(x.sku) + '</div>' : '') +
             '<div style="font-size:15px;color:var(--price,#ff6fa5);font-weight:700;margin-top:4px;">' + sym(curOf(null, x)) + money(x.price) + '</div>' +
             '<div style="display:flex;align-items:center;gap:10px;margin-top:8px;">' +
@@ -1417,10 +1444,19 @@
     window.renderProducts = function () { paint(); tags(); };
   }
   // 增强版商品卡：整卡进详情 + 加入购物车 + 保留「找我下单」
+  function galleryImgs(p) { // 她 20261103：一个商品在一个语言页只显示一张对应语言封面——
+    // 把两种语言封面从普通图列表里滤掉（它们不是详情图），再前置当前语言封面并去重
+    // 注意：pagerImgsOf 会把 URL 归一化成 img.yukicheng.com，所以比较前两边都要先 normImg
+    var zh = normImg(p.cover_zh || ''), en = normImg(p.cover_en || '');
+    var base = pagerImgsOf({ images: p.images, image_url: p.image_url }).filter(function (u) {
+      return !((zh && u === zh) || (en && u === en));
+    });
+    var cov = normImg(dispCover(p) || '');
+    if (cov) base = [cov].concat(base.filter(function (u) { return u !== cov; }));
+    return base;
+  }
   function productCardShop(p) {
-    var baseImgs = pagerImgsOf({ images: p.images, image_url: p.image_url });
-    var cov = dispCover(p);
-    var cardImgs = (cov && baseImgs.indexOf(cov) === -1) ? [cov].concat(baseImgs) : baseImgs; // 封面与详情页同图
+    var cardImgs = galleryImgs(p);
     var img = pagerWrapHtml(cardImgs, dispName(p));
     var st = statusOf(p);
     var stText = st === 'on' ? t('在售', 'On sale') : st === 'display' ? t('仅展示', 'Display only') : t('售尽', 'Sold out');
@@ -1452,8 +1488,8 @@
         if (!p) return;
         var vs = variantsOf(p);
         if (vs) { openDetail(p.id); toast(t('先选规格再加入购物车', 'Pick an option first')); return; }
-        var img = Array.isArray(p.images) && p.images.length ? p.images[0] : p.image_url;
-        cartAdd({ id: p.id, sku: '', name: p.name, image: img, price: parseFloat(p.price) || 0, currency: curOf(p) }, 1);
+        var img = dispCover(p) || (Array.isArray(p.images) && p.images[0]) || p.image_url || '';
+        cartAdd({ id: p.id, sku: '', name: dispName(p), image: img, price: parseFloat(p.price) || 0, currency: curOf(p) }, 1);
         toast(t('已加入购物车', 'Added to cart'));
       });
     });

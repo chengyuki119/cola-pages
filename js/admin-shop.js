@@ -1170,12 +1170,14 @@
       if (!g2 || g2.querySelector('.e-weight')) return;
       card.__p = p || null;
       card.__variants = JSON.parse(JSON.stringify(p && Array.isArray(p.variants) ? p.variants : []));
+      // 她 20261103：规格+重量插进编辑卡「库存」正下方的 e-var-slot（价格→规格库存→名称 顺序），没有槽才退回尾部
+      var slot = g2.querySelector('.e-var-slot') || g2;
       var w = document.createElement('input');
       w.className = 'e-weight';
       w.type = 'number'; w.min = '0'; w.step = '0.1';
       w.value = p && p.weight_oz != null ? p.weight_oz : '';
       w.placeholder = '重量 weight_oz（盎司，含包装）';
-      g2.appendChild(w);
+      slot.appendChild(w);
       var block = document.createElement('div');
       block.className = 'sm-var-block';
       block.style.gridColumn = '1 / -1';
@@ -1185,7 +1187,7 @@
         '<button type="button" class="btn-mini sm-var-add" style="background:#FCE1EA;color:#A98D96;padding:9px 20px;font-size:15px;">＋ 添加规格</button></div>' +
         '<div class="sm-var-rows"></div>' +
         '<p class="hint" style="margin:6px 0 0;">每个规格可以传自己的图，第一张就是这个选项的封面；详情页点选项会换图、换价、换库存。</p>';
-      g2.appendChild(block);
+      slot.appendChild(block);
       smVarRenderRows(card);
     };
     // 只信带 variants 字段的数据；缓存里没有就单独拉这个商品，绝不把已有规格当空（她 2026-10-25 遇到）

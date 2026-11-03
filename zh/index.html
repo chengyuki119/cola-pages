@@ -1425,12 +1425,13 @@
       }).catch(function () { HIDE = []; });
   }
   function fetchProducts() {
-    var sel = 'id,name,price,currency,tag,image_url,images,sold,stock,display_only';
+    var sel = 'id,name,name_en,price,currency,tag,image_url,cover_zh,cover_en,images,sold,stock,display_only';
     var toRows = function (rows) { if (!Array.isArray(rows)) throw new Error('bad'); return rows; };
     return fetch(DB_BASE + 'products?select=' + sel + '&order=created_at.desc&limit=100', { headers: DB_HEADERS })
       .then(function (r) { return r.json(); }).then(toRows)
       .catch(function () {
         // currency 列还没建（未跑 SQL9）时降级为不带 currency 的查询
+        // 双语列缺失时的最后兜底：退回旧列，首页照常渲染（名称/封面走中文 fallback）
         return fetch(DB_BASE + 'products?select=id,name,price,tag,image_url,images,sold,stock,display_only&order=created_at.desc&limit=100', { headers: DB_HEADERS })
           .then(function (r) { return r.json(); }).then(toRows).catch(function () { return []; });
       });
@@ -1440,16 +1441,31 @@
     var v = fmtPriceText(p.price);
     return v ? ((/^\d/.test(v) ? '<small>' + ((p.currency || 'USD') === 'CNY' ? '¥' : '$') + '</small>' : '') + v) : '';
   }
+  var HS_LANG = (function () { try { if (window.LANG) return window.LANG; } catch (e) {} return (location.pathname.indexOf('/zh') === 0 || document.documentElement.lang === 'zh') ? 'zh' : 'en'; })(); // 首页语言：优先 site-common 的全局 LANG
+  function hsName(p) { return (HS_LANG === 'en' && p.name_en) ? p.name_en : (p.name || ''); }
+  function hsCover(p) { // 她 20261103：首页商品卡封面随语言（normImg 归一化后比较，见 cardHtml）
+    var zh = normImg(p.cover_zh || ''), en = normImg(p.cover_en || '');
+    var cov = HS_LANG === 'en' ? (en || zh) : (zh || en);
+    return cov;
+  }
+  function hsTag(p) {
+    var tag = p.tag || ''; if (HS_LANG !== 'en') return tag;
+    var TAGS = { '手作': 'Handmade', '黏土': 'Clay', '毛线': 'Yarn', '贴纸': 'Sticker', '键帽': 'Keycap', '现货': 'In Stock', '定制款': 'Made to Order', '瑕疵款': 'Imperfect' };
+    return TAGS[tag] || tag;
+  }
   function cardHtml(p) {
-    var imgs = pagerImgsOf({ images: p.images, image_url: p.image_url });
+    var zh = normImg(p.cover_zh || ''), en = normImg(p.cover_en || '');
+    var imgs = pagerImgsOf({ images: p.images, image_url: p.image_url }).filter(function (u) { return !((zh && u === zh) || (en && u === en)); });
+    var cov = hsCover(p);
+    if (cov) imgs = [cov].concat(imgs.filter(function (u) { return u !== cov; }));
     var st = statusOf(p);
     var stText = st === 'on' ? t('在售', 'On sale') : st === 'display' ? t('仅展示', 'Display only') : t('售尽', 'Sold out');
     return '<div class="hs-card' + (st === 'on' ? '' : ' off') + '" data-href="' + ykLink('/shop/?id=' + encodeURIComponent(p.id)) + '">' +
-      '<div class="hs-imgbox">' + pagerWrapHtml(imgs, p.name || '') +
+      '<div class="hs-imgbox">' + pagerWrapHtml(imgs, hsName(p)) +
         '<span class="st st-' + st + '">' + stText + '</span></div>' +
       '<div class="hs-info">' +
-        '<span class="hs-tag">' + escDb(p.tag || '没有标签') + '</span>' +
-        '<b class="hs-name">' + escDb(p.name || '') + '</b>' +
+        '<span class="hs-tag">' + escDb(hsTag(p) || '没有标签') + '</span>' +
+        '<b class="hs-name">' + escDb(hsName(p)) + '</b>' +
         '<div class="hs-row"><span class="hs-price">' + (p.price ? hsPrice(p) : '') + '</span>' +
         '</div>' +
       '</div></div>';

@@ -213,12 +213,17 @@
   /* ═══════════ 线下开单 ═══════════ */
   var POS = { items: [], prods: [], custs: [], customerId: null, channel: 'cash', test: true, payPlan: 'full' }; // payPlan: full=全款 / deposit=定金＋尾款 / split=分次付款（她 2026-10-28 补充需求）
 
+  function posImg(p) { // 她 20261103：POS 商品图=当前语言封面（fallback 顺序与前台一致），中英封面不并列
+    if (!p) return '';
+    var en = window.LANG === 'en';
+    return (en ? (p.cover_en || p.cover_zh) : (p.cover_zh || p.cover_en)) || p.image_url || (Array.isArray(p.images) && p.images[0]) || '';
+  }
   CRM.bootPos = function () {
     var panel = document.getElementById('tab-pos');
     if (panel.dataset.booted) return;
     panel.dataset.booted = '1';
     renderPos();
-    api('products?select=id,name,price,stock,sold,image_url&order=created_at.desc&limit=200').then(function (r) { return r.json(); }).then(function (rows) { POS.prods = rows || []; renderPosPicks(); });
+    api('products?select=id,name,name_en,cover_zh,cover_en,price,stock,sold,image_url,images&order=created_at.desc&limit=200').then(function (r) { return r.json(); }).then(function (rows) { POS.prods = rows || []; renderPosPicks(); });
     api('shop_customers?select=id,c_no,name,email&order=created_at.desc&limit=200').then(function (r) { return r.json(); }).then(function (rows) { POS.custs = rows || []; });
   };
 
@@ -230,11 +235,11 @@
   function renderPos() {
     var panel = document.getElementById('tab-pos');
     panel.innerHTML =
-      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;">' +
+      '<div class="pos-grid" style="display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:16px;align-items:start;">' +
         '<div class="card" style="padding:16px 20px;">' +
           '<h3 style="margin:0 0 10px;font-size:16px;color:var(--text,#62545B);">' + t('选商品', 'Pick products') + '</h3>' +
           '<input id="pos-q" placeholder="' + t('搜索商品，或直接添加临时自定义商品', 'Search products / add custom item') + '" style="width:100%;box-sizing:border-box;padding:10px 14px;font-size:15px;border:1.5px solid var(--accent-soft,#FCE4EC);border-radius:12px;outline:none;font-family:inherit;color:var(--text,#62545B);background:#fff;">' +
-          '<div id="pos-picks" style="margin-top:10px;max-height:340px;overflow:auto;"></div>' +
+          '<div id="pos-picks" style="margin-top:10px;max-height:60vh;overflow:auto;"></div>' +
           '<div style="margin-top:10px;font-size:13px;color:var(--muted,#81717A);">' + t('关联客户（可匿名）', 'Customer (anonymous ok)') + '</div>' +
           '<div style="margin-top:6px;"><span class="chip on" id="pos-anon">' + t('匿名销售', 'Anonymous') + '</span> <span class="chip" id="pos-pickcust">' + t('选已有客户', 'Pick customer') + '</span></div>' +
           '<div id="pos-custpick" style="display:none;margin-top:8px;"><select id="pos-cust" style="width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid var(--accent-soft,#FCE4EC);font-family:inherit;color:var(--text,#62545B);background:#fff;"></select></div>' +
@@ -306,10 +311,11 @@
   function renderPosPicks() {
     var box = document.getElementById('pos-picks'); if (!box) return;
     var q = (document.getElementById('pos-q').value || '').trim().toLowerCase();
-    var picks = POS.prods.filter(function (p) { return !p.sold; }).filter(function (p) { return !q || (p.name || '').toLowerCase().indexOf(q) >= 0; }).slice(0, 12);
+    var posName = function (p) { return (window.LANG === 'en' && p.name_en) ? p.name_en : (p.name || ''); };
+    var picks = POS.prods.filter(function (p) { return !p.sold; }).filter(function (p) { return !q || ((p.name || '') + ' ' + (p.name_en || '')).toLowerCase().indexOf(q) >= 0; }).slice(0, 12);
     box.innerHTML = picks.map(function (p, i) {
-      return '<div class="pick" data-i="' + i + '"><img src="' + escAttr(p.image_url || '') + '" onerror="this.style.display=\'none\'">' +
-        '<div><div class="nm">' + esc(p.name || '') + '</div><div class="st">' + t('库存', 'Stock') + ' ' + (p.stock == null ? '—' : p.stock) + '</div><div class="pr">$' + fmtMoney(p.price) + '</div></div>' +
+      return '<div class="pick" data-i="' + i + '"><img src="' + escAttr(posImg(p)) + '" onerror="this.style.display=\'none\'">' +
+        '<div><div class="nm">' + esc(posName(p)) + '</div><div class="st">' + t('库存', 'Stock') + ' ' + (p.stock == null ? '—' : p.stock) + '</div><div class="pr">$' + fmtMoney(p.price) + '</div></div>' +
         '<div class="qty"><button class="qb" data-add="' + escAttr(p.id) + '">＋</button></div></div>';
     }).join('') +
     '<div class="pick" style="border-style:dashed;" id="pos-custom"><div style="width:56px;height:56px;border-radius:12px;background:var(--accent-soft,#FCE4EC);display:flex;align-items:center;justify-content:center;color:var(--muted,#81717A);font-size:22px;">＋</div>' +
@@ -319,7 +325,7 @@
         var p = POS.prods.filter(function (x) { return x.id === btn.getAttribute('data-add'); })[0];
         if (!p) return;
         var ex = POS.items.filter(function (x) { return x.id === p.id; })[0];
-        if (ex) { ex.qty++; } else { POS.items.push({ id: p.id, name: p.name, price: Number(p.price) || 0, qty: 1, image: p.image_url || '', sku: '' }); }
+        if (ex) { ex.qty++; } else { POS.items.push({ id: p.id, name: posName(p), price: Number(p.price) || 0, qty: 1, image: posImg(p), sku: '' }); }
         renderPosCart();
       });
     });

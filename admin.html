@@ -192,6 +192,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
      她 20261027 00:00：右栏怎么往下滑左栏都不动，左栏自己能滚。
      sticky 会被全局 overflow-x clip 祖先破坏（实测失效），改用 fixed 钉死视口。 */
   #adm-content { min-width: 0; }
+  @media (max-width:899px) { #tab-pos .pos-grid { grid-template-columns:1fr !important; } } /* POS 手机单列（她 20261103：铺满自适应） */
   @media (min-width: 900px) {
     #admin-body { display: block; }
     #pp-wrap {
@@ -514,7 +515,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .paytab { font-size:14px; padding:7px 16px; border-radius:999px; background:#fff; border:1.5px solid var(--accent-soft,#FCE4EC); color:var(--text,#62545B); cursor:pointer; }
   .paytab.on { background:var(--accent-soft,#FCE4EC); border-color:var(--accent-soft,#FCE4EC); font-weight:600; }
   .pick { display:flex; align-items:center; gap:10px; padding:8px 10px; border:1px solid var(--accent-soft,#FCE4EC); border-radius:12px; margin-bottom:8px; background:#fff; }
-  .pick img { width:56px; height:56px; object-fit:cover; border-radius:10px; flex-shrink:0; background:var(--card,#FFF0F5); }
+  .pick img { width:56px; height:56px; object-fit:cover; border-radius:var(--radius,16px); flex-shrink:0; background:var(--card,#FFF0F5); } /* 她 20261103：圆角沿用 Shop 展示规范 16px */
   .pick .nm { font-size:14px; font-weight:600; color:var(--text,#62545B); }
   .pick .st { font-size:12px; color:var(--muted,#81717A); }
   .pick .pr { font-size:13px; color:var(--price,#ff6fa5); font-weight:700; }
@@ -1000,12 +1001,12 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         <div class="pf-sec" data-sec="basic">
           <div class="pf-h"><b>基本信息</b><span class="pf-tip">名称必填，其余可以留空后再补</span></div>
           <div class="pf-row">
+            <input id="p-price" placeholder="商品价格，如 39.9">
+            <input id="p-stock" type="number" min="0" placeholder="商品库存（0 = 售尽）">
             <input id="p-name" placeholder="商品名称 *">
             <input id="p-name-en" placeholder="商品名称 English（选填，英文页显示）">
-            <input id="p-price" placeholder="商品价格，如 39.9">
             <div class="cur-row" style="grid-column:1/-1;"><div class="cur-line"><span style="font-size:15px;color:var(--muted);">货币</span><button type="button" class="cur-chip" data-cur="CNY">¥ 人民币</button><button type="button" class="cur-chip on" data-cur="USD">$ 美元</button></div><p class="cur-hint">每件商品各自选，金额不会自动换算</p></div>
             <input id="p-unit" placeholder="商品单位，如 个 / 件 / 套（选填）">
-            <input id="p-stock" type="number" min="0" placeholder="商品库存（0 = 售尽）">
             <input id="p-cost" type="number" min="0" step="0.01" placeholder="商品成本（只有你自己看得到）">
             <input id="p-sku" placeholder="商品编码（选填，唯一编号）">
             <input id="p-cat" placeholder="商品分类（点一下可选已有分类）">
@@ -2462,6 +2463,10 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       document.getElementById('p-file').value = '';
       pendingFiles = [];
       renderPendingPreview();
+      pendingCoverZh = null; pendingCoverEn = null; // 她 20261103：发布后封面选择也要清掉，别带进下一件
+      var _cz = document.getElementById('p-cov-zh-prev'), _ce = document.getElementById('p-cov-en-prev');
+      if (_cz) { _cz.innerHTML = '♡'; _cz.style.borderStyle = 'dashed'; }
+      if (_ce) { _ce.innerHTML = '♡'; _ce.style.borderStyle = 'dashed'; }
       document.getElementById('p-file-name').textContent = '未选择图片';
       rememberTag(tag); // 新标签存起来，下次直接选
       if (window.smAddVarReset) window.smAddVarReset();
@@ -2476,8 +2481,12 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     var box = document.getElementById('p-tag-chips');
     if (!box) return;
     var arr = tagOptions();
+    var enMap = {};
+    try { enMap = JSON.parse(SETTINGS['shop_tag_en'] || '{}') || {}; } catch (e) {}
     box.innerHTML = arr.length ? arr.map(function (v, ti) {
+      var en = enMap[v] || '';
       return '<span style="display:inline-flex;align-items:center;gap:2px;background:var(--card);border-radius:999px;padding:5px 6px 5px 12px;font-size:16px;">' + esc(v) +
+        (en ? '<span style="color:var(--muted);font-size:13px;">' + esc(en) + '</span>' : '') +
         '<button type="button" class="kebab shop-tag-kebab" data-ti="' + ti + '" title="菜单" style="width:22px;height:22px;font-size:15px;">⋮</button></span>';
     }).join('') : '<span style="font-size:15px;color:var(--muted);">还没有标签</span>';
   }
@@ -2506,9 +2515,33 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     popOpen('shop-tag', parseInt(kb.getAttribute('data-ti'), 10), -1, -1, kb);
   });
   document.getElementById('p-tag-chips').addEventListener('keydown', function (e) {
+    if (e.target.classList.contains('shop-tag-en-edit')) {
+      if (e.key === 'Enter') { var se = document.querySelector('#p-tag-chips .shop-tag-en-save'); if (se) se.click(); }
+      if (e.key === 'Escape') renderShopTags();
+      return;
+    }
     if (!e.target.classList.contains('shop-tag-edit')) return;
     if (e.key === 'Enter') { var sb = document.querySelector('#p-tag-chips .shop-tag-save'); if (sb) sb.click(); }
     if (e.key === 'Escape') renderShopTags();
+  });
+  function saveTagEn(ti) { // 她 20261103：保存标签英文名（site_settings.shop_tag_en = {中文: English}）
+    var arr = tagOptions(); var zh = arr[ti]; if (!zh) return;
+    var wrap = document.querySelector('#p-tag-chips .shop-tag-en-save[data-ti="' + ti + '"]');
+    var inp = wrap ? wrap.parentElement.querySelector('.shop-tag-en-edit') : null;
+    var v = inp ? inp.value.trim() : '';
+    var map = {};
+    try { map = JSON.parse(SETTINGS['shop_tag_en'] || '{}') || {}; } catch (e) {}
+    if (v) map[zh] = v; else delete map[zh];
+    saveSetting('shop_tag_en', map).then(function (r) {
+      if (!r.ok) throw new Error();
+      SETTINGS['shop_tag_en'] = JSON.stringify(map);
+      toast(v ? '已保存，英文页会显示「' + v + '」' : '已清除英文名');
+      renderShopTags();
+    }).catch(function () { toast('保存失败'); });
+  }
+  document.getElementById('p-tag-chips').addEventListener('click', function (e) {
+    var enSave = e.target.closest('.shop-tag-en-save');
+    if (enSave) { saveTagEn(parseInt(enSave.getAttribute('data-ti'), 10)); return; }
   });
   document.getElementById('btn-add-tag').addEventListener('click', function () {
     var inp = document.getElementById('p-tag-new');
@@ -2680,24 +2713,25 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         '<div class="info">' +
         productStripHtml(card.__imgItems) +
         '<div class="edit-grid">' +
-        '<input class="e-name" value="' + escAttr(p.name) + '" placeholder="商品名称">' +
-        '<input class="e-name-en" value="' + escAttr(p.name_en || '') + '" placeholder="商品名称 English（选填，英文页显示）">' +
-        '<input class="e-price" value="' + escAttr(p.price) + '" placeholder="价格">' +
-        '<div style="grid-column:1/-1;" class="cur-row"><div class="cur-line"><span style="font-size:14px;color:var(--muted);">货币</span>' +
-          '<button type="button" class="cur-chip' + (card.__cur !== 'USD' ? ' on' : '') + '" data-cur="CNY">¥ 人民币</button>' +
-          '<button type="button" class="cur-chip' + (card.__cur === 'USD' ? ' on' : '') + '" data-cur="USD">$ 美元</button></div>' +
-          '<p class="cur-hint">规格价格跟商品同一货币</p></div>' +
-        '<input class="e-tag" value="' + escAttr(p.tag) + '" placeholder="标签（点输入框可选已有标签）">' +
-        '<input class="e-stock" type="number" min="0" value="' + (p.stock == null ? '' : p.stock) + '" placeholder="库存">' +
-        '<input class="e-cost" type="number" step="0.01" value="' + (p.cost == null ? '' : p.cost) + '" placeholder="成本（仅自己可见）">' +
         '<div class="fld-inline" style="grid-column:1/-1;"><label class="btn-mini hm-file-btn">上传图片<input type="file" class="e-file" accept="image/*" multiple hidden></label><span class="hm-file-name e-file-name">' + (base0.length ? '已有 ' + base0.length + ' / ' + PROD_IMG_MAX + ' 张（第一张=封面）' : '还没有图片，点「上传图片」添加') + '</span><input type="file" class="e-file-replace" accept="image/*" hidden></div>' +
         '<div style="grid-column:1/-1;display:flex;gap:16px;flex-wrap:wrap;align-items:center;">' +
           '<div style="display:flex;align-items:center;gap:8px;"><span style="font-size:14px;color:var(--muted);">中文封面</span><span class="e-cov-prev" data-f="cover_zh" style="width:56px;height:56px;border-radius:10px;border:1.5px ' + (p.cover_zh ? 'solid' : 'dashed') + ' var(--accent-soft,#FFD9E6);display:inline-flex;align-items:center;justify-content:center;color:#A98E9B;font-size:20px;overflow:hidden;">' + (p.cover_zh ? '<img src="' + escAttr(p.cover_zh) + '" style="width:100%;height:100%;object-fit:cover;display:block;">' : '♡') + '</span><label class="btn-mini" style="cursor:pointer;">上传<input type="file" accept="image/*" hidden class="e-cov-file" data-f="cover_zh"></label></div>' +
           '<div style="display:flex;align-items:center;gap:8px;"><span style="font-size:14px;color:var(--muted);">English 封面</span><span class="e-cov-prev" data-f="cover_en" style="width:56px;height:56px;border-radius:10px;border:1.5px ' + (p.cover_en ? 'solid' : 'dashed') + ' var(--accent-soft,#FFD9E6);display:inline-flex;align-items:center;justify-content:center;color:#A98E9B;font-size:20px;overflow:hidden;">' + (p.cover_en ? '<img src="' + escAttr(p.cover_en) + '" style="width:100%;height:100%;object-fit:cover;display:block;">' : '♡') + '</span><label class="btn-mini" style="cursor:pointer;">上传<input type="file" accept="image/*" hidden class="e-cov-file" data-f="cover_en"></label></div>' +
           '<span class="hint" style="font-size:13px;color:var(--muted);">选图后自动上传保存；前台中文页显示中文封面，英文页显示 English 封面</span>' +
         '</div>' +
+        '<input class="e-price" value="' + escAttr(p.price) + '" placeholder="价格">' +
+        '<input class="e-stock" type="number" min="0" value="' + (p.stock == null ? '' : p.stock) + '" placeholder="库存">' +
+        '<div class="e-var-slot" style="grid-column:1/-1;"></div>' +
+        '<input class="e-name" value="' + escAttr(p.name) + '" placeholder="商品名称">' +
+        '<input class="e-name-en" value="' + escAttr(p.name_en || '') + '" placeholder="商品名称 English（选填，英文页显示）">' +
         '<textarea class="e-desc" placeholder="商品描述">' + esc(p.description) + '</textarea>' +
         '<textarea class="e-desc-en" placeholder="英文描述 Description in English（切到 English 时显示，可留空）">' + esc(p.description_en || '') + '</textarea>' +
+        '<div style="grid-column:1/-1;" class="cur-row"><div class="cur-line"><span style="font-size:14px;color:var(--muted);">货币</span>' +
+          '<button type="button" class="cur-chip' + (card.__cur !== 'USD' ? ' on' : '') + '" data-cur="CNY">¥ 人民币</button>' +
+          '<button type="button" class="cur-chip' + (card.__cur === 'USD' ? ' on' : '') + '" data-cur="USD">$ 美元</button></div>' +
+          '<p class="cur-hint">规格价格跟商品同一货币</p></div>' +
+        '<input class="e-tag" value="' + escAttr(p.tag) + '" placeholder="标签（点输入框可选已有标签）">' +
+        '<input class="e-cost" type="number" step="0.01" value="' + (p.cost == null ? '' : p.cost) + '" placeholder="成本（仅自己可见）">' +
         '</div>' +
         '<div class="private-line">原图会保留；选了新图会自动替换</div>' +
         '<div class="actions" style="justify-content:flex-start;">' +
@@ -2737,25 +2771,6 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         toast('已替换这一张');
       });
       goEditTop(); // 打开商品编辑：自动回到页面最上面
-    }
-    if (false) { // （封面走下方 change 监听，不在 click 里处理）
-      var cf = e.target, cfCard = cf.closest('.shop-item');
-      var cfField = cf.getAttribute('data-f');
-      if (!cf.files || !cf.files[0] || !cfCard) return;
-      var btn0 = cf.parentElement;
-      if (btn0) btn0.style.opacity = .6;
-      uploadShopFiles([cf.files[0]]).then(function (us) {
-        cfCard['__' + cfField] = us[0];
-        var prev = cfCard.querySelector('.e-cov-prev[data-f="' + cfField + '"]');
-        if (prev) { prev.style.borderStyle = 'solid'; prev.innerHTML = '<img src="' + escAttr(us[0]) + '" style="width:100%;height:100%;object-fit:cover;display:block;">'; }
-        var b = {}; b[cfField] = us[0];
-        return api('products?id=eq.' + cfCard.getAttribute('data-id'), { method: 'PATCH', body: JSON.stringify(b) }).then(function (r) {
-          if (r.ok) { toast('封面已保存'); return; }
-          toast('封面列还没建（跑「商品双语.sql」后生效），图已传好暂存本页');
-        });
-      }).catch(function () { toast('封面上传失败，重试一下'); })
-        .finally(function () { if (btn0) btn0.style.opacity = 1; });
-      return;
     }
     if (e.target.classList.contains('btn-cancel-edit')) {
       loadProducts();
@@ -2831,6 +2846,24 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           .catch(function () { toast('删除失败'); });
       });
     }
+  });
+
+  // ── 编辑卡双语封面上传（她 20261103：复活此前被 if(false) 毙掉的上传链路）──
+  document.getElementById('tab-shop').addEventListener('change', function (e) {
+    if (!e.target.classList || !e.target.classList.contains('e-cov-file')) return;
+    var cf = e.target, card = cf.closest('.shop-item');
+    var f = (cf.files || [])[0];
+    cf.value = '';
+    if (!f || !card) return;
+    var field = cf.getAttribute('data-f') === 'cover_en' ? 'cover_en' : 'cover_zh';
+    var btn0 = cf.closest('label'); if (btn0) btn0.style.opacity = .6;
+    uploadShopFiles([f]).then(function (us) {
+      card['__' + field] = us[0]; // 保存时随「保存修改」一起 PATCH，不覆盖另一张
+      var prev = card.querySelector('.e-cov-prev[data-f="' + field + '"]');
+      if (prev) { prev.style.borderStyle = 'solid'; prev.innerHTML = '<img src="' + escAttr(us[0]) + '" style="width:100%;height:100%;object-fit:cover;display:block;">'; }
+      toast('封面已传好，点「保存修改」保存');
+    }).catch(function () { toast('封面上传失败，重试一下'); })
+      .finally(function () { if (btn0) btn0.style.opacity = 1; });
   });
 
   // ===== 评价返图管理 =====
@@ -4569,6 +4602,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     }
     if (SC_POP.type === 'shop-tag') {
       return '<button class="sc-opt" data-opt="rename">重命名</button>' +
+        '<button class="sc-opt" data-opt="tag-en">English 名称</button>' + // 她 20261103：小铺标签双语
         '<button class="sc-opt sc-opt-del" data-opt="del">删除标签</button>' +
         '<button class="sc-opt" data-opt="cancel">✕ 取消</button>';
     }
@@ -5049,12 +5083,34 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         }
         return;
       }
+      if (opt === 'tag-en') { // 她 20261103：为标签配英文名，前台英文页优先显示
+        var boxE = document.getElementById('p-tag-chips');
+        var kbE = boxE && boxE.querySelector('.shop-tag-kebab[data-ti="' + ctx.i + '"]');
+        var wrapE = kbE ? kbE.parentElement : null;
+        if (wrapE) {
+          var curEn = '';
+          try { var m0 = JSON.parse(SETTINGS['shop_tag_en'] || '{}') || {}; curEn = m0[tagName] || ''; } catch (e0) {}
+          wrapE.innerHTML = '<input class="shop-tag-en-edit" value="' + escAttr(curEn) + '" placeholder="English name（留空清除）" style="border:none;background:transparent;font-size:16px;width:150px;outline:none;color:var(--text);font-family:inherit;">' +
+            '<button type="button" class="btn-mini shop-tag-en-save" data-ti="' + ctx.i + '" style="padding:2px 8px;font-size:14px;">保存</button>' +
+            '<button type="button" class="btn-mini shop-tag-cancel" data-ti="' + ctx.i + '" style="padding:2px 8px;font-size:14px;">取消</button>';
+          var inpE = wrapE.querySelector('.shop-tag-en-edit');
+          if (inpE) { inpE.focus(); inpE.select(); }
+        }
+        return;
+      }
       if (opt === 'del') {
         uiConfirm('确定删除标签「' + tagName + '」吗？用它的商品都会保留，只是变成「没有标签」。', function () {
           var rest = tagArr.filter(function (x) { return x !== tagName; });
+          var enMap0 = {};
+          var enRaw0 = SETTINGS['shop_tag_en'] || '{}';
+          try { enMap0 = JSON.parse(enRaw0) || {}; } catch (e0) {}
+          var hadEn = Object.prototype.hasOwnProperty.call(enMap0, tagName);
+          if (hadEn) delete enMap0[tagName]; // 她 20261103：删标签连带清英文名，不留孤儿映射
+          var saveEn = hadEn ? saveSetting('shop_tag_en', enMap0).then(function (r2) { if (r2.ok) SETTINGS['shop_tag_en'] = JSON.stringify(enMap0); }).catch(function () {}) : Promise.resolve();
           api('products?tag=eq.' + encodeURIComponent(tagName), { method: 'PATCH', body: JSON.stringify({ tag: '' }) })
             .then(function (r) { if (!r.ok) throw new Error(); return saveSetting('tags', rest); })
-            .then(function (r) { if (!r.ok) throw new Error(); SETTINGS['tags'] = JSON.stringify(rest); toast('标签已删除，商品都还在'); loadProducts(); })
+            .then(function (r) { if (!r.ok) throw new Error(); SETTINGS['tags'] = JSON.stringify(rest); return saveEn; })
+            .then(function () { toast('标签已删除，商品都还在'); loadProducts(); })
             .catch(function () { toast('删除失败，稍后再试'); });
         });
       }
@@ -6990,9 +7046,9 @@ function loadEmailLog() {
 </script>
 
 
-<script src="js/admin-shop.js?v=20261102E"></script>
+<script src="js/admin-shop.js?v=20261103A"></script>
 <script src="js/admin-import.js?v=20261031E"></script>
-<script src="js/admin-crm.js?v=20261031E"></script>
+<script src="js/admin-crm.js?v=20261103A"></script>
 <script src="js/admin-vip.js?v=20261031E" data-legacy="1"></script>
 <script src="js/admin-customer.js?v=20261031E"></script>
 <script src="js/admin-invite.js?v=20261031E"></script>
