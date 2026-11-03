@@ -48,9 +48,10 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     border-radius: 999px;
     color: #fff;
   }
-  .st-on { background: var(--success,#5FA777); }
-  .st-display { background: #b3ace0; }
-  .st-out { background: #c4bcb6; }
+  /* 她 20261102：角标与小铺同步配色（合格绿/淡紫/淡红，深字） */
+  .st-on { background: #DCE8DA; color: var(--text,#604C57); font-weight:600; }
+  .st-display { background: #E7DFEC; color: var(--text,#604C57); font-weight:600; }
+  .st-out { background: #F2DADB; color: var(--text,#604C57); font-weight:600; }
   .product.off .product-img { filter: grayscale(.7); }
   .no-buy { font-size:16px; color: var(--muted); }
   a { color: inherit; text-decoration: none; }
@@ -341,7 +342,8 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
   <script src="/js/site-common.js?v=20261102B"></script>
   <script src="/site-menu.js?v=20261031E" defer></script>
   <link rel="stylesheet" href="/css/button-theme.css?v=20261102B">
-</head>
+    <link rel="stylesheet" href="/css/input-unify.css?v=20261102E">
+  </head>
 <body>
 <header class="topbar">
   <div class="lang-switch">
