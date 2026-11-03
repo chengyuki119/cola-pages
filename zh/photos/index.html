@@ -323,6 +323,9 @@
       window.PHOTO_SECTIONS.push({ key: U_KEY, name_zh: '没有标签', name_en: 'Untagged / No section', sort: 999999 });
     }
     applyGrids(); // 新建分区也套上列数
+    // 她 20261103：数据库行重写相册/新分区标题后补一次语言应用——否则登录态下（相册来自照片表）
+    // 切到英文页图注和分区标题停在中文；匿名态走静态兜底不受影响，所以之前只在她登录的设备上复现
+    if (typeof applyLang === 'function') applyLang(LANG);
     // 照片展示文案（后台同步）：页面标题 + 说明小字
     dbFetch('site_settings?select=key,value&key=eq.gallery_copy&limit=1').then(function (rr) {
       var gc = {};
