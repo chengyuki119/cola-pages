@@ -153,8 +153,10 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   }
   .buy-btn:hover { background:#F8D3E2; }
   /* 她 20261102：加入购物车是主操作，加重（标准按钮底 #FFD9E6 + 深字加粗）；立即购买保持浅一档当次按钮 */
-  .buy-btn.cart-quick, .pdp #d-add { background:#FFD9E6 !important; color:var(--text,#604C57) !important; font-weight:600; }
-  .buy-btn.cart-quick:hover, .pdp #d-add:hover { background:#F8D3E2 !important; }
+  .buy-btn.cart-quick, .pdp #d-add { background:#FF6FA5 !important; color:#fff !important; font-weight:600; }
+  .buy-btn.cart-quick:hover, .pdp #d-add:hover { background:#F2558F !important; }
+  .pdp #d-buy { background:#F8D3E2 !important; color:var(--text,#604C57) !important; font-weight:600; }
+  .pdp #d-buy:hover { background:#F0B9D2 !important; }
 
 
   /* 收藏心心 */
@@ -306,8 +308,13 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
   .pdp .d-actions .buy-btn { /* 主粉统一（她 20261029 §4） */ flex: 1; min-width: 120px; justify-content: center; padding: 13px 22px !important; font-size: 17px; }
 }
   /* ===== 商城新增：视图 / 规格 / 订单 / 拼团 ===== */
-  .sku-chip { border: 2px solid var(--accent-soft); background: #fff; color: var(--text); border-radius: 999px; padding: 7px 16px; font-size: 16px; font-family: inherit; cursor: pointer; transition: all .2s; }
-  .sku-chip.on { border-color:var(--accent-soft,#FCE4EC); background:var(--accent-soft,#FCE4EC); color: var(--accent-strong); }
+  .sku-chip { border: 2px solid #F0B9D2; background: #fff; color: var(--text,#604C57); border-radius: 999px; padding: 7px 16px; font-size: 16px; font-family: inherit; cursor: pointer; transition: all .2s; }
+  .sku-chip.on { border-color:#F0B9D2; background:var(--accent,#FFD9E6); color: var(--text,#604C57); font-weight:600; } /* 她 20261102：选中加深 */
+  .sku-chip:hover { border-color:#E79EC0; }
+  /* button-theme.css 对 .sku-chip 有 !important 锁色，这里用更高特异度压回（她 20261102：芯片加深） */
+  .pdp .sku-chip { background:#fff !important; border-color:#F0B9D2 !important; color:var(--text,#604C57) !important; }
+  .pdp .sku-chip.on { background:var(--accent,#FFD9E6) !important; border-color:#F0B9D2 !important; color:var(--text,#604C57) !important; font-weight:600; }
+  .pdp .sku-chip:hover { border-color:#E79EC0 !important; }
   .sku-chip.dis { opacity: .45; cursor: not-allowed; }
   .qty-btn { border: none; background: var(--card-hover); color: var(--text); width: 30px; height: 30px; border-radius: 50%; font-size: 16px; cursor: pointer; font-family: inherit; }
   .card { background: #fff; border-radius: var(--radius); box-shadow: 0 2px 14px rgba(255,143,171,.12); }
@@ -866,7 +873,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     }, 300);
   }
 </script>
-<script src="/js/shop-app.js?v=20261102E"></script>
+<script src="/js/shop-app.js?v=20261102F"></script>
 <script src="/js/site-footer.js?v=20261031E"></script>
 <script>
   // 统一 Footer（已有 <footer> 则替换其内容，不新建第二个）
