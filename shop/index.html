@@ -123,7 +123,6 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .product-img .pg-img { width: 100%; height: 100%; } /* 她 20261103：收窄选择器——原 .product-img img 会误伤轮播缩略图 .pg-thumb（特异度更高把它们拉成大图叠在卡片上） */
   .product .pg-wrap { border-radius: var(--radius,16px) var(--radius,16px) 0 0; } /* 她 20261102：图片上圆下直，与白框衔接处不留缝 */
   .product-img .pg-img { object-fit: cover !important; } /* 卡片图正方形填满（内联 contain 会留白边，用 !important 压过） */
-  .product-img .pg-btn { opacity: .5; } /* 她 20261103：列表卡轮播箭头改半透明 */
   .product-info { padding: 14px 16px 16px; flex: 1; display: flex; flex-direction: column; }
   .product-tag {
     align-self: flex-start;
@@ -635,10 +634,8 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
   var TAG_EN = { '手作': 'Handmade', '黏土': 'Clay', '毛线': 'Yarn', '贴纸': 'Sticker', '键帽': 'Keycap', 'None': '' }; // 标签英文展示
   function dispTag(p) { var tag = p.tag || ''; if (LANG !== 'en') return tag; return TAG_EN[tag] || tag; }
   function productCard(p) {
-    var baseImgs = pagerImgsOf({ images: p.images, image_url: p.image_url });
-    var cov = dispCover(p);
-    var cardImgs = (cov && baseImgs.indexOf(cov) === -1) ? [cov].concat(baseImgs) : baseImgs; // 封面与详情页同图
-    var img = pagerWrapHtml(cardImgs, dispName(p), { noThumbs: true }); // 她 20261103：列表卡不要缩略图条
+    var cov = dispCover(p) || (Array.isArray(p.images) && p.images[0]) || p.image_url || ''; // 她 20261103：列表页不做任何切换照片的行为——卡片只显示一张封面静态图，看图/切图去详情页
+    var img = cov ? '<img class="pg-img" src="' + escAttrDbS(normImgS(cov)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + escAttrDbS(dispName(p)) + '" loading="lazy">' : '';
     var st = statusOf(p);
     var stText = st === 'on' ? t('在售','On sale') : st === 'display' ? t('仅展示','Display only') : t('售尽','Sold out');
     var stCls = st === 'on' ? 'st-on' : st === 'display' ? 'st-display' : 'st-out';
@@ -865,7 +862,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     }, 300);
   }
 </script>
-<script src="/js/shop-app.js?v=20261103L"></script>
+<script src="/js/shop-app.js?v=20261103M"></script>
 <script src="/js/site-footer.js?v=20261103F"></script>
 <script>
   // 统一 Footer（已有 <footer> 则替换其内容，不新建第二个）

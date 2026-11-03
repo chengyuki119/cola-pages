@@ -153,7 +153,6 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   }
   .product-img .pg-img { width: 100%; height: 100%; } /* 她 20261103：收窄选择器——原 .product-img img 会误伤轮播缩略图 .pg-thumb（特异度更高把它们拉成大图叠在卡片上） */
   .product-img .pg-img { object-fit: cover !important; } /* 卡片图正方形填满（内联 contain 会留白边，用 !important 压过） */
-  .product-img .pg-btn { opacity: .5; } /* 她 20261103：列表卡轮播箭头改半透明 */
   .product-info { padding: 14px 16px 16px; flex: 1; display: flex; flex-direction: column; }
   .product-tag {
     align-self: flex-start;
@@ -641,7 +640,8 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     return /^\d+(\.\d+)?$/.test(s.replace(/[,\s]/g, '')) ? (parseFloat(s) || 0).toFixed(2) : s;
   }
   function productCard(p) {
-    var img = pagerWrapHtml(pagerImgsOf({ images: p.images, image_url: p.image_url }), p.name, { noThumbs: true }); // 她 20261103：列表卡不要缩略图条
+    var cov = p.cover_zh || (Array.isArray(p.images) && p.images[0]) || p.image_url || ''; // 她 20261103：列表页不做任何切换照片的行为——卡片只显示一张封面静态图
+    var img = cov ? '<img class="pg-img" src="' + escAttrDbS(normImgS(cov)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + escAttrDbS(p.name) + '" loading="lazy">' : '';
     var st = statusOf(p);
     var stText = st === 'on' ? t('在售','On sale') : st === 'display' ? t('仅展示','Display only') : t('售尽','Sold out');
     var stCls = st === 'on' ? 'st-on' : st === 'display' ? 'st-display' : 'st-out';
@@ -884,7 +884,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     }, 300);
   }
 </script>
-<script src="/js/shop-app.js?v=20261103L"></script>
+<script src="/js/shop-app.js?v=20261103M"></script>
 <script src="/js/site-footer.js?v=20261103F"></script>
 <script>
   // 统一 Footer（已有 <footer> 则替换其内容，不新建第二个）

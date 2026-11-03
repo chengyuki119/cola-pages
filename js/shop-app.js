@@ -1465,8 +1465,8 @@
     return base;
   }
   function productCardShop(p) {
-    var cardImgs = galleryImgs(p);
-    var img = pagerWrapHtml(cardImgs, dispName(p), { noThumbs: true }); // 她 20261103：列表卡不要缩略图条，只详情页有
+    var cov = dispCover(p) || (Array.isArray(p.images) && p.images[0]) || p.image_url || ''; // 她 20261103：列表页不做任何切换照片的行为——卡片只显示一张封面静态图
+    var img = cov ? '<img class="pg-img" src="' + escAttr(normImg(cov)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + escAttr(dispName(p)) + '" loading="lazy">' : '';
     var st = statusOf(p);
     var stText = st === 'on' ? t('在售', 'On sale') : st === 'display' ? t('仅展示', 'Display only') : t('售尽', 'Sold out');
     var stCls = st === 'on' ? 'st-on' : st === 'display' ? 'st-display' : 'st-out';
