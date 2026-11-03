@@ -621,18 +621,8 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
       if (k === i) { try { t.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); } catch (err) { t.scrollIntoView(); } }
     });
   }
-  document.addEventListener('click', function (e) {
-    var t = e.target.closest ? e.target.closest('.pg-btn, .pg-thumb') : null;
-    if (!t) return;
-    e.preventDefault(); e.stopPropagation();
-    var wrap = t.closest('.pg-wrap');
-    var urls = [];
-    try { urls = JSON.parse(wrap.querySelector('.pg-img').getAttribute('data-urls') || '[]'); } catch (err) {}
-    if (urls.length < 2) return;
-    if (t.classList.contains('pg-thumb')) { pgSet(wrap, parseInt(t.getAttribute('data-k'), 10) || 0); return; }
-    var i = parseInt(wrap.getAttribute('data-i'), 10) || 0;
-    pgSet(wrap, i + (t.classList.contains('pg-next') ? 1 : -1));
-  }, true);
+  // 翻页点击（‹ › / 缩略图）统一由 js/site-common.js 的全局监听器处理——
+  // 这里不再内联一份，否则与 site-common 双绑：箭头每点一次被翻两页（+1 再 +1 取模回 0），看起来像点了没反应。她 20261103 报障根因
   function fmtPriceShop(v) {
     var s = String(v == null ? '' : v).trim().replace(/^[¥$]+/, '');
     if (s === '') return '';
@@ -873,7 +863,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     }, 300);
   }
 </script>
-<script src="/js/shop-app.js?v=20261103B"></script>
+<script src="/js/shop-app.js?v=20261103C"></script>
 <script src="/js/site-footer.js?v=20261031E"></script>
 <script>
   // 统一 Footer（已有 <footer> 则替换其内容，不新建第二个）

@@ -344,6 +344,7 @@
   function paintDetail() {
     // 规格 → 图片/价格/库存/SKU 同步刷新
     var d = DETAIL; if (!d) return;
+    var p = d.p; // 她 20261103：这里漏了 p，每次点规格都在 keycap 行炸掉，跳规格图和 URL 同步全被断
     var fresh = detailEl();
     var box = document.getElementById('view-detail');
     box.innerHTML = '';
@@ -359,6 +360,12 @@
         if (chip.classList.contains('dis')) { toast(t('这个规格缺货啦，选一个有货的吧', 'This option is out of stock')); return; }
         d.sku = chip.getAttribute('data-sku');
         paintDetail(); // 重建 → 图/价/库存/SKU 同步
+        // 她 20261103：选了带图的规格，大图直接切到那张规格图（封面仍恒第一张，不点规格不跳）
+        var nv = currentVariant(p, d.sku);
+        if (nv && Array.isArray(nv.images) && nv.images.length) {
+          var pw = document.querySelector('#d-pager .pg-wrap');
+          if (pw && typeof pgSet === 'function') pgSet(pw, 1);
+        }
         try { history.replaceState(null, '', '?id=' + encodeURIComponent(p.id) + '&sku=' + encodeURIComponent(d.sku)); } catch (e) {}
       });
     });
