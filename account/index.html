@@ -151,7 +151,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     font-size:61px;
     overflow: hidden;
   }
-  .product-img img { width: 100%; height: 100%; object-fit: cover; }
+  .product-img .pg-img { width: 100%; height: 100%; } /* 她 20261103：收窄选择器——原 .product-img img 会误伤轮播缩略图 .pg-thumb（特异度更高把它们拉成大图叠在卡片上） */
   .product-img .pg-img { object-fit: cover !important; } /* 卡片图正方形填满（内联 contain 会留白边，用 !important 压过） */
   .product-info { padding: 14px 16px 16px; flex: 1; display: flex; flex-direction: column; }
   .product-tag {
