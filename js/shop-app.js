@@ -1394,7 +1394,6 @@
       var pastSec = document.getElementById('past'), pg = document.getElementById('past-grid');
       if (!past.length) { pastSec.style.display = 'none'; }
       else { pastSec.style.display = ''; pg.innerHTML = past.map(productCardShop).join(''); bindCards(pg); }
-      try { if (window.__shopSyncCovers) window.__shopSyncCovers(tag); } catch (err) {} // 她 20261102：分类封面选中态与列表筛选同步
     }
     function statusOfG(p) { if (p.display_only) return 'display'; if (p.sold || !(p.stock > 0)) return 'out'; return 'on'; }
     window.__shopPaint = paint;
@@ -1404,7 +1403,6 @@
     tags(); paint();
     // 接管旧脚本的 renderProducts：商品异步加载完成后仍走增强列表
     window.renderProducts = function () { paint(); tags(); };
-    window.__shopSetTag = function (x) { tag = x || ''; tags(); paint(); }; // 她 20261102：分类封面点击 → 同一筛选管道
   }
   // 增强版商品卡：整卡进详情 + 加入购物车 + 保留「找我下单」
   function productCardShop(p) {

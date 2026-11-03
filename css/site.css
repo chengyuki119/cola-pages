@@ -336,13 +336,13 @@
   #bjd-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; } /* §6.1 每行 5 个（此前无 grid 定义） */
   @media (max-width: 1100px) { #bjd-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
   @media (max-width: 640px) { #bjd-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } }
-  #bjd-home-grid .bjd-card, #cards-home-grid .sc-product, #works-home-grid .work-card, #cards-grid .sc-product, #bjd-grid .bjd-card {
+  #bjd-home-grid .bjd-card, #cards-home-grid .sc-product, #works-home-grid .work-card, #cards-grid .sc-product, #bjd-grid .bjd-card, #works-grid .work-card {
     min-width: 0;
     border-radius: var(--radius); overflow: hidden; transition: transform .2s;
   }
-  #bjd-home-grid .bjd-card:hover, #cards-home-grid .sc-product:hover, #works-home-grid .work-card:hover, #cards-grid .sc-product:hover, #bjd-grid .bjd-card:hover { transform: scale(1.03); }
-  #bjd-home-grid .bjd-card img, #cards-home-grid .sc-product img, #works-home-grid .work-card img, #cards-grid .sc-product img, #bjd-grid .bjd-card img { transition: transform .25s; }
-  #bjd-home-grid .bjd-card:hover img, #cards-home-grid .sc-product:hover img, #works-home-grid .work-card:hover img, #cards-grid .sc-product:hover img, #bjd-grid .bjd-card:hover img { transform: scale(1.05); }
+  #bjd-home-grid .bjd-card:hover, #cards-home-grid .sc-product:hover, #works-home-grid .work-card:hover, #cards-grid .sc-product:hover, #bjd-grid .bjd-card:hover, #works-grid .work-card:hover { transform: scale(1.03); }
+  #bjd-home-grid .bjd-card img, #cards-home-grid .sc-product img, #works-home-grid .work-card img, #cards-grid .sc-product img, #bjd-grid .bjd-card img, #works-grid .work-card img { transition: transform .25s; }
+  #bjd-home-grid .bjd-card:hover img, #cards-home-grid .sc-product:hover img, #works-home-grid .work-card:hover img, #cards-grid .sc-product:hover img, #bjd-grid .bjd-card:hover img, #works-grid .work-card:hover img { transform: scale(1.05); }
   /* ===== 20261026q 首页卡片视觉层次（任务书：白卡+粉描边+柔和阴影，与 #FFFBFC 背景肉眼可辨） =====
      根因：.card 类此前无任何 CSS 定义（卡片透明融底）。本块只 scoped 到首页网格，子页 (#bjd-grid/#cards-grid) 不受影响 */
   #bjd-home-grid .bjd-card, #cards-home-grid .sc-product, #works-home-grid .work-card,
