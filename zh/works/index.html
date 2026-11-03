@@ -151,9 +151,10 @@
     var list = worksFiltered();
     grid.innerHTML = list.map(function (x) {
       var w = x.w;
-      var imgs = (Array.isArray(w.photos) && w.photos.length) ? w.photos.filter(Boolean) : (w.image ? [w.image] : []);
+      // 她 20261102：三处（后台稿件管理/主页 Works/稿件页）统一用封面图 w.image，同图同裁切（aspect-ratio:1/1 + object-fit:cover）
+      var cover = w.image ? normImg(w.image) : ((Array.isArray(w.photos) && w.photos.length) ? normImg(w.photos.filter(Boolean)[0]) : '');
       return '<div class="card work-card" data-i="' + x.i + '" style="margin-bottom:0;padding:0;overflow:hidden;cursor:pointer;">' +
-        (imgs.length ? '<div style="width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--card);"><img src="' + escAttrDb(normImg(imgs[0])) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + escAttrDb(w.name || '') + '" loading="lazy"></div>' : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--card);color:var(--muted);font-size:15px;">' + t('暂无图片', 'No photo') + '</div>') +
+        (cover ? '<div style="width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--card);"><img src="' + escAttrDb(cover) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + escAttrDb(w.name || '') + '" loading="lazy"></div>' : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--card);color:var(--muted);font-size:15px;">' + t('暂无图片', 'No photo') + '</div>') +
         '<div style="padding:12px 14px;">' +
         '<div style="display:flex;align-items:center;gap:8px;">' +
         '<b style="flex:1;font-size:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(w.name || t('未命名稿件', 'Untitled work')) + '</b>' +

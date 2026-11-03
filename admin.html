@@ -476,6 +476,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .kebab:hover { background: var(--card-hover); color: var(--text); }
   /* 管理小圆片（尺寸/种类/画师/标签）里的 ⋮：跟着圆片走，不要绝对定位飘到卡片角落 */
   #bjd-size-chips .kebab, #bjd-body-chips .kebab, #work-cat-chips .kebab, #work-artist-chips .kebab, #p-tag-chips .kebab { position: static; }
+  .cc-del-btn { background:#FBE3E6; color:#D96570; border:1px solid #F5C9CE; border-radius:10px; padding:7px 14px; font-size:15px; cursor:pointer; font-family:inherit; }
   .section-item .kebab, .link-item .kebab { position: static; flex-shrink: 0; }
   .sc-row { display: grid; grid-template-columns: 100px 92px 18px 60px 18px 70px auto; gap: 8px; align-items: center; position: relative; margin-bottom: 8px; }
   .sc-row input { width: 100%; box-sizing: border-box; }
@@ -1003,6 +1004,17 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           <button type="button" class="btn-mini" id="btn-add-tag" style="padding:8px 14px;">+ 添加</button>
         </div>
         <p class="hint" style="margin:10px 0 0;">删标签不会删商品：用它的商品都会保留，只是变成「没有标签」；改名会把用这个标签的商品一起改。</p>
+      </div>
+      <div class="card" id="cat-covers-card">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <h3 style="margin:0;flex-shrink:0;">商品分类封面</h3>
+          <span style="flex:1;"></span>
+          <input id="cc-new-name" placeholder="新分类名" style="border:none;border-radius:10px;background:var(--card);padding:8px 12px;font-size:16px;width:130px;outline:none;color:var(--text);font-family:inherit;">
+          <input id="cc-new-name-en" placeholder="English name" style="border:none;border-radius:10px;background:var(--card);padding:8px 12px;font-size:16px;width:140px;outline:none;color:var(--text);font-family:inherit;">
+          <button type="button" class="btn-mini" id="btn-cc-add" style="padding:8px 14px;">+ 添加分类</button>
+        </div>
+        <div id="cc-rows" style="margin-top:12px;display:grid;gap:12px;"></div>
+        <p class="hint" style="margin:10px 0 0;">中文 / English 各传一张封面图，前台切语言时自动换图。顾客点封面卡会按同名标签筛选小铺商品（把商品标签改成和分类同名就会归进去）；删除分类不动商品。</p>
       </div>
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:18px 0 12px;">
         <h3 style="margin:0;">已上架的商品</h3>
@@ -2459,6 +2471,105 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       renderShopTags();
     }).catch(function () { toast('保存失败'); });
   });
+
+  // ===== 她 20261102：商品分类封面（site_settings.shop_cat_covers 公开键；前台点封面卡按同名标签筛选商品）=====
+  var CAT_COVERS_DEFAULT = [
+    { cat: '贴纸瑕疵款', cat_en: 'Imperfect Sticker' },
+    { cat: '模具瑕疵款', cat_en: 'Imperfect Mold' },
+    { cat: '现货', cat_en: 'Available Now' },
+    { cat: '定制款', cat_en: 'Customize Style' },
+    { cat: '专拍补价', cat_en: 'Price Adjustment' },
+    { cat: '整套款', cat_en: 'Full Sets' }
+  ];
+  var CAT_COVERS = [];
+  function ccSave(quiet) {
+    return saveSetting('shop_cat_covers', JSON.parse(JSON.stringify(CAT_COVERS))).then(function (r) {
+      if (!r.ok) throw new Error();
+      SETTINGS['shop_cat_covers'] = JSON.stringify(CAT_COVERS);
+      if (!quiet) toast('已保存，小铺已同步');
+    }).catch(function () { if (!quiet) toast('保存失败，重试一下'); });
+  }
+  function loadCatCoversAdmin() {
+    var raw = parseSetting('shop_cat_covers', null);
+    if (Array.isArray(raw) && raw.length) {
+      CAT_COVERS = raw.map(function (c) { return { cat: String(c.cat || '').trim(), cat_en: String(c.cat_en || '').trim(), cover_zh: String(c.cover_zh || ''), cover_en: String(c.cover_en || '') }; }).filter(function (c) { return c.cat || c.cat_en; });
+    } else if (raw === null || raw === undefined) { // 首次：种子六个默认分类并入库（只做一次）
+      CAT_COVERS = CAT_COVERS_DEFAULT.map(function (c) { return { cat: c.cat, cat_en: c.cat_en, cover_zh: '', cover_en: '' }; });
+      ccSave(true);
+    } else CAT_COVERS = [];
+    renderCatCoversAdmin();
+  }
+  function ccSlot(label, ci, field) {
+    var c = CAT_COVERS[ci], url = c[field];
+    return '<span style="display:inline-flex;align-items:center;gap:6px;">' +
+      '<span style="font-size:15px;color:var(--muted);">' + label + '</span>' +
+      (url ? '<img src="' + escAttr(url) + '" alt="" style="width:56px;height:56px;object-fit:cover;border-radius:10px;border:1.5px solid var(--accent-soft,#FFD9E6);">'
+           : '<span style="width:56px;height:56px;border-radius:10px;border:1.5px dashed var(--accent-soft,#FFD9E6);display:inline-flex;align-items:center;justify-content:center;color:#A88E9B;font-size:20px;">♡</span>') +
+      '<label class="btn-mini" style="padding:6px 12px;font-size:14px;cursor:pointer;">' + (url ? '换图' : '上传') + '<input type="file" accept="image/*" hidden class="cc-file" data-ci="' + ci + '" data-f="' + field + '"></label>' +
+      (url ? '<button type="button" class="kebab cc-cover-del" data-ci="' + ci + '" data-f="' + field + '" title="移除这张封面" style="width:22px;height:22px;font-size:13px;">✕</button>' : '') +
+      '</span>';
+  }
+  function renderCatCoversAdmin() {
+    var box = document.getElementById('cc-rows');
+    if (!box) return;
+    box.innerHTML = CAT_COVERS.map(function (c, ci) {
+      return '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;border:1.5px solid var(--accent-soft,#FFD9E6);border-radius:14px;padding:10px 12px;background:#fff;">' +
+        '<input class="cc-name" data-ci="' + ci + '" value="' + escAttr(c.cat) + '" placeholder="分类名（中文）" style="width:150px;border:none;border-radius:10px;background:var(--card);padding:8px 10px;font-size:16px;outline:none;color:var(--text);font-family:inherit;">' +
+        '<input class="cc-name-en" data-ci="' + ci + '" value="' + escAttr(c.cat_en) + '" placeholder="English name" style="width:160px;border:none;border-radius:10px;background:var(--card);padding:8px 10px;font-size:16px;outline:none;color:var(--text);font-family:inherit;">' +
+        ccSlot('中文封面', ci, 'cover_zh') + ccSlot('English', ci, 'cover_en') +
+        '<span style="flex:1;"></span>' +
+        '<button type="button" class="cc-del-btn" data-ci="' + ci + '">删除分类</button>' +
+        '</div>';
+    }).join('') || '<p class="empty">还没有分类，点右上「+ 添加分类」</p>';
+  }
+  document.getElementById('cc-rows').addEventListener('change', function (e) {
+    var el = e.target;
+    var ci = parseInt(el.getAttribute('data-ci'), 10);
+    if (el.classList.contains('cc-file')) {
+      if (!el.files || !el.files[0] || isNaN(ci)) return;
+      var field = el.getAttribute('data-f'), file = el.files[0];
+      toast('上传中…');
+      uploadShopFiles([file]).then(function (urls) {
+        if (!urls || !urls[0]) throw new Error();
+        CAT_COVERS[ci][field] = urls[0];
+        renderCatCoversAdmin();
+        return ccSave();
+      }).catch(function () { toast('上传失败，重试一下'); });
+      return;
+    }
+    if (el.classList.contains('cc-name')) { CAT_COVERS[ci].cat = el.value.trim(); ccSave(); }
+    else if (el.classList.contains('cc-name-en')) { CAT_COVERS[ci].cat_en = el.value.trim(); ccSave(); }
+  });
+  document.getElementById('cc-rows').addEventListener('click', function (e) {
+    var d = e.target.closest ? e.target.closest('.cc-cover-del') : null;
+    if (d) {
+      var ci = parseInt(d.getAttribute('data-ci'), 10), f = d.getAttribute('data-f');
+      CAT_COVERS[ci][f] = '';
+      renderCatCoversAdmin();
+      ccSave();
+      return;
+    }
+    var del = e.target.closest ? e.target.closest('.cc-del-btn') : null;
+    if (del) {
+      var i = parseInt(del.getAttribute('data-ci'), 10);
+      uiConfirm('删除分类「' + (CAT_COVERS[i].cat || CAT_COVERS[i].cat_en) + '」？商品不受影响，已传的封面图也不会被删。', function () {
+        CAT_COVERS.splice(i, 1);
+        renderCatCoversAdmin();
+        ccSave();
+      });
+    }
+  });
+  document.getElementById('btn-cc-add').addEventListener('click', function () {
+    var zh = document.getElementById('cc-new-name').value.trim();
+    var en = document.getElementById('cc-new-name-en').value.trim();
+    if (!zh && !en) { toast('先写个分类名'); return; }
+    if (zh && CAT_COVERS.some(function (c) { return c.cat === zh; })) { toast('已经有这个分类了'); return; }
+    CAT_COVERS.push({ cat: zh, cat_en: en, cover_zh: '', cover_en: '' });
+    document.getElementById('cc-new-name').value = '';
+    document.getElementById('cc-new-name-en').value = '';
+    renderCatCoversAdmin();
+    ccSave();
+  });
   // 成本读取：走管理员专用接口 rpc/shop_product_costs（SQL 跑过之后生效）。
   // 函数还没建时退回直读 products.cost，保证旧库、老版本也照常显示。
   function loadCostMap() {
@@ -3570,6 +3681,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           WORK_META.artists = Array.isArray(wm.artists) ? wm.artists.slice() : [];
         }
         renderWorkMeta();
+        loadCatCoversAdmin(); // 她 20261102：商品分类封面（SETTINGS 到位后渲染小铺 tab 的管理卡）
         // 主页「编辑卡」直达：按 card_id 精准匹配，自动打开对应色卡的编辑状态
         try {
           var ec = sessionStorage.getItem('admin-edit-card');

@@ -101,6 +101,15 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   @media (max-width: 1200px) { .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
   @media (max-width: 900px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
   @media (max-width: 640px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } } /* 手机上一行两个，好认 */
+  /* 她 20261102：商品分类封面（后台「商品分类封面」管理，数据 site_settings.shop_cat_covers） */
+  #shop-cats-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+  @media (max-width: 900px) { #shop-cats-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 640px) { #shop-cats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } }
+  .cat-cover { background: #fff; border: 1.5px solid var(--accent-soft,#FFD9E6); border-radius: var(--radius,16px); overflow: hidden; cursor: pointer; padding: 0; text-align: center; font-family: inherit; transition: border-color .15s, box-shadow .15s; }
+  .cat-cover.on { border-color: #FF6FA5; box-shadow: 0 0 0 2px #FFD9E6; }
+  .cat-cover .cc-img { display: flex; align-items: center; justify-content: center; width: 100%; aspect-ratio: 1/1; overflow: hidden; background: #FFF0F5; }
+  .cat-cover .cc-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .cat-cover .cc-name { display: block; padding: 9px 12px 11px; font-size: 16px; color: var(--text,#604C57); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .product {
     background: #fff;
     border: 1px solid #F3DDE5; /* 20261026r 商品卡描框（与 site.css r 轮规则同一套；本页不加载 site.css，故此处声明） */
@@ -376,6 +385,10 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     <b><span data-zh="怎么买： " data-en="How to Buy: ">怎么买： </span></b><span data-zh="选好规格加入购物车 → 去结算 → 上传付款截图等柚子确认，或用 Stripe 在线付款。有疑问欢迎发邮件到 snowyuzustudio@gmail.com。" data-en="Pick Options → add to cart → checkout → upload your payment screenshot for Yuki to confirm, or pay online with Stripe. Questions? Email snowyuzustudio@gmail.com.">选好规格加入购物车 → 去结算 → 上传付款截图等柚子确认，或用 Stripe 在线付款。有疑问欢迎发邮件到 snowyuzustudio@gmail.com。</span>
   </div>
 
+  <section id="shop-cats" style="display:none;margin:0 0 30px;">
+    <div id="shop-cats-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;"></div>
+  </section>
+
   <div class="grid" id="product-grid">
     <p data-zh="加载中…" data-en="Loading…" style="grid-column:1/-1;text-align:center;color:var(--muted);">加载中…</p>
   </div>
@@ -637,11 +650,13 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
       '</div></div></div>';
   }
   function renderProducts() {
-    var onSale = PRODUCTS.filter(function (p) { return statusOf(p) !== 'out'; });
-    var past = PRODUCTS.filter(function (p) { return statusOf(p) === 'out'; });
+    // 她 20261102：分类封面点击后按同名标签筛选（不影响商品数据与详情跳转；再点一次取消）
+    var pool = CAT_FILTER ? PRODUCTS.filter(function (p) { return (p.tag || '') === CAT_FILTER; }) : PRODUCTS;
+    var onSale = pool.filter(function (p) { return statusOf(p) !== 'out'; });
+    var past = pool.filter(function (p) { return statusOf(p) === 'out'; });
     var grid = document.getElementById('product-grid');
     if (!onSale.length) {
-      grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--muted);">' + t('新品准备中，敬请期待～', 'New goodies coming soon~') + '</p>';
+      grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--muted);">' + (CAT_FILTER ? t('这个分类暂时还没有商品～', 'Nothing in this category yet~') : t('新品准备中，敬请期待～', 'New goodies coming soon~')) + '</p>';
     } else {
       grid.innerHTML = onSale.map(productCard).join('');
       grid.querySelectorAll('.buy-btn').forEach(bindBuy);
@@ -657,6 +672,48 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     }
   }
 
+  // ===== 她 20261102：商品分类封面（site_settings.shop_cat_covers，公开键；点击按同名标签筛选）=====
+  var CATS = [];
+  var CAT_FILTER = '';
+  function escA(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+  function catName(c) { return LANG === 'en' ? (c.cat_en || c.cat || '') : (c.cat || c.cat_en || ''); }
+  function catCover(c) { return (LANG === 'en' ? (c.cover_en || c.cover_zh || '') : (c.cover_zh || c.cover_en || '')); }
+  function renderCatCovers() {
+    var sec = document.getElementById('shop-cats'), grid = document.getElementById('shop-cats-grid');
+    if (!sec || !grid) return;
+    if (!CATS.length) { sec.style.display = 'none'; return; }
+    sec.style.display = '';
+    grid.innerHTML = CATS.map(function (c, i) {
+      var cov = catCover(c);
+      var nm = catName(c);
+      return '<button type="button" class="cat-cover' + (CAT_FILTER && CAT_FILTER === (c.cat || c.cat_en) ? ' on' : '') + '" data-ci="' + i + '">' +
+        '<span class="cc-img">' + (cov ? '<img src="' + escA(cov) + '" alt="' + escA(nm) + '" loading="lazy">' : '<span style="font-size:34px;color:#A88E9B;">♡</span>') + '</span>' +
+        '<span class="cc-name">' + esc(nm) + '</span></button>';
+    }).join('');
+  }
+  function loadCatCovers() {
+    return fetch(SUPABASE_URL + '/rest/v1/site_settings?select=key,value&key=eq.shop_cat_covers', {
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }
+    }).then(function (r) { return r.ok ? r.json() : []; }).then(function (rows) {
+      try { CATS = JSON.parse((rows && rows[0] && rows[0].value) || '[]') || []; } catch (err) { CATS = []; }
+      if (!Array.isArray(CATS)) CATS = [];
+      renderCatCovers();
+    }).catch(function () {});
+  }
+  var _catsGrid = document.getElementById('shop-cats-grid');
+  window.__shopSyncCovers = function (tag) { CAT_FILTER = tag || ''; renderCatCovers(); }; // shop-app paint 后回同步选中态
+  if (_catsGrid) _catsGrid.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('.cat-cover') : null;
+    if (!b) return;
+    var c = CATS[parseInt(b.getAttribute('data-ci'), 10)];
+    if (!c) return;
+    var key = c.cat || c.cat_en || '';
+    var next = (CAT_FILTER === key) ? '' : key;
+    if (window.__shopSetTag) window.__shopSetTag(next); // 与列表筛选同一管道（shop-app）
+    else { CAT_FILTER = next; renderCatCovers(); renderProducts(); } // 降级：旧缓存 shop-app 无此接口
+    if (next) { try { document.getElementById('product-grid').scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (err) {} }
+  });
+
   function fetchProducts() { // images 列还没建时自动降级，不阻塞小铺页
     var sel = 'id,name,price,currency,description,description_en,tag,image_url,images,sold,stock,display_only';
     return fetch(SUPABASE_URL + '/rest/v1/products?select=' + sel + '&order=created_at.desc&limit=100', {
@@ -670,6 +727,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
       }).then(function (r) { return r.json(); });
     });
   }
+  loadCatCovers(); // 她 20261102：分类封面（独立公开键，失败不阻塞商品加载）
   loadShopHidden().then(fetchProducts).then(function (rows) {
     PRODUCTS = (rows || []).filter(function (p) { return SHOP_HIDDEN.indexOf(String(p.id)) === -1; }); // 后台「下架」的不上店
     renderProducts();
@@ -844,7 +902,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     }, 300);
   }
 </script>
-<script src="/js/shop-app.js?v=20261031E"></script>
+<script src="/js/shop-app.js?v=20261102C"></script>
 <script src="/js/site-footer.js?v=20261031E"></script>
 <script>
   // 统一 Footer（已有 <footer> 则替换其内容，不新建第二个）
