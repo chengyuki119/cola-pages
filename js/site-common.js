@@ -176,8 +176,9 @@ function pagerImgsOf(o) {
   else if (o.image_url) arr = [o.image_url];
   return arr.map(function (u) { return normImg(u); });
 }
-function pagerWrapHtml(urls, alt) {
+function pagerWrapHtml(urls, alt, opts) { // 她 20261103：opts.noThumbs=true 时不渲染缩略图条——小图条只给商品详情页用，列表卡不要
   urls = urls || [];
+  opts = opts || {};
   if (!urls.length) return '<div style="width:100%;aspect-ratio:1/1;background:var(--card);"></div>';
   var multi = urls.length > 1;
   // 圆点 + 缩略图条放在图片下方（不覆盖在图片上），箭头保留在图两侧
@@ -188,7 +189,7 @@ function pagerWrapHtml(urls, alt) {
     '</div>' +
     (multi ?
       '<div class="pg-dots">' + urls.map(function (_, k) { return '<span class="pg-dot' + (k === 0 ? ' on' : '') + '"></span>'; }).join('') + '</div>' +
-      '<div class="pg-thumbs">' + urls.map(function (u, k) { return '<img class="pg-thumb' + (k === 0 ? ' on' : '') + '" src="' + escAttrDb(u) + '" data-k="' + k + '" alt="" loading="lazy">'; }).join('') + '</div>'
+      (opts.noThumbs ? '' : '<div class="pg-thumbs">' + urls.map(function (u, k) { return '<img class="pg-thumb' + (k === 0 ? ' on' : '') + '" src="' + escAttrDb(u) + '" data-k="' + k + '" alt="" loading="lazy">'; }).join('') + '</div>')
       : '') +
     '</div>';
 }

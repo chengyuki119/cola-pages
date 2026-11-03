@@ -1466,7 +1466,7 @@
   }
   function productCardShop(p) {
     var cardImgs = galleryImgs(p);
-    var img = pagerWrapHtml(cardImgs, dispName(p));
+    var img = pagerWrapHtml(cardImgs, dispName(p), { noThumbs: true }); // 她 20261103：列表卡不要缩略图条，只详情页有
     var st = statusOf(p);
     var stText = st === 'on' ? t('在售', 'On sale') : st === 'display' ? t('仅展示', 'Display only') : t('售尽', 'Sold out');
     var stCls = st === 'on' ? 'st-on' : st === 'display' ? 'st-display' : 'st-out';

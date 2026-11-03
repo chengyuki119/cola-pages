@@ -153,6 +153,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   }
   .product-img .pg-img { width: 100%; height: 100%; } /* 她 20261103：收窄选择器——原 .product-img img 会误伤轮播缩略图 .pg-thumb（特异度更高把它们拉成大图叠在卡片上） */
   .product-img .pg-img { object-fit: cover !important; } /* 卡片图正方形填满（内联 contain 会留白边，用 !important 压过） */
+  .product-img .pg-btn { opacity: .5; } /* 她 20261103：列表卡轮播箭头改半透明 */
   .product-info { padding: 14px 16px 16px; flex: 1; display: flex; flex-direction: column; }
   .product-tag {
     align-self: flex-start;
@@ -339,7 +340,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
   select:focus { border-color: var(--text, #604C57); }
 </style>
   <link rel="stylesheet" href="/site-menu.css?v=20261031E">
-  <script src="/js/site-common.js?v=20261102B"></script>
+  <script src="/js/site-common.js?v=20261103H"></script>
   <script src="/site-menu.js?v=20261031E" defer></script>
   <link rel="stylesheet" href="/css/button-theme.css?v=20261102B">
     <link rel="stylesheet" href="/css/input-unify.css?v=20261102E">
@@ -882,7 +883,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     }, 300);
   }
 </script>
-<script src="/js/shop-app.js?v=20261103K"></script>
+<script src="/js/shop-app.js?v=20261103L"></script>
 <script src="/js/site-footer.js?v=20261103F"></script>
 <script>
   // 统一 Footer（已有 <footer> 则替换其内容，不新建第二个）
