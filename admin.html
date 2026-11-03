@@ -1001,10 +1001,10 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         <div class="pf-sec" data-sec="basic">
           <div class="pf-h"><b>基本信息</b><span class="pf-tip">名称必填，其余可以留空后再补</span></div>
           <div class="pf-row">
-            <input id="p-price" placeholder="商品价格，如 39.9">
-            <input id="p-stock" type="number" min="0" placeholder="商品库存（0 = 售尽）">
             <input id="p-name" placeholder="商品名称 *">
             <input id="p-name-en" placeholder="商品名称 English（选填，英文页显示）">
+            <input id="p-price" placeholder="商品价格，如 39.9">
+            <input id="p-stock" type="number" min="0" placeholder="商品库存（0 = 售尽）">
             <div class="cur-row" style="grid-column:1/-1;"><div class="cur-line"><span style="font-size:15px;color:var(--muted);">货币</span><button type="button" class="cur-chip" data-cur="CNY">¥ 人民币</button><button type="button" class="cur-chip on" data-cur="USD">$ 美元</button></div><p class="cur-hint">每件商品各自选，金额不会自动换算</p></div>
             <input id="p-unit" placeholder="商品单位，如 个 / 件 / 套（选填）">
             <input id="p-cost" type="number" min="0" step="0.01" placeholder="商品成本（只有你自己看得到）">
@@ -2719,19 +2719,19 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           '<div style="display:flex;align-items:center;gap:8px;"><span style="font-size:14px;color:var(--muted);">English 封面</span><span class="e-cov-prev" data-f="cover_en" style="width:56px;height:56px;border-radius:10px;border:1.5px ' + (p.cover_en ? 'solid' : 'dashed') + ' var(--accent-soft,#FFD9E6);display:inline-flex;align-items:center;justify-content:center;color:#A98E9B;font-size:20px;overflow:hidden;">' + (p.cover_en ? '<img src="' + escAttr(p.cover_en) + '" style="width:100%;height:100%;object-fit:cover;display:block;">' : '♡') + '</span><label class="btn-mini" style="cursor:pointer;">上传<input type="file" accept="image/*" hidden class="e-cov-file" data-f="cover_en"></label></div>' +
           '<span class="hint" style="font-size:13px;color:var(--muted);">选图后自动上传保存；前台中文页显示中文封面，英文页显示 English 封面</span>' +
         '</div>' +
-        '<input class="e-price" value="' + escAttr(p.price) + '" placeholder="价格">' +
-        '<input class="e-stock" type="number" min="0" value="' + (p.stock == null ? '' : p.stock) + '" placeholder="库存">' +
-        '<div class="e-var-slot" style="grid-column:1/-1;"></div>' +
         '<input class="e-name" value="' + escAttr(p.name) + '" placeholder="商品名称">' +
         '<input class="e-name-en" value="' + escAttr(p.name_en || '') + '" placeholder="商品名称 English（选填，英文页显示）">' +
-        '<textarea class="e-desc" placeholder="商品描述">' + esc(p.description) + '</textarea>' +
-        '<textarea class="e-desc-en" placeholder="英文描述 Description in English（切到 English 时显示，可留空）">' + esc(p.description_en || '') + '</textarea>' +
+        '<input class="e-price" value="' + escAttr(p.price) + '" placeholder="价格">' +
+        '<input class="e-stock" type="number" min="0" value="' + (p.stock == null ? '' : p.stock) + '" placeholder="库存">' +
         '<div style="grid-column:1/-1;" class="cur-row"><div class="cur-line"><span style="font-size:14px;color:var(--muted);">货币</span>' +
           '<button type="button" class="cur-chip' + (card.__cur !== 'USD' ? ' on' : '') + '" data-cur="CNY">¥ 人民币</button>' +
           '<button type="button" class="cur-chip' + (card.__cur === 'USD' ? ' on' : '') + '" data-cur="USD">$ 美元</button></div>' +
           '<p class="cur-hint">规格价格跟商品同一货币</p></div>' +
         '<input class="e-tag" value="' + escAttr(p.tag) + '" placeholder="标签（点输入框可选已有标签）">' +
         '<input class="e-cost" type="number" step="0.01" value="' + (p.cost == null ? '' : p.cost) + '" placeholder="成本（仅自己可见）">' +
+        '<textarea class="e-desc" placeholder="商品描述">' + esc(p.description) + '</textarea>' +
+        '<textarea class="e-desc-en" placeholder="英文描述 Description in English（切到 English 时显示，可留空）">' + esc(p.description_en || '') + '</textarea>' +
+        '<div class="e-var-slot" style="grid-column:1/-1;"></div>' +
         '</div>' +
         '<div class="private-line">原图会保留；选了新图会自动替换</div>' +
         '<div class="actions" style="justify-content:flex-start;">' +

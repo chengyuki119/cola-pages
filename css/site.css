@@ -669,15 +669,15 @@
 .pdp .d-pager { grid-column: 1; grid-row: 1; }
 .pdp .d-info { grid-column: 2; grid-row: 1; }
 .pdp .d-head .product-tag, .pdp .d-head .fav-btn { margin-top: 0 !important; margin-bottom: 0 !important; align-self: auto !important; } /* 一行头部：清掉旧竖排遗留 margin/align-self，三元素严格同中线（桌面+手机） */
-.pdp .d-desc { grid-column: 1 / 3; grid-row: 2; } /* 商品解释：底部横跨全宽（她 2026-10-25：写在页脚链接那一带的位置） */
+.pdp .d-desc { grid-column: 2; } /* 她 20261103：商品介绍跟在价格后面（名称→价格→介绍→规格），不再横跨全宽 */
 
 .pdp .d-desc p { margin-top: 12px; }
 @media (max-width: 639px) {
-  /* 手机纵向：名称 → 1:1 主图 → 价格 → 规格/数量/购买按钮 → 详情 → 购买须知 */
+  /* 手机纵向（她 20261103 顺序）：封面图 → 名称 → 价格/规格 → 商品介绍 → 规格选择 → 购买 → 须知 */
   .pdp { display: flex; flex-direction: column; gap: 0; align-items: stretch; }
   .pdp .d-info { display: contents; }
-  .pdp .d-head { order: 1; } .pdp .d-pager { order: 2; } .pdp .d-price { order: 3; }
-  .pdp .d-variants { order: 4; } .pdp .d-actions { order: 5; } .pdp .d-desc { order: 6; } .pdp .d-notice { order: 7; }
+  .pdp .d-pager { order: 1; } .pdp .d-head { order: 2; } .pdp .d-price { order: 3; }
+  .pdp .d-desc { order: 4; } .pdp .d-variants { order: 5; } .pdp .d-notice { order: 6; } .pdp .d-actions { order: 7; }
   .pdp .d-pager { margin-top: 2px; }
   .pdp .pg-wrap { width: 100%; max-width: 100%; margin: 0 auto; }
   .pdp .pg-img { object-fit: cover !important; } /* 正方形填满不拉伸不空白（内联 contain 需 !important 压过） */

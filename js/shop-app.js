@@ -280,7 +280,10 @@
   function detailEl() {
     var d = DETAIL, p = d.p, vs = variantsOf(p), v = vs ? currentVariant(p, d.sku) : null;
     var st = v ? (variantStock(v) > 0 ? 'on' : 'out') : (p.sold || !(p.stock > 0) ? 'out' : 'on');
-    var imgs = v && Array.isArray(v.images) && v.images.length ? v.images : galleryImgs(p); // 她 20261103：详情图=当前语言封面置顶，语言封面不再混进普通图
+    // 她 20261103：详情第一张永远是当前语言封面；选了规格→后面的图切换成该规格的图（无规格图则用商品图）
+    var imgs = v && Array.isArray(v.images) && v.images.length ? v.images.map(normImg) : galleryImgs(p);
+    var cov = normImg(dispCover(p) || '');
+    if (cov) imgs = [cov].concat(imgs.filter(function (u) { return u !== cov; }));
     var price = v ? (v.price != null ? v.price : p.price) : p.price;
     var skuText = v ? (v.sku || '') : '';
     var el = document.createElement('div');
@@ -298,6 +301,7 @@
           '<div style="font-size:26px;color:var(--price,#ff6fa5);font-weight:700;margin:10px 0;">' + sym(curOf(p, v)) + money(price) + '</div>' +
           (skuText ? '<div style="font-size:15px;color:var(--muted);margin-bottom:6px;">' + t('规格', 'Option') + ': ' + esc(v && v.name ? v.name : skuText) + '</div>' : '') +
         '</div>' +
+        '<div class="d-desc"><p style="color:var(--muted);font-size:17px;line-height:1.8;margin:12px 0;white-space:pre-line;">' + escBr((window.LANG === 'en' && p.description_en) ? p.description_en : (p.description || '')) + '</p></div>' +
         (vs ?
           '<div class="d-variants" style="margin:10px 0;"><div style="font-size:16px;margin-bottom:6px;">' + t('规格', 'Option') + '</div><div id="d-variants" style="display:flex;gap:8px;flex-wrap:wrap;">' +
           vs.map(function (x) {
@@ -325,7 +329,6 @@
             '</div>'
           : '<div class="d-actions"><p class="no-buy" style="margin:14px 0;">' + (st === 'out' ? t('已售罄，看看别的吧～', 'Sold out — take a look at other items~') : t('仅展示，不能下单', 'Not for sale')) + '</p></div>') +
         '</div>' +
-        '<div class="d-desc"><p style="color:var(--muted);font-size:17px;line-height:1.8;margin:12px 0;white-space:pre-line;">' + escBr((window.LANG === 'en' && p.description_en) ? p.description_en : (p.description || '')) + '</p></div>' +
       '</div>' +
       // 20261028p18：键帽商品购买须知（手工/气泡/色差/兼容性/定制/规格；仅键帽类商品显示）
       (isKeycapProduct(p) ? '<div class="keycap-notes-wrap" id="keycap-notes"></div>' : '') +
