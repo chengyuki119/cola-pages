@@ -26,8 +26,9 @@ begin
   end loop;
 end $$;
 
--- ── 2. (p_kind text) 版原样重建、仅去掉 DEFAULT ─────────────────────────────
-create or replace function public.shop_next_order_no(p_kind text)
+-- ── 2. (p_kind text) 版：先 DROP 再重建（42P13：CREATE OR REPLACE 不能去掉已有 DEFAULT）──
+drop function if exists public.shop_next_order_no(text);
+create function public.shop_next_order_no(p_kind text)
  RETURNS text
  LANGUAGE plpgsql
  SECURITY DEFINER
@@ -52,6 +53,9 @@ BEGIN
   UPDATE public.shop_order_seq SET last_no = v_n WHERE day = v_key;
   RETURN v_prefix || lpad(v_n::text, 3, '0');
 END $function$;
+
+-- 重建后授权（DROP 会把旧授权一并删掉）
+grant execute on function public.shop_next_order_no(text) to authenticated, service_role;
 
 -- ── 自检 1：剩下的重载列表，应该恰好两行：「(空)」和「p_kind text」 ──────────
 select pg_get_function_identity_arguments(p.oid) as 重载参数
