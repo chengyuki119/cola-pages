@@ -259,9 +259,8 @@ function sizeEn(s) {
   });
 }
 function sizeEnKeep(s) {
-  if (s == null) return s;
-  var en = sizeEn(s);
-  return (en === String(s)) ? s : en + ' (' + s + ')';
+  // 20261102 她指定：英文模式不再拼「 (中文)」注音，直接显示英文尺寸
+  return sizeEn(s);
 }
 function bjdMeta(b) {
   if (b.head && b.head.size == null) b.head.size = b.size || ''; // 旧数据迁移
