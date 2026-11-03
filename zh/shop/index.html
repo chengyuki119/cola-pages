@@ -595,8 +595,9 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     else if (o.image) arr = [o.image];
     return arr.map(function (u) { return normImgS(u); });
   }
-  function pagerWrapHtml(urls, alt) {
+  function pagerWrapHtml(urls, alt, opts) { // 她 20261103：opts.noThumbs=true 时不渲染缩略图条——小图条只给详情页，列表卡不要
     urls = urls || [];
+    opts = opts || {};
     if (!urls.length) return '<div style="width:100%;aspect-ratio:1/1;background:var(--card);"></div>';
     var multi = urls.length > 1;
     return '<div class="pg-wrap" data-i="0" style="position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--card);">' +
@@ -604,7 +605,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
       (multi ?
         '<button type="button" class="pg-btn pg-prev" aria-label="上一张">‹</button><button type="button" class="pg-btn pg-next" aria-label="下一张">›</button>' +
         '<div class="pg-dots">' + urls.map(function (_, k) { return '<span class="pg-dot' + (k === 0 ? ' on' : '') + '"></span>'; }).join('') + '</div>' +
-        '<div class="pg-thumbs">' + urls.map(function (u, k) { return '<img class="pg-thumb' + (k === 0 ? ' on' : '') + '" src="' + escAttrDbS(u) + '" data-k="' + k + '" alt="" loading="lazy">'; }).join('') + '</div>'
+        (opts.noThumbs ? '' : '<div class="pg-thumbs">' + urls.map(function (u, k) { return '<img class="pg-thumb' + (k === 0 ? ' on' : '') + '" src="' + escAttrDbS(u) + '" data-k="' + k + '" alt="" loading="lazy">'; }).join('') + '</div>')
         : '') +
       '</div>';
   }
@@ -637,7 +638,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     var baseImgs = pagerImgsOf({ images: p.images, image_url: p.image_url });
     var cov = dispCover(p);
     var cardImgs = (cov && baseImgs.indexOf(cov) === -1) ? [cov].concat(baseImgs) : baseImgs; // 封面与详情页同图
-    var img = pagerWrapHtml(cardImgs, dispName(p));
+    var img = pagerWrapHtml(cardImgs, dispName(p), { noThumbs: true }); // 她 20261103：列表卡不要缩略图条
     var st = statusOf(p);
     var stText = st === 'on' ? t('在售','On sale') : st === 'display' ? t('仅展示','Display only') : t('售尽','Sold out');
     var stCls = st === 'on' ? 'st-on' : st === 'display' ? 'st-display' : 'st-out';
