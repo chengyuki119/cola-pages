@@ -258,6 +258,7 @@
       sku = varKey(hit);
     }
     DETAIL = { p: p, sku: sku || '', qty: 1 };
+    try { history.replaceState(null, '', '?id=' + encodeURIComponent(p.id) + (sku ? '&sku=' + encodeURIComponent(sku) : '')); } catch (err) {} // 她 20261103：进详情就写进 URL，刷新/切语言后原地回到这个商品的详情，不再从头来
     box.innerHTML = '';
     box.appendChild(detailEl());
     showView('detail');
