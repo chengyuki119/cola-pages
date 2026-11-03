@@ -221,6 +221,15 @@
 
   // ===== 商品详情（淘宝式规格联动）=====
   var DETAIL = null; // {p, sku, qty}
+  // 她 20261103：离开页面时记详情页滚动位置（配合 openDetail 恢复，URL 一致才恢复）
+  window.addEventListener('pagehide', function () {
+    try {
+      if (DETAIL) {
+        sessionStorage.setItem('yuki-shop-scroll', String(window.pageYOffset));
+        sessionStorage.setItem('yuki-shop-scroll-q', location.search);
+      }
+    } catch (err) {}
+  });
   function variantsOf(p) {
     // 她 20261030 §3.3：冻结的规格前台不展示、也不能买（frozen 存在 variants JSON 里，不动表结构）
     var all = (Array.isArray(p.variants) && p.variants.length) ? p.variants : null;
@@ -253,6 +262,12 @@
     box.appendChild(detailEl());
     showView('detail');
     paintDetail();
+    // 她 20261103：详情页刷新/切语言后停在原来看的位置，不从头开始——离开前记的位置 + URL 一致才恢复；点进别的商品照常回顶
+    try {
+      var svQ = sessionStorage.getItem('yuki-shop-scroll-q'), svY = parseInt(sessionStorage.getItem('yuki-shop-scroll'), 10);
+      sessionStorage.removeItem('yuki-shop-scroll-q'); sessionStorage.removeItem('yuki-shop-scroll');
+      if (svQ === location.search && svY > 0) setTimeout(function () { window.scrollTo(0, svY); }, 0);
+    } catch (err) {}
   }
   function dispName(p) { return (LANG === 'en' && p.name_en) ? p.name_en : p.name; } // 她 20261102：商品名称双语
   function dispCover(p) { return (LANG === 'en' ? (p.cover_en || p.cover_zh) : (p.cover_zh || p.cover_en)) || ''; } // 双语封面：卡片与详情同图
@@ -1409,32 +1424,18 @@
     showView('cart');
   }
 
-  // ===== 列表增强：筛选 / 排序 + 卡片行为（搜索框已按她 2026-10-25 要求删掉）=====
+  // 她 20261103：从商品页滑返回（浏览器 bfcache 恢复旧页面）偶尔出现卡片错位——
+  // 检测到 bfcache 恢复就整页重刷一次，保证列表从头干净渲染
+  window.addEventListener('pageshow', function (e) {
+    if (e.persisted) { try { location.reload(); } catch (err) {} }
+  });
+  // ===== 列表增强：排序/筛选已按她 20261103 要求删掉（分类筛选条不再显示），仅保留在售/已下架分区渲染 ====
   function enhanceList() {
-    if (window.__ACCOUNT_DEFAULT_SEC) return; // 独立账号页：不注入筛选栏、不拉商品列表
-    var bar = document.createElement('div');
-    bar.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px;';
-    bar.innerHTML =
-      '<div id="q-tags" style="display:flex;gap:6px;flex-wrap:wrap;"></div>' +
-      '<button id="q-sort" class="buy-btn" style="padding:8px 14px;background:#fff;">' + t('最新', 'Newest') + '</button>';
+    if (window.__ACCOUNT_DEFAULT_SEC) return; // 独立账号页：不拉商品列表
     var grid = document.getElementById('product-grid');
-    grid.parentNode.insertBefore(bar, grid);
-    var SORTS = [['new', t('最新', 'Newest')], ['plow', t('价格从低', 'Price ↑')], ['phigh', t('价格从高', 'Price ↓')]];
-    var sortIdx = 0, tag = '';
-    function tags() {
-      var set = []; PRODUCTS.forEach(function (p) { if (p.tag && set.indexOf(p.tag) < 0) set.push(p.tag); });
-      document.getElementById('q-tags').innerHTML = [''].concat(set).map(function (x) {
-        return '<button class="buy-btn q-tag' + (x === tag ? ' on' : '') + '" data-t="' + escAttr(x) + '" style="padding:6px 12px;font-size:14px;border-radius:999px;box-shadow:none;">' + esc(x ? dispTag({ tag: x }) : t('全部', 'All')) + '</button>'; // 筛选 chip 也走标签翻译（她 20261102：英文界面不能出现「手作」）
-      }).join('');
-      bar.querySelectorAll('.q-tag').forEach(function (b) { b.addEventListener('click', function () { tag = b.getAttribute('data-t'); paint(); }); });
-    }
+    if (window.__shopPaint) return;
     function paint() {
-      var list = PRODUCTS.filter(function (p) {
-        if (tag && (p.tag || '') !== tag) return false;
-        return true;
-      });
-      if (sortIdx === 1) list = list.slice().sort(function (a, b) { return (parseFloat(a.price) || 0) - (parseFloat(b.price) || 0); });
-      if (sortIdx === 2) list = list.slice().sort(function (a, b) { return (parseFloat(b.price) || 0) - (parseFloat(a.price) || 0); });
+      var list = PRODUCTS.slice();
       var onSale = list.filter(function (p) { return statusOfG(p) !== 'out'; });
       var past = list.filter(function (p) { return statusOfG(p) === 'out'; });
       var g = document.getElementById('product-grid');
@@ -1446,12 +1447,9 @@
     }
     function statusOfG(p) { if (p.display_only) return 'display'; if (p.sold) return 'out'; var ts = totalStock(p); if (ts != null) return ts > 0 ? 'on' : 'out'; if (!(p.stock > 0)) return 'out'; return 'on'; }
     window.__shopPaint = paint;
-    document.getElementById('q-sort').addEventListener('click', function () {
-      sortIdx = (sortIdx + 1) % 3; this.textContent = SORTS[sortIdx][1]; paint();
-    });
-    tags(); paint();
+    paint();
     // 接管旧脚本的 renderProducts：商品异步加载完成后仍走增强列表
-    window.renderProducts = function () { paint(); tags(); };
+    window.renderProducts = function () { paint(); };
   }
   // 增强版商品卡：整卡进详情 + 加入购物车 + 保留「找我下单」
   function galleryImgs(p) { // 她 20261103：一个商品在一个语言页只显示一张对应语言封面——
