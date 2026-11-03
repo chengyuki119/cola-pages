@@ -677,10 +677,11 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .shop-item .info h3 { font-size:18px; }
   .shop-item .info p { font-size:15px; color: var(--muted); }
   .sold-badge { display: inline-block; font-size:14px; color:#fff; border-radius: 999px; padding: 1px 8px; margin-left: 6px; }
-  .st-on { background: var(--success,#5FA777); }
-  .st-display { background: var(--muted,#81717A); }
-  .st-out { background: #c4bcb6; }
-  .st-off { background: #e6a9c3; }
+  /* 她 20261102 23:02：后台角标与小铺同步配色（在售合格绿/仅展示淡紫/售尽淡红，深字保证可读） */
+  .st-on { background: #DCE8DA; color: var(--text,#604C57); font-weight:600; }
+  .st-display { background: #E7DFEC; color: var(--text,#604C57); font-weight:600; }
+  .st-out { background: #F2DADB; color: var(--text,#604C57); font-weight:600; }
+  .st-off { background: #F2DADB; color: var(--text,#604C57); font-weight:600; }
   /* 商品列表标签筛选 chips */
   .pf-chip { border: 1px solid var(--accent,#FFD9E6); }
   .pf-chip.on { background: var(--accent-soft); border-color:var(--accent-soft); color: var(--accent-strong); }
