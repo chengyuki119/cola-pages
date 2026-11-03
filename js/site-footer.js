@@ -240,17 +240,7 @@
       try { logged = !!(JSON.parse(localStorage.getItem('yuki-user-session') || 'null')); } catch (err) {}
       if (logged) { e.preventDefault(); location.href = (typeof window.ykLink === 'function' ? window.ykLink('/account/') : '/account/') + '?sec=orders'; }
     });
-    // 页底返回钮（§1.2）：有站内来源时回退历史，直达时走默认 href，不会离开网站
-    document.addEventListener('click', function (e) {
-      var a = e.target && e.target.closest ? e.target.closest('a.page-back') : null;
-      if (!a) return;
-      try {
-        if (document.referrer && new URL(document.referrer).origin === location.origin && history.length > 1) {
-          e.preventDefault();
-          history.back();
-        }
-      } catch (err) {}
-    });
+    // 页底「← 返回主页」：她 20261103 —— 全站统一直接回主页，不再回退上一页（原站内来源劫持 history.back 已删）
   }
 
   // 语言切换时跟随更新（延迟 50ms，等页面自身逻辑先跑）
