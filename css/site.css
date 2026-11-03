@@ -720,9 +720,9 @@
   position: absolute; bottom: 10px; right: 10px; z-index: 2;
   font-size: 15px; padding: 3px 12px; border-radius: 999px; color: #fff;
 }
-.home-shop-grid .hs-imgbox .st-on { background: var(--success,#5FA777); }
-.home-shop-grid .hs-imgbox .st-display { background: #fff; color: var(--text, #604C57); font-weight: 600; } /* 白底深字：浅紫底白字看不清（她 2026-10-26） */
-.home-shop-grid .hs-imgbox .st-out { background: #fff; color: var(--muted, #A88E9B); font-weight: 600; }
+.home-shop-grid .hs-imgbox .st-on { background: #DCE8DA; color: var(--text,#604C57); font-weight: 600; } /* 她 20261102：合格绿（有货），小铺同款 */
+.home-shop-grid .hs-imgbox .st-display { background: #E7DFEC; color: var(--text,#604C57); font-weight: 600; } /* 她 20261102：仅展示淡紫，小铺同款 */
+.home-shop-grid .hs-imgbox .st-out { background: #F2DADB; color: var(--text,#604C57); font-weight: 600; } /* 她 20261102：缺货淡红，小铺同款 */
 .home-shop-more {
   display: inline-block; margin-top: 16px;
   font-size: 16px; color:var(--text,#604C57); text-decoration: none;
