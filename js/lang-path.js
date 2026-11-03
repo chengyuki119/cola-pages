@@ -96,7 +96,9 @@
   window.ykLink = link;
 
   /* 语言按钮：捕获阶段接管，压掉各页面原有的「存 localStorage 再 reload」逻辑。
-     点当前语言 = 什么都不做；点另一种语言 = 跳到同一页面的另一种语言路径。 */
+     点当前语言 = 什么都不做；点另一种语言 = 跳到同一页面的另一种语言路径。
+     她 20261103：切换语言后落地页默认再自动刷新一遍——确保照片墙、小铺等
+     异步拉库的动态内容全部按新语言重新渲染，不残留旧语言的文案。 */
   document.addEventListener('click', function (e) {
     var t = e.target;
     var btn = t && t.closest ? t.closest('.lang-btn') : null;
@@ -105,6 +107,15 @@
     e.stopPropagation();
     var want = btn.getAttribute('data-lang') === 'zh' ? 'zh' : 'en';
     if (want === LANG) return;                // 已经是这个语言：不刷新、不丢状态
+    try { sessionStorage.setItem('yuki-lang-switched', '1'); } catch (err) {}
     location.href = switchUrl(want);
   }, true);
+
+  /* 落地后补一次刷新：标记只生效一次，刷完即清，不会循环 */
+  try {
+    if (sessionStorage.getItem('yuki-lang-switched') === '1') {
+      sessionStorage.removeItem('yuki-lang-switched');
+      setTimeout(function () { location.reload(); }, 60);
+    }
+  } catch (err) {}
 })();
