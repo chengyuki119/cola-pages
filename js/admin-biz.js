@@ -78,6 +78,11 @@
       /* 摄像头 */
       '#biz-cam-box video{width:100%;max-width:420px;border-radius:14px;background:#000;display:block;margin:0 auto;}',
       '@media (max-width:720px){.biz-modal{padding:16px 14px;}}',
+      /* 20261102 她指定：生成编码弹窗加大（760-850px），内部可滚动，两列布局不变，手机自适应 */
+      '.biz-modal-lg{max-width:800px;padding:26px 30px;max-height:88vh;overflow-y:auto;}',
+      '.biz-modal-lg .biz-in{padding:9px 12px;}',
+      '.biz-modal-lg label{line-height:1.5;}',
+      '@media (max-width:720px){.biz-modal-lg{padding:18px 16px;max-height:86vh;}}',
       /* 20261026k 整改：手机端弹窗不再横向溢出——双列表单转单列，日期框约束宽度，输入 16px 防 iOS 聚焦缩放 */
       '@media (max-width:600px){#biz-mask .biz-modal div[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr !important;}' +
         '.biz-in{font-size:16px;} input[type="date"].biz-in{min-width:0;width:100% !important;} select.biz-in{min-width:0;width:100% !important;}}',
@@ -127,11 +132,11 @@
   function bizPopClose() { if (bizPopEl) bizPopEl.style.display = 'none'; }
 
   /* 通用弹层（批量生成表单 / 单件详情） */
-  function bizModal(inner) {
+  function bizModal(inner, modalClass) {
     bizCloseModal();
     var mask = document.createElement('div');
     mask.id = 'biz-mask';
-    mask.innerHTML = '<div class="biz-modal">' + inner + '</div>';
+    mask.innerHTML = '<div class="biz-modal' + (modalClass ? ' ' + modalClass : '') + '">' + inner + '</div>';
     document.body.appendChild(mask);
     document.documentElement.style.overflow = 'hidden'; // 弹窗打开时禁止背景滚动（她 2026-10-26 任务书 §9.1）
     mask.addEventListener('click', function (e) { if (e.target === mask) bizCloseModal(); });
@@ -872,9 +877,9 @@
     var today = ymd();
     var isBulk = !(presetN >= 1);
     var mask = bizModal(
-      '<b style="font-size:17px;color:var(--text,#62545B);">' + (isBulk ? '批量生成编码' : '生成单件编码') + '</b>' +
-      '<div style="font-size:12px;color:var(--muted,#81717A);margin-top:2px;">' + (isBulk ? '一次生成多件，共用型号/批次，编号按次序连续发放' : '一件一个编码；生成后不关弹窗，可点「继续生成」接着做下一件') + '</div>' +
-      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;margin-top:12px;">' +
+      '<b style="font-size:18px;color:var(--text,#62545B);">' + (isBulk ? '批量生成编码' : '生成单件编码') + '</b>' +
+      '<div style="font-size:12px;color:var(--muted,#81717A);margin-top:3px;">' + (isBulk ? '一次生成多件，共用型号/批次，编号按次序连续发放' : '一件一个编码；生成后不关弹窗，可点「继续生成」接着做下一件') + '</div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px 18px;margin-top:16px;">' +
         '<label style="font-size:13px;color:var(--muted,#81717A);grid-column:1 / -1;">关联商品（可选，选了会带出商品图和质检关联）' +
           '<button type="button" class="biz-in" id="biz-uf-prod" style="width:100%;text-align:left;cursor:pointer;margin-top:4px;">不关联商品</button></label>' +
         '<label style="font-size:13px;color:var(--muted,#81717A);">型号编码 *<input id="biz-uf-model" class="biz-in" style="width:100%;margin-top:4px;" placeholder="如 Bunny Keycap V2"></label>' +
@@ -885,13 +890,14 @@
           '<input id="biz-uf-order" class="biz-in" style="width:100%;margin-top:4px;" placeholder="点这里搜索订单号，留空不关联" autocomplete="off"></label>' +
         '<label style="font-size:13px;color:var(--muted,#81717A);grid-column:1 / -1;">备注<input id="biz-uf-note" class="biz-in" style="width:100%;margin-top:4px;" placeholder="选填"></label>' +
       '</div>' +
-      '<div id="biz-uf-result" style="display:none;margin-top:12px;max-height:190px;overflow-y:auto;"></div>' +
+      '<div id="biz-uf-result" style="display:none;margin-top:14px;max-height:300px;overflow-y:auto;"></div>' +
       '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">' +
-        '<button class="btn-mini" id="biz-uf-cancel" style="padding:8px 16px;">取消</button>' +
+        '<button class="btn-mini" id="biz-uf-cancel" style="padding:9px 20px;">取消</button>' +
         '<button class="btn-save-tb" id="biz-uf-ok">生成编码</button>' +
-        '<button class="btn-mini" id="biz-uf-again" style="padding:8px 16px;display:none;">继续生成</button>' +
-        '<button class="btn-save-tb" id="biz-uf-done" style="padding:8px 16px;display:none;">完成</button>' +
-      '</div>'
+        '<button class="btn-mini" id="biz-uf-again" style="padding:9px 20px;display:none;">继续生成</button>' +
+        '<button class="btn-save-tb" id="biz-uf-done" style="padding:9px 20px;display:none;">完成</button>' +
+      '</div>',
+      'biz-modal-lg'
     );
     var st = { productId: '', orderId: '', orderNo: '', pending: false };
     var okBtn = mask.querySelector('#biz-uf-ok');
