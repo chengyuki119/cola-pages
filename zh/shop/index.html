@@ -258,7 +258,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
 h1::after { content: " ♥"; font-size: .75em; }
 h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
 /* 多图翻页：与 site.css 同步（大图‹› + 极简圆点 + 底部小图预览） */
-.pg-btn { position: absolute; top: 50%; transform: translateY(-50%); width: 30px; height: 30px; border-radius: 50%; border: none; background: rgba(255,255,255,.92); color: var(--text); font-size: 16px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(180,120,150,.25); font-family: inherit; padding: 0; }
+.pg-btn { position: absolute; top: 50%; transform: translateY(-50%); width: 30px; height: 30px; border-radius: 50%; border: none; background: rgba(255,255,255,.92); opacity: .5; /* 她 20261103：详情页轮播箭头半透明 */ color: var(--text); font-size: 16px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(180,120,150,.25); font-family: inherit; padding: 0; }
 .pg-prev { left: 8px; }
 .pg-next { right: 8px; }
 .pg-dots { position: absolute; left: 0; right: 0; bottom: 48px; display: flex; justify-content: center; gap: 4px; pointer-events: none; }
