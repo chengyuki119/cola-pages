@@ -1458,10 +1458,14 @@
     var imgs = pagerImgsOf({ images: p.images, image_url: p.image_url }).filter(function (u) { return !((zh && u === zh) || (en && u === en)); });
     var cov = hsCover(p);
     if (cov) imgs = [cov].concat(imgs.filter(function (u) { return u !== cov; }));
+    // 她 20261103：主页商品卡去掉左右切换（多图翻页只在商品详情页），主页只静显第一张（当前语言封面优先）
+    var one = imgs.length ? imgs[0] : '';
     var st = statusOf(p);
     var stText = st === 'on' ? t('在售', 'On sale') : st === 'display' ? t('仅展示', 'Display only') : t('售尽', 'Sold out');
     return '<div class="hs-card' + (st === 'on' ? '' : ' off') + '" data-href="' + ykLink('/shop/?id=' + encodeURIComponent(p.id)) + '">' +
-      '<div class="hs-imgbox">' + pagerWrapHtml(imgs, hsName(p)) +
+      '<div class="hs-imgbox">' + (one
+        ? '<img class="pg-img" src="' + escAttrDb(one) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + escAttrDb(hsName(p)) + '" loading="lazy">'
+        : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--card);color:var(--muted);font-size:15px;">' + (HS_LANG === 'en' ? 'No photo' : '暂无图片') + '</div>') +
         '<span class="st st-' + st + '">' + stText + '</span></div>' +
       '<div class="hs-info">' +
         '<span class="hs-tag">' + escDb(hsTag(p) || '没有标签') + '</span>' +
