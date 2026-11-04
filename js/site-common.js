@@ -189,7 +189,10 @@ function pagerWrapHtml(urls, alt, opts) { // 她 20261103：opts.noThumbs=true �
     '</div>' +
     (multi ?
       '<div class="pg-dots">' + urls.map(function (_, k) { return '<span class="pg-dot' + (k === 0 ? ' on' : '') + '"></span>'; }).join('') + '</div>' +
-      (opts.noThumbs ? '' : '<div class="pg-thumbs">' + urls.map(function (u, k) { return '<img class="pg-thumb' + (k === 0 ? ' on' : '') + '" src="' + escAttrDb(u) + '" data-k="' + k + '" alt="" loading="lazy">'; }).join('') + '</div>')
+      (opts.noThumbs ? '' : '<div class="pg-thumbs">' + urls.map(function (u, k) {
+        var mt = (opts.meta && opts.meta[k]) || {};
+        return '<img class="pg-thumb' + (k === 0 ? ' on' : '') + '" src="' + escAttrDb(u) + '" data-k="' + k + '" alt="" loading="lazy"' + (mt.t ? ' title="' + escAttrDb(mt.t) + '"' : '') + '>';
+      }).join('') + '</div>')
       : '') +
     '</div>';
 }
@@ -207,6 +210,7 @@ function pgSet(wrap, i) { // 统一切换：大图 + 下方圆点（当前长条
     t.classList.toggle('on', k === i);
     if (k === i) { try { t.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); } catch (err) { t.scrollIntoView(); } } // 小图条自动滑到当前张
   });
+  try { wrap.dispatchEvent(new CustomEvent('pg-change')); } catch (err) {} // 她 20261103：翻图后通知详情页记位置/更新归属角标
 }
 document.addEventListener('click', function (e) { // 捕获阶段拦下箭头/小图点击，不触发卡片本身的进详情；点大图直接进详情页
   var t = e.target.closest ? e.target.closest('.pg-btn, .pg-thumb') : null;
@@ -221,6 +225,35 @@ document.addEventListener('click', function (e) { // 捕获阶段拦下箭头/�
   if (t.classList.contains('pg-thumb')) { pgSet(wrap, parseInt(t.getAttribute('data-k'), 10) || 0); return; }
   var i = parseInt(wrap.getAttribute('data-i') || '0', 10) || 0;
   pgSet(wrap, i + (t.classList.contains('pg-next') ? 1 : -1));
+}, true);
+
+// 她 20261103 淘宝式：手机端在图片区左右滑动翻图（横滑明显大于纵滑才触发，不影响页面滚动）
+(function () {
+  var sx = 0, sy = 0, wrap = null;
+  document.addEventListener('touchstart', function (e) {
+    wrap = e.target && e.target.closest ? e.target.closest('.pg-wrap') : null;
+    if (!wrap) return;
+    var t0 = e.touches[0]; sx = t0.clientX; sy = t0.clientY;
+  }, { passive: true });
+  document.addEventListener('touchend', function (e) {
+    if (!wrap) return; var w = wrap; wrap = null;
+    var t0 = e.changedTouches[0];
+    var dx = t0.clientX - sx, dy = t0.clientY - sy;
+    if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy) * 1.2) return;
+    var n = 0; try { n = JSON.parse(w.querySelector('.pg-img').getAttribute('data-urls') || '[]').length; } catch (err) {}
+    if (n < 2) return;
+    var i = parseInt(w.getAttribute('data-i') || '0', 10) || 0;
+    pgSet(w, i + (dx < 0 ? 1 : -1));
+  }, { passive: true });
+})();
+
+// 她 20261103：图片加载失败给柔和占位，不留空白图区（对大图/缩略图都生效）
+document.addEventListener('error', function (e) {
+  var t = e.target;
+  if (!t || t.tagName !== 'IMG' || !/(^|\s)pg-(img|thumb)(\s|$)/.test(String(t.className))) return;
+  if (t.getAttribute('data-err')) return;
+  t.setAttribute('data-err', '1');
+  t.src = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="400" height="400" fill="#F6E8EE"/><text x="200" y="222" font-size="72" text-anchor="middle" fill="#E3B9C9">&#9825;</text></svg>');
 }, true);
 
 // ===== BJD 总价（与色卡总价同一套展示口径）：已启用部件的价格自动求和 =====

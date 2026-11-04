@@ -251,13 +251,11 @@
     var box = document.getElementById('view-detail');
     if (!p) { box.innerHTML = '<p style="text-align:center;color:var(--muted);padding:40px 0;">' + t('商品不存在或已下架', 'Item not found') + '</p>'; showView('detail'); return; }
     var vs = variantsOf(p);
-    // 默认规格：URL 指定的 > 第一个有货的 > 第一个
-    if (vs) {
-      var hit = sku ? currentVariant(p, sku) : null;
-      if (!hit) hit = vs.filter(function (v) { return variantStock(v) > 0; })[0] || vs[0];
-      sku = varKey(hit);
-    }
-    DETAIL = { p: p, sku: sku || '', qty: 1 };
+    // 她 20261103 淘宝式：默认不选任何规格——URL 带了 sku 才恢复选中；不自动选中第一个
+    if (vs && sku) { if (!currentVariant(p, sku)) sku = ''; } else if (!vs) sku = '';
+    DETAIL = { p: p, sku: sku || '', qty: 1, i: 0, gallery: fullGallery(p) };
+    // URL 带规格（刷新/切语言恢复）→ 大图直接定位到该规格的第一张图
+    if (sku) { var gi = galleryIndexOfSku(p, sku); if (gi > -1) DETAIL.i = gi; }
     try { history.replaceState(null, '', '?id=' + encodeURIComponent(p.id) + (sku ? '&sku=' + encodeURIComponent(sku) : '')); } catch (err) {} // 她 20261103：进详情就写进 URL，刷新/切语言后原地回到这个商品的详情，不再从头来
     box.innerHTML = '';
     box.appendChild(detailEl());
@@ -272,6 +270,30 @@
   }
   function dispName(p) { return (LANG === 'en' && p.name_en) ? p.name_en : p.name; } // 她 20261102：商品名称双语
   function dispCover(p) { return (LANG === 'en' ? (p.cover_en || p.cover_zh) : (p.cover_zh || p.cover_en)) || ''; } // 双语封面：卡片与详情同图
+  function fullGallery(p) { // 她 20261103 淘宝式：详情图集=封面+详情图+所有规格图，全集常驻——选规格只改选中状态与定位，从不过滤图集
+    var cov = normImg(dispCover(p) || '');
+    var out = cov ? [{ u: cov, sku: '', kind: 'cover' }] : [];
+    var seen = {};
+    out.forEach(function (g) { seen[g.u] = 1; });
+    pagerImgsOf({ images: p.images, image_url: p.image_url }).forEach(function (u) {
+      if (seen[u]) return; seen[u] = 1;
+      out.push({ u: u, sku: '', kind: 'detail' });
+    });
+    (variantsOf(p) || []).forEach(function (v) {
+      (Array.isArray(v.images) ? v.images : []).forEach(function (iu) {
+        var u = normImg(iu);
+        if (seen[u]) return; seen[u] = 1;
+        out.push({ u: u, sku: varKey(v), kind: 'sku' });
+      });
+    });
+    return out;
+  }
+  function galleryIndexOfSku(p, key) { return (DETAIL && DETAIL.p === p ? DETAIL.gallery : fullGallery(p)).map(function (g) { return g.sku; }).indexOf(key); } // 该规格第一张图在全集中的位置；无规格图返回 -1
+  function priceRangeOf(p) { // 未选规格时显示价格区间（min==max 显示单价，不加「起」）
+    var ns = (variantsOf(p) || []).map(function (v) { var n = parseFloat(String(v.price != null ? v.price : p.price).replace(/[^\d.]/g, '')); return isNaN(n) ? null : n; }).filter(function (n) { return n != null; });
+    if (!ns.length) return null;
+    return { min: Math.min.apply(null, ns), max: Math.max.apply(null, ns) };
+  }
   var TAG_EN = { '手作': 'Handmade', '黏土': 'Clay', '毛线': 'Yarn', '贴纸': 'Sticker', '键帽': 'Keycap', '现货': 'In Stock', '定制款': 'Made to Order', '瑕疵款': 'Imperfect', '专拍补价': 'Extra Payment', '整套款': 'Full Set', '新品': 'New', '限定': 'Limited', '色卡': 'Color Card', '稿件': 'Artwork', 'BJD': 'BJD' }; // 标签英文展示（后台可在标签管理里为每个标签配英文名，远端优先）
   var TAG_EN_REMOTE = null; // site_settings.shop_tag_en：{中文标签: English 名}
   (function () {
@@ -295,18 +317,22 @@
   }
   function detailEl() {
     var d = DETAIL, p = d.p, vs = variantsOf(p), v = vs ? currentVariant(p, d.sku) : null;
-    var st = v ? (variantStock(v) > 0 ? 'on' : 'out') : (p.sold || !(p.stock > 0) ? 'out' : 'on');
-    // 她 20261103：详情第一张永远是当前语言封面；选了规格→后面的图切换成该规格的图（无规格图则用商品图）
-    var imgs = v && Array.isArray(v.images) && v.images.length ? v.images.map(normImg) : galleryImgs(p);
-    var cov = normImg(dispCover(p) || '');
-    if (cov) imgs = [cov].concat(imgs.filter(function (u) { return u !== cov; }));
-    var price = v ? (v.price != null ? v.price : p.price) : p.price;
+    var st = v ? (variantStock(v) > 0 ? 'on' : 'out') : (vs ? ((totalStock(p) > 0) ? 'on' : 'out') : (p.sold || !(p.stock > 0) ? 'out' : 'on'));
+    // 她 20261103 淘宝式：图集永远=封面+详情图+所有规格图的全集，不随选中规格过滤
+    var imgs = d.gallery.map(function (g) { return g.u; });
+    var rng = vs ? priceRangeOf(p) : null;
+    var price = v ? (v.price != null ? v.price : p.price) : (rng ? rng.min : p.price);
     var skuText = v ? (v.sku || '') : '';
+    var metas = d.gallery.map(function (g) {
+      var nv = g.sku ? currentVariant(p, g.sku) : null;
+      if (g.kind === 'sku') return (nv && nv.name) || g.sku;
+      return g.kind === 'cover' ? t('封面', 'Cover') : t('详情图', 'Photo');
+    });
     var el = document.createElement('div');
     el.innerHTML =
       '<a class="back-link" href="' + ykLink('/shop/') + '" style="margin-bottom:14px;display:inline-flex;">← ' + t('回小铺', 'Back to shop') + '</a>' +
       '<div class="pdp">' +
-        '<div class="d-pager" id="d-pager">' + pagerWrapHtml(imgs.map(normImg), dispName(p)) + '</div>' +
+        '<div class="d-pager" id="d-pager">' + pagerWrapHtml(imgs, dispName(p), { meta: metas }) + '</div>' +
         '<div class="d-info">' +
         '<div class="d-head" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">' +
           '<h2 style="font-size:24px;margin:0;">' + esc(dispName(p)) + '</h2>' +
@@ -314,8 +340,8 @@
           '<button type="button" class="fav-btn detail-fav' + (isFav(p.id) ? ' on' : '') + '" data-fav="' + escAttr(p.id) + '" aria-label="' + t('收藏', 'Favorite') + '" style="margin-left:auto;">' + svgHeart(isFav(p.id)) + '</button>' +
         '</div>' +
         '<div class="d-price">' +
-          '<div style="font-size:26px;color:var(--price,#ff6fa5);font-weight:700;margin:10px 0;">' + sym(curOf(p, v)) + money(price) + '</div>' +
-          (skuText ? '<div style="font-size:15px;color:var(--muted);margin-bottom:6px;">' + t('规格', 'Option') + ': ' + esc(v && v.name ? v.name : skuText) + '</div>' : '') +
+          '<div id="d-price-num" style="font-size:26px;color:var(--price,#ff6fa5);font-weight:700;margin:10px 0;">' + sym(curOf(p, v)) + money(price) + (!v && rng && rng.max > rng.min ? t(' 起', '+') : '') + '</div>' +
+          '<div id="d-sku-line" style="font-size:15px;color:var(--muted);margin-bottom:6px;' + (skuText ? '' : 'display:none;') + '">' + (skuText ? t('规格', 'Option') + ': ' + esc(v && v.name ? v.name : skuText) : '') + '</div>' +
         '</div>' +
         '<div class="d-desc"><p style="color:var(--muted);font-size:17px;line-height:1.8;margin:12px 0;white-space:pre-line;">' + escBr((window.LANG === 'en' && p.description_en) ? p.description_en : (p.description || '')) + '</p></div>' +
         (vs ?
@@ -336,7 +362,7 @@
               '<div style="display:flex;align-items:center;gap:12px;margin:0 0 12px;">' +
                 '<span style="font-size:16px;">' + t('数量', 'Qty') + '</span>' +
                 '<button type="button" class="qty-btn" data-d="-1">−</button><b id="d-qty">1</b><button type="button" class="qty-btn" data-d="1">＋</button>' +
-                '<span style="font-size:15px;color:var(--muted);">' + t('库存', 'Stock') + ' ' + (v ? variantStock(v) : (totalStock(p) != null ? totalStock(p) : (p.stock || 0))) + '</span>' +
+                '<span id="d-stock" style="font-size:15px;color:var(--muted);">' + t('库存', 'Stock') + ' ' + (v ? variantStock(v) : (totalStock(p) != null ? totalStock(p) : (p.stock || 0))) + '</span>' +
               '</div>' +
               '<div style="display:flex;gap:10px;flex-wrap:wrap;margin:0;">' +
                 '<button class="buy-btn" id="d-add" style="padding:10px 22px;">' + t('加入购物车', 'Add to cart') + '</button>' +
@@ -365,25 +391,84 @@
     var box = document.getElementById('view-detail');
     box.innerHTML = '';
     box.appendChild(fresh);
+    // 她 20261103 淘宝式：图集状态恢复/定位——选规格跳到该规格第一张图，切语言/刷新回到原来的张；重建 DOM 后由 DETAIL.i 恢复位置，不跳回第一张
+    var wrap = document.querySelector('#d-pager .pg-wrap');
+    if (wrap) {
+      if (typeof pgSet === 'function' && d.i > 0) pgSet(wrap, d.i);
+      updateSkuBadge(wrap);
+    }
     bindDetail();
     // 键帽购买须知渲染（数据源 js/policy-content.js，与政策页口径一致）
     if (isKeycapProduct(p) && typeof window.renderKeycapNotes === 'function') window.renderKeycapNotes('keycap-notes');
   }
+  function ensureSkuBadge(wrap) { // 大图左上角归属角标：规格图标规格名，封面标「封面」，普通详情图不标——封面/详情/规格看得清区分
+    if (!wrap || wrap.querySelector('.d-sku-badge')) return;
+    var b = document.createElement('span');
+    b.className = 'd-sku-badge';
+    b.style.cssText = 'position:absolute;top:10px;left:10px;z-index:3;background:rgba(255,255,255,.92);border:1px solid var(--accent-soft,#FCE4EC);border-radius:999px;padding:2px 10px;font-size:12px;color:#A98D96;pointer-events:none;';
+    wrap.appendChild(b);
+  }
+  function updateSkuBadge(wrap) {
+    if (!wrap) return; ensureSkuBadge(wrap);
+    var b = wrap.querySelector('.d-sku-badge'); var d = DETAIL;
+    if (!b || !d) { if (b) b.style.display = 'none'; return; }
+    var g = (d.gallery || [])[parseInt(wrap.getAttribute('data-i') || '0', 10) || 0];
+    var label = '';
+    if (g) {
+      if (g.kind === 'sku') { var nv = currentVariant(d.p, g.sku); label = (nv && nv.name) || g.sku; }
+      else if (g.kind === 'cover') label = t('封面', 'Cover');
+    }
+    if (!label) { b.style.display = 'none'; return; }
+    b.style.display = ''; b.textContent = label;
+  }
+  function syncVariantUI() { // 点大图选规格时只同步规格状态，不重建大图（图就在这张上，重建会闪）
+    var d = DETAIL, p = d.p, vs = variantsOf(p), v = vs ? currentVariant(p, d.sku) : null;
+    var rng = vs ? priceRangeOf(p) : null;
+    document.querySelectorAll('#d-variants .sku-chip').forEach(function (chip) {
+      chip.classList.toggle('on', chip.getAttribute('data-sku') === d.sku);
+    });
+    var num = document.getElementById('d-price-num');
+    if (num) num.textContent = sym(curOf(p, v)) + money(v ? (v.price != null ? v.price : p.price) : (rng ? rng.min : p.price)) + (!v && rng && rng.max > rng.min ? t(' 起', '+') : '');
+    var line = document.getElementById('d-sku-line');
+    if (line) {
+      if (v) { line.style.display = ''; line.innerHTML = t('规格', 'Option') + ': ' + esc(v.name || d.sku); }
+      else line.style.display = 'none';
+    }
+    var stock = document.getElementById('d-stock');
+    if (stock) stock.textContent = t('库存', 'Stock') + ' ' + (v ? variantStock(v) : (totalStock(p) != null ? totalStock(p) : (p.stock || 0)));
+  }
   function bindDetail() {
-    var d = DETAIL, p = d.p;
+    var d = DETAIL, p = d.p, vs = variantsOf(p);
     document.querySelectorAll('#d-variants .sku-chip').forEach(function (chip) {
       chip.addEventListener('click', function () {
         if (chip.classList.contains('dis')) { toast(t('这个规格缺货啦，选一个有货的吧', 'This option is out of stock')); return; }
-        d.sku = chip.getAttribute('data-sku');
-        paintDetail(); // 重建 → 图/价/库存/SKU 同步
-        // 她 20261103：选了带图的规格，大图直接切到那张规格图（封面仍恒第一张，不点规格不跳）
-        var nv = currentVariant(p, d.sku);
-        if (nv && Array.isArray(nv.images) && nv.images.length) {
-          var pw = document.querySelector('#d-pager .pg-wrap');
-          if (pw && typeof pgSet === 'function') pgSet(pw, 1);
-        }
+        var key = chip.getAttribute('data-sku');
+        if (key === d.sku) return;
+        d.sku = key;
+        // 她 20261103 淘宝式：选规格自动定位到该规格第一张图（不重建图集，其余规格图全部保留）；规格无图则留在当前张，不会跳回第一张
+        var j = galleryIndexOfSku(p, key);
+        d.i = j > -1 ? j : d.i;
+        paintDetail();
         try { history.replaceState(null, '', '?id=' + encodeURIComponent(p.id) + '&sku=' + encodeURIComponent(d.sku)); } catch (e) {}
       });
+    });
+    // 她 20261103 淘宝式：点大图选规格——点中某规格的图→自动选中该规格；点封面/普通详情图不改变规格状态
+    var pgImg = document.querySelector('#d-pager .pg-img');
+    if (pgImg) pgImg.addEventListener('click', function () {
+      var wrap2 = document.querySelector('#d-pager .pg-wrap'); if (!wrap2) return;
+      var g = (d.gallery || [])[parseInt(wrap2.getAttribute('data-i') || '0', 10) || 0];
+      if (!g || !g.sku || g.sku === d.sku) return;
+      var v = currentVariant(p, g.sku);
+      if (!v || variantStock(v) <= 0) { toast(t('这个规格缺货啦，选一个有货的吧', 'This option is out of stock')); return; }
+      d.sku = g.sku;
+      syncVariantUI();
+      try { history.replaceState(null, '', '?id=' + encodeURIComponent(p.id) + '&sku=' + encodeURIComponent(d.sku)); } catch (e) {}
+    });
+    // 翻图（箭头/缩略图/手机滑动）后记住位置 + 更新归属角标；切图不取消已选中的规格
+    var wrap = document.querySelector('#d-pager .pg-wrap');
+    if (wrap) wrap.addEventListener('pg-change', function () {
+      d.i = parseInt(wrap.getAttribute('data-i') || '0', 10) || 0;
+      updateSkuBadge(wrap);
     });
     document.querySelectorAll('.qty-btn').forEach(function (b) {
       b.addEventListener('click', function () {
@@ -399,7 +484,9 @@
     if (buy) buy.addEventListener('click', function () { addCartFromDetail(true); });
   }
   function addCartFromDetail(goCheckout) {
-    var d = DETAIL, p = d.p, vs = variantsOf(p), v = vs ? currentVariant(p, d.sku) : null;
+    var d = DETAIL, p = d.p, vs = variantsOf(p);
+    if (vs && !d.sku) { toast(t('先选一个规格哦', 'Please choose an option first')); return; } // 她 20261103 淘宝式：不选规格不能加购/购买
+    var v = vs ? currentVariant(p, d.sku) : null;
     var price = v ? (v.price != null ? v.price : p.price) : p.price;
     var img = v && Array.isArray(v.images) && v.images.length ? v.images[0] : (Array.isArray(p.images) && p.images.length ? p.images[0] : p.image_url);
     cartAdd({ id: p.id, sku: d.sku, name: p.name + (v ? ' · ' + (v.name || d.sku) : ''), image: img, price: price, currency: curOf(p, v) }, d.qty);
