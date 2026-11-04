@@ -109,12 +109,14 @@
     '#tab-shopmgr .sm-var-imgs, #tab-shop .sm-var-imgs { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:12px; }',
     '#tab-shopmgr .sm-var-imgs img, #tab-shop .sm-var-imgs img { width:52px; height:52px; border-radius:10px; object-fit:cover; background:var(--card); }',
     /* 她 20261104：加完一个规格不用往上找——规格列表下面再放一个同样的「＋ 添加规格」，手机电脑都有 */
-    '.sm-var-addfoot { display:none; margin:18px 0 2px; }',
-    '.sm-var-addfoot .sm-var-add { display:block; width:100%; box-sizing:border-box; padding:12px 0; font-size:15px !important; font-weight:600; background:#FFF7FA; border:1.5px dashed #FFD1E0; color:#A98D96; border-radius:12px; cursor:pointer; font-family:inherit; }',
-    '.sm-var-addfoot .sm-var-add:hover { background:#FCE1EA; border-color:#F5BFD1; }',
-    '.sm-var-addfoot .sm-var-add:active { background:#F8D3E2; }',
+    '.sm-var-addfoot { display:none; margin:18px 0 2px; gap:10px; }',
+    '.sm-var-addfoot .sm-var-add, .sm-var-addfoot .sm-var-dup { display:block; flex:1 1 0; min-width:0; box-sizing:border-box; padding:12px 0; font-size:15px !important; font-weight:600; background:#FFF7FA; color:#A98D96; border-radius:12px; cursor:pointer; font-family:inherit; white-space:nowrap; }',
+    '.sm-var-addfoot .sm-var-add { border:1.5px dashed #FFD1E0; }',
+    '.sm-var-addfoot .sm-var-dup { border:1.5px solid #FFD1E0; }',
+    '.sm-var-addfoot .sm-var-add:hover, .sm-var-addfoot .sm-var-dup:hover { background:#FCE1EA; border-color:#F5BFD1; }',
+    '.sm-var-addfoot .sm-var-add:active, .sm-var-addfoot .sm-var-dup:active { background:#F8D3E2; }',
     '.sm-var-addfoot + .hint { margin-top:16px !important; }',
-    '@media (max-width:760px) { .sm-var-addfoot .sm-var-add { min-height:48px; font-size:16px !important; padding:0; } }',
+    '@media (max-width:760px) { .sm-var-addfoot { flex-wrap:wrap; } .sm-var-addfoot .sm-var-add, .sm-var-addfoot .sm-var-dup { min-height:48px; font-size:16px !important; padding:0; flex:1 1 130px; } }',
     '#tab-shopmgr .sm-var-imgdel, #tab-shop .sm-var-imgdel { position:absolute; top:-6px; right:-6px; width:18px; height:18px; border:none; border-radius:50%; background:#FBE3E6; color:#C4636E; font-size:12px; line-height:1; cursor:pointer; }',
     '#tab-shopmgr .sm-var-imgmv, #tab-shop .sm-var-imgmv { position:absolute; bottom:-6px; width:18px; height:18px; border:1.5px solid #FFD1E0; border-radius:50%; background:#FFF7FA; color:#A98D96; font-size:13px; line-height:1; cursor:pointer; padding:0; }',
     '#tab-shopmgr .sm-var-imgmv[data-d="-1"], #tab-shop .sm-var-imgmv[data-d="-1"] { left:-4px; }',
@@ -1193,7 +1195,7 @@
         '<span class="hint" style="flex:1;min-width:180px;">一个规格＝买家看到的一个选项（比如一个颜色款）；全部留空＝单规格</span>' +
         '<button type="button" class="btn-mini sm-var-add" style="background:#FCE1EA;color:#A98D96;padding:9px 20px;font-size:15px;">＋ 添加规格</button></div>' +
         '<div class="sm-var-rows"></div>' +
-        '<div class="sm-var-addfoot"><button type="button" class="btn-mini sm-var-add">＋ 添加规格</button></div>' +
+        '<div class="sm-var-addfoot"><button type="button" class="btn-mini sm-var-add">＋ 添加规格</button><button type="button" class="btn-mini sm-var-dup">复制上一条</button></div>' +
         '<p class="hint" style="margin:6px 0 0;">每个规格可以传自己的图，第一张就是这个选项的封面；详情页点选项会换图、换价、换库存。</p>';
       slot.appendChild(block);
       smVarRenderRows(card);
@@ -1262,8 +1264,20 @@
         '</div>' +
         '</div>';
     }).join('') : '<p class="hint" style="background:var(--card,#FFF0F5);border-radius:12px;padding:14px;text-align:center;">还没有规格，点上面「＋ 添加规格」加第一个选项</p>';
-    var foot = card.querySelector('.sm-var-addfoot'); // 有规格时，列表下方才出现第二个添加按钮
-    if (foot) foot.style.display = arr(card.__variants).length ? 'block' : 'none';
+    var foot = card.querySelector('.sm-var-addfoot'); // 有规格时，列表下方才出现添加与复制按钮
+    if (foot) foot.style.display = arr(card.__variants).length ? 'flex' : 'none';
+  }
+  // 复制上一条：名称/价格/库存/SKU/规格图一起带过来，不用重新填；冻结状态不复制
+  function smVarDupLast(list) {
+    var last = arr(list)[arr(list).length - 1];
+    if (!last) return null;
+    return {
+      sku: last.sku || last.sku === 0 ? last.sku : '',
+      name: last.name || '',
+      price: last.price == null ? '' : last.price,
+      stock: last.stock == null ? '' : last.stock,
+      images: arr(last.images).slice()
+    };
   }
   function saveProductExtra(card) {
     var vlist = arr(card.__variants);
@@ -1320,7 +1334,7 @@
       '<span class="hint" style="flex:1;min-width:180px;">不填价格/库存就用上面的商品价/库存</span>' +
       '<button type="button" class="btn-mini sm-var-add" style="background:#FCE1EA;color:#A98D96;padding:9px 20px;font-size:15px;">＋ 添加规格</button></div>' +
       '<div class="sm-var-rows"></div>' +
-      '<div class="sm-var-addfoot"><button type="button" class="btn-mini sm-var-add">＋ 添加规格</button></div>' +
+      '<div class="sm-var-addfoot"><button type="button" class="btn-mini sm-var-add">＋ 添加规格</button><button type="button" class="btn-mini sm-var-dup">复制上一条</button></div>' +
       '<p class="hint" style="margin:6px 0 0;">每个规格可以传自己的图（与商品主图分开），第一张就是这个选项的封面。</p>';
     form.appendChild(block); // 连续表单里直接接在「商品介绍」后面（保存按钮在 .pf 之外）
   })();
@@ -1329,6 +1343,11 @@
     form.__variants = ADDVAR.list; // 同一份数组的引用：smVarRenderRows 直接读 __variants
     form.addEventListener('click', function (e) {
       if (e.target.classList.contains('sm-var-add')) { ADDVAR.list.push({ sku: '', name: '', price: '', stock: '', images: [] }); smVarRenderRows(form); return; }
+      if (e.target.classList.contains('sm-var-dup')) { // 她 20261104：复制上一条（名称/价格/库存/SKU/图都带过来）
+        var dupNew = smVarDupLast(ADDVAR.list);
+        if (dupNew) { ADDVAR.list.push(dupNew); smVarRenderRows(form); }
+        return;
+      }
       if (e.target.classList.contains('sm-var-del')) { ADDVAR.list.splice(parseInt(e.target.getAttribute('data-i'), 10), 1); smVarRenderRows(form); return; }
       // 她 20261030 §3：上移 / 下移 / 冻结 / 批量设置
       if (e.target.classList.contains('sm-var-up') || e.target.classList.contains('sm-var-down')) {
@@ -2149,6 +2168,12 @@
         card.__variants = arr(card.__variants);
         card.__variants.push({ sku: '', name: '', price: '', stock: '', images: [] });
         smVarRenderRows(card);
+        return;
+      }
+      if (e.target.classList.contains('sm-var-dup')) { // 她 20261104：复制上一条
+        card.__variants = arr(card.__variants);
+        var dupV = smVarDupLast(card.__variants);
+        if (dupV) { card.__variants.push(dupV); smVarRenderRows(card); }
         return;
       }
       if (e.target.classList.contains('sm-var-del')) {
