@@ -109,10 +109,11 @@
     '#tab-shopmgr .sm-var-imgs, #tab-shop .sm-var-imgs { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:12px; }',
     '#tab-shopmgr .sm-var-imgs img, #tab-shop .sm-var-imgs img { width:52px; height:52px; border-radius:10px; object-fit:cover; background:var(--card); }',
     /* 她 20261104：加完一个规格不用往上找——规格列表下面再放一个同样的「＋ 添加规格」，手机电脑都有 */
-    '.sm-var-addfoot { display:none; margin:12px 0 2px; }',
+    '.sm-var-addfoot { display:none; margin:18px 0 2px; }',
     '.sm-var-addfoot .sm-var-add { display:block; width:100%; box-sizing:border-box; padding:12px 0; font-size:15px !important; font-weight:600; background:#FFF7FA; border:1.5px dashed #FFD1E0; color:#A98D96; border-radius:12px; cursor:pointer; font-family:inherit; }',
     '.sm-var-addfoot .sm-var-add:hover { background:#FCE1EA; border-color:#F5BFD1; }',
     '.sm-var-addfoot .sm-var-add:active { background:#F8D3E2; }',
+    '.sm-var-addfoot + .hint { margin-top:12px !important; }',
     '@media (max-width:760px) { .sm-var-addfoot .sm-var-add { min-height:48px; font-size:16px !important; padding:0; } }',
     '#tab-shopmgr .sm-var-imgdel, #tab-shop .sm-var-imgdel { position:absolute; top:-6px; right:-6px; width:18px; height:18px; border:none; border-radius:50%; background:#FBE3E6; color:#C4636E; font-size:12px; line-height:1; cursor:pointer; }',
     '#tab-shopmgr .sm-var-imgmv, #tab-shop .sm-var-imgmv { position:absolute; bottom:-6px; width:18px; height:18px; border:1.5px solid #FFD1E0; border-radius:50%; background:#FFF7FA; color:#A98D96; font-size:13px; line-height:1; cursor:pointer; padding:0; }',
