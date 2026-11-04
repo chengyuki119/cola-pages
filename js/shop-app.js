@@ -326,8 +326,8 @@
     var skuText = v ? (v.sku || '') : '';
     var metas = d.gallery.map(function (g) {
       var nv = g.sku ? currentVariant(p, g.sku) : null;
-      if (g.kind === 'sku') return (nv && nv.name) || g.sku;
-      return g.kind === 'cover' ? t('封面', 'Cover') : t('详情图', 'Photo');
+      if (g.kind === 'sku') return { t: (nv && nv.name) || g.sku };
+      return { t: g.kind === 'cover' ? t('封面', 'Cover') : t('详情图', 'Photo') };
     });
     var el = document.createElement('div');
     el.innerHTML =
