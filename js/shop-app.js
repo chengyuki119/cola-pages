@@ -246,7 +246,7 @@
   function varKey(v) { return (v && (v.sku || v.name)) || ''; }
   function variantStock(v) { return v ? (parseInt(v.stock, 10) || 0) : 0; }
   function openDetail(id, sku, retry) {
-    if (!PRODUCTS.length && !(retry > 20)) { setTimeout(function () { openDetail(id, sku, (retry || 0) + 1); }, 250); return; } // 等商品异步加载完
+    if (!PRODUCTS.length && !(retry > 79)) { setTimeout(function () { openDetail(id, sku, (retry || 0) + 1); }, 250); return; } // 等商品异步加载完（她 20261103：Supabase 偶发慢响应 >5s 时会假报商品不存在，放宽到 20s）
     var p = PRODUCTS.filter(function (x) { return String(x.id) === String(id); })[0];
     var box = document.getElementById('view-detail');
     if (!p) { box.innerHTML = '<p style="text-align:center;color:var(--muted);padding:40px 0;">' + t('商品不存在或已下架', 'Item not found') + '</p>'; showView('detail'); return; }
