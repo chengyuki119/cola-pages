@@ -261,6 +261,7 @@
     box.appendChild(detailEl());
     showView('detail');
     paintDetail();
+    showStockNotice(); // 她 20261103 18:53：不管从哪个页面点进商品，都弹一次「现货说明」
     // 她 20261103：详情页刷新/切语言后停在原来看的位置，不从头开始——离开前记的位置 + URL 一致才恢复；点进别的商品照常回顶
     try {
       var svQ = sessionStorage.getItem('yuki-shop-scroll-q'), svY = parseInt(sessionStorage.getItem('yuki-shop-scroll'), 10);
@@ -268,7 +269,35 @@
       if (svQ === location.search && svY > 0) setTimeout(function () { window.scrollTo(0, svY); }, 0);
     } catch (err) {}
   }
-  function dispName(p) { return (LANG === 'en' && p.name_en) ? p.name_en : p.name; } // 她 20261102：商品名称双语
+  /* 她 20261103 18:53：「现货说明」弹窗——从任何页面点进任何商品都会出现，中英各一套文案
+     规则：除「定制款」需定做外，其余款式（现货 / 瑕疵贴纸款 / 瑕疵磨具款 / 整套款 / 补价专拍）都是现货，可直接发货 */
+  function showStockNotice() {
+    if (document.getElementById('stock-notice-mask')) return;
+    var wrap = document.createElement('div');
+    wrap.id = 'stock-notice-mask';
+    wrap.style.cssText = 'position:fixed;inset:0;z-index:99998;background:rgba(85,70,78,.26);display:flex;align-items:center;justify-content:center;padding:18px;';
+    wrap.innerHTML =
+      '<div role="dialog" aria-modal="true" aria-labelledby="stock-notice-title" style="width:100%;max-width:440px;max-height:82vh;overflow:auto;background:#FFFBFC;border:1.6px solid #FFD1E0;border-radius:18px;padding:20px 22px 18px;box-shadow:0 12px 40px rgba(169,141,150,.22);">' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">' +
+          '<b id="stock-notice-title" style="font-size:19px;color:#55464E;font-weight:700;">' + t('关于现货 ♡', 'About Stock ♡') + '</b>' +
+          '<button type="button" id="stock-notice-x" aria-label="' + t('关闭', 'Close') + '" style="margin-left:auto;border:0;background:transparent;font-size:22px;line-height:1;color:#A98D96;cursor:pointer;padding:0 2px;">×</button>' +
+        '</div>' +
+        '<p style="font-size:15px;line-height:1.85;color:#62545B;margin:0 0 10px;">' + t('除「定制款」以外，其他款式都是现货，可以直接发货：', 'Everything except “Customize Style” is in stock and ready to ship:') + '</p>' +
+        '<ul style="font-size:15px;line-height:1.9;color:#62545B;margin:0 0 14px;padding-left:20px;">' +
+          '<li>' + t('<b>现货 / Available Now</b>：已经做好、可以马上发出，<b>没有瑕疵</b>', '<b>Available Now</b>: finished and ready to ship, <b>no flaws</b>') + '</li>' +
+          '<li>' + t('<b>瑕疵贴纸款、瑕疵磨具款</b>：同样是现货、可以马上发出，但带轻微瑕疵（轻微气泡、贴纸痕迹等）', '<b>Imperfect Stickers / Imperfect Mold</b>: also in stock and ready to ship, with minor imperfections (slight bubbles, sticker marks, etc.)') + '</li>' +
+          '<li>' + t('<b>整套款、补价专拍</b>：现货，可以马上发出', '<b>Full Set / Custom Payment</b>: in stock, ready to ship') + '</li>' +
+          '<li>' + t('<b>定制款</b>：定做款，需要等待制作时间，不是现货', '<b>Customize Style</b>: made to order — needs making time, not in stock') + '</li>' +
+        '</ul>' +
+        '<button type="button" id="stock-notice-ok" style="display:block;width:100%;border:1.6px solid #FFD1E0;background:#FCE1EA;color:#A98D96;font-family:inherit;font-size:16px;padding:10px 0;border-radius:999px;cursor:pointer;transition:background .2s;">' + t('知道啦 ♡', 'Got it ♡') + '</button>' +
+      '</div>';
+    document.body.appendChild(wrap);
+    function close() { if (wrap.parentNode) wrap.parentNode.removeChild(wrap); }
+    wrap.addEventListener('click', function (e) { if (e.target === wrap) close(); });
+    var x = document.getElementById('stock-notice-x'), ok = document.getElementById('stock-notice-ok');
+    if (x) x.addEventListener('click', close);
+    if (ok) ok.addEventListener('click', close);
+  }  function dispName(p) { return (LANG === 'en' && p.name_en) ? p.name_en : p.name; } // 她 20261102：商品名称双语
   function dispCover(p) { return (LANG === 'en' ? (p.cover_en || p.cover_zh) : (p.cover_zh || p.cover_en)) || ''; } // 双语封面：卡片与详情同图
   function fullGallery(p) { // 她 20261103 淘宝式：详情图集=封面+详情图+所有规格图，全集常驻——选规格只改选中状态与定位，从不过滤图集
     var covSrc = dispCover(p) || p.image_url || ''; // 无独立封面时商品主图即封面
@@ -337,7 +366,7 @@
         '<div class="d-info">' +
         '<div class="d-head" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">' +
           '<h2 style="font-size:24px;margin:0;">' + esc(dispName(p)) + '</h2>' +
-          '<span class="product-tag">' + esc(p.tag || t('没有标签', 'Untagged')) + '</span>' +
+          '<span class="product-tag">' + esc(dispTag(p) || t('没有标签', 'Untagged')) + '</span>' +
           '<button type="button" class="fav-btn detail-fav' + (isFav(p.id) ? ' on' : '') + '" data-fav="' + escAttr(p.id) + '" aria-label="' + t('收藏', 'Favorite') + '" style="margin-left:auto;">' + svgHeart(isFav(p.id)) + '</button>' +
         '</div>' +
         '<div class="d-price">' +
