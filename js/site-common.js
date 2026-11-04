@@ -247,14 +247,19 @@ document.addEventListener('click', function (e) { // 捕获阶段拦下箭头/�
   }, { passive: true });
 })();
 
-// 她 20261103：图片加载失败给柔和占位，不留空白图区（对大图/缩略图都生效）
-document.addEventListener('error', function (e) {
+// 她 20261103：img.yukicheng.com 代理域故障时全站图片自动回退 supabase 直连（修好后不冲突，仅 404 才触发）；
+// 直连也失败的 pg 大图/缩略图给柔和占位，不留空白
+function __ykImgErr(e) {
   var t = e.target;
-  if (!t || t.tagName !== 'IMG' || !/(^|\s)pg-(img|thumb)(\s|$)/.test(String(t.className))) return;
-  if (t.getAttribute('data-err')) return;
-  t.setAttribute('data-err', '1');
-  t.src = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="400" height="400" fill="#F6E8EE"/><text x="200" y="222" font-size="72" text-anchor="middle" fill="#E3B9C9">&#9825;</text></svg>');
-}, true);
+  if (!t || t.tagName !== 'IMG') return;
+  var m = String(t.src).match(/^https?:\/\/img\.yukicheng\.com\/(.+)$/);
+  if (m) { t.src = 'https://ukxrvcptwhlwvdanovgd.supabase.co/storage/v1/object/public/' + m[1]; return; } // 直连 URL 不再匹配该前缀，不会死循环
+  if (/(^|\s)pg-(img|thumb)(\s|$)/.test(String(t.className)) && !t.getAttribute('data-ph')) {
+    t.setAttribute('data-ph', '1');
+    t.src = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="400" height="400" fill="#F6E8EE"/><text x="200" y="222" font-size="72" text-anchor="middle" fill="#E3B9C9">&#9825;</text></svg>');
+  }
+}
+document.addEventListener('error', __ykImgErr, true);
 
 // ===== BJD 总价（与色卡总价同一套展示口径）：已启用部件的价格自动求和 =====
 function bjdTotalV(b) {
