@@ -271,7 +271,8 @@
   function dispName(p) { return (LANG === 'en' && p.name_en) ? p.name_en : p.name; } // 她 20261102：商品名称双语
   function dispCover(p) { return (LANG === 'en' ? (p.cover_en || p.cover_zh) : (p.cover_zh || p.cover_en)) || ''; } // 双语封面：卡片与详情同图
   function fullGallery(p) { // 她 20261103 淘宝式：详情图集=封面+详情图+所有规格图，全集常驻——选规格只改选中状态与定位，从不过滤图集
-    var cov = normImg(dispCover(p) || '');
+    var covSrc = dispCover(p) || p.image_url || ''; // 无独立封面时商品主图即封面
+    var cov = covSrc ? normImg(covSrc) : '';
     var out = cov ? [{ u: cov, sku: '', kind: 'cover' }] : [];
     var seen = {};
     out.forEach(function (g) { seen[g.u] = 1; });
