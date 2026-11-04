@@ -40,6 +40,16 @@
   <link rel="stylesheet" href="/site-menu.css?v=20261031E">
     <script src="/site-menu.js" defer></script>
   <link rel="stylesheet" href="/css/button-theme.css?v=20261102B">
+  <!-- 她 20261104：英文版手机端「重要日子明细」固定两行（分类 / 重复+周年），中文版不动 -->
+  <style id="en-cal-sub-2lines">
+    html[lang="en"] .cal-dayview-item .dv-sub .dv-b::before { content: '· '; }
+    @media (max-width: 640px) {
+      html[lang="en"] .cal-dayview-item .dv-sub { display: block; }
+      html[lang="en"] .cal-dayview-item .dv-sub .dv-a,
+      html[lang="en"] .cal-dayview-item .dv-sub .dv-b { display: block; }
+      html[lang="en"] .cal-dayview-item .dv-sub .dv-b::before { content: ''; }
+    }
+  </style>
 </head>
 <body class="home">
 
@@ -914,6 +924,7 @@
     return sy === y && om === m + 1 && od === day;                                    // 不重复
   }
   function repName(r) {
+    if (LANG === 'en') return { none: 'Never', daily: 'Daily', weekly: 'Weekly', monthly: 'Monthly', yearly: 'Yearly' }[r] || r; // 英文明细里用短词，手机端才排得下两行
     return { none: t('不重复', 'Does not repeat'), daily: t('每天重复', 'Repeats daily'), weekly: t('每周重复', 'Repeats weekly'), monthly: t('每月重复', 'Repeats monthly'), yearly: t('每年重复', 'Repeats yearly') }[r] || r;
   }
   /* 她 20261031 §3：分类必须统一对应（纪念=Anniversary / 其他=Other / 色卡=Color Card / 生日=Birthday / 重要日子=Important Date）。
@@ -1191,9 +1202,13 @@
     var evs = EVENTS.filter(function (ev) { return evOccursOn(ev, SEL.y, SEL.m, SEL.d); });
     tEl.innerHTML = evs.length
       ? evs.map(function (ev) {
-          var sub = '<i class="dv-dot" style="background:' + typeColor(ev.type) + '"></i>' +
-            t('分类', 'Category') + t('：', ': ') + evTypeName(ev) + ' · ' + t('重复', 'Repeat') + t('：', ': ') + repName(ev.repeat) +
-            (ev.repeat === 'yearly' && !(String(ev.type || '').indexOf('生日') > -1 || ev.type === 'birthday') ? ' · ' + evAnnivText(ev, SEL.y, SEL.m, SEL.d).replace(/<[^>]*>/g, '') : '');
+          // 她 20261104：手机端英文版这一行会折成四行；英文改成固定两行（分类 / 重复+周年），中文保持原样
+          var annivTail = (ev.repeat === 'yearly' && !(String(ev.type || '').indexOf('生日') > -1 || ev.type === 'birthday')) ? ' · ' + evAnnivText(ev, SEL.y, SEL.m, SEL.d).replace(/<[^>]*>/g, '') : '';
+          var sub = LANG === 'en'
+            ? '<span class="dv-a"><i class="dv-dot" style="background:' + typeColor(ev.type) + '"></i>' + t('分类', 'Category') + t('：', ': ') + evTypeName(ev) + '</span>' +
+              '<span class="dv-b">' + t('重复', 'Repeat') + t('：', ': ') + repName(ev.repeat) + annivTail + '</span>'
+            : '<i class="dv-dot" style="background:' + typeColor(ev.type) + '"></i>' +
+              t('分类', 'Category') + t('：', ': ') + evTypeName(ev) + ' · ' + t('重复', 'Repeat') + t('：', ': ') + repName(ev.repeat) + annivTail;
           return '<div class="cal-dayview-item"><b>' + escDb(evDispName(ev, SEL.y)) + '</b><div class="dv-sub">' + sub + '</div></div>';
         }).join('')
       : '<div class="cal-ev-none">' + t(isToday ? '今天没有重要日子 ～ ♡' : '这天没有重要日子 ～ ♡', isToday ? 'Nothing special today ♡' : 'No events on this day ♡') + '</div>';
