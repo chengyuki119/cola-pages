@@ -753,6 +753,60 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     .sub, .hint, small, .muted, .tip, .note, .fld-hint { color: #81717A; }
     .price, .p-price, .amt, .gmv { color: #55464E; }
   </style>
+  <style id="np-mobile-ui">
+    /* ═══ 她 20261104：手机端「上架新商品」好用化（只在 ≤760px 生效）═══
+       只改触控尺寸、键盘类型、滚动与排版密度；粉色配色、桌面端布局一律不动。 */
+    /* 底部固定条：上架表单开着的时候一直在，填到哪儿都能发 */
+    #np-phone-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9000; display: none; gap: 10px;
+      padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px)); background: #FFF7FA;
+      border-top: 1.5px solid #FFD1E0; box-shadow: 0 -4px 14px rgba(169, 141, 150, .12); }
+    #np-phone-bar button { flex: 1; border-radius: 12px; font-family: inherit; font-size: 17px; font-weight: 600; padding: 12px 0; cursor: pointer; }
+    #np-phone-bar .np-pb-draft { flex: 0 0 96px; background: #FFF7FA; border: 1.5px solid #FFD1E0; color: #A98D96; }
+    #np-phone-bar .np-pb-draft:active { background: #FCE1EA; }
+    #np-phone-bar .np-pb-pub { background: #FCE1EA; border: 1.5px solid #F5BFD1; color: #A98D96; }
+    #np-phone-bar .np-pb-pub:active { background: #F8D3E2; }
+    @media (min-width: 761px) { #np-phone-bar { display: none !important; } }
+    /* 上架表单开着时，用「存草稿 / 发布商品」这条；规格编辑那条（返回/保存）让位，避免两条堆在底部 */
+    body.np-bar-on #sm-phone-bar { display: none !important; }
+
+    @media (max-width: 760px) {
+      #newprod-wrap { scroll-margin-top: 74px; }
+      #newprod-wrap .pf { padding: 2px 12px; }
+      #newprod-wrap .pf-sec { padding: 16px 0; }
+      #newprod-wrap .pf-h { margin-bottom: 12px; }
+      /* 货币胶囊：32px → 40px，手指点得准 */
+      #newprod-wrap .cur-chip { min-height: 40px; padding: 8px 18px; font-size: 16px; }
+      /* 中英文介绍：64px 只有两行，手机上写不下 */
+      #newprod-wrap textarea { min-height: 104px !important; }
+      /* 图片：76 → 88，角标按钮 18 → 26（原来太小学生点不准） */
+      #newprod-wrap .pf-addimg,
+      #newprod-wrap .p-preview .pv { width: 88px !important; height: 88px !important; }
+      #newprod-wrap .pf-addimg em { font-size: 13px; }
+      #newprod-wrap .p-preview .pv-del,
+      #newprod-wrap .p-preview .pv-swap { width: 26px !important; height: 26px !important; font-size: 13px !important; line-height: 1 !important; }
+      #newprod-wrap .p-preview .pv-cover { font-size: 12px !important; padding: 2px 7px !important; }
+      /* 中文封面 / English 封面：两行左对齐，上传按钮贴右边，不再参差不齐 */
+      #newprod-wrap .pf-covrow { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; margin-top: 12px !important; }
+      #newprod-wrap .pf-covrow > div { width: 100%; }
+      #newprod-wrap .pf-covrow > div > label.btn-mini { margin-left: auto; min-height: 40px; display: inline-flex; align-items: center; padding: 0 16px !important; }
+      /* 规格行：名字与 SKU 各占整行，价格/库存并排；输入框 15 → 16px（iOS 小于 16 会自动放大整页） */
+      #newprod-wrap .sm-var-row { padding: 12px; }
+      #newprod-wrap .sm-var-grid { gap: 10px; }
+      #newprod-wrap .sm-var-grid input { font-size: 16px !important; min-height: 44px; }
+      #newprod-wrap .sm-var-row .sm-var-up,
+      #newprod-wrap .sm-var-row .sm-var-down,
+      #newprod-wrap .sm-var-row .sm-var-freeze { min-height: 40px; min-width: 52px; padding: 8px 14px !important; font-size: 14px !important; }
+      #newprod-wrap .sm-var-imgs .btn-mini,
+      #newprod-wrap .sm-var-del { min-height: 40px; padding: 8px 16px !important; }
+      /* 固定条占位：最后一行 / 提示气泡不被挡住 */
+      body.np-bar-on #newprod-wrap { padding-bottom: 84px; }
+      body.np-bar-on #toast { bottom: 92px; }
+    }
+    @media (max-width: 640px) {
+      #newprod-wrap .sm-var-grid > div:nth-child(1),
+      #newprod-wrap .sm-var-grid > div:nth-child(2) { grid-column: 1 / -1; }
+    }
+  </style>
 </head>
 <body>
 <header class="topbar">
@@ -984,7 +1038,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
             <div class="p-preview" id="p-preview"><span class="pv-empty">还没有图片</span></div>
           </div>
           <div class="pf-fileline"><span class="hm-file-name" id="p-file-name">未选择图片</span><span class="pf-count" id="p-img-count">0 / 6</span></div>
-          <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;align-items:center;">
+          <div class="pf-covrow" style="display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;align-items:center;">
             <div style="display:flex;align-items:center;gap:8px;">
               <span style="font-size:15px;color:var(--muted);">中文封面</span>
               <span id="p-cov-zh-prev" style="width:56px;height:56px;border-radius:10px;border:1.5px dashed var(--accent-soft,#FFD9E6);display:inline-flex;align-items:center;justify-content:center;color:#A88E9B;font-size:20px;overflow:hidden;">♡</span>
@@ -2283,12 +2337,18 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   });
   function uploadShopFiles(files) {
     return Promise.all(files.map(function (f) {
-      return authedFetch(SUPABASE_URL + '/storage/v1/object/shop/' + Date.now() + '-' + Math.random().toString(36).slice(2, 6) + '-' + f.name.replace(/[^\w.\-]/g, '_'), {
-        method: 'POST',
-        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + ACCESS },
-        body: f
-      }).then(function (r) { if (!r.ok) throw new Error('upload failed'); return r.json(); })
-        .then(function (res) { return SUPABASE_URL + '/storage/v1/object/public/shop/' + res.Key.split('/').slice(1).join('/'); });
+      // 她 20261104：手机上传前先压一下（>1.5MB 的长边缩到 2000px；PNG 保持 PNG 不丢透明）
+      var pre = (window.ykShrinkImage ? window.ykShrinkImage(f) : Promise.resolve(f));
+      return Promise.resolve(pre).catch(function () { return f; }).then(function (bf) {
+        var name = f.name || 'image';
+        if (bf && bf !== f && /image\/jpe?g/i.test(bf.type || '')) name = name.replace(/\.[^.]+$/, '') + '.jpg';
+        return authedFetch(SUPABASE_URL + '/storage/v1/object/shop/' + Date.now() + '-' + Math.random().toString(36).slice(2, 6) + '-' + name.replace(/[^\w.\-]/g, '_'), {
+          method: 'POST',
+          headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + ACCESS, 'Content-Type': (bf && bf.type) || f.type || 'application/octet-stream' },
+          body: bf || f
+        }).then(function (r) { if (!r.ok) throw new Error('upload failed'); return r.json(); })
+          .then(function (res) { return SUPABASE_URL + '/storage/v1/object/public/shop/' + res.Key.split('/').slice(1).join('/'); });
+      });
     }));
   }
   var pCur = 'USD'; // 新增商品的货币选择（每件商品独立，不换算）
@@ -7059,5 +7119,115 @@ function loadEmailLog() {
 <script src="js/admin-biz.js?v=20261102B"></script>
 <script src="js/admin-export.js?v=20261031E"></script>
 <footer style="padding:18px 0 0; text-align:center;">© 2026 Yuki · Made with Cola</footer>
+<script id="np-mobile-js">
+/* ═══ 她 20261104：手机端「上架新商品」好用化 ═══
+   1. 上传前压缩大图（>1.5MB 缩到最长边 2000px；PNG 保 PNG 不丢透明）
+   2. 价格/成本用小数键盘，库存用数字键盘，编码关掉自动大写与纠错
+   3. 输入框聚焦后自动滚到屏幕中间，键盘弹起也不遮
+   4. 上架表单开着时底部常驻「存草稿 / 发布商品」
+   桌面端（>760px）行为完全不变。 */
+(function () {
+  'use strict';
+  function isPhone() { return window.matchMedia('(max-width: 760px)').matches; }
+
+  window.ykShrinkImage = function (file) {
+    return new Promise(function (resolve) {
+      try {
+        if (!file || !/^image\//i.test(file.type || '') || file.size <= 1.5 * 1024 * 1024) return resolve(file);
+        if (!/jpe?g|png|heic|heif|bmp|tiff/i.test(file.type)) return resolve(file); // gif/webp/svg 一律原样上传
+        var url = URL.createObjectURL(file);
+        var img = new Image();
+        img.onload = function () {
+          var done = function (out) { try { URL.revokeObjectURL(url); } catch (e) {} resolve(out || file); };
+          try {
+            var MAX = 2000;
+            var w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
+            if (!w || !h) return done(file);
+            var s = Math.min(1, MAX / Math.max(w, h));
+            var cw = Math.max(1, Math.round(w * s)), ch = Math.max(1, Math.round(h * s));
+            var cv = document.createElement('canvas');
+            cv.width = cw; cv.height = ch;
+            var ctx = cv.getContext('2d');
+            if (!ctx) return done(file);
+            var isPng = /png/i.test(file.type);
+            if (!isPng) { ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, cw, ch); }
+            ctx.drawImage(img, 0, 0, cw, ch);
+            cv.toBlob(function (blob) {
+              if (!blob || blob.size >= file.size) return done(file);
+              try { blob.name = file.name; } catch (e) {}
+              done(blob);
+            }, isPng ? 'image/png' : 'image/jpeg', 0.9);
+          } catch (e) { done(file); }
+        };
+        img.onerror = function () { try { URL.revokeObjectURL(url); } catch (e) {} resolve(file); };
+        img.src = url;
+      } catch (e) { resolve(file); }
+    });
+  };
+
+  function boot() {
+    var wrap = document.getElementById('newprod-wrap');
+    if (!wrap) return;
+
+    /* 键盘类型 */
+    var kb = { 'p-price': 'decimal', 'p-cost': 'decimal', 'p-stock': 'numeric' };
+    Object.keys(kb).forEach(function (id) { var el = document.getElementById(id); if (el) el.setAttribute('inputmode', kb[id]); });
+    var sku = document.getElementById('p-sku');
+    if (sku) { sku.setAttribute('autocapitalize', 'off'); sku.setAttribute('autocorrect', 'off'); sku.setAttribute('spellcheck', 'false'); }
+
+    /* 聚焦不遮挡 */
+    wrap.addEventListener('focusin', function (e) {
+      var t = e.target;
+      if (!isPhone() || !t || !/^(INPUT|TEXTAREA)$/.test(t.tagName)) return;
+      setTimeout(function () {
+        var r = t.getBoundingClientRect();
+        if (r.top > window.innerHeight * 0.45 || r.bottom > window.innerHeight * 0.7) {
+          try { t.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (x) { t.scrollIntoView(); }
+        }
+      }, 320);
+    });
+
+    /* 底部常驻条 */
+    var bar = document.createElement('div');
+    bar.id = 'np-phone-bar';
+    bar.innerHTML = '<button type="button" class="np-pb-draft">存草稿</button><button type="button" class="np-pb-pub">发布商品</button>';
+    document.body.appendChild(bar);
+    bar.querySelector('.np-pb-pub').addEventListener('click', function () {
+      if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+      var b = document.getElementById('btn-add-product');
+      if (b) b.click(); else if (typeof toast === 'function') toast('没找到发布按钮，往上滑看一下');
+    });
+    bar.querySelector('.np-pb-draft').addEventListener('click', function () {
+      if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+      var b = document.getElementById('btn-prod-draft');
+      if (b) b.click(); else if (typeof toast === 'function') toast('没找到保存草稿按钮');
+    });
+
+    function formOpen() { return getComputedStyle(wrap).display !== 'none'; }
+    function sync() {
+      var on = isPhone() && formOpen();
+      bar.style.display = on ? 'flex' : 'none';
+      document.body.classList.toggle('np-bar-on', on);
+    }
+    sync();
+    try {
+      new MutationObserver(sync).observe(wrap, { attributes: true, attributeFilter: ['style'] });
+    } catch (e) {}
+    window.addEventListener('resize', sync);
+
+    /* 展开表单后滚到表单顶部，不用自己找 */
+    var tg = document.getElementById('btn-toggle-newprod');
+    if (tg) tg.addEventListener('click', function () {
+      setTimeout(function () {
+        if (isPhone() && formOpen()) {
+          try { wrap.scrollIntoView({ block: 'start', behavior: 'smooth' }); } catch (e) { wrap.scrollIntoView(); }
+        }
+        sync();
+      }, 80);
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+})();
+</script>
 </body>
 </html>
