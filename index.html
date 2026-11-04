@@ -50,6 +50,16 @@
       html[lang="en"] .cal-dayview-item .dv-sub .dv-b::before { content: ''; }
     }
   </style>
+  <!-- 她 20261104：手机端英文版头像旁的两句介绍被挤成四行（每句各折一次），改成两句各一行；桌面端与中文版不动 -->
+  <style id="en-hero-bio-2lines">
+    @media (max-width: 760px) {
+      html[lang="en"] .hero-name { display: contents; }
+      html[lang="en"] .avatar-row { flex-wrap: wrap; row-gap: 2px; }
+      html[lang="en"] .hero-name p { flex: 1 1 100%; width: 100%; font-size: 15px; }
+    }
+    @media (max-width: 380px) { html[lang="en"] .hero-name p { font-size: 13.5px; } }
+    @media (max-width: 345px) { html[lang="en"] .hero-name p { font-size: 13px; letter-spacing: -0.2px; } }
+  </style>
 </head>
 <body class="home">
 
