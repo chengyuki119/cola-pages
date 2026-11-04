@@ -96,7 +96,7 @@
       <div class="cal-side">
         <div class="cal-date-big" id="cal-sel-title"></div>
         <div id="cal-sel-list" style="margin-top:8px;"></div>
-        <div class="cal-side-sub" data-zh="接下来 7 天" data-en="Next 7 Days">接下来 7 天</div>
+        <div class="cal-side-sub" data-zh="接下来 7 天" data-en="Upcoming 7 Days">接下来 7 天</div>
         <div id="cal-upcoming"></div>
       </div>
     </div>
@@ -725,18 +725,18 @@
         chGrid.innerHTML = '<p style="color:var(--muted);text-align:center;padding:30px 0;font-size:17px;">' + t('还没有色卡，去后台「色卡管理」新建吧', 'No color cards yet — add one in the admin panel') + '</p>';
       } else if (!showCards.length) {
         chGrid.style.display = 'block';
-        chGrid.innerHTML = '<p style="color:var(--muted);text-align:center;padding:30px 0;font-size:17px;">暂无展示中的色卡</p>';
+        chGrid.innerHTML = '<p style="color:var(--muted);text-align:center;padding:30px 0;font-size:17px;">' + (LANG === 'en' ? 'No color cards to show yet' : '暂无展示中的色卡') + '</p>'';
       } else {
         chGrid.style.display = 'grid';
         /* 色卡预览固定 4 列（CSS 硬编码） */
         chGrid.innerHTML = showCards.map(function (x) {
           var c = x.c, i = x.i;
           return '<div class="card sc-product" data-i="' + i + '" style="margin-bottom:0;padding:0;overflow:hidden;cursor:pointer;position:relative;">' +
-            (c.image ? '<div style="width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--card);"><img src="' + escAttrDb(normImg(c.image)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="色卡" loading="lazy"></div>'
+            (c.image ? '<div style="width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--card);"><img src="' + escAttrDb(normImg(c.image)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + (LANG === 'en' ? 'Color Card' : '色卡') + '" loading="lazy"></div>'
                      : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--card);color:var(--muted);font-size:15px;">' + (LANG === 'en' ? 'No photo' : '暂无图片') + '</div>') +
             '<div style="padding:12px 14px;">' +
             '<div style="display:flex;align-items:center;gap:8px;">' +
-            '<b style="flex:1;font-size:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(c.name || '未命名色卡') + '</b>' +
+            '<b style="flex:1;font-size:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(c.name || (LANG === 'en' ? 'Untitled Card' : '未命名色卡')) + '</b>' +
             shareBtnHtml(i, null, true) +
             '</div>' +
             '<div style="font-size:15px;color:var(--muted);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (c.shop ? escDb(c.shop) : '&nbsp;') + '</div>' +
@@ -776,11 +776,11 @@
         wkGrid.innerHTML = worksList.map(function (x, i) {
           var w = x.w, i = x.i; // 用原始序号：详情/分享/编辑都与 /works/ 一致
           return '<div class="card work-card" data-i="' + i + '" style="margin-bottom:0;padding:0;overflow:hidden;cursor:pointer;position:relative;">' +
-            (w.image ? '<div style="width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--card);"><img src="' + escAttrDb(normImg(w.image)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="稿件" loading="lazy"></div>'
+            (w.image ? '<div style="width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--card);"><img src="' + escAttrDb(normImg(w.image)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + (LANG === 'en' ? 'Artwork' : '稿件') + '" loading="lazy"></div>'
                      : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--card);color:var(--muted);font-size:15px;">' + (LANG === 'en' ? 'No photo' : '暂无图片') + '</div>') +
             '<div style="padding:12px 14px;">' +
             '<div style="display:flex;align-items:center;gap:8px;">' +
-            '<b style="flex:1;font-size:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(w.name || '未命名稿件') + '</b>' +
+            '<b style="flex:1;font-size:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(w.name || (LANG === 'en' ? 'Untitled Work' : '未命名稿件')) + '</b>' +
             shareBtnHtml(i, 'work', true) +
             workEditBtn(i, worksRaw) +
             '</div>' +
@@ -1192,7 +1192,7 @@
     tEl.innerHTML = evs.length
       ? evs.map(function (ev) {
           var sub = '<i class="dv-dot" style="background:' + typeColor(ev.type) + '"></i>' +
-            t('分类', 'Category') + '：' + evTypeName(ev) + ' · ' + t('重复', 'Repeat') + '：' + repName(ev.repeat) +
+            t('分类', 'Category') + t('：', ': ') + evTypeName(ev) + ' · ' + t('重复', 'Repeat') + t('：', ': ') + repName(ev.repeat) +
             (ev.repeat === 'yearly' && !(String(ev.type || '').indexOf('生日') > -1 || ev.type === 'birthday') ? ' · ' + evAnnivText(ev, SEL.y, SEL.m, SEL.d).replace(/<[^>]*>/g, '') : '');
           return '<div class="cal-dayview-item"><b>' + escDb(evDispName(ev, SEL.y)) + '</b><div class="dv-sub">' + sub + '</div></div>';
         }).join('')
@@ -1357,7 +1357,7 @@
       for (var y = y1; y >= 2018; y--) years.push(y);
       var months = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
       var yl = years.map(function (y) { return '<div class="wheel-item' + (y === CAL_VIEW.y ? ' cur' : '') + '" data-v="' + y + '">' + y + '</div>'; }).join('');
-      var ml = months.map(function (m) { return '<div class="wheel-item' + (m === CAL_VIEW.m ? ' cur' : '') + '" data-v="' + m + '">' + (m + 1) + (LANG === 'en' ? '' : ' 月') + '</div>'; }).join('');
+      var ml = months.map(function (m) { return '<div class="wheel-item' + (m === CAL_VIEW.m ? ' cur' : '') + '" data-v="' + m + '">' + (LANG === 'en' ? ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m] : (m + 1) + ' 月') + '</div>'; }).join('');
       ymPop.innerHTML = '<div class="dp-wheel"><div class="wheel" data-k="y"><div class="wheel-list">' + yl + '</div></div><div class="wheel" data-k="m"><div class="wheel-list">' + ml + '</div></div><div class="wheel-band"></div></div>';
       var r = this.getBoundingClientRect();
       ymPop.style.display = 'block';
@@ -1468,7 +1468,7 @@
         : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--card);color:var(--muted);font-size:15px;">' + (HS_LANG === 'en' ? 'No photo' : '暂无图片') + '</div>') +
         '<span class="st st-' + st + '">' + stText + '</span></div>' +
       '<div class="hs-info">' +
-        '<span class="hs-tag">' + escDb(hsTag(p) || '没有标签') + '</span>' +
+        '<span class="hs-tag">' + escDb(hsTag(p) || (HS_LANG === 'en' ? 'No tag' : '没有标签')) + '</span>' +
         '<b class="hs-name">' + escDb(hsName(p)) + '</b>' +
         '<div class="hs-row"><span class="hs-price">' + (p.price ? hsPrice(p) : '') + '</span>' +
         '</div>' +
