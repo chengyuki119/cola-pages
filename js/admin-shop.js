@@ -1199,6 +1199,7 @@
         '<div class="sm-var-addfoot"><button type="button" class="btn-mini sm-var-add">＋ 添加规格</button><button type="button" class="btn-mini sm-var-dup">复制上一条</button></div>' +
         '<p class="hint" style="margin:6px 0 0;">每个规格可以传自己的图，第一张就是这个选项的封面；详情页点选项会换图、换价、换库存。</p>';
       slot.appendChild(block);
+      card.__block = block; // 记住自己那块规格区，避免和上架表单（同在一个 tab 里）互相串到对方的 DOM
       smVarRenderRows(card);
     };
     // 只信带 variants 字段的数据；缓存里没有就单独拉这个商品，绝不把已有规格当空（她 2026-10-25 遇到）
@@ -1229,9 +1230,10 @@
     }).join('');
   }
   function smVarRenderRows(card) {
-    var box = card.querySelector('.sm-var-rows');
+    var scope = card.__block || card;
+    var box = scope.querySelector('.sm-var-rows');
     if (!box) return;
-    var head = card.querySelector('.sm-var-batchbar');
+    var head = scope.querySelector('.sm-var-batchbar');
     if (!head) {
       head = document.createElement('div');
       head.className = 'sm-var-batchbar';
@@ -1267,69 +1269,142 @@
         '</div>' +
         '</div>';
     }).join('') : '<p class="hint" style="background:var(--card,#FFF0F5);border-radius:12px;padding:14px;text-align:center;">还没有规格，点上面「＋ 添加规格」加第一个选项</p>';
-    var foot = card.querySelector('.sm-var-addfoot'); // 有规格时，列表下方才出现添加与复制按钮
+    var foot = scope.querySelector('.sm-var-addfoot'); // 有规格时，列表下方才出现添加与复制按钮
     if (foot) foot.style.display = arr(card.__variants).length ? 'flex' : 'none';
     smVarRenderDims(card);
   }
-  /* 她 20261104 §五：多维度规格（款式 / 尺寸 / 键盘高度）
-     维度本身不存在商品列里——直接挂在每个规格对象的 dims 上：{款式:'现货款',尺寸:'1U'}，不动表结构 */
-  function smDimNames(card) {
-    if (card.__dimNames && card.__dimNames.length) return card.__dimNames;
-    var keys = [];
+  /* 她 20261104 §五 + 18:57 补充：维度不限个数（＋添加维度）、选项逐项胶囊可增删排序、
+     显式「简单规格 / 多维度规格」开关。维度只挂在每个规格对象的 dims 上，不动数据库结构 */
+  var SM_ICON_BTN = 'border:0;background:transparent;color:#A98D96;font-size:15px;line-height:1;padding:0 3px;cursor:pointer;font-family:inherit;';
+  function smDimsOf(card) {
+    if (card.__dims) return card.__dims;
+    var names = [], map = {};
     arr(card.__variants).forEach(function (v) {
       if (!v || !v.dims) return;
-      Object.keys(v.dims).forEach(function (k) { if (keys.indexOf(k) === -1) keys.push(k); });
+      Object.keys(v.dims).forEach(function (k) {
+        if (!map[k]) { map[k] = []; names.push(k); }
+        var val = v.dims[k];
+        if (val && map[k].indexOf(val) === -1) map[k].push(val);
+      });
     });
-    if (!keys.length) return []; // 新建商品时还没有 dims：不能把空值缓存下来，否则生成完组合面板会变空白
-    card.__dimNames = keys.slice(0, 3);
-    return card.__dimNames;
+    card.__dims = names.length ? names.map(function (n) { return { name: n, options: map[n].slice() }; }) : [{ name: '', options: [] }];
+    return card.__dims;
   }
-  function smDimOptions(card, name) {
-    var typed = card.__dimOpts && card.__dimOpts[name];
-    if (typed && typed.length) return typed.slice(); // 优先用她刚填的选项，改过选项再生成不会被打回旧值
-    var out = [];
-    arr(card.__variants).forEach(function (v) {
-      if (!v || !v.dims || !v.dims[name]) return;
-      if (out.indexOf(v.dims[name]) === -1) out.push(v.dims[name]);
+  function smModeOf(card) {
+    if (card.__mode) return card.__mode;
+    var has = arr(card.__variants).some(function (v) { return v && v.dims && Object.keys(v.dims).length; });
+    card.__mode = has ? 'multi' : 'simple';
+    return card.__mode;
+  }
+  function smDimsSync(card) { // 把面板里刚改的维度名收回内存（选项本身在内存里管）
+    var dims = smDimsOf(card);
+    Array.prototype.forEach.call((card.__block || card).querySelectorAll('.sm-dim-panel .sm-dim-row'), function (row) {
+      var i = parseInt(row.getAttribute('data-d'), 10);
+      if (!dims[i]) return;
+      var inp = row.querySelector('.sm-dim-name');
+      if (inp) dims[i].name = (inp.value || '').trim();
     });
-    return out;
+  }
+  function smShowManualAdd(card, show) {
+    var scope2 = card.__block || card;
+    Array.prototype.forEach.call(scope2.querySelectorAll('.sm-var-addfoot'), function (f) {
+      f.style.display = (show && arr(card.__variants).length) ? 'flex' : 'none';
+    });
+    Array.prototype.forEach.call(scope2.querySelectorAll('.sm-var-add'), function (b) {
+      if (b.closest('.sm-var-addfoot')) return;
+      b.style.display = show ? '' : 'none';
+    });
   }
   function smVarRenderDims(card) {
-    var box = card.querySelector('.sm-var-rows');
+    var scope = card.__block || card;
+    var box = scope.querySelector('.sm-var-rows');
     if (!box) return;
-    var panel = card.querySelector('.sm-dim-panel');
+    var panel = scope.querySelector('.sm-dim-panel');
     if (!panel) {
       panel = document.createElement('div');
       panel.className = 'sm-dim-panel';
-      panel.style.cssText = 'margin:0 0 12px;padding:12px;border:1.5px dashed #FFD1E0;border-radius:14px;background:#FFF7FA;';
       box.parentNode.insertBefore(panel, box);
     }
-    var names = smDimNames(card);
-    var rows = [0, 1, 2].map(function (i) {
-      var nm = names[i] || '';
-      var opts = nm ? smDimOptions(card, nm).join('，') : '';
-      return '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">' +
-        '<input class="sm-dim-name" data-d="' + i + '" placeholder="维度' + (i + 1) + '名称，如 款式" value="' + escAttr(nm) + '" style="width:130px;padding:7px 10px;border-radius:10px;border:1.5px solid #FFD1E0;background:#fff;color:#55464E;font-size:15px;font-family:inherit;">' +
-        '<input class="sm-dim-opts" data-d="' + i + '" placeholder="选项，用逗号隔开，如 现货款,贴纸瑕疵款" value="' + escAttr(opts) + '" style="flex:1;min-width:180px;padding:7px 10px;border-radius:10px;border:1.5px solid #FFD1E0;background:#fff;color:#55464E;font-size:15px;font-family:inherit;">' +
-        '</div>';
+    var mode = smModeOf(card);
+    var mk = function (m, label, sub) {
+      var on = mode === m;
+      return '<button type="button" class="sm-mode-btn' + (on ? ' on' : '') + '" data-mode="' + m + '" style="padding:7px 16px;font-size:14px;border-radius:999px;border:1.5px solid ' + (on ? '#F2A9C4' : '#FFD1E0') + ';background:' + (on ? '#FCE1EA' : '#FFF7FA') + ';color:' + (on ? '#55464E' : '#A98D96') + ';font-weight:600;font-family:inherit;cursor:pointer;">' + label + '</button>';
+    };
+    var seg = '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 10px;">' +
+      '<span style="font-size:14px;font-weight:700;color:#55464E;">规格模式</span>' +
+      mk('simple', '简单规格') + mk('multi', '多维度规格') +
+      '<span style="font-size:13px;color:#81717A;">' + (mode === 'multi' ? '按维度组合生成' : '一个一个手动加') + '</span>' +
+      '</div>';
+    if (mode !== 'multi') {
+      panel.style.cssText = 'margin:0 0 12px;';
+      panel.innerHTML = seg;
+      smShowManualAdd(card, true);
+      return;
+    }
+    var dims = smDimsOf(card);
+    var rows = dims.map(function (d, i) {
+      var chips = (d.options || []).map(function (o, k) {
+        return '<span class="sm-opt-chip" style="display:inline-flex;align-items:center;gap:1px;background:#FCE1EA;border:1.5px solid #F2A9C4;border-radius:999px;padding:3px 5px 3px 10px;font-size:14px;color:#55464E;">' + esc(o) +
+          '<button type="button" class="sm-opt-mv" data-d="' + i + '" data-o="' + k + '" data-mv="-1" title="往前移" style="' + SM_ICON_BTN + '" ' + (k === 0 ? 'disabled' : '') + '>‹</button>' +
+          '<button type="button" class="sm-opt-mv" data-d="' + i + '" data-o="' + k + '" data-mv="1" title="往后移" style="' + SM_ICON_BTN + '" ' + (k === d.options.length - 1 ? 'disabled' : '') + '>›</button>' +
+          '<button type="button" class="sm-opt-del" data-d="' + i + '" data-o="' + k + '" title="删除这个选项" style="' + SM_ICON_BTN + 'font-size:13px;color:#C4636E;">✕</button>' +
+          '</span>';
+      }).join('');
+      return '<div class="sm-dim-row" data-d="' + i + '" style="display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap;margin-bottom:10px;padding-bottom:10px;border-bottom:1px dashed #FFE0EA;">' +
+        '<div style="display:flex;align-items:center;gap:3px;flex-wrap:wrap;">' +
+          '<input class="sm-dim-name" data-d="' + i + '" placeholder="维度' + (i + 1) + '名称，如 款式" value="' + escAttr(d.name) + '" style="width:124px;padding:7px 10px;border-radius:10px;border:1.5px solid #FFD1E0;background:#fff;color:#55464E;font-size:15px;font-family:inherit;">' +
+          '<button type="button" class="sm-dim-mv" data-d="' + i + '" data-mv="-1" title="上移这个维度" style="' + SM_ICON_BTN + '" ' + (i === 0 ? 'disabled' : '') + '>↑</button>' +
+          '<button type="button" class="sm-dim-mv" data-d="' + i + '" data-mv="1" title="下移这个维度" style="' + SM_ICON_BTN + '" ' + (i === dims.length - 1 ? 'disabled' : '') + '>↓</button>' +
+          '<button type="button" class="sm-dim-del" data-d="' + i + '" title="删除这个维度" style="' + SM_ICON_BTN + 'color:#C4636E;">✕</button>' +
+        '</div>' +
+        '<div style="flex:1;min-width:200px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">' +
+          (chips || '<span style="font-size:13px;color:#B9A5AE;">还没有选项</span>') +
+          '<input class="sm-opt-in" data-d="' + i + '" placeholder="加选项，回车" style="width:118px;padding:6px 10px;border-radius:10px;border:1.5px dashed #FFD1E0;background:#fff;color:#55464E;font-size:14px;font-family:inherit;">' +
+          '<button type="button" class="sm-opt-add" data-d="' + i + '" style="border:1.5px solid #FFD1E0;background:#FFF7FA;color:#A98D96;border-radius:999px;padding:5px 12px;font-size:14px;font-family:inherit;cursor:pointer;font-weight:600;">＋</button>' +
+        '</div>' +
+      '</div>';
     }).join('');
-    panel.innerHTML = '<div style="font-size:14px;font-weight:700;color:#55464E;margin-bottom:8px;">多维度规格（可留空不用）</div>' + rows +
+    panel.style.cssText = 'margin:0 0 12px;';
+    panel.innerHTML = seg + '<div style="padding:12px;border:1.5px dashed #FFD1E0;border-radius:14px;background:#FFF7FA;">' +
+      '<div style="font-size:14px;font-weight:700;color:#55464E;margin-bottom:10px;">规格维度</div>' + rows +
       '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">' +
+      '<button type="button" class="btn-mini sm-dim-add" style="padding:8px 14px;font-size:14px;">＋ 添加维度</button>' +
       '<button type="button" class="btn-mini sm-dim-gen" style="padding:8px 14px;font-size:14px;">按维度生成组合</button>' +
       '<button type="button" class="btn-mini sm-dim-clear" style="padding:8px 14px;font-size:14px;">清空维度</button>' +
-      '<span style="font-size:13px;color:#81717A;">生成后逐个填价格/库存，SKU 可点「生成编码」</span>' +
-      '</div>';
+      '<span style="font-size:13px;color:#81717A;">组合数 = 各维度选项数相乘</span>' +
+      '</div></div>';
+    smShowManualAdd(card, false); // 多维模式下组合由生成器管，收起手动加规格
+  }
+  window.smDimSetMode = function (card, mode) {
+    if (!card) return;
+    var cur = smModeOf(card);
+    if (cur === mode) return;
+    var hasDims = arr(card.__variants).some(function (v) { return v && v.dims && Object.keys(v.dims).length; });
+    var apply = function () {
+      if (mode === 'simple') arr(card.__variants).forEach(function (v) { if (v) delete v.dims; });
+      card.__mode = mode;
+      smVarRenderRows(card);
+    };
+    if (mode === 'simple' && hasDims && typeof window.uiConfirm === 'function') {
+      window.uiConfirm('切成简单规格会清掉当前规格上的维度信息（规格行本身还在），确定吗？', apply, '切成简单');
+      return;
+    }
+    apply();
+  };
+  function smOptAdd(card, i, raw) {
+    var dims = smDimsOf(card);
+    if (!dims[i]) return;
+    smDimsSync(card);
+    var vals = String(raw || '').split(/[,，、\/]/).map(function (s) { return s.trim(); }).filter(function (s) { return s; });
+    var added = 0;
+    vals.forEach(function (v) { if (dims[i].options.indexOf(v) === -1) { dims[i].options.push(v); added++; } });
+    if (!added && vals.length) toast('这个选项已经有了');
+    smVarRenderRows(card);
   }
   window.smDimRead = function (card) {
-    var out = [];
-    Array.prototype.forEach.call(card.querySelectorAll('.sm-dim-panel .sm-dim-name'), function (inp) {
-      var i = parseInt(inp.getAttribute('data-d'), 10);
-      var nm = (inp.value || '').trim();
-      var optEl = card.querySelector('.sm-dim-panel .sm-dim-opts[data-d="' + i + '"]');
-      var opts = (optEl ? optEl.value : '').split(/[,，、\/]/).map(function (x) { return x.trim(); }).filter(function (x) { return x; });
-      if (nm && opts.length) out.push({ name: nm, options: opts });
-    });
-    return out;
+    smDimsSync(card);
+    return smDimsOf(card).filter(function (d) { return d.name && d.options.length; })
+      .map(function (d) { return { name: d.name, options: d.options.slice() }; });
   };
   window.smDimGenerate = function (card) {
     var dims = window.smDimRead(card);
@@ -1342,9 +1417,7 @@
       });
       combos = nxt;
     });
-    card.__dimNames = dims.map(function (d) { return d.name; }); // 生成后把维度写回面板，别让输入框清空
-    card.__dimOpts = {};
-    dims.forEach(function (d) { card.__dimOpts[d.name] = d.options.slice(); });
+    card.__mode = 'multi'; // 生成即视为多维模式
     var old = arr(card.__variants);
     var oldByName = {};
     old.forEach(function (v) { if (v && v.name) oldByName[v.name] = v; });
@@ -1426,16 +1499,76 @@
     if (!t2 || !t2.closest) return;
     var gen = t2.closest('.sm-dim-gen');
     if (gen) { var c1 = varCardOf(gen); if (c1) window.smDimGenerate(c1); return; }
+    var modeBtn = t2.closest('.sm-mode-btn');
+    if (modeBtn) { var cm = varCardOf(modeBtn); if (cm) window.smDimSetMode(cm, modeBtn.getAttribute('data-mode')); return; }
+    var dimAdd = t2.closest('.sm-dim-add');
+    if (dimAdd) {
+      var ca = varCardOf(dimAdd); if (!ca) return;
+      smDimsSync(ca);
+      var keep = smDimsOf(ca).filter(function (d) { return d.name || d.options.length; }); // 添维度前先把空行去掉，不然越加越多空行
+      keep.push({ name: '', options: [] });
+      ca.__dims = keep;
+      smVarRenderRows(ca);
+      return;
+    }
+    var dimDel = t2.closest('.sm-dim-del');
+    if (dimDel) {
+      var cd = varCardOf(dimDel); if (!cd) return;
+      var di = parseInt(dimDel.getAttribute('data-d'), 10);
+      smDimsSync(cd); cd.__dims.splice(di, 1);
+      if (!cd.__dims.length) cd.__dims = [{ name: '', options: [] }];
+      smVarRenderRows(cd); toast('维度已删（已生成的规格行还在，可重新生成）');
+      return;
+    }
+    var dimMv = t2.closest('.sm-dim-mv');
+    if (dimMv) {
+      var cv = varCardOf(dimMv); if (!cv) return;
+      var vi = parseInt(dimMv.getAttribute('data-d'), 10), vd = parseInt(dimMv.getAttribute('data-mv'), 10);
+      smDimsSync(cv); var dd = cv.__dims, to = vi + vd;
+      if (to >= 0 && to < dd.length) { var tmp = dd.splice(vi, 1)[0]; dd.splice(to, 0, tmp); smVarRenderRows(cv); }
+      return;
+    }
+    var optAdd = t2.closest('.sm-opt-add');
+    if (optAdd) {
+      var co = varCardOf(optAdd); if (!co) return;
+      var oi = parseInt(optAdd.getAttribute('data-d'), 10);
+      var inp = (co.__block || co).querySelector('.sm-opt-in[data-d="' + oi + '"]');
+      smOptAdd(co, oi, inp ? inp.value : '');
+      return;
+    }
+    var optDel = t2.closest('.sm-opt-del');
+    if (optDel) {
+      var cx = varCardOf(optDel); if (!cx) return;
+      var xi = parseInt(optDel.getAttribute('data-d'), 10), xo = parseInt(optDel.getAttribute('data-o'), 10);
+      smDimsSync(cx); var xd = cx.__dims[xi];
+      if (xd && xd.options[xo] != null) { xd.options.splice(xo, 1); smVarRenderRows(cx); }
+      return;
+    }
+    var optMv = t2.closest('.sm-opt-mv');
+    if (optMv) {
+      var cy = varCardOf(optMv); if (!cy) return;
+      var yi = parseInt(optMv.getAttribute('data-d'), 10), yo = parseInt(optMv.getAttribute('data-o'), 10), ym = parseInt(optMv.getAttribute('data-mv'), 10);
+      smDimsSync(cy); var yd = cy.__dims[yi];
+      if (yd) { var yto = yo + ym; if (yto >= 0 && yto < yd.options.length) { var ytmp = yd.options.splice(yo, 1)[0]; yd.options.splice(yto, 0, ytmp); smVarRenderRows(cy); } }
+      return;
+    }
     var clr = t2.closest('.sm-dim-clear');
     if (clr) {
-      var c2 = varCardOf(clr), panel = c2 && c2.querySelector('.sm-dim-panel');
-      if (panel) { Array.prototype.forEach.call(panel.querySelectorAll('input'), function (i) { i.value = ''; }); }
-      if (c2) { c2.__dimNames = null; c2.__dimOpts = null; }
-      toast('维度已清空（规格列表本身没动）');
+      var c2 = varCardOf(clr);
+      if (c2) { c2.__dims = [{ name: '', options: [] }]; smVarRenderRows(c2); }
+      toast('维度已清空（已生成的规格行没动）');
       return;
     }
     var bc = t2.closest('.yk-barcode-btn');
     if (bc) { window.ykShowBarcode(bc.getAttribute('data-code'), bc.getAttribute('data-title')); return; }
+  });
+  document.addEventListener('keydown', function (e) {
+    var t3 = e.target;
+    if (!t3 || !t3.classList || !t3.classList.contains('sm-opt-in')) return;
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    var ck = varCardOf(t3); if (!ck) return;
+    smOptAdd(ck, parseInt(t3.getAttribute('data-d'), 10), t3.value);
   });
   initSkuSeq();
 
@@ -1743,7 +1876,7 @@
       .then(function (r) {
         if (!r.ok) throw new Error('http');
         toast('重量/规格已保存');
-        if (card.__p) { card.__p.weight_oz = body.weight_oz; card.__p.variants = clean; }
+        if (card.__p) { card.__p.weight_oz = body.weight_oz; card.__p.variants = clean; if (body.sku) card.__p.sku = body.sku; } // 编码要写回内存，不然再保存一次会以为没编码、又发一个新编码
       })
       .catch(function () { toast('重量/规格保存失败'); });
   }
@@ -1770,8 +1903,8 @@
     var card = document.getElementById('tab-shop');
     ADDVAR.list.length = 0;
     card.__variants = ADDVAR.list;
-    card.__dimNames = null;
-    card.__dimOpts = null;
+    card.__dims = null;
+    card.__mode = 'simple';
     smVarRenderRows(card);
   };
   (function () {
@@ -1788,6 +1921,8 @@
       '<div class="sm-var-addfoot"><button type="button" class="btn-mini sm-var-add">＋ 添加规格</button><button type="button" class="btn-mini sm-var-dup">复制上一条</button></div>' +
       '<p class="hint" style="margin:6px 0 0;">每个规格可以传自己的图（与商品主图分开），第一张就是这个选项的封面。</p>';
     form.appendChild(block); // 连续表单里直接接在「商品介绍」后面（保存按钮在 .pf 之外）
+    var host = document.getElementById('tab-shop');
+    if (host) host.__block = block; // 上架表单自己的规格区（tab 里还可能开着商品编辑卡，不能串）
   })();
   (function () {
     var form = document.getElementById('tab-shop');
