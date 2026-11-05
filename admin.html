@@ -730,7 +730,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     body:not(.adm-in) .wrap .adm-head { margin: 0 var(--adm-edge, 40px) 22px; justify-content: center; }
   </style>
   <script src="site-menu.js" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261102B">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261104P">
   <style>
     /* ═══ 她 20261030 §5：后台字体统一加深（三档，仅后台生效）═══
        主要文字 #55464E ｜ 普通正文 #62545B ｜ 辅助文字 #81717A
@@ -806,6 +806,41 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       #newprod-wrap .sm-var-grid > div:nth-child(1),
       #newprod-wrap .sm-var-grid > div:nth-child(2) { grid-column: 1 / -1; }
     }
+  </style>
+  <style id="adm-prod-grid">
+    /* 她 20261104 §二.1：后台商品列表改成和前台小铺一致的卡片网格（不再一条一条横着排） */
+    #product-list { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 16px; align-items: stretch; }
+    @media (max-width: 1280px) { #product-list { grid-template-columns: repeat(3, minmax(0,1fr)); } }
+    @media (max-width: 900px)  { #product-list { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; } }
+    @media (max-width: 480px)  { #product-list { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; } }
+    #product-list > .empty { grid-column: 1 / -1; }
+    #product-list .shop-item {
+      display: flex; flex-direction: column; gap: 10px;
+      background: #fff; border: 1px solid #F3DDE5; border-radius: 16px;
+      box-shadow: 0 2px 14px rgba(255,143,171,.12);
+      padding: 10px; margin: 0; position: relative;
+    }
+    #product-list .shop-item:hover { box-shadow: 0 6px 20px rgba(255,143,171,.20); }
+    #product-list .shop-item .thumb {
+      width: 100%; height: auto; aspect-ratio: 1 / 1; border-radius: 12px;
+      background: var(--card-hover); font-size: 28px;
+    }
+    #product-list .shop-item .info { width: 100%; flex: 1 1 auto; min-width: 0; }
+    #product-list .shop-item .info h3 { font-size: 17px; line-height: 1.35; word-break: break-word; }
+    #product-list .shop-item .info p {
+      font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    #product-list .shop-item .private-line { font-size: 13px; }
+    #product-list .shop-item .actions {
+      justify-content: flex-start; gap: 6px; row-gap: 8px; margin-top: auto;
+      padding-top: 10px; border-top: 1px solid var(--accent-soft, #FCE4EC);
+    }
+    #product-list .shop-item .kebab {
+      top: 16px; right: 16px; width: 28px; height: 30px; font-size: 18px;
+      background: rgba(255,255,255,.92);
+    }
+    /* 编辑中的卡片占满整行：表单不再被左侧缩略图挤窄 */
+    #product-list .shop-item.editing { grid-column: 1 / -1; }
   </style>
 </head>
 <body>
@@ -2197,6 +2232,19 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     SETTINGS['shop_hidden'] = JSON.stringify(list);
     return saveSetting('shop_hidden', list).then(function (r) { if (!r.ok) throw new Error(); });
   }
+  /* 她 20261104 §二.6：是否在首页展示。存 site_settings.shop_home_off = [商品id]；不在名单里 = 展示（默认开）*/
+  function homeOffList() {
+    try { var v = JSON.parse(SETTINGS['shop_home_off'] || '[]'); return Array.isArray(v) ? v.map(String) : []; } catch (e) { return []; }
+  }
+  function isHomeOff(id) { return homeOffList().indexOf(String(id)) !== -1; }
+  function setHomeOff(id, off) {
+    var list = homeOffList();
+    var i = list.indexOf(String(id));
+    if (off && i === -1) list.push(String(id));
+    if (!off && i !== -1) list.splice(i, 1);
+    SETTINGS['shop_home_off'] = JSON.stringify(list);
+    return saveSetting('shop_home_off', list).then(function (r) { if (!r.ok) throw new Error(); });
+  }
   function renderProductFilter() {
     var box = document.getElementById('p-filter-chips');
     if (!box) return;
@@ -2640,6 +2688,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           .catch(function () { return {}; });
       });
   }
+  var EDIT_OPEN_ID = null; // 她 20261104 §二.4：同时只允许一个商品处于编辑态
   function loadProducts() {
     var tryLoad = function (withImages, withCur, noDescEn) {
       var _desc = ',description' + (noDescEn ? '' : ',description_en');
@@ -2667,6 +2716,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       })
       .then(function (rows) {
         var list = document.getElementById('product-list');
+        EDIT_OPEN_ID = null; // 列表重渲 = 已退出编辑态，解锁
         PRODUCT_CACHE = {};
         (rows || []).forEach(function (p) { PRODUCT_CACHE[p.id] = p; });
         refreshTagList(); // 已有商品的标签全部进选项
@@ -2697,6 +2747,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
             '<button class="btn-mini btn-display">' + (p.display_only ? '恢复在售' : '设为仅展示') + '</button>' +
             (vsum == null ? '<button class="btn-mini btn-minus">库存 -1</button><button class="btn-mini btn-plus">库存 +1</button>' : '') +
             '<button class="btn-mini btn-off">' + (off ? '重新上架' : '下架') + '</button>' +
+            '<button class="btn-mini btn-home">' + (isHomeOff(p.id) ? '设为首页展示' : '取消首页展示') + '</button>' +
             '<button class="btn-del btn-del-product">删除</button>' +
             '</div></div>' +
             '<button class="kebab" title="编辑商品">⋮</button>' +
@@ -2728,6 +2779,13 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       api('products?id=eq.' + id, { method: 'PATCH', body: JSON.stringify({ display_only: toDisplay }) })
         .then(function (r) { if (!r.ok) throw new Error(); toast(toDisplay ? '已设为仅展示' : '已恢复在售'); loadProducts(); })
         .catch(function () { toast('操作失败'); });
+    }
+    if (e.target.classList.contains('btn-home')) {
+      var toShow = e.target.textContent === '设为首页展示';
+      setHomeOff(id, !toShow)
+        .then(function () { toast(toShow ? '已设为在首页展示' : '已取消首页展示'); loadProducts(); })
+        .catch(function () { toast('操作失败'); });
+      return;
     }
     if (e.target.classList.contains('btn-minus') || e.target.classList.contains('btn-plus')) {
       var cur = parseInt(card.getAttribute('data-stock'), 10) || 0;
@@ -2765,13 +2823,18 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     if (e.target.classList.contains('kebab')) {
       var p = PRODUCT_CACHE[id];
       if (!p) return;
+      /* 她 20261104 §二.4：同时只允许编辑一个商品（不再整个页面跳来跳去） */
+      if (EDIT_OPEN_ID && EDIT_OPEN_ID !== id) {
+        uiConfirm('请先保存或取消当前商品的编辑，再编辑下一个商品。', function () {}, '知道了');
+        return;
+      }
+      EDIT_OPEN_ID = id;
       var base0 = (Array.isArray(p.images) && p.images.length) ? p.images.filter(Boolean) : (p.image_url ? [p.image_url] : []);
       card.__imgItems = base0.map(function (u) { return { u: u }; }); // 全部图：第一张=封面，可拖动排序
       card.__swapIdx = -1;
       card.__cur = (p.currency === 'CNY') ? 'CNY' : 'USD'; // 编辑中货币（无 currency 数据时默认美元：小铺统一 $）
-      var thumbHtml = p.image_url ? '<img src="' + esc(p.image_url) + '">' : '';
+      card.classList.add('editing');
       card.innerHTML =
-        '<div class="thumb">' + thumbHtml + '</div>' +
         '<div class="info">' +
         productStripHtml(card.__imgItems) +
         '<div class="edit-grid">' +
@@ -7112,18 +7175,18 @@ function loadEmailLog() {
 </script>
 
 
-<script src="js/admin-shop.js?v=20261104E"></script>
-<script src="js/admin-import.js?v=20261031E"></script>
-<script src="js/admin-crm.js?v=20261103A"></script>
-<script src="js/admin-vip.js?v=20261031E" data-legacy="1"></script>
-<script src="js/admin-customer.js?v=20261031E"></script>
-<script src="js/admin-invite.js?v=20261031E"></script>
-<script src="js/vendor/jsQR.js?v=20261031E"></script>
-<script src="js/vendor/qrcode-generator.js?v=20261031E"></script>
-<script src="js/vendor/JsBarcode.all.min.js?v=20261031E"></script>
-<script src="js/admin-workbench.js?v=20261031E"></script>
-<script src="js/admin-biz.js?v=20261102B"></script>
-<script src="js/admin-export.js?v=20261031E"></script>
+<script src="js/admin-shop.js?v=20261104P"></script>
+<script src="js/admin-import.js?v=20261104P"></script>
+<script src="js/admin-crm.js?v=20261104P"></script>
+<script src="js/admin-vip.js?v=20261104P" data-legacy="1"></script>
+<script src="js/admin-customer.js?v=20261104P"></script>
+<script src="js/admin-invite.js?v=20261104P"></script>
+<script src="js/vendor/jsQR.js?v=20261104P"></script>
+<script src="js/vendor/qrcode-generator.js?v=20261104P"></script>
+<script src="js/vendor/JsBarcode.all.min.js?v=20261104P"></script>
+<script src="js/admin-workbench.js?v=20261104P"></script>
+<script src="js/admin-biz.js?v=20261104P"></script>
+<script src="js/admin-export.js?v=20261104P"></script>
 <footer style="padding:18px 0 0; text-align:center;">© 2026 Yuki · Made with Cola</footer>
 <script id="np-mobile-js">
 /* ═══ 她 20261104：手机端「上架新商品」好用化 ═══

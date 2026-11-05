@@ -390,15 +390,9 @@
   function idxBuild() {
     var old = document.getElementById('idx-wrap');
     if (old && old.parentNode) old.parentNode.removeChild(old);
-    if (isHomePage) return; // 手机首页不要这一行（其他页面保留）
-    var page = document.querySelector('.page.active');
-    if (page && curPage !== 'admin') {
-      page.insertBefore(buildWrap(), page.firstChild);
-      return;
-    }
-    var tb = document.querySelector('.topbar'); // shop 等无 .page 容器的页面：挂在 topbar 之后（B3 兼容）
-    if (!tb || curPage === 'admin') return;
-    tb.insertAdjacentElement('afterend', buildWrap());
+    /* 她 20261104 17:33 任务书 §一.4：非首页不要 Index 下拉（连元素一起删，不留空白）
+       所有页面都不再挂载，导航统一走右上角汉堡菜单 */
+    return;
   }
   function idxToggle(force) {
     var m = document.getElementById('idx-menu');

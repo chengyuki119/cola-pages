@@ -273,6 +273,8 @@
      规则：除「定制款」需定做外，其余款式（现货 / 瑕疵贴纸款 / 瑕疵磨具款 / 整套款 / 补价专拍）都是现货，可直接发货 */
   function showStockNotice() {
     if (document.getElementById('stock-notice-mask')) return;
+    /* 她 20261104 17:33 任务书 §二.5：只在第一次进小铺时弹一次，点过就不再打扰 */
+    try { if (sessionStorage.getItem('yk-stock-notice-done') === '1') return; } catch (e) {}
     var wrap = document.createElement('div');
     wrap.id = 'stock-notice-mask';
     wrap.style.cssText = 'position:fixed;inset:0;z-index:99998;background:rgba(85,70,78,.26);display:flex;align-items:center;justify-content:center;padding:18px;';
@@ -289,10 +291,10 @@
           '<li>' + t('<b>整套款、补价专拍</b>：现货，可以马上发出', '<b>Full Set / Custom Payment</b>: in stock, ready to ship') + '</li>' +
           '<li>' + t('<b>定制款</b>：定做款，需要等待制作时间，不是现货', '<b>Customize Style</b>: made to order — needs making time, not in stock') + '</li>' +
         '</ul>' +
-        '<button type="button" id="stock-notice-ok" style="display:block;width:100%;border:1.6px solid #FFD1E0;background:#FCE1EA;color:#A98D96;font-family:inherit;font-size:16px;padding:10px 0;border-radius:999px;cursor:pointer;transition:background .2s;">' + t('知道啦 ♡', 'Got it ♡') + '</button>' +
+        '<button type="button" id="stock-notice-ok" style="display:block;width:100%;border:1.6px solid #EFB0C5;background:#F5BFD1;color:#55464E;font-family:inherit;font-size:16px;font-weight:600;padding:11px 0;border-radius:999px;cursor:pointer;transition:background .2s;">' + t('知道啦 ♡', 'Got it ♡') + '</button>' +
       '</div>';
     document.body.appendChild(wrap);
-    function close() { if (wrap.parentNode) wrap.parentNode.removeChild(wrap); }
+    function close() { try { sessionStorage.setItem('yk-stock-notice-done', '1'); } catch (e) {} if (wrap.parentNode) wrap.parentNode.removeChild(wrap); }
     wrap.addEventListener('click', function (e) { if (e.target === wrap) close(); });
     var x = document.getElementById('stock-notice-x'), ok = document.getElementById('stock-notice-ok');
     if (x) x.addEventListener('click', close);
@@ -370,10 +372,15 @@
           '<button type="button" class="fav-btn detail-fav' + (isFav(p.id) ? ' on' : '') + '" data-fav="' + escAttr(p.id) + '" aria-label="' + t('收藏', 'Favorite') + '" style="margin-left:auto;">' + svgHeart(isFav(p.id)) + '</button>' +
         '</div>' +
         '<div class="d-price">' +
-          '<div id="d-price-num" style="font-size:26px;color:var(--price,#ff6fa5);font-weight:700;margin:10px 0;">' + sym(curOf(p, v)) + money(price) + (!v && rng && rng.max > rng.min ? t(' 起', '+') : '') + '</div>' +
+          '<div id="d-price-num" style="font-size:26px;color:var(--price,#ff6fa5);font-weight:700;margin:10px 0;">' + (isRefPrice(p) ? t('参考价 ', 'Ref. ') : '') + sym(curOf(p, v)) + money(price) + (!v && rng && rng.max > rng.min ? t(' 起', '+') : '') + '</div>' +
           '<div id="d-sku-line" style="font-size:15px;color:var(--muted);margin-bottom:6px;' + (skuText ? '' : 'display:none;') + '">' + (skuText ? t('规格', 'Option') + ': ' + esc(v && v.name ? v.name : skuText) : '') + '</div>' +
         '</div>' +
-        '<div class="d-desc"><p style="color:var(--muted);font-size:17px;line-height:1.8;margin:12px 0;white-space:pre-line;">' + escBr((window.LANG === 'en' && p.description_en) ? p.description_en : (p.description || '')) + '</p></div>' +
+        (needContactType(p) ? '<div class="d-contact card" style="padding:12px 14px;margin:12px 0 0;background:var(--bg,#FFFBFC);border:1.5px solid var(--accent-soft,#FCE4EC);border-radius:16px;">' +
+          '<p style="font-size:15px;line-height:1.7;color:var(--text,#62545B);margin:0;">' + t('请联系小柚沟通具体需求和价格。', 'Please contact Yuki to discuss your custom requirements and pricing.') + '</p></div>' : '') +
+        (function () { var k = typeKey(p); if (!k || !TYPE_NOTE[k]) return ''; return '<div class="d-type card" style="padding:12px 14px;margin:12px 0 0;background:var(--bg,#FFFBFC);border:1.5px solid var(--accent-soft,#FCE4EC);border-radius:16px;"><b style="font-size:15px;">' + t('商品类型 ♡', 'Product Type ♡') + '</b><p style="font-size:15px;line-height:1.7;color:var(--text,#62545B);margin:6px 0 0;">' + t(TYPE_NOTE[k][0], TYPE_NOTE[k][1]) + '</p></div>'; })() +
+        '<div class="d-desc card" style="padding:12px 14px;margin:12px 0 0;background:var(--bg,#FFFBFC);border:1.5px solid var(--accent-soft,#FCE4EC);border-radius:16px;">' +
+          '<b style="font-size:15px;">' + t('商品详情 ♡', 'Product Description ♡') + '</b>' +
+          '<p style="color:var(--muted);font-size:16px;line-height:1.8;margin:6px 0 0;white-space:pre-line;">' + escBr((window.LANG === 'en' && p.description_en) ? p.description_en : (p.description || '')) + '</p></div>' +
         (vs ?
           '<div class="d-variants" style="margin:10px 0;"><div style="font-size:16px;margin-bottom:6px;">' + t('规格', 'Option') + '</div><div id="d-variants" style="display:flex;gap:8px;flex-wrap:wrap;">' +
           vs.map(function (x) {
@@ -381,7 +388,7 @@
             return '<button type="button" class="sku-chip' + (varKey(x) === d.sku ? ' on' : '') + (out ? ' dis' : '') + '" data-sku="' + escAttr(varKey(x)) + '">' + esc(x.name || x.sku) + (out ? ' · ' + t('缺货', 'Out') : '') + '</button>';
           }).join('') + '</div></div>' : '') +
         (st === 'on' ?
-          '<div class="d-notice card" style="padding:12px 14px;margin:12px 0 0;background:var(--bg,#FFFBFC);border:1.5px solid var(--accent-soft,#FCE4EC);">' +
+          '<div class="d-notice card" style="padding:12px 14px;margin:12px 0 0;background:var(--bg,#FFFBFC);border:1.5px solid var(--accent-soft,#FCE4EC);border-radius:16px;">' +
             '<b style="font-size:15px;">' + t('购买须知 ♡', 'Before You Order ♡') + '</b>' +
             '<p style="font-size:14px;color:var(--muted);margin:6px 0 0;line-height:1.7;">' +
               t('下单前请仔细阅读商品描述与图片。手工制品与键帽可能存在轻微瑕疵或正常工艺差异，与描述一致的轻微差异不构成退款理由。详细规则见', 'Please review the description and photos carefully. Handmade items and keycaps may have minor imperfections or variations; minor variations consistent with the description are not grounds for refund. See our ') +
@@ -408,6 +415,31 @@
     return el;
   }
   function escAttr(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+  /* 她 20261104 §六.2：定制款 / 整套款 / 补拍专拍需要提示先联系小柚（按中英文名称判定，标签空了也能认） */
+  function needContactType(p) {
+    var s = String((p && (p.name || '')) + ' ' + (p && (p.name_en || '')) + ' ' + (p && (p.tag || ''))).toLowerCase();
+    return /定制|custom|整套|full\s*set|补价|补拍|专拍|special\s*payment|extra\s*payment/.test(s);
+  }
+  // 她 20261104 §六.1/§六.3：商品类型 → 说明文案 + 参考价标记
+  function typeKey(p) {
+    var s = String((p && (p.name || '')) + ' ' + (p && (p.name_en || '')) + ' ' + (p && (p.category || '')) + ' ' + (p && (p.tag || ''))).toLowerCase();
+    if (/贴纸.*瑕疵|瑕疵.*贴纸|sticker\s*defect|imperfect\s*sticker/.test(s)) return 'sticker';
+    if (/模具.*瑕疵|磨具.*瑕疵|瑕疵.*模[具具]|mold\s*defect|imperfect\s*mold/.test(s)) return 'mold';
+    if (/补价|补拍|专拍|price\s*adjust|special\s*payment|extra\s*payment/.test(s)) return 'pay';
+    if (/整套|full\s*set/.test(s)) return 'set';
+    if (/定制|custom/.test(s)) return 'custom';
+    if (/现货|in\s*stock|available\s*now/.test(s)) return 'stock';
+    return '';
+  }
+  var TYPE_NOTE = {
+    stock: ['现货款：没有瑕疵，有实际库存，可以直接购买，能马上安排发货。', 'In stock: no defects, real stock available — you can buy it now and it ships right away.'],
+    sticker: ['贴纸瑕疵款：有现货，可以马上发货；贴纸存在轻微瑕疵。', 'Sticker defect: in stock and ready to ship, with slight sticker imperfections.'],
+    mold: ['模具瑕疵款：有现货，可以马上发货；模具存在轻微瑕疵。', 'Mold defect: in stock and ready to ship, with slight mold imperfections.'],
+    custom: ['定制款：这里展示的只是参考价，需要先联系小柚沟通具体需求和价格，不会直接发货。', 'Made to order: the price shown is for reference only. Please contact Yuki to discuss your requirements — it will not ship directly.'],
+    set: ['整套款：价格仅供参考，需要联系小柚确认；如果已标注现货并配了实际商品图片，则可以直接购买和发货。', 'Full set: the price is for reference. Please confirm with Yuki first; if it is marked in stock with real product photos, it can be purchased and shipped directly.'],
+    pay: ['补拍专拍：用于补差价、补拍和额外定制费用，基础价格为 $1，不是普通现货商品。', 'Special payment: for price differences, top-ups and extra custom fees. The base price is $1 — not a regular in-stock item.']
+  };
+  function isRefPrice(p) { var k = typeKey(p); return k === 'custom' || k === 'set'; }
   // 键帽类商品判定：名称/描述/标签含「键帽」或 keycap（不把树脂说明套到不相关商品）
   function isKeycapProduct(p) {
     if (!p) return false;
@@ -653,6 +685,29 @@
     placeOrder([{ id: g.product_id, sku: g.variant_sku || '', qty: 1 }], null, '', '', g.id);
   }
 
+  /* 她 20261104 §七.2：Place Order 后的提示弹窗（原文按任务书，不要改写） */
+  function showOrderThanks(after) {
+    if (document.getElementById('order-thanks-mask')) return;
+    var wrap = document.createElement('div');
+    wrap.id = 'order-thanks-mask';
+    wrap.style.cssText = 'position:fixed;inset:0;z-index:99998;background:rgba(85,70,78,.26);display:flex;align-items:center;justify-content:center;padding:18px;';
+    wrap.innerHTML =
+      '<div role="dialog" aria-modal="true" aria-labelledby="order-thanks-title" style="width:100%;max-width:460px;max-height:82vh;overflow:auto;background:#FFFBFC;border:1.6px solid #FFD1E0;border-radius:18px;padding:20px 22px 18px;box-shadow:0 12px 40px rgba(169,141,150,.22);">' +
+        '<b id="order-thanks-title" style="display:block;font-size:19px;color:#55464E;font-weight:700;margin-bottom:10px;">' + t('下单成功 ♡', 'Order placed ♡') + '</b>' +
+        '<p style="font-size:15px;line-height:1.85;color:#62545B;margin:0 0 16px;">' +
+          t('感谢您的下单！目前网站还未开放在线付款功能。您可以选择到指定地点自取，或通过 Zelle / Venmo 直接转账。订单确认后，我会根据实际情况为您安排发货。运费将按照实际邮寄费用计算，确认订单后会告知您最终金额。感谢您的理解与支持！',
+            'Thank you for your order! Online payments are not available yet. You can choose local pickup or pay directly via Zelle / Venmo. Once your order is confirmed, I will arrange shipping for you. Shipping fees will be calculated based on the actual postage cost and confirmed with you before shipping. Thank you for your support!') +
+        '</p>' +
+        '<button type="button" id="order-thanks-ok" style="display:block;width:100%;border:1.6px solid #EFB0C5;background:#F5BFD1;color:#55464E;font-family:inherit;font-size:16px;font-weight:600;padding:11px 0;border-radius:999px;cursor:pointer;">' + t('知道啦 ♡', 'Got it ♡') + '</button>' +
+      '</div>';
+    document.body.appendChild(wrap);
+    function close() {
+      if (wrap.parentNode) wrap.parentNode.removeChild(wrap);
+      if (typeof after === 'function') after();
+    }
+    wrap.addEventListener('click', function (e) { if (e.target === wrap) close(); });
+    document.getElementById('order-thanks-ok').addEventListener('click', close);
+  }
   // ===== 结算 / 下单 =====
   var ADDR = [];
   function loadAddr() {
@@ -681,9 +736,9 @@
       var ids = items.map(function (x) { return cartKey(x.id, x.sku); });
       CART = CART.filter(function (x) { return ids.indexOf(cartKey(x.id, x.sku)) === -1; });
       saveCart();
-      toast(t('下单成功！', 'Order placed!'));
       if (groupId) sessionStorage.setItem('yuki-join-group', groupId);
-      openOrders(res.data.order_id);
+      /* 她 20261104 §七.2：下单后弹一段说明（暂不接在线支付），点完再看订单 */
+      showOrderThanks(function () { openOrders(res.data.order_id); });
     });
   }
   // 运费估算（Pirate Ship 口径：USPS Ground Advantage 商业费率近似）
@@ -758,7 +813,7 @@
         '</div>' +
         '<div class="card" style="padding:18px;"><div style="display:flex;justify-content:space-between;font-size:19px;"><b>' + t('预估合计', 'Estimated total') + '</b><b id="ck-total" style="color:var(--price,#ff6fa5);">' + sym(cur) + money(sub + est + fee) + '</b></div>' +
           '<p style="font-size:14px;color:var(--muted);margin-top:4px;">' + t('以服务端验证后的金额为准；实际运费由后台确认后更新。', 'Final amount is validated server-side; shipping updates once confirmed.') + '</p>' +
-          '<button class="buy-btn" id="ck-submit" style="width:100%;margin-top:12px;padding:12px;background:#FCE1EA;color:#A98D96;font-size:18px;">' + t('提交订单', 'Place order') + '</button>' +
+          '<button class="buy-btn" id="ck-submit" style="width:100%;margin-top:12px;padding:12px;background:#F5BFD1;border:1.6px solid #EFB0C5;color:#55464E;font-size:18px;font-weight:600;">' + t('提交订单', 'Place order') + '</button>' +
         '</div>';
       paintAddrPicker();
       window.__ckUpdateShip = updateShip;
@@ -1526,7 +1581,7 @@
       }).join('') +
       '<div class="card" style="padding:14px;display:flex;justify-content:space-between;align-items:center;">' +
         '<span style="font-size:17px;">' + t('已选小计', 'Selected subtotal') + '</span><b style="font-size:20px;color:var(--price,#ff6fa5);">' + sym(subCur) + money(sub) + '</b></div>' +
-      '<button class="buy-btn" id="cart-go" style="width:100%;margin-top:12px;padding:12px;background:#FCE1EA;color:#A98D96;font-size:18px;font-weight:600;">' + t('去结算', 'Check out') + '</button>';
+      '<button class="buy-btn" id="cart-go" style="width:100%;margin-top:12px;padding:12px;background:#F5BFD1;border:1.6px solid #EFB0C5;color:#55464E;font-size:18px;font-weight:600;">' + t('去结算', 'Check out') + '</button>';
     box.querySelectorAll('.ck-box').forEach(function (el) { el.addEventListener('click', function () {
       var x = CART[+el.getAttribute('data-i')]; x.checked = x.checked === false; saveCart(); renderCart();
     }); });

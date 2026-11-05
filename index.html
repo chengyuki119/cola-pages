@@ -20,7 +20,7 @@
     <link rel="preload" href="/fonts/Millo-RiceSoyMilk80.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/fonts/Millo-RiceSoyMilk90.woff2" as="font" type="font/woff2" crossorigin>
 <meta charset="UTF-8">
-  <script src="/js/lang-path.js?v=20261103G"></script>
+  <script src="/js/lang-path.js?v=20261104P"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>小柚的小世界</title>
 <link rel="manifest" href="/manifest.json">
@@ -36,10 +36,10 @@
 <meta name="twitter:title" content="小柚的小世界">
 <meta name="twitter:description" content="欢迎来到小柚的小世界">
 <meta name="twitter:image" content="https://yukicheng.com/og-image.jpg">
-<link rel="stylesheet" href="/css/site.css?v=20261103G">
-  <link rel="stylesheet" href="/site-menu.css?v=20261031E">
+<link rel="stylesheet" href="/css/site.css?v=20261104P">
+  <link rel="stylesheet" href="/site-menu.css?v=20261104P">
     <script src="/site-menu.js" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261102B">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261104P">
   <!-- 她 20261104：英文版手机端「重要日子明细」固定两行（分类 / 重复+周年），中文版不动 -->
   <style id="en-cal-sub-2lines">
     html[lang="en"] .cal-dayview-item .dv-sub .dv-b::before { content: '· '; }
@@ -184,7 +184,7 @@
 <div id="share-pop"></div>
 
 
-<script src="/js/site-common.js?v=20261103R"></script>
+<script src="/js/site-common.js?v=20261104P"></script>
 
 <!-- ═══════════ 小柚助手（AI 入口 · 第一阶段测试：模拟回复 + 后台知识库匹配，未接真 AI）═══════════ -->
 <style>
@@ -745,7 +745,7 @@
         chGrid.innerHTML = '<p style="color:var(--muted);text-align:center;padding:30px 0;font-size:17px;">' + t('还没有色卡，去后台「色卡管理」新建吧', 'No color cards yet — add one in the admin panel') + '</p>';
       } else if (!showCards.length) {
         chGrid.style.display = 'block';
-        chGrid.innerHTML = '<p style="color:var(--muted);text-align:center;padding:30px 0;font-size:17px;">' + (LANG === 'en' ? 'No color cards to show yet' : '暂无展示中的色卡') + '</p>'';
+        chGrid.innerHTML = '<p style="color:var(--muted);text-align:center;padding:30px 0;font-size:17px;">' + (LANG === 'en' ? 'No color cards to show yet' : '暂无展示中的色卡') + '</p>';
       } else {
         chGrid.style.display = 'grid';
         /* 色卡预览固定 4 列（CSS 硬编码） */
@@ -1443,6 +1443,13 @@
 // ═══ 首页小铺：展示 4 件真实商品（与商城同一套上下架规则；下架/删除的不出现；不显示成本）═══
 (function () {
   var HIDE = [];
+  var HOME_OFF = []; // 她 20261104 §二.6：「是否在首页展示」= 存 site_settings.shop_home_off（不在名单 = 展示）
+  function loadHomeOff() {
+    return fetch(DB_BASE + 'site_settings?select=value&key=eq.shop_home_off', { headers: DB_HEADERS })
+      .then(function (r) { return r.ok ? r.json() : []; }).then(function (rows) {
+        try { var v = JSON.parse((rows && rows[0] && rows[0].value) || '[]'); HOME_OFF = Array.isArray(v) ? v.map(String) : []; } catch (e) { HOME_OFF = []; }
+      }).catch(function () { HOME_OFF = []; });
+  }
   function loadHidden() {
     return fetch(DB_BASE + 'site_settings?select=value&key=eq.shop_hidden', { headers: DB_HEADERS })
       .then(function (r) { return r.ok ? r.json() : []; }).then(function (rows) {
@@ -1505,15 +1512,18 @@
     var card = e.target.closest('.hs-card');
     if (card && card.getAttribute('data-href')) location.href = card.getAttribute('data-href');
   });
-  loadHidden().then(fetchProducts).then(function (rows) {
+  Promise.all([loadHidden(), loadHomeOff()]).then(fetchProducts).then(function (rows) {
     if (!grid) return;
-    var list = (rows || []).filter(function (p) { return HIDE.indexOf(String(p.id)) === -1; }).slice(0, 3);
+    var list = (rows || []).filter(function (p) {
+      var pid = String(p.id);
+      return HIDE.indexOf(pid) === -1 && HOME_OFF.indexOf(pid) === -1;
+    });
     if (!list.length) return; // 没有可展示的商品：只保留原入口卡，不放假数据
     grid.innerHTML = list.map(cardHtml).join('');
   });
 })();
 </script>
-<script src="/js/site-footer.js?v=20261103F"></script>
+<script src="/js/site-footer.js?v=20261104P"></script>
 <script>
   // 统一 Footer（已有 <footer> 则替换其内容，不新建第二个）
   function initSiteFooter() { renderSiteFooter(); }

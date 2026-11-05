@@ -745,3 +745,28 @@ textarea {
   background-color: var(--btn-bg-a) !important;
   color: var(--btn-fg-a) !important;
 }
+
+/* ═══ 她 20261104 §七.1：Back to Home / Back to Shop 太浅，加深（只动这两个返回按钮，尺寸不变）═══ */
+.back-link {
+  background-color: #F5BFD1 !important;
+  border-color: #EFB0C5 !important;
+  color: #55464E !important;
+}
+.back-link:hover {
+  background-color: #EFB0C5 !important;
+  color: #55464E !important;
+}
+.back-link:active {
+  background-color: #E9A8BE !important;
+  color: #55464E !important;
+}
+
+/* ═══ 她 20261104 §七.1：购物车 Checkout / 结账 Place Order 按钮太浅，加深 ═══ */
+#cart-go, #ck-submit {
+  background-color: #F5BFD1 !important;
+  border: 1.6px solid #EFB0C5 !important;
+  color: #55464E !important;
+  font-weight: 600 !important;
+}
+#cart-go:hover, #ck-submit:hover { background-color: #EFB0C5 !important; }
+#cart-go:active, #ck-submit:active { background-color: #E9A8BE !important; }

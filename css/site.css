@@ -410,8 +410,8 @@
   .cal-day { position: relative; padding: 6px 0; border-radius: 8px; }
   .cal-day.dim { color: var(--muted,#A88E9B); }
   .cal-day.today { background: var(--accent-soft); color: var(--accent-strong); font-weight: 700; }
-  .cal-day .dots { position: absolute; left: 50%; transform: translateX(-50%); bottom: 1px; display: flex; gap: 2px; align-items: center; }
-  .cal-day .dots i { width: 4px; height: 4px; border-radius: 50%; display: block; }
+  .cal-day .dots { position: absolute; left: 50%; transform: translateX(-50%); bottom: 1px; display: flex; gap: 3px; align-items: center; }
+  .cal-day .dots i { width: 4px; height: 4px; border-radius: 50%; display: block; margin-right: 1px; }
   .cal-day .dots em { font-style: normal; font-size:12px; line-height: 1; color: var(--muted); }
   .cal-date-big { font-size: 17px; font-weight: 700; white-space: nowrap; }
   .cal-side-sub { font-size: 17px; color: var(--text); margin: 12px 0 4px; font-weight: 700; }
@@ -429,6 +429,8 @@
   .cal-dayview-item b { font-size:17px; display: block; }
   .cal-dayview-item .dv-sub { font-size:15px; color: var(--muted); margin-top: 2px; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
   .cal-dayview-item .dv-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+  /* 20261104 §二.7：圆点标记与旁边的分类文字粘在一起 —— 给这一组加间距 */
+  .cal-dayview-item .dv-a { display: inline-flex; align-items: center; gap: 6px; }
   .cal-day { cursor: pointer; }
   .cal-day:not(.dim):hover { background: var(--card-hover); }
   .cal-day.today:hover { background: var(--accent-soft); }
