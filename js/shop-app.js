@@ -1026,6 +1026,46 @@
     shipped: ['已发货', 'Shipped', '#7fb8e8'], completed: ['已完成', 'Completed', 'var(--success,#5FA777)'],
     cancelled: ['已取消', 'Cancelled', '#c4bcb6'], refunding: ['退款处理中', 'Refund processing', 'var(--warning,#E0A458)'], refunded: ['已退款', 'Refunded', '#c4bcb6']
   };
+  /* 20261104 22:30 她要求：付款被她确认后，给用户一个粉色「付款成功」通知。
+     只在「已付款 / 已发货 / 已完成」这三个已经确认收款的状态弹；
+     待付款、待审核（凭证已交未确认）、凭证有误、已取消、退款中、已退款一律不弹。
+     只弹一次（localStorage 按订单号记），不改订单状态、不改付款流程、不写数据库。 */
+  var PAID_OK = { paid: 1, shipped: 1, completed: 1 };
+  function paidNoticeSeen(id) {
+    try { return localStorage.getItem('yk-paid-notice:' + id) === '1'; } catch (e) { return false; }
+  }
+  function paidNoticeMark(ids) {
+    try { ids.forEach(function (id) { localStorage.setItem('yk-paid-notice:' + id, '1'); }); } catch (e) {}
+  }
+  function showPaidNotice(o) {
+    var old = document.getElementById('paid-notice-mask');
+    if (old && old.parentNode) old.parentNode.removeChild(old);
+    var wrap = document.createElement('div');
+    wrap.id = 'paid-notice-mask';
+    wrap.style.cssText = 'position:fixed;inset:0;z-index:99998;background:rgba(85,70,78,.26);display:flex;align-items:center;justify-content:center;padding:18px;';
+    wrap.innerHTML =
+      '<div role="dialog" aria-modal="true" aria-labelledby="paid-notice-title" style="width:100%;max-width:400px;background:#FFFBFC;border:1.6px solid #FFD1E0;border-radius:18px;padding:22px 22px 18px;box-shadow:0 12px 40px rgba(169,141,150,.22);text-align:center;">' +
+        '<div aria-hidden="true" style="font-size:26px;line-height:1;color:#F2A9C4;margin-bottom:10px;">♡</div>' +
+        '<b id="paid-notice-title" style="display:block;font-size:19px;color:#55464E;font-weight:700;margin-bottom:8px;">' + t('付款成功！谢谢你的购买 ♡', 'Payment received! Thank you ♡') + '</b>' +
+        '<p style="font-size:14px;line-height:1.9;color:#62545B;margin:0 0 16px;">' + esc(o.order_no || '') + ' · ' + sym(o.currency) + money(o.total) +
+          '<br>' + t('我会尽快安排发货，有进展会在「我的订单」里更新～', 'I will ship it soon — updates appear in My Orders~') + '</p>' +
+        '<button type="button" id="paid-notice-ok" style="display:block;width:100%;border:1.6px solid #EFB0C5;background:#F5BFD1;color:#55464E;font-family:inherit;font-size:16px;font-weight:600;padding:11px 0;border-radius:999px;cursor:pointer;">' + t('知道啦 ♡', 'Got it ♡') + '</button>' +
+      '</div>';
+    document.body.appendChild(wrap);
+    function close() { if (wrap.parentNode) wrap.parentNode.removeChild(wrap); }
+    wrap.addEventListener('click', function (e) { if (e.target === wrap) close(); });
+    wrap.querySelector('#paid-notice-ok').addEventListener('click', close);
+  }
+  /* 一批订单里找「已确认付款但还没通知过」的，弹一条就够，剩下的同时记为已通知（不补弹旧单） */
+  function checkPaidNotice(rows) {
+    if (!rows || !rows.length) return;
+    var confirmed = rows.filter(function (o) { return PAID_OK[o.status] && !paidNoticeSeen(o.id); });
+    if (!confirmed.length) return;
+    confirmed.sort(function (a, b) { return new Date(b.created_at || 0) - new Date(a.created_at || 0); });
+    paidNoticeMark(confirmed.map(function (o) { return o.id; }));
+    showPaidNotice(confirmed[0]);
+  }
+
   function trackUrlOf(carrier, no) {
     if (!no) return '';
     if (/ups/i.test(carrier)) return 'https://www.ups.com/track?tracknum=' + encodeURIComponent(no);
@@ -1047,6 +1087,7 @@
     box.innerHTML = '<h2 style="font-size:24px;margin-bottom:14px;">' + t('我的订单', 'My Orders') + '</h2><p style="color:var(--muted);text-align:center;">' + t('加载中…', 'Loading…') + '</p>';
     api('shop_orders?select=*&status=neq.deleted&order=created_at.desc&limit=50').then(function (r) { return r.json(); }).then(function (rows) {
       rows = rows || [];
+      checkPaidNotice(rows);
       if (!rows.length) { box.innerHTML += '<p style="color:var(--muted);text-align:center;padding:30px 0;">' + t('还没有订单，去小铺逛逛吧～', 'No orders yet — go shopping~') + '</p>'; return; }
       box.innerHTML = '<h2 style="font-size:24px;margin-bottom:14px;">' + t('我的订单', 'My Orders') + '</h2>' +
         '<div id="order-list">' + rows.map(function (o) { return orderCard(o); }).join('') + '</div>';
