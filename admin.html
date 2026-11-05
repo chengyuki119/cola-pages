@@ -878,6 +878,10 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     }
     #product-list .shop-item .card-menu .mi:hover { background: #FCE1EA; }
     #product-list .shop-item .card-menu .mi:active { background: #F8D3E2; }
+    /* 删除：红字 + 与普通操作分隔（她 21:55 §三）；颜色用后台现成的柔和危险色 #D96570（与 .btn-del 一致） */
+    #product-list .shop-item .card-menu .mi.btn-del-product { color: var(--danger, #D96570); }
+    #product-list .shop-item .card-menu .mi.btn-del-product:hover { background: #FBE3E6; }
+    #product-list .shop-item .card-menu .mi.btn-del-product:active { background: #F6D0D8; }
     #product-list .shop-item .card-menu .mi:disabled { color: #B9A5AE; background: #F8F0F3; cursor: default; }
     #product-list .shop-item .card-menu .sep { height: 1px; background: #F7EAEF; margin: 4px 2px; }
     #product-list .shop-item .card-menu .mi-row {
@@ -2283,13 +2287,33 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     try { var v = JSON.parse(SETTINGS['shop_hidden'] || '[]'); return Array.isArray(v) ? v.map(String) : []; } catch (e) { return []; }
   }
   function isShopHidden(id) { return shopHiddenList().indexOf(String(id)) !== -1; }
+  /* 20261104 21:55 §四：设置写入也要拿回真实结果（值写进去且读回来一致）才算成功；
+     失败时不动内存缓存，避免页面显示和库里不一样。 */
+  function saveSettingVerified(key, obj) {
+    return api('site_settings', {
+      method: 'POST',
+      headers: { 'Prefer': 'resolution=merge-duplicates,return=representation' },
+      body: JSON.stringify({ key: key, value: JSON.stringify(obj) })
+    }).then(function (r) {
+      if (!r.ok) return false;
+      return r.json().then(function (rows) {
+        var row = rows && rows[0];
+        if (!row) return false;
+        var got = row.value;
+        try { got = typeof got === 'string' ? JSON.parse(got) : got; } catch (e) { return false; }
+        return JSON.stringify(got) === JSON.stringify(obj);
+      }).catch(function () { return false; });
+    }).catch(function () { return false; });
+  }
   function setShopHidden(id, hidden) {
     var list = shopHiddenList();
     var i = list.indexOf(String(id));
     if (hidden && i === -1) list.push(String(id));
     if (!hidden && i !== -1) list.splice(i, 1);
-    SETTINGS['shop_hidden'] = JSON.stringify(list);
-    return saveSetting('shop_hidden', list).then(function (r) { if (!r.ok) throw new Error(); });
+    return saveSettingVerified('shop_hidden', list).then(function (ok) {
+      if (!ok) throw new Error();
+      SETTINGS['shop_hidden'] = JSON.stringify(list); // 写成功了才同步内存
+    });
   }
   /* 她 20261104 §二.6：是否在首页展示。存 site_settings.shop_home_off = [商品id]；不在名单里 = 展示（默认开）*/
   function homeOffList() {
@@ -2301,8 +2325,10 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     var i = list.indexOf(String(id));
     if (off && i === -1) list.push(String(id));
     if (!off && i !== -1) list.splice(i, 1);
-    SETTINGS['shop_home_off'] = JSON.stringify(list);
-    return saveSetting('shop_home_off', list).then(function (r) { if (!r.ok) throw new Error(); });
+    return saveSettingVerified('shop_home_off', list).then(function (ok) {
+      if (!ok) throw new Error();
+      SETTINGS['shop_home_off'] = JSON.stringify(list); // 写成功了才同步内存
+    });
   }
   function renderProductFilter() {
     var box = document.getElementById('p-filter-chips');
@@ -2777,22 +2803,25 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   /* 20261104 21:44 §五.6：写操作必须真的改到行才算成功
      PostgREST 在 RLS 拦下时照样返回 204，光看 r.ok 会把「没写进去」当成功，
      所以带 Prefer: return=representation 拿回受影响行数，0 行 → 当失败处理。 */
-  function apiAffected(path, body) {
-    return api(path + (path.indexOf('?') === -1 ? '?' : '&') + 'select=id', {
+  function apiAffected(path, body, verify) {
+    return api(path + (path.indexOf('?') === -1 ? '?' : '&') + 'select=*', {
       method: 'PATCH',
       headers: { 'Prefer': 'return=representation' },
       body: JSON.stringify(body)
     }).then(function (r) {
       if (!r.ok) return false;
-      return r.json().then(function (rows) { return Array.isArray(rows) && rows.length > 0; })
-        .catch(function () { return false; });
-    });
+      return r.json().then(function (rows) {
+        if (!Array.isArray(rows) || !rows.length) return false;
+        if (typeof verify === 'function') return !!verify(rows[0]); // 字段级复核：读回来的值得跟写进去的一致
+        return true;
+      }).catch(function () { return false; });
+    }).catch(function () { return false; });
   }
   function loadProducts() {
     prodMenuClose(); // 重渲列表前先收起开着的小菜单
     var tryLoad = function (withImages, withCur, noDescEn) {
       var _desc = ',description' + (noDescEn ? '' : ',description_en');
-      var _sel = 'id,name,name_en,cover_zh,cover_en,price,sku' + (withCur ? ',currency' : '') + _desc + ',tag,image_url' + (withImages ? ',images' : '') + ',sold,stock,display_only,created_at&order=created_at.desc&limit=200';
+      var _sel = 'id,name,name_en,cover_zh,cover_en,price,sku' + (withCur ? ',currency' : '') + _desc + ',tag,image_url' + (withImages ? ',images' : '') + ',variants,weight_oz' + ',sold,stock,display_only,created_at&order=created_at.desc&limit=200'; // 20261104 21:55：补上 variants——列表要靠它分辨「有规格/无规格」，规格商品不能直接改总库存
       var _selOld = 'id,name,price,sku,variants,weight_oz' + (withCur ? ',currency' : '') + _desc + ',tag,image_url' + (withImages ? ',images' : '') + ',sold,stock,display_only,created_at&order=created_at.desc&limit=200'; // variants/weight_oz 列已存在，必须带上（规格总库存依赖它）
       return api('products?select=' + _sel).then(function (r) {
         if (r.ok) return r;
@@ -2924,7 +2953,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     if (e.target.classList.contains('btn-display')) {
       var dact = e.target.getAttribute('data-act');
       var toDisplay = dact ? dact === 'display' : e.target.textContent === '设为仅展示';
-      apiAffected('products?id=eq.' + id, { display_only: toDisplay })
+      apiAffected('products?id=eq.' + id, { display_only: toDisplay }, function (row) { return row.display_only === toDisplay; })
         .then(function (ok) { if (!ok) throw new Error(); toast(toDisplay ? '已设为仅展示' : '已恢复在售'); loadProducts(); })
         .catch(function () { toast('操作失败：没有真的改到商品，请重新登录后再试'); });
     }
@@ -2933,15 +2962,39 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       var toShow = hact ? hact === 'home' : e.target.textContent === '设为首页展示';
       setHomeOff(id, !toShow)
         .then(function () { toast(toShow ? '已设为在首页展示' : '已取消首页展示'); loadProducts(); })
-        .catch(function () { toast('操作失败'); });
+        .catch(function () { toast('操作失败：没有真的保存首页展示状态，请重新登录后再试'); });
       return;
     }
     if (e.target.classList.contains('btn-minus') || e.target.classList.contains('btn-plus')) {
-      var cur = parseInt(card.getAttribute('data-stock'), 10) || 0;
-      var next = e.target.classList.contains('btn-plus') ? cur + 1 : Math.max(0, cur - 1);
-      apiAffected('products?id=eq.' + id, { stock: next })
-        .then(function (ok) { if (!ok) throw new Error(); toast('库存已改为 ' + next); loadProducts(); })
-        .catch(function () { toast('操作失败：没有真的改到库存，请重新登录后再试'); });
+      /* 20261104 21:55 §一/§二：
+         有规格的商品，总库存只是规格库存的汇总，不能从卡片上直接加减；
+         无规格的商品：先读最新库存再算，永不低于 0，写完回读核对。 */
+      var plus = e.target.classList.contains('btn-plus');
+      var cached = PRODUCT_CACHE[id];
+      var hasVarInCache = !!(cached && Array.isArray(cached.variants) && cached.variants.length);
+      var VAR_MSG = '这件商品有规格，库存请到「编辑 → 规格」里按规格改';
+      if (hasVarInCache) { toast(VAR_MSG); return; }
+      api('products?select=stock,variants&id=eq.' + id)
+        .then(function (r) { if (!r.ok) throw new Error('READ'); return r.json(); })
+        .then(function (rows) {
+          var row = rows && rows[0];
+          if (!row) throw new Error('READ');
+          if (Array.isArray(row.variants) && row.variants.length) throw new Error('HASVAR');
+          var cur = parseInt(row.stock, 10);
+          if (isNaN(cur)) cur = 0;
+          if (!plus && cur <= 0) throw new Error('ZERO');
+          var next = plus ? cur + 1 : Math.max(0, cur - 1);
+          return apiAffected('products?id=eq.' + id, { stock: next }, function (r2) {
+            return parseInt(r2.stock, 10) === next;
+          }).then(function (ok) { if (!ok) throw new Error('WRITE'); return next; });
+        })
+        .then(function (next) { toast('库存已改为 ' + next); loadProducts(); })
+        .catch(function (err) {
+          var m = err && err.message;
+          if (m === 'HASVAR') toast(VAR_MSG);
+          else if (m === 'ZERO') toast('库存已经是 0 了，不能再减');
+          else toast('操作失败：没有真的改到库存，请重新登录后再试');
+        });
     }
     var pdel = e.target.closest('.ph-del');
     if (pdel) { // 商品照片 ✕ → 删除（删封面时后一张自动顶上成为新封面）
@@ -3116,7 +3169,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       var willHide = oact ? oact === 'hide' : !isShopHidden(id);
       setShopHidden(id, willHide)
         .then(function () { toast(willHide ? '已下架（店里看不到了，随时能上架回来）' : '已重新上架'); loadProducts(); })
-        .catch(function () { toast('操作失败，重试一下'); });
+        .catch(function () { toast('操作失败：没有真的保存下架状态，请重新登录后再试'); });
     }
     if (e.target.classList.contains('btn-del-product')) { // 精确匹配：只认商品卡的删除按钮，不能让「删除此规格」（btn-del sm-var-del）冒泡误触（她 2026-10-25：删规格≠删商品）
       var cachedP = PRODUCT_CACHE[id] || {};
