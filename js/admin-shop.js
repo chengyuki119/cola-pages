@@ -1274,16 +1274,19 @@
   /* 她 20261104 §五：多维度规格（款式 / 尺寸 / 键盘高度）
      维度本身不存在商品列里——直接挂在每个规格对象的 dims 上：{款式:'现货款',尺寸:'1U'}，不动表结构 */
   function smDimNames(card) {
-    if (card.__dimNames) return card.__dimNames;
+    if (card.__dimNames && card.__dimNames.length) return card.__dimNames;
     var keys = [];
     arr(card.__variants).forEach(function (v) {
       if (!v || !v.dims) return;
       Object.keys(v.dims).forEach(function (k) { if (keys.indexOf(k) === -1) keys.push(k); });
     });
+    if (!keys.length) return []; // 新建商品时还没有 dims：不能把空值缓存下来，否则生成完组合面板会变空白
     card.__dimNames = keys.slice(0, 3);
     return card.__dimNames;
   }
   function smDimOptions(card, name) {
+    var typed = card.__dimOpts && card.__dimOpts[name];
+    if (typed && typed.length) return typed.slice(); // 优先用她刚填的选项，改过选项再生成不会被打回旧值
     var out = [];
     arr(card.__variants).forEach(function (v) {
       if (!v || !v.dims || !v.dims[name]) return;
@@ -1339,6 +1342,9 @@
       });
       combos = nxt;
     });
+    card.__dimNames = dims.map(function (d) { return d.name; }); // 生成后把维度写回面板，别让输入框清空
+    card.__dimOpts = {};
+    dims.forEach(function (d) { card.__dimOpts[d.name] = d.options.slice(); });
     var old = arr(card.__variants);
     var oldByName = {};
     old.forEach(function (v) { if (v && v.name) oldByName[v.name] = v; });
@@ -1424,6 +1430,7 @@
     if (clr) {
       var c2 = varCardOf(clr), panel = c2 && c2.querySelector('.sm-dim-panel');
       if (panel) { Array.prototype.forEach.call(panel.querySelectorAll('input'), function (i) { i.value = ''; }); }
+      if (c2) { c2.__dimNames = null; c2.__dimOpts = null; }
       toast('维度已清空（规格列表本身没动）');
       return;
     }
@@ -1757,7 +1764,16 @@
       return { sku: (v.sku || '').trim() || (v.name || '').trim(), name: v.name || '', price: fmtMoney(v.price), stock: parseInt(v.stock, 10) || 0, images: arr(v.images), frozen: v.frozen === true, dims: (v.dims && typeof v.dims === 'object' && Object.keys(v.dims).length) ? v.dims : undefined }; // SKU 留空时自动用规格名，保证下单 RPC 能精确匹配
     });
   };
-  window.smAddVarReset = function () { ADDVAR.list = []; smVarRenderRows(document.getElementById('tab-shop')); };
+  window.smAddVarReset = function () {
+    // 不能重新赋值成新数组：上架成功后表单会调这里，如果换成新数组，card.__variants 还指着旧数组，
+    // 之后填的价格/库存会写进一个没人读的数组，禁用与生成也跟着失效。原地清空并重新挂一次。
+    var card = document.getElementById('tab-shop');
+    ADDVAR.list.length = 0;
+    card.__variants = ADDVAR.list;
+    card.__dimNames = null;
+    card.__dimOpts = null;
+    smVarRenderRows(card);
+  };
   (function () {
     var form = document.querySelector('#tab-shop .pf') || document.querySelector('#tab-shop .card');
     if (!form || document.querySelector('.sm-var-block')) return;

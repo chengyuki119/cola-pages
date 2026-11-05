@@ -658,6 +658,7 @@
     var d = DETAIL, p = d.p, vs = variantsOf(p);
     if (vs && !d.sku) { toast(t('先选一个规格哦', 'Please choose an option first')); return; } // 她 20261103 淘宝式：不选规格不能加购/购买
     var v = vs ? currentVariant(p, d.sku) : null;
+    if (v && (variantStock(v) <= 0 || v.frozen === true)) { toast(t('这个规格缺货啦，选一个有货的吧', 'This option is out of stock')); return; } // 缺货／已禁用的组合再加一道把守
     var price = v ? (v.price != null ? v.price : p.price) : p.price;
     var img = v && Array.isArray(v.images) && v.images.length ? v.images[0] : (Array.isArray(p.images) && p.images.length ? p.images[0] : p.image_url);
     cartAdd({ id: p.id, sku: d.sku, name: p.name + (v ? ' · ' + (v.name || d.sku) : ''), image: img, price: price, currency: curOf(p, v), variantName: v ? (v.name || d.sku) : '', dims: (v && v.dims) ? v.dims : null }, d.qty);
