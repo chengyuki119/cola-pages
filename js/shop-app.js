@@ -17,7 +17,16 @@
   var CURS = { CNY: '¥', USD: '$' };
   function sym(c) { return CURS[c] || '¥'; }
   function curOf(p, v) { var c = (v && v.currency) || (p && p.currency) || 'USD'; return CURS[c] ? c : 'USD'; }
-  function priceHtml(c, v) { return '<small>' + sym(c) + '</small>' + money(v); }
+  function priceHtml(c, v) { // 空价格不能显示成 $0.00（她 20261104 20:34 §六）
+    var n = parseFloat(v);
+    if (v == null || v === '' || isNaN(n)) return '<span style="font-size:15px;color:var(--muted);">' + t('面议', 'Ask for price') + '</span>';
+    return '<small>' + sym(c) + '</small>' + money(v);
+  }
+  function priceText(p, v, rng) {
+    var val = v ? (v.price != null ? v.price : p.price) : (rng ? rng.min : p.price);
+    if (val == null || val === '' || isNaN(parseFloat(val))) return t('面议', 'Ask for price');
+    return sym(curOf(p, v)) + money(val) + (!v && rng && rng.max > rng.min ? t(' 起', '+') : '');
+  }
   function normImg(u) { u = String(u || ''); if (!/^data:/.test(u)) { var mR = u.match(/https?:\/\/[^/]+\.supabase\.co\/storage\/v1\/object\/public\/([^?#]+)/); if (mR) return 'https://img.yukicheng.com/' + mR[1]; var mR2 = u.match(/^\/?storage\/v1\/object\/public\/([^?#]+)/); if (mR2) return 'https://img.yukicheng.com/' + mR2[1]; } return /^(https?:\/\/|data:)/.test(u) ? u : '/' + u.replace(/^\/+/, ''); }
   function t(zh, en) { return (window.LANG === 'en') ? en : zh; }
   function svgHeart(on) { // 收藏按钮：实心/空心 SVG（原 ♥/♡ 字符按「全站去 emoji」改矢量）
@@ -235,8 +244,14 @@
     var all = (Array.isArray(p.variants) && p.variants.length) ? p.variants : null;
     if (!all) return null;
     var live = all.filter(function (v) { return v && v.frozen !== true; });
+    // 她 20261104 20:34 §六：规格里留空的价/库存 = 跟商品走，不再当成 0 元 / 0 库存
+    live.forEach(function (v) {
+      if (v.price == null || v.price === '') v.price = (p.price == null || p.price === '') ? null : p.price;
+      if (v.stock == null || v.stock === '') v.stock = (p.stock == null || p.stock === '') ? null : p.stock;
+    });
     return live.length ? live : null;
   }
+  function hasPrice(p) { return p && p.price != null && p.price !== '' && !isNaN(parseFloat(p.price)); }
   function currentVariant(p, sku) {
     var vs = variantsOf(p);
     if (!vs) return null;
@@ -424,7 +439,10 @@
   function totalStock(p) { // 她 20261102：有规格的商品总库存=全部规格库存相加
     var vs = Array.isArray(p.variants) ? p.variants.filter(function (v) { return v && v.frozen !== true; }) : [];
     if (!vs.length) return null;
-    return vs.reduce(function (a, v) { return a + (parseInt(v.stock, 10) || 0); }, 0);
+    return vs.reduce(function (a, v) {
+      var s = (v.stock == null || v.stock === '') ? (p.stock == null || p.stock === '' ? 0 : (parseInt(p.stock, 10) || 0)) : (parseInt(v.stock, 10) || 0);
+      return a + s;
+    }, 0);
   }
   function detailEl() {
     var d = DETAIL, p = d.p, vs = variantsOf(p), v = vs ? currentVariant(p, d.sku) : null;
@@ -451,7 +469,7 @@
           '<button type="button" class="fav-btn detail-fav' + (isFav(p.id) ? ' on' : '') + '" data-fav="' + escAttr(p.id) + '" aria-label="' + t('收藏', 'Favorite') + '" style="margin-left:auto;">' + svgHeart(isFav(p.id)) + '</button>' +
         '</div>' +
         '<div class="d-price">' +
-          '<div id="d-price-num" style="font-size:26px;color:var(--price,#ff6fa5);font-weight:700;margin:10px 0;">' + (isRefPrice(p) ? t('参考价 ', 'Ref. ') : '') + sym(curOf(p, v)) + money(price) + (!v && rng && rng.max > rng.min ? t(' 起', '+') : '') + '</div>' +
+          '<div id="d-price-num" style="font-size:26px;color:var(--price,#ff6fa5);font-weight:700;margin:10px 0;">' + (isRefPrice(p) ? t('参考价 ', 'Ref. ') : '') + priceText(p, v, rng) + '</div>' +
           '<div id="d-sku-line" style="font-size:15px;color:var(--muted);margin-bottom:6px;' + (skuText ? '' : 'display:none;') + '">' + (skuText ? t('规格', 'Option') + ': ' + esc(v && v.name ? v.name : skuText) : '') + '</div>' +
         '</div>' +
         (needContactType(p) ? '<div class="d-contact card" style="padding:12px 14px;margin:12px 0 0;background:var(--bg,#FFFBFC);border:1.5px solid var(--accent-soft,#FCE4EC);border-radius:16px;">' +
@@ -571,7 +589,7 @@
       });
     }
     var num = document.getElementById('d-price-num');
-    if (num) num.textContent = sym(curOf(p, v)) + money(v ? (v.price != null ? v.price : p.price) : (rng ? rng.min : p.price)) + (!v && rng && rng.max > rng.min ? t(' 起', '+') : '');
+    if (num) num.textContent = (isRefPrice(p) ? t('参考价 ', 'Ref. ') : '') + priceText(p, v, rng);
     var line = document.getElementById('d-sku-line');
     if (line) {
       if (v) { line.style.display = ''; line.innerHTML = t('规格', 'Option') + ': ' + esc(v.name || d.sku); }
@@ -660,6 +678,7 @@
     var v = vs ? currentVariant(p, d.sku) : null;
     if (v && (variantStock(v) <= 0 || v.frozen === true)) { toast(t('这个规格缺货啦，选一个有货的吧', 'This option is out of stock')); return; } // 缺货／已禁用的组合再加一道把守
     var price = v ? (v.price != null ? v.price : p.price) : p.price;
+    if (price == null || price === '' || isNaN(parseFloat(price))) { toast(t('这件还没有定价，先联系小柚确认一下哦', 'This item has no price yet — please contact Yuki first')); return; }
     var img = v && Array.isArray(v.images) && v.images.length ? v.images[0] : (Array.isArray(p.images) && p.images.length ? p.images[0] : p.image_url);
     cartAdd({ id: p.id, sku: d.sku, name: p.name + (v ? ' · ' + (v.name || d.sku) : ''), image: img, price: price, currency: curOf(p, v), variantName: v ? (v.name || d.sku) : '', dims: (v && v.dims) ? v.dims : null }, d.qty);
     toast(t('已加入购物车', 'Added to cart'));
@@ -1763,7 +1782,7 @@
       '</div>' +
       '<h3 style="margin-top:6px;">' + esc(dispName(p)) + '</h3>' +
       '<div class="product-row" style="margin-top:auto;">' +
-      '<span class="price">' + (p.price ? priceHtml(curOf(p), fmtPriceShop(p.price)) : '') + '</span>' +
+      '<span class="price">' + priceHtml(curOf(p), p.price === '' ? null : fmtPriceShop(p.price)) + '</span>' +
       (st === 'on' ? '<button class="buy-btn cart-quick" style="margin-left:auto;">' + t('加入购物车', 'Add to cart') + '</button>' : '<span class="no-buy">' + (st === 'display' ? t('仅展示，不能下单', 'Not for sale') : '') + '</span>') +
       '</div></div></div>';
   }

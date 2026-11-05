@@ -1344,7 +1344,8 @@
     var dims = smDimsOf(card);
     var rows = dims.map(function (d, i) {
       var chips = (d.options || []).map(function (o, k) {
-        return '<span class="sm-opt-chip" style="display:inline-flex;align-items:center;gap:1px;background:#FCE1EA;border:1.5px solid #F2A9C4;border-radius:999px;padding:3px 5px 3px 10px;font-size:14px;color:#55464E;">' + esc(o) +
+        return '<span class="sm-opt-chip" style="display:inline-flex;align-items:center;gap:1px;background:#FCE1EA;border:1.5px solid #F2A9C4;border-radius:999px;padding:3px 5px 3px 10px;font-size:14px;color:#55464E;">' +
+          '<span class="sm-opt-txt" data-d="' + i + '" data-o="' + k + '" title="点一下可以改名（已有的组合跟着改，SKU 不变）" style="cursor:text;">' + esc(o) + '</span>' +
           '<button type="button" class="sm-opt-mv" data-d="' + i + '" data-o="' + k + '" data-mv="-1" title="往前移" style="' + SM_ICON_BTN + '" ' + (k === 0 ? 'disabled' : '') + '>‹</button>' +
           '<button type="button" class="sm-opt-mv" data-d="' + i + '" data-o="' + k + '" data-mv="1" title="往后移" style="' + SM_ICON_BTN + '" ' + (k === d.options.length - 1 ? 'disabled' : '') + '>›</button>' +
           '<button type="button" class="sm-opt-del" data-d="' + i + '" data-o="' + k + '" title="删除这个选项" style="' + SM_ICON_BTN + 'font-size:13px;color:#C4636E;">✕</button>' +
@@ -1371,7 +1372,7 @@
       '<button type="button" class="btn-mini sm-dim-add" style="padding:8px 14px;font-size:14px;">＋ 添加维度</button>' +
       '<button type="button" class="btn-mini sm-dim-gen" style="padding:8px 14px;font-size:14px;">按维度生成组合</button>' +
       '<button type="button" class="btn-mini sm-dim-clear" style="padding:8px 14px;font-size:14px;">清空维度</button>' +
-      '<span style="font-size:13px;color:#81717A;">组合数 = 各维度选项数相乘</span>' +
+      '<span style="font-size:13px;color:#81717A;">组合数 = 各维度选项数相乘 · 点选项文字可以改名</span>' +
       '</div></div>';
     smShowManualAdd(card, false); // 多维模式下组合由生成器管，收起手动加规格
   }
@@ -1391,6 +1392,33 @@
     }
     apply();
   };
+  /* 她 20261104 20:34 §二：改选项名要连带已有组合改名，SKU/价格/库存/图/禁用一律不动 */
+  function smOptRename(card, i, k, raw) {
+    var dims = smDimsOf(card);
+    var d = dims[i];
+    if (!d || d.options[k] == null) return false;
+    smDimsSync(card);
+    var oldVal = d.options[k];
+    var nv = String(raw == null ? '' : raw).trim();
+    if (!nv || nv === oldVal) { smVarRenderRows(card); return false; }
+    if (d.options.indexOf(nv) > -1) { toast('这个选项已经有了'); smVarRenderRows(card); return false; }
+    var dimName = d.name;
+    d.options[k] = nv;
+    var order = dims.map(function (x) { return x.name; });
+    var renamed = 0;
+    arr(card.__variants).forEach(function (v) {
+      if (!v || !v.dims || v.dims[dimName] !== oldVal) return;
+      v.dims[dimName] = nv;
+      var keys = order.filter(function (n) { return v.dims[n] != null; });
+      Object.keys(v.dims).forEach(function (n) { if (keys.indexOf(n) === -1) keys.push(n); });
+      var oldName = v.name;
+      v.name = keys.map(function (n) { return v.dims[n]; }).join(' / ');
+      if (oldName !== v.name) renamed++;
+    });
+    smVarRenderRows(card);
+    toast(renamed ? '已改名，' + renamed + ' 个组合跟着改了，SKU 不变' : '选项已改名');
+    return true;
+  }
   function smOptAdd(card, i, raw) {
     var dims = smDimsOf(card);
     if (!dims[i]) return;
@@ -1419,12 +1447,20 @@
     });
     card.__mode = 'multi'; // 生成即视为多维模式
     var old = arr(card.__variants);
-    var oldByName = {};
-    old.forEach(function (v) { if (v && v.name) oldByName[v.name] = v; });
+    // SKU 保留规则（她 20261104 20:34 §二）：按完整组合匹配，不按行号
+    // ① 组合名一致（忽略空格/大小写） ② 维度值集合一致（维度换顺序也能认）
+    var normName = function (s) { return String(s || '').replace(/\s+/g, ' ').trim().toLowerCase(); };
+    var dimKey = function (o) { return Object.keys(o || {}).sort().map(function (k) { return k + '=' + o[k]; }).join('|'); };
+    var byName = {}, byKey = {};
+    old.forEach(function (v) {
+      if (!v) return;
+      if (v.name) { var nk = normName(v.name); if (!byName[nk]) byName[nk] = v; }
+      if (v.dims) { var dk = dimKey(v.dims); if (!byKey[dk]) byKey[dk] = v; }
+    });
     card.__variants.length = 0;
     combos.forEach(function (c) {
       var nm = dims.map(function (d) { return c[d.name]; }).join(' / ');
-      var prev = oldByName[nm] || null;
+      var prev = byName[normName(nm)] || byKey[dimKey(c)] || null;
       card.__variants.push({
         name: nm, dims: c,
         sku: prev ? (prev.sku || '') : '',
@@ -1528,6 +1564,18 @@
       if (to >= 0 && to < dd.length) { var tmp = dd.splice(vi, 1)[0]; dd.splice(to, 0, tmp); smVarRenderRows(cv); }
       return;
     }
+    var optTxt = t2.closest('.sm-opt-txt');
+    if (optTxt) {
+      var ct = varCardOf(optTxt); if (!ct) return;
+      if (optTxt.querySelector('input')) return;
+      var ti = parseInt(optTxt.getAttribute('data-d'), 10), tk = parseInt(optTxt.getAttribute('data-o'), 10);
+      var cur = (ct.__dims && ct.__dims[ti] && ct.__dims[ti].options[tk]) || optTxt.textContent || '';
+      var wpx = Math.max(56, Math.min(180, String(cur).length * 15 + 18));
+      optTxt.innerHTML = '<input class="sm-opt-rename" data-d="' + ti + '" data-o="' + tk + '" value="' + escAttr(cur) + '" style="width:' + wpx + 'px;padding:1px 6px;border-radius:8px;border:1.5px solid #F2A9C4;background:#fff;color:#55464E;font-size:14px;font-family:inherit;">';
+      var rin = optTxt.querySelector('input');
+      try { rin.focus(); rin.select(); } catch (err) {}
+      return;
+    }
     var optAdd = t2.closest('.sm-opt-add');
     if (optAdd) {
       var co = varCardOf(optAdd); if (!co) return;
@@ -1564,11 +1612,33 @@
   });
   document.addEventListener('keydown', function (e) {
     var t3 = e.target;
-    if (!t3 || !t3.classList || !t3.classList.contains('sm-opt-in')) return;
+    if (!t3 || !t3.classList) return;
+    if (t3.classList.contains('sm-opt-rename')) {
+      var ck2 = varCardOf(t3);
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        if (t3.dataset.done) return;
+        t3.dataset.done = '1';
+        if (ck2) smOptRename(ck2, parseInt(t3.getAttribute('data-d'), 10), parseInt(t3.getAttribute('data-o'), 10), t3.value);
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        t3.dataset.done = '1';
+        if (ck2) smVarRenderRows(ck2);
+      }
+      return;
+    }
+    if (!t3.classList.contains('sm-opt-in')) return;
     if (e.key !== 'Enter') return;
     e.preventDefault();
     var ck = varCardOf(t3); if (!ck) return;
     smOptAdd(ck, parseInt(t3.getAttribute('data-d'), 10), t3.value);
+  });
+  document.addEventListener('focusout', function (e) { // 点别处也算改名确认
+    var el = e.target;
+    if (!el || !el.classList || !el.classList.contains('sm-opt-rename') || el.dataset.done) return;
+    el.dataset.done = '1';
+    var cc = varCardOf(el);
+    if (cc) smOptRename(cc, parseInt(el.getAttribute('data-d'), 10), parseInt(el.getAttribute('data-o'), 10), el.value);
   });
   initSkuSeq();
 
@@ -1865,11 +1935,27 @@
     var code = (card.__p && card.__p.sku) ? String(card.__p.sku) : '';
     if (!code) code = window.ykNextProdCode ? window.ykNextProdCode() : '';
     if (code) body.sku = code;
-    var clean = clean0.map(function (v, i) {
+    var clean = clean0.map(function (v) {
       var raw = (v.sku || '').trim();
-      var sku = raw || (code ? window.ykVarSkuOf(code, i) : (v.name || '').trim());
-      return { sku: sku, name: v.name || '', price: fmtMoney(v.price), stock: parseInt(v.stock, 10) || 0, images: arr(v.images), frozen: v.frozen === true, dims: (v.dims && typeof v.dims === 'object' && Object.keys(v.dims).length) ? v.dims : undefined };
+      // 她 20261104 20:34 §六：规格里留空的价/库存就是空，不能偷偷写成 0 元 / 0 库存
+      var blankP = (v.price == null || String(v.price).trim() === '');
+      var blankS = (v.stock == null || String(v.stock).trim() === '');
+      return { sku: raw, name: v.name || '', price: blankP ? null : fmtMoney(v.price), stock: blankS ? null : (parseInt(v.stock, 10) || 0), images: arr(v.images), frozen: v.frozen === true, dims: (v.dims && typeof v.dims === 'object' && Object.keys(v.dims).length) ? v.dims : undefined };
     });
+    // 已有 SKU 原样保留（改名/重排都不换）；只有新组合才发新号，而且避开已用序号
+    if (code) {
+      var usedSku = {};
+      clean.forEach(function (v) { if (v.sku) usedSku[v.sku] = 1; });
+      var seq = 0;
+      clean.forEach(function (v) {
+        if (v.sku) return;
+        var s2;
+        do { seq += 1; s2 = window.ykVarSkuOf(code, seq - 1); } while (usedSku[s2]);
+        v.sku = s2; usedSku[s2] = 1;
+      });
+    } else {
+      clean.forEach(function (v) { if (!v.sku) v.sku = (v.name || '').trim(); });
+    }
     if (card.__p || clean.length) body.variants = clean;
     if (!Object.keys(body).length) return;
     api('products?id=eq.' + card.getAttribute('data-id'), { method: 'PATCH', body: JSON.stringify(body) })
@@ -1894,7 +1980,9 @@
       v.stock = row.querySelector('.sv-stock').value.trim();
     });
     return ADDVAR.list.filter(function (v) { return v.sku || v.name; }).map(function (v) {
-      return { sku: (v.sku || '').trim() || (v.name || '').trim(), name: v.name || '', price: fmtMoney(v.price), stock: parseInt(v.stock, 10) || 0, images: arr(v.images), frozen: v.frozen === true, dims: (v.dims && typeof v.dims === 'object' && Object.keys(v.dims).length) ? v.dims : undefined }; // SKU 留空时自动用规格名，保证下单 RPC 能精确匹配
+      var blankP2 = (v.price == null || String(v.price).trim() === '');
+      var blankS2 = (v.stock == null || String(v.stock).trim() === '');
+      return { sku: (v.sku || '').trim() || (v.name || '').trim(), name: v.name || '', price: blankP2 ? null : fmtMoney(v.price), stock: blankS2 ? null : (parseInt(v.stock, 10) || 0), images: arr(v.images), frozen: v.frozen === true, dims: (v.dims && typeof v.dims === 'object' && Object.keys(v.dims).length) ? v.dims : undefined }; // SKU 留空时自动用规格名，保证下单 RPC 能精确匹配
     });
   };
   window.smAddVarReset = function () {
