@@ -1027,17 +1027,20 @@
     cancelled: ['已取消', 'Cancelled', '#c4bcb6'], refunding: ['退款处理中', 'Refund processing', 'var(--warning,#E0A458)'], refunded: ['已退款', 'Refunded', '#c4bcb6']
   };
   /* 20261104 22:30 她要求：付款被她确认后，给用户一个粉色「付款成功」通知。
-     只在「已付款 / 已发货 / 已完成」这三个已经确认收款的状态弹；
-     待付款、待审核（凭证已交未确认）、凭证有误、已取消、退款中、已退款一律不弹。
-     只弹一次（localStorage 按订单号记），不改订单状态、不改付款流程、不写数据库。 */
+     20261104 23:09 追加：多笔逐笔通知，关掉一笔再弹下一笔；只有用户点「知道啦 ♡」才记为已通知。
+     · 只在「已付款 / 已发货 / 已完成」这三个已经确认收款的状态弹；
+       待付款、待审核（凭证已交未确认）、凭证有误、已取消、退款中、已退款一律不弹。
+     · 不改订单状态、不改付款流程、不写数据库，只读订单 + 本地记标记。 */
   var PAID_OK = { paid: 1, shipped: 1, completed: 1 };
+  var PAID_QUEUE = [];   // 本轮待通知的订单（新→旧）
   function paidNoticeSeen(id) {
     try { return localStorage.getItem('yk-paid-notice:' + id) === '1'; } catch (e) { return false; }
   }
   function paidNoticeMark(ids) {
     try { ids.forEach(function (id) { localStorage.setItem('yk-paid-notice:' + id, '1'); }); } catch (e) {}
   }
-  function showPaidNotice(o) {
+  /* 回调：onConfirm = 用户点了「知道啦 ♡」（这时才记已通知）；onDismiss = 点背景关掉（不记，下次进来还会提醒） */
+  function showPaidNotice(o, onConfirm, onDismiss) {
     var old = document.getElementById('paid-notice-mask');
     if (old && old.parentNode) old.parentNode.removeChild(old);
     var wrap = document.createElement('div');
@@ -1053,17 +1056,39 @@
       '</div>';
     document.body.appendChild(wrap);
     function close() { if (wrap.parentNode) wrap.parentNode.removeChild(wrap); }
-    wrap.addEventListener('click', function (e) { if (e.target === wrap) close(); });
-    wrap.querySelector('#paid-notice-ok').addEventListener('click', close);
+    wrap.addEventListener('click', function (e) {
+      if (e.target !== wrap) return;
+      close();
+      if (typeof onDismiss === 'function') onDismiss();
+    });
+    wrap.querySelector('#paid-notice-ok').addEventListener('click', function () {
+      close();
+      if (typeof onConfirm === 'function') onConfirm();
+    });
   }
-  /* 一批订单里找「已确认付款但还没通知过」的，弹一条就够，剩下的同时记为已通知（不补弹旧单） */
+  /* 已确认付款 + 还没通知过的，按时间新→旧 */
+  function paidPendingList(rows) {
+    return (rows || []).filter(function (o) { return PAID_OK[o.status] && !paidNoticeSeen(o.id); })
+      .sort(function (a, b) { return new Date(b.created_at || 0) - new Date(a.created_at || 0); });
+  }
+  /* 弹下一笔；当前还有通知在屏上就先不动（不叠加） */
+  function paidNoticeNext() {
+    if (document.getElementById('paid-notice-mask')) return;
+    var o = PAID_QUEUE.shift();
+    while (o && paidNoticeSeen(o.id)) o = PAID_QUEUE.shift();   // 已经确认过的不再弹
+    if (!o) return;
+    showPaidNotice(o, function () {
+      paidNoticeMark([o.id]);   // 只有用户真点了「知道啦 ♡」才记
+      paidNoticeNext();          // 接着看下一笔
+    }, function () {
+      PAID_QUEUE.unshift(o);     // 点背景关掉：不记，下次进「我的订单」继续提醒
+    });
+  }
   function checkPaidNotice(rows) {
     if (!rows || !rows.length) return;
-    var confirmed = rows.filter(function (o) { return PAID_OK[o.status] && !paidNoticeSeen(o.id); });
-    if (!confirmed.length) return;
-    confirmed.sort(function (a, b) { return new Date(b.created_at || 0) - new Date(a.created_at || 0); });
-    paidNoticeMark(confirmed.map(function (o) { return o.id; }));
-    showPaidNotice(confirmed[0]);
+    PAID_QUEUE = paidPendingList(rows);
+    if (!PAID_QUEUE.length) return;
+    paidNoticeNext();
   }
 
   function trackUrlOf(carrier, no) {
