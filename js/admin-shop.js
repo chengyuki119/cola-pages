@@ -735,7 +735,8 @@
         '<input class="sm-ship-date" placeholder="点选日期" value="' + (o.shipped_at ? escAttr(String(o.shipped_at).slice(0, 10).replace(/-/g, '/')) : '') + '"></div>' +
         '<div class="sm-vrow"><span class="sm-vlabel">发货备注（可留空）</span>' +
         '<input class="sm-ship-note" placeholder="备注" value="' + escAttr(o.ship_note || '') + '"></div>' +
-        '<button type="button" class="btn-save sm-act-ship" style="padding:10px 26px;font-size:16px;">确认发货</button>' +
+        '<button type="button" class="btn-mini sm-act-check" style="padding:10px 18px;font-size:15px;margin-right:8px;">📷 扫码核对</button>' +
+      '<button type="button" class="btn-save sm-act-ship" style="padding:10px 26px;font-size:16px;">确认发货</button>' +
         '</div>' +
         // 20261028p182：虚拟物流 6 状态推进（仅 TEST- 测试单号；加载当前进度后可点击切换）
         ((o.tracking || '').indexOf('TEST-') === 0 ?
@@ -1430,6 +1431,270 @@
     if (bc) { window.ykShowBarcode(bc.getAttribute('data-code'), bc.getAttribute('data-title')); return; }
   });
   initSkuSeq();
+
+  /* ══════════════ 摄像头扫码（她 20261104 §四.4）══════════════
+     优先用原生 BarcodeDetector（Android Chrome 能认 Code128 条形码）；
+     不支持就退回本地 jsQR（只认二维码）；两样都没有就只能手输 / 扫码枪。 */
+  var SCAN = { stream: null, on: false, facing: 'environment' };
+  function scanTearDown() {
+    SCAN.on = false;
+    if (SCAN.stream) { try { SCAN.stream.getTracks().forEach(function (t) { t.stop(); }); } catch (e) {} SCAN.stream = null; }
+    var m = document.getElementById('yk-scan-mask');
+    if (m && m.parentNode) m.parentNode.removeChild(m);
+  }
+  window.YKScanClose = scanTearDown;
+  window.YKScan = {
+    close: scanTearDown,
+    open: function (opts) {
+      opts = opts || {};
+      scanTearDown();
+      var hasCam = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+      var native = ('BarcodeDetector' in window);
+      var canQr = !!window.jsQR;
+      var mask = document.createElement('div');
+      mask.id = 'yk-scan-mask';
+      mask.style.cssText = 'position:fixed;inset:0;z-index:100000;background:rgba(60,50,60,.72);display:flex;align-items:center;justify-content:center;padding:14px;';
+      mask.innerHTML = '<div style="width:100%;max-width:460px;background:#FFFBFC;border:1.6px solid #FFD1E0;border-radius:18px;padding:14px 16px 16px;">' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">' +
+          '<b style="font-size:17px;color:#55464E;">' + esc(opts.title || '扫码') + '</b>' +
+          '<button type="button" class="btn-mini yk-scan-flip" style="margin-left:auto;padding:6px 12px;' + (hasCam ? '' : 'display:none;') + '">切换镜头</button>' +
+          '<button type="button" class="btn-mini yk-scan-x" style="padding:6px 12px;">关闭</button>' +
+        '</div>' +
+        '<div class="yk-scan-cam" style="display:none;background:#000;border-radius:12px;overflow:hidden;margin-bottom:10px;"><video autoplay playsinline muted style="width:100%;display:block;"></video></div>' +
+        '<p class="yk-scan-hint" style="font-size:13px;color:#81717A;margin:0 0 10px;line-height:1.65;"></p>' +
+        '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+          '<input class="yk-scan-in" placeholder="手动输入编码 / 扫码枪直接扫" style="flex:1;min-width:150px;padding:10px 12px;border:1.5px solid #FFD1E0;border-radius:12px;background:#fff;color:#55464E;font-size:16px;font-family:inherit;">' +
+          '<button type="button" class="btn-mini yk-scan-ok" style="padding:10px 18px;font-size:15px;">确认</button>' +
+        '</div></div>';
+      document.body.appendChild(mask);
+      var hint = mask.querySelector('.yk-scan-hint');
+      var input = mask.querySelector('.yk-scan-in');
+      function done(code) {
+        code = String(code || '').trim();
+        if (!code) return;
+        scanTearDown();
+        if (typeof opts.onCode === 'function') opts.onCode(code);
+      }
+      mask.addEventListener('click', function (e) { if (e.target === mask) scanTearDown(); });
+      mask.querySelector('.yk-scan-x').addEventListener('click', scanTearDown);
+      mask.querySelector('.yk-scan-ok').addEventListener('click', function () { done(input.value); });
+      input.addEventListener('keydown', function (e) { if (e.key === 'Enter') done(input.value); });
+
+      function startStream() {
+        if (!hasCam) { hint.textContent = '当前环境用不了摄像头（需要 HTTPS），直接手输或用扫码枪吧。'; return; }
+        if (!native && !canQr) { hint.textContent = '浏览器不支持摄像头识别，直接手输或用扫码枪。'; return; }
+        if (SCAN.stream) { try { SCAN.stream.getTracks().forEach(function (t) { t.stop(); }); } catch (e) {} SCAN.stream = null; }
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: SCAN.facing } }).then(function (stream) {
+          SCAN.stream = stream; SCAN.on = true;
+          var camBox = mask.querySelector('.yk-scan-cam');
+          var video = camBox.querySelector('video');
+          camBox.style.display = 'block';
+          video.srcObject = stream;
+          hint.textContent = native ? '对准条形码或二维码，识别到会自动带上（代码条码是 Code128）' : '当前浏览器只能认二维码；条码请手输或用扫码枪';
+          var detector = native ? new window.BarcodeDetector({ formats: ['code_128', 'code_39', 'ean_13', 'qr_code', 'upc_a', 'itf'] }) : null;
+          var canvas = document.createElement('canvas');
+          var ctx = canvas.getContext('2d', { willReadFrequently: true });
+          var busy = false;
+          (function tick() {
+            if (!SCAN.on || !mask.parentNode) return;
+            if (native) {
+              detector.detect(video).then(function (codes) {
+                if (!SCAN.on) return;
+                if (codes && codes.length && codes[0].rawValue) { done(codes[0].rawValue); return; }
+                requestAnimationFrame(tick);
+              }).catch(function () { if (SCAN.on) requestAnimationFrame(tick); });
+              return;
+            }
+            if (busy) { requestAnimationFrame(tick); return; }
+            if (!video.videoWidth) { requestAnimationFrame(tick); return; }
+            busy = true;
+            var w = 480, h = Math.round(video.videoHeight / video.videoWidth * 480) || 360;
+            canvas.width = w; canvas.height = h;
+            ctx.drawImage(video, 0, 0, w, h);
+            var found = null;
+            try { found = window.jsQR(ctx.getImageData(0, 0, w, h).data, w, h, { inversionAttempts: 'dontInvert' }); } catch (e) {}
+            busy = false;
+            if (SCAN.on && found && found.data) { done(found.data); return; }
+            requestAnimationFrame(tick);
+          })();
+        }).catch(function (err) {
+          var name = (err && err.name) || '';
+          hint.textContent = name === 'NotAllowedError' ? '摄像头权限被拒，请在浏览器里允许后再试；也可以直接手输。'
+            : (name === 'NotFoundError' || name === 'OverconstrainedError') ? '没找到可用摄像头，直接手输或用扫码枪吧。'
+            : name === 'NotReadableError' ? '摄像头被其他程序占用，关掉后再试。'
+            : '摄像头打开失败，直接手输或用扫码枪吧。';
+        });
+      }
+      mask.querySelector('.yk-scan-flip').addEventListener('click', function () {
+        SCAN.facing = SCAN.facing === 'environment' ? 'user' : 'environment';
+        startStream();
+      });
+      hint.textContent = hasCam ? (native ? '正在打开摄像头…' : '正在打开摄像头（只能认二维码）…') : '没有摄像头权限，直接手输或用扫码枪。';
+      if (hasCam) startStream();
+    }
+  };
+
+  /* 按编码找商品/规格：商品自己的 sku 或任一规格 sku 命中都算 */
+  function findProductByCode(code) {
+    var c = String(code || '').trim().toUpperCase();
+    if (!c) return null;
+    var hit = null;
+    SM.products.forEach(function (p) {
+      if (hit) return;
+      if (String(p.sku || '').toUpperCase() === c) { hit = { p: p, v: null }; return; }
+      arr(p.variants).forEach(function (v) {
+        if (hit) return;
+        if (String(v.sku || '').toUpperCase() === c) hit = { p: p, v: v };
+      });
+    });
+    return hit;
+  }
+  /* 线下开单：扫一下就把商品（含规格和价格）加进订单 */
+  function moScanAdd() {
+    window.YKScan.open({
+      title: '扫码加商品',
+      onCode: function (code) {
+        var hit = findProductByCode(code);
+        if (!hit) { toast('没找到编码「' + code + '」对应的商品；先在商品里把编码填上'); return; }
+        var p = hit.p, v = hit.v;
+        var sku = v ? (v.sku || v.name || '') : '';
+        var price = v ? (v.price == null || v.price === '' ? p.price : v.price) : p.price;
+        var same = MO_ITEMS.filter(function (it) { return String(it.pid) === String(p.id) && String(it.sku || '') === String(sku); })[0];
+        if (same) same.qty = (parseInt(same.qty, 10) || 1) + 1;
+        else if (MO_ITEMS.length === 1 && !MO_ITEMS[0].pid && !MO_ITEMS[0].custom) MO_ITEMS[0] = { pid: p.id, sku: sku, qty: 1, price: price == null ? '' : price, custom: false, name: '' }; // 首行空的直接替掉，不丢一行空表单
+        else MO_ITEMS.push({ pid: p.id, sku: sku, qty: 1, price: price == null ? '' : price, custom: false, name: '' });
+        moRenderItems();
+        if (document.querySelector('#mo-form .mo-sum')) moCalc();
+        toast('已扫到 ' + (p.name || '') + (v ? ' · ' + (v.name || sku) : '') + (same ? '（数量 ' + same.qty + '）' : ''));
+      }
+    });
+  }
+
+  /* ══════════════ 发货扫码核对（她 20261104 §四.4-B）══════════════
+     数据存 site_settings 的 order_check:<订单id>，不改表：
+     { scanned: {『sku名』: 数量}, gifts: [{name, qty}], done: bool, at: 时间 } */
+  function shipCheckKey(id) { return 'order_check:' + id; }
+  function shipCheckLoad(id) {
+    return restGet('site_settings?select=value&key=eq.' + encodeURIComponent(shipCheckKey(id)))
+      .then(function (rows) {
+        var v = (arr(rows)[0] || {}).value;
+        try { return JSON.parse(v) || { scanned: {}, gifts: [], done: false }; } catch (e) { return { scanned: {}, gifts: [], done: false }; }
+      }).catch(function () { return { scanned: {}, gifts: [], done: false }; });
+  }
+  function shipCheckSave(id, data) {
+    return api('site_settings?on_conflict=key', {
+      method: 'POST', headers: { 'Prefer': 'resolution=merge-duplicates' },
+      body: JSON.stringify({ key: shipCheckKey(id), value: JSON.stringify(data) })
+    }).then(function (r) { if (!r.ok) throw new Error(); return true; })
+      .catch(function () { toast('核对记录没保存上，检查网络后再试'); return false; });
+  }
+  window.YKShipCheck = function (o) {
+    var id = o && o.id; if (!id) return;
+    var items = arr(o.items).map(function (it, i) {
+      return { k: String(it.sku || it.name || ('item-' + i)), name: it.name || it.sku || '商品', sku: it.sku || '', qty: parseInt(it.qty, 10) || 1 };
+    });
+    var old = document.getElementById('yk-sc-mask');
+    if (old && old.parentNode) old.parentNode.removeChild(old);
+    var mask = document.createElement('div');
+    mask.id = 'yk-sc-mask';
+    mask.style.cssText = 'position:fixed;inset:0;z-index:99998;background:rgba(85,70,78,.3);display:flex;align-items:center;justify-content:center;padding:14px;';
+    mask.innerHTML = '<div style="width:100%;max-width:560px;max-height:88vh;overflow:auto;background:#FFFBFC;border:1.6px solid #FFD1E0;border-radius:18px;padding:16px 16px 14px;">' +
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">' +
+        '<b style="font-size:17px;color:#55464E;">发货扫码核对</b>' +
+        '<span style="font-size:13px;color:#81717A;">' + esc(o.order_no || '') + '</span>' +
+        '<button type="button" class="btn-mini yk-sc-x" style="margin-left:auto;padding:6px 12px;">关闭</button>' +
+      '</div>' +
+      '<div class="yk-sc-body" style="margin:10px 0;"><p style="font-size:14px;color:#81717A;">读取中…</p></div>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+        '<button type="button" class="btn-mini yk-sc-scan" style="padding:10px 18px;font-size:15px;background:#F5BFD1;border:1.6px solid #EFB0C5;color:#55464E;font-weight:600;">📷 扫码</button>' +
+        '<button type="button" class="btn-mini yk-sc-gift" style="padding:10px 16px;font-size:15px;">＋ 加赠品</button>' +
+        '<button type="button" class="btn-mini yk-sc-reset" style="padding:10px 16px;font-size:15px;">清空重扫</button>' +
+        '<button type="button" class="btn-save yk-sc-save" style="padding:10px 22px;font-size:16px;margin-left:auto;">保存核对单</button>' +
+      '</div>' +
+      '</div>';
+    document.body.appendChild(mask);
+    var body = mask.querySelector('.yk-sc-body');
+    var data = { scanned: {}, gifts: [], done: false };
+    function rowHtml(it) {
+      var got = parseInt(data.scanned[it.k], 10) || 0;
+      var left = Math.max(0, it.qty - got);
+      var ok = left === 0;
+      return '<div class="yk-sc-row" data-k="' + escAttr(it.k) + '" style="display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:10px;margin-bottom:6px;background:' + (ok ? '#FCE1EA' : 'var(--card,#FFF0F5)') + ';">' +
+        '<div style="flex:1;min-width:0;"><div style="font-size:15px;color:#55464E;">' + esc(it.name) + '</div>' +
+        '<div style="font-size:12px;color:#81717A;">' + (it.sku ? 'SKU ' + esc(it.sku) + ' · ' : '') + '应发 ' + it.qty + '</div></div>' +
+        '<div style="font-size:14px;color:#62545B;white-space:nowrap;">已扫 <b>' + got + '</b> / 未扫 ' + left + '</div>' +
+        '<div style="font-size:15px;">' + (ok ? '✓' : '') + '</div></div>';
+    }
+    function giftHtml(g, i) {
+      return '<div style="display:flex;gap:6px;align-items:center;margin-bottom:6px;">' +
+        '<input class="yk-sc-gname" data-i="' + i + '" value="' + escAttr(g.name || '') + '" placeholder="赠品名，如 小贴纸" style="flex:1;padding:8px 10px;border:1.5px solid #FFD1E0;border-radius:10px;font-size:15px;font-family:inherit;color:#55464E;background:#fff;">' +
+        '<input class="yk-sc-gqty" data-i="' + i + '" type="number" min="1" value="' + (g.qty || 1) + '" style="width:70px;padding:8px 10px;border:1.5px solid #FFD1E0;border-radius:10px;font-size:15px;font-family:inherit;color:#55464E;background:#fff;">' +
+        '<button type="button" class="btn-del yk-sc-gdel" data-i="' + i + '" style="padding:6px 12px;font-size:14px;">删</button></div>';
+    }
+    function paint() {
+      var doneAll = items.every(function (it) { return (parseInt(data.scanned[it.k], 10) || 0) >= it.qty; });
+      body.innerHTML =
+        '<div style="font-size:14px;color:#62545B;margin-bottom:8px;font-weight:700;">正常商品</div>' +
+        (items.length ? items.map(rowHtml).join('') : '<p style="font-size:14px;color:#81717A;">这单没有商品明细</p>') +
+        '<div style="font-size:14px;color:#62545B;margin:12px 0 8px;font-weight:700;">赠品（不计入应付）</div>' +
+        (data.gifts.length ? data.gifts.map(giftHtml).join('') : '<p style="font-size:13px;color:#81717A;margin:0 0 6px;">还没有赠品，点下面「＋ 加赠品」</p>') +
+        '<p style="font-size:14px;margin:10px 0 0;color:' + (doneAll ? '#5FA777' : '#C4636E') + ';font-weight:700;">' + (doneAll ? '✓ 全部核对完成，可以发货' : '还没扫齐全，别急着发货') + '</p>';
+    }
+    mask.querySelector('.yk-sc-x').addEventListener('click', function () { if (mask.parentNode) mask.parentNode.removeChild(mask); });
+    mask.addEventListener('click', function (e) { if (e.target === mask) mask.parentNode.removeChild(mask); });
+    mask.querySelector('.yk-sc-scan').addEventListener('click', function () {
+      window.YKScan.open({
+        title: '扫描要发出的商品',
+        onCode: function (code) {
+          var c = String(code || '').trim().toUpperCase();
+          var it = items.filter(function (x) { return String(x.sku || '').toUpperCase() === c || String(x.name || '').toUpperCase() === c; })[0];
+          if (!it) { toast('「' + code + '」不在这张订单里'); return; }
+          var got = parseInt(data.scanned[it.k], 10) || 0;
+          if (got >= it.qty) { toast('「' + it.name + '」已经够了（应发 ' + it.qty + '），别多发'); return; }
+          data.scanned[it.k] = got + 1;
+          paint();
+          toast(it.name + ' 已扫 ' + data.scanned[it.k] + '/' + it.qty);
+        }
+      });
+    });
+    mask.querySelector('.yk-sc-gift').addEventListener('click', function () {
+      data.gifts.push({ name: '', qty: 1 });
+      paint();
+    });
+    mask.querySelector('.yk-sc-reset').addEventListener('click', function () {
+      data.scanned = {};
+      data.done = false;
+      paint();
+      toast('已清空扫描记录（还没保存）');
+    });
+    body.addEventListener('input', function (e) {
+      var i = parseInt(e.target.getAttribute('data-i'), 10);
+      if (isNaN(i) || !data.gifts[i]) return;
+      if (e.target.classList.contains('yk-sc-gname')) data.gifts[i].name = e.target.value;
+      if (e.target.classList.contains('yk-sc-gqty')) data.gifts[i].qty = parseInt(e.target.value, 10) || 1;
+    });
+    body.addEventListener('click', function (e) {
+      var d = e.target.closest && e.target.closest('.yk-sc-gdel');
+      if (!d) return;
+      data.gifts.splice(parseInt(d.getAttribute('data-i'), 10), 1);
+      paint();
+    });
+    mask.querySelector('.yk-sc-save').addEventListener('click', function () {
+      var doneAll = items.every(function (it) { return (parseInt(data.scanned[it.k], 10) || 0) >= it.qty; });
+      data.done = doneAll;
+      data.at = new Date().toISOString();
+      data.gifts = data.gifts.filter(function (g) { return (g.name || '').trim(); });
+      shipCheckSave(id, data).then(function (ok) {
+        if (!ok) return;
+        toast(doneAll ? '核对完成，已保存' : '进度已保存（还没扫齐）');
+        if (mask.parentNode) mask.parentNode.removeChild(mask);
+      });
+    });
+    shipCheckLoad(id).then(function (d) {
+      data = { scanned: (d && d.scanned) || {}, gifts: (d && d.gifts) || [], done: !!(d && d.done) };
+      paint();
+    });
+  };
   // 复制上一条：名称/价格/库存/SKU/规格图一起带过来，不用重新填；冻结状态不复制
   function smVarDupLast(list) {
     var last = arr(list)[arr(list).length - 1];
@@ -1823,6 +2088,7 @@
         });
       return;
     }
+    if (e.target.classList.contains('sm-act-check')) { if (window.YKShipCheck) window.YKShipCheck(o); return; }
     if (e.target.classList.contains('sm-act-pay')) { // 确认付款
       uiConfirm('确认订单 ' + (o.order_no || '') + ' 的付款凭证没问题吗？确认后进入待发货。', function () {
         patchOrder(id, { status: 'paid', reject_reason: '' }, '已确认付款，记得尽快发货', 'status', '审核凭证通过 → paid');
@@ -2729,6 +2995,7 @@
       '<details class="mo-sec" open><summary><span class="mo-step">2</span>商品信息</summary><div class="mo-sec-body">' +
       '<div class="mo-items"></div>' +
       '<button type="button" class="btn-mini mo-additem" style="background:#FCE1EA;color:#A98D96;padding:9px 22px;font-size:15px;">＋ 添加商品</button>' +
+      '<button type="button" class="btn-mini mo-scanadd" style="background:#F5BFD1;border:1.6px solid #EFB0C5;color:#55464E;font-weight:600;padding:9px 22px;font-size:15px;margin-left:8px;">📷 扫码加商品</button>' +
       '<p class="hint" style="margin:6px 0 0;">从商品列表选，或选「自定义商品」录临时商品；单价留空自动用商品价</p>' +
       '</div></details>' +
 
@@ -2851,6 +3118,7 @@
       if (e.target.classList.contains('mo-close')) { mask.remove(); return; }
       var card = mask.querySelector('#mo-form');
       if (e.target.classList.contains('mo-additem')) { MO_ITEMS.push({ pid: '', sku: '', qty: 1, price: '', custom: false, name: '' }); moRenderItems(); return; }
+      if (e.target.classList.contains('mo-scanadd')) { moScanAdd(); return; }
       var del = e.target.closest('.mo-del');
       if (del) { MO_ITEMS.splice(parseInt(del.getAttribute('data-i'), 10), 1); moRenderItems(); moCalc(); return; }
       var imgDel = e.target.closest('.mo-img-del');
