@@ -3166,12 +3166,13 @@
   if (productList) {
     productList.addEventListener('click', function (e) {
       var t = e.target;
-      var isKebab = t.classList && t.classList.contains('kebab');
+      // 20261104 21:44：编辑入口从 ⋮ 改到卡片正面的「编辑」按钮；⋮ 现在只开操作菜单，不再触发编辑
+      var isEdit = t.classList && t.classList.contains('btn-edit-prod');
       var isSave = t.classList && t.classList.contains('btn-save-edit');
-      if (!isKebab && !isSave) return;
+      if (!isEdit && !isSave) return;
       var card = t.closest('.shop-item');
       if (!card) return;
-      if (isKebab) setTimeout(function () { augmentProductEdit(card); }, 0);
+      if (isEdit) setTimeout(function () { augmentProductEdit(card); }, 0);
       else saveProductExtra(card);
     }, true);
     productList.addEventListener('input', function (e) {
