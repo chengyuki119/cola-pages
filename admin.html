@@ -1896,7 +1896,12 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     document.getElementById('admin-body').style.display = '';
     document.getElementById('btn-logout').style.display = 'inline';
     if (window.SiteMenu) SiteMenu.refresh(); // 登录后菜单里的柚子专属变成可展开分组
-    loadMessages(); loadProducts(); loadHome();
+    loadMessages();
+    // 20261104 21:55 §五：商品卡的「已下架 / 不首页展示」状态存在 SETTINGS 里，
+    // 必须等设置拉完再渲商品列表，否则刷新后角标会先错一次。
+    var _homeP = loadHome();
+    if (_homeP && typeof _homeP.then === 'function') _homeP.then(loadProducts, loadProducts);
+    else loadProducts();
     loadPhotoList(); loadDays(); // 登录后再拉一次：未登录时匿名请求可能拿不到数据
     seedPhotosFromHomepage(); // 主页已有照片自动导入（幂等，按 image_url 去重）
     if (PENDING_TAB) {
@@ -3981,7 +3986,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     });
   }
   function loadHome() {
-    api('site_settings?select=key,value&limit=100')
+    return api('site_settings?select=key,value&limit=100')
       .then(function (r) { return r.json(); })
       .then(function (rows) {
         SETTINGS = {};
