@@ -93,6 +93,25 @@
       '.biz-u-tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px;}',
       '.biz-u-tools .btn-mini{padding:6px 14px;font-size:13px;}',
       '@media (max-width:600px){.biz-u-side{width:100%;flex-direction:row;align-items:center;justify-content:space-between;}}',
+      /* 20261104 22:07 她要求：排序下拉 + 每页条数 + 分页；批量生成/打印标签降为次级操作 */
+      '.biz-u-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px;}',
+      '.biz-u-q{flex:1 1 240px;max-width:420px;height:40px;padding:0 14px;font-size:14px;border:1.5px solid #FFD9E6;border-radius:12px;outline:none;font-family:inherit;color:var(--text,#62545B);background:#fff;box-sizing:border-box;}',
+      '.biz-u-q:focus{border-color:#F2A9C4;}',
+      /* 页面内的 select 被全站自定义下拉接管（.sel-btn），这里把它拉成和搜索框同一高度/圆角 */
+      '.biz-u-bar .sel-btn{height:40px;padding:0 14px;font-size:13px;border:1.5px solid #FFD9E6;border-radius:12px;background:#fff;color:var(--text,#62545B);box-sizing:border-box;}',
+      '.biz-u-bar .sel-btn:hover{background:#FCE1EA;}',
+      '.biz-u-sel{padding:8.5px 12px;font-size:13px;border:1.5px solid #FFD9E6;border-radius:12px;outline:none;font-family:inherit;color:var(--text,#62545B);background:#fff;cursor:pointer;}',
+      '.biz-u-sel:focus{border-color:#F2A9C4;}',
+      '.biz-u-sub{padding:6px 14px;font-size:13px;line-height:1.5;border:1.4px solid #FFE9F1;background:#fff;color:#A98D96;border-radius:10px;cursor:pointer;font-family:inherit;}',
+      '.biz-u-sub:hover{background:#FCE1EA;border-color:#F5BFD1;}',
+      '.biz-u-sub:active{background:#F8D3E2;}',
+      '.biz-u-pager{display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:16px;font-size:13px;color:var(--muted,#81717A);}',
+      '.biz-u-pg{min-width:32px;height:32px;padding:0 9px;border:1.4px solid #FFE9F1;background:#FFF7FA;color:#A98D96;border-radius:10px;cursor:pointer;font-size:13px;font-family:inherit;}',
+      '.biz-u-pg:hover:not(:disabled){background:#FCE1EA;border-color:#F5BFD1;}',
+      '.biz-u-pg.on{background:#FCE1EA;border-color:#F2A9C4;}',
+      '.biz-u-pg:disabled{opacity:.45;cursor:default;}',
+      '.biz-u-empty{padding:26px 0;text-align:center;color:var(--muted,#81717A);font-size:14px;line-height:1.9;}',
+      '@media (max-width:600px){.biz-u-bar .biz-u-q{flex:1 1 100%;max-width:100%;}.biz-u-bar .sel-btn{flex:1 1 0;justify-content:space-between;min-width:0;}',
       /* 20261026k 整改：手机端弹窗不再横向溢出——双列表单转单列，日期框约束宽度，输入 16px 防 iOS 聚焦缩放 */
       '@media (max-width:600px){#biz-mask .biz-modal div[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr !important;}' +
         '.biz-in{font-size:16px;} input[type="date"].biz-in{min-width:0;width:100% !important;} select.biz-in{min-width:0;width:100% !important;}}',
@@ -711,7 +730,9 @@
   /* ══════════════════════════════════════════════════════════════
      模块二：商品编码（bootUnits → #tab-units）
      ══════════════════════════════════════════════════════════════ */
-  var UNITS = { list: [], products: [], orders: [], search: '', pmap: {}, omap: {}, sel: {} };
+  var UNITS = { list: [], products: [], orders: [], search: '', pmap: {}, omap: {}, sel: {},
+                sort: 'new', page: 1, size: 20, totalAll: 0, loadedAll: true };
+  /* 排序下拉：new 最新生成（默认）/ old 最早生成 / name 商品名称 / batch 批次号 */
 
   function bootUnits() {
     var panel = $('tab-units');
@@ -722,7 +743,9 @@
 
   function renderUnitsPage(panel) {
     /* 20261104 21:59 她指定：去掉「全部/待质检/合格/不合格/返工/隔离」六个分类，
-       页面只留：标题 + 一句说明 + 搜索框 + 生成单件编码 + 列表；质检结果只在每条记录上显示。 */
+       页面只留：标题 + 一句说明 + 搜索框 + 生成单件编码 + 列表；质检结果只在每条记录上显示。
+       20261104 22:07 追加：主按钮只有「生成单件编码」一个，批量生成/打印标签降成次级；
+       加排序下拉 + 每页条数 + 分页；搜索作用于全部记录（不受分页影响）。 */
     panel.innerHTML =
       '<div class="card" style="padding:16px 20px;margin-bottom:14px;">' +
         '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">' +
@@ -730,20 +753,32 @@
           '<span style="font-size:13px;color:var(--muted,#81717A);">每件作品一个唯一编码，扫码可查真伪与质检记录</span>' +
           '<button class="btn-save-tb" id="biz-u-new" style="margin-left:auto;">＋ 生成单件编码</button>' +
         '</div>' +
-        '<input id="biz-u-q" placeholder="搜索单件编码 / 型号编码 / 批次号" style="margin-top:12px;width:100%;max-width:420px;padding:9px 14px;font-size:14px;border:1.5px solid #FFD9E6;border-radius:12px;outline:none;font-family:inherit;color:var(--text,#62545B);background:#fff;box-sizing:border-box;">' +
+        '<div class="biz-u-bar">' +
+          '<input id="biz-u-q" class="biz-u-q" placeholder="搜索单件编码 / 型号编码 / 批次号">' +
+          '<select id="biz-u-sort" class="biz-u-sel" aria-label="排序方式">' +
+            '<option value="new">最新生成</option>' +
+            '<option value="old">最早生成</option>' +
+            '<option value="name">商品名称</option>' +
+            '<option value="batch">批次号</option>' +
+          '</select>' +
+          '<select id="biz-u-size" class="biz-u-sel" aria-label="每页条数">' +
+            '<option value="20">每页 20 条</option>' +
+            '<option value="50">每页 50 条</option>' +
+            '<option value="100">每页 100 条</option>' +
+          '</select>' +
+        '</div>' +
         '<div class="biz-u-tools">' +
-          '<button class="btn-mini" id="biz-u-bulk">批量生成</button>' +
-          '<button class="btn-mini" id="biz-u-print">打印标签（当前列表）</button>' +
+          '<button class="biz-u-sub" id="biz-u-bulk">批量生成</button>' +
+          '<button class="biz-u-sub" id="biz-u-print">打印标签（当前列表）</button>' +
           '<button class="biz-chip" id="biz-u-print-sel" style="display:none;">打印标签（<span id="biz-u-seln">0</span> 张勾选）</button>' +
         '</div>' +
       '</div>' +
-      '<div id="biz-u-list"><p style="color:var(--muted,#81717A);text-align:center;padding:24px 0;">加载中…</p></div>';
+      '<div id="biz-u-list"><p class="biz-u-empty">加载中…</p></div>' +
+      '<div id="biz-u-pager" class="biz-u-pager"></div>';
     $('biz-u-new').addEventListener('click', function () { openUnitForm(1); });
     $('biz-u-print').addEventListener('click', function () {
-      var rows = UNITS.list.filter(function (u) {
-        if (!UNITS.search) return true;
-        return [u.unit_code, u.model_code, u.batch_code].some(function (v) { return String(v || '').toLowerCase().indexOf(UNITS.search) >= 0; });
-      });
+      /* 打印当前「搜索 + 排序」后的全部记录，不只是这一页 */
+      var rows = unitView();
       if (!rows.length) { toast('当前列表没有可打印的编码'); return; }
       if (rows.length > 100) { toast('一次最多打印 100 张，请先搜索缩小范围'); return; }
       printLabelsBatch(rows);
@@ -755,12 +790,24 @@
       if (rows.length > 100) { toast('一次最多打印 100 张，请减少勾选'); return; }
       printLabelsBatch(rows);
     });
-    $('biz-u-q').addEventListener('input', function () { UNITS.search = this.value.trim().toLowerCase(); renderUnitRows(); });
+    $('biz-u-q').addEventListener('input', function () { UNITS.search = this.value.trim(); UNITS.page = 1; renderUnitRows(); });
+    $('biz-u-sort').addEventListener('change', function () { UNITS.sort = this.value; UNITS.page = 1; renderUnitRows(); });
+    $('biz-u-size').addEventListener('change', function () { UNITS.size = parseInt(this.value, 10) || 20; UNITS.page = 1; renderUnitRows(); });
   }
 
   function loadUnits() {
-    api('shop_product_units?select=*&order=unit_code.desc&limit=500').then(function (r) { return r.json(); }).then(function (rows) {
+    /* limit=1000 一次拉全量（搜索/排序/分页都在本地对全量做，不搜当前页）；
+       用 Prefer: count=exact 拿真实总数，超过 1000 条时在分页条上明确标出来，不假装全部加载了。 */
+    api('shop_product_units?select=*&order=unit_code.desc&limit=1000', { headers: { 'Prefer': 'count=exact' } }).then(function (r) {
+      try {
+        var cr = r.headers && r.headers.get ? (r.headers.get('content-range') || '') : '';
+        var m = /\/(\d+)\s*$/.exec(cr);
+        UNITS.totalAll = m ? parseInt(m[1], 10) : 0;
+      } catch (e) { UNITS.totalAll = 0; }
+      return r.json();
+    }).then(function (rows) {
       UNITS.list = Array.isArray(rows) ? rows : [];
+      UNITS.loadedAll = !UNITS.totalAll || UNITS.list.length >= UNITS.totalAll;
       renderUnitRows();
     }).catch(function () {
       var box = $('biz-u-list');
@@ -780,18 +827,64 @@
     }).catch(function () {});
   }
 
+  /* ── 搜索 / 排序：作用在 UNITS.list 全量数据上，跟分页无关 ── */
+  function unitTime(u) { return String(u.created_at || u.made_at || ''); }
+  function unitName(u) { var p = u.product_id ? UNITS.pmap[u.product_id] : null; return p ? String(p.name || '') : ''; }
+  function unitFiltered() {
+    var q = String(UNITS.search || '').toLowerCase();
+    if (!q) return UNITS.list.slice();
+    return UNITS.list.filter(function (u) {
+      return [u.unit_code, u.model_code, u.batch_code].some(function (v) { return String(v || '').toLowerCase().indexOf(q) >= 0; });
+    });
+  }
+  function unitView() {
+    var rows = unitFiltered();
+    var s = UNITS.sort;
+    rows.sort(function (a, b) {
+      var codeA = String(a.unit_code || ''), codeB = String(b.unit_code || '');
+      if (s === 'old' || s === 'new') {
+        var ta = unitTime(a), tb = unitTime(b);
+        if (ta !== tb) return s === 'old' ? (ta < tb ? -1 : 1) : (ta < tb ? 1 : -1);
+        return codeB.localeCompare(codeA);
+      }
+      if (s === 'name') {
+        var na = unitName(a), nb = unitName(b);
+        if (na !== nb) { if (!na) return 1; if (!nb) return -1; return na.localeCompare(nb, 'zh-Hans-CN'); }
+        return codeB.localeCompare(codeA);
+      }
+      /* batch：批次号新的在前，同批次内编码新的在前 */
+      var ba = String(a.batch_code || ''), bb = String(b.batch_code || '');
+      if (ba !== bb) { if (!ba) return 1; if (!bb) return -1; return ba < bb ? 1 : -1; }
+      return codeB.localeCompare(codeA);
+    });
+    return rows;
+  }
+
   function renderUnitRows() {
     var box = $('biz-u-list');
     if (!box) return;
-    var rows = UNITS.list.filter(function (u) {
-      if (!UNITS.search) return true;
-      return [u.unit_code, u.model_code, u.batch_code].some(function (v) { return String(v || '').toLowerCase().indexOf(UNITS.search) >= 0; });
-    });
-    if (!rows.length) {
-      box.innerHTML = '<p style="color:var(--muted,#81717A);text-align:center;padding:24px 0;">' +
-        (UNITS.list.length ? '没有搜到匹配的编码' : '还没有编码，点右上角「生成单件编码」开始') + '</p>';
+    var all = unitView();
+    var total = all.length;
+    if (!total) {
+      /* 两种空状态分开：真没编码 / 搜索没命中 */
+      var pager0 = $('biz-u-pager');
+      if (pager0) pager0.innerHTML = '';
+      if (UNITS.search) {
+        box.innerHTML = '<div class="biz-u-empty">没有搜到匹配「' + esc(UNITS.search) + '」的编码<br>' +
+          '<span style="font-size:13px;">换个关键词试试，搜索范围是全部 ' + UNITS.list.length + ' 条记录</span><br>' +
+          '<button class="biz-u-sub" id="biz-u-clearq" style="margin-top:8px;">清空搜索</button></div>';
+        var cq = $('biz-u-clearq');
+        if (cq) cq.addEventListener('click', function () { UNITS.search = ''; UNITS.page = 1; var qi = $('biz-u-q'); if (qi) qi.value = ''; renderUnitRows(); });
+      } else {
+        box.innerHTML = '<div class="biz-u-empty">还没有编码，点右上角「生成单件编码」开始</div>';
+      }
       return;
     }
+    var pages = Math.max(1, Math.ceil(total / UNITS.size));
+    if (UNITS.page > pages) UNITS.page = pages;
+    if (UNITS.page < 1) UNITS.page = 1;
+    var start = (UNITS.page - 1) * UNITS.size;
+    var rows = all.slice(start, start + UNITS.size);
     box.innerHTML = rows.map(function (u) {
       var p = u.product_id ? UNITS.pmap[u.product_id] : null;
       var o = u.order_id ? UNITS.omap[u.order_id] : null;
@@ -830,6 +923,41 @@
       b.addEventListener('click', function () {
         var u = UNITS.list.filter(function (x) { return x.id === b.getAttribute('data-id'); })[0];
         if (u) openUnitDetail(u);
+      });
+    });
+    renderUnitPager(total, pages, rows.length);
+  }
+
+  /* 分页条：共 N 条 / 上一页 / 页码 / 下一页 / 第 x 页 */
+  function renderUnitPager(total, pages, shown) {
+    var el = $('biz-u-pager');
+    if (!el) return;
+    var out = ['<span>共 ' + total + ' 条' + (UNITS.search ? '（搜索全部记录）' : '') +
+      (UNITS.loadedAll ? '' : '，只加载了最新的 ' + UNITS.list.length + ' 条') + '</span>'];
+    out.push('<button class="biz-u-pg" data-pg="prev"' + (UNITS.page <= 1 ? ' disabled' : '') + '>上一页</button>');
+    var seq = [], last = 0;
+    for (var i = 1; i <= pages; i++) {
+      if (!(i === 1 || i === pages || Math.abs(i - UNITS.page) <= 1)) continue;
+      if (last && i - last > 1) seq.push('…');
+      seq.push(i);
+      last = i;
+    }
+    seq.forEach(function (n) {
+      if (n === '…') { out.push('<span>…</span>'); return; }
+      out.push('<button class="biz-u-pg' + (n === UNITS.page ? ' on' : '') + '" data-pg="' + n + '">' + n + '</button>');
+    });
+    out.push('<button class="biz-u-pg" data-pg="next"' + (UNITS.page >= pages ? ' disabled' : '') + '>下一页</button>');
+    out.push('<span>第 ' + UNITS.page + ' / ' + pages + ' 页</span>');
+    el.innerHTML = out.join('');
+    el.querySelectorAll('[data-pg]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var v = b.getAttribute('data-pg');
+        if (v === 'prev') UNITS.page--;
+        else if (v === 'next') UNITS.page++;
+        else UNITS.page = parseInt(v, 10) || 1;
+        renderUnitRows();
+        var top = $('biz-u-list');
+        if (top && top.scrollIntoView) { try { top.scrollIntoView({ block: 'nearest' }); } catch (e) { top.scrollIntoView(); } }
       });
     });
   }
@@ -942,6 +1070,7 @@
     });
     mask.querySelector('#biz-uf-done').addEventListener('click', function () {
       bizCloseModal();
+      UNITS.page = 1; /* 新生成的编码在「最新生成」第一页 */
       loadUnits();
     });
     okBtn.addEventListener('click', function () {
@@ -976,6 +1105,7 @@
             resBox.innerHTML = summary + old + '</div>';
             if (fail) toast('成功 ' + done + ' / ' + n + ' 个，' + fail + ' 个失败，请刷新后重试');
             else toast('已生成 ' + done + ' 个编码（' + batch + '）');
+            UNITS.page = 1;
             loadUnits();
             return;
           }
