@@ -2774,6 +2774,20 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     h += '<button type="button" class="mi btn-del-product">删除商品</button>';
     return h;
   }
+  /* 20261104 21:44 §五.6：写操作必须真的改到行才算成功
+     PostgREST 在 RLS 拦下时照样返回 204，光看 r.ok 会把「没写进去」当成功，
+     所以带 Prefer: return=representation 拿回受影响行数，0 行 → 当失败处理。 */
+  function apiAffected(path, body) {
+    return api(path + (path.indexOf('?') === -1 ? '?' : '&') + 'select=id', {
+      method: 'PATCH',
+      headers: { 'Prefer': 'return=representation' },
+      body: JSON.stringify(body)
+    }).then(function (r) {
+      if (!r.ok) return false;
+      return r.json().then(function (rows) { return Array.isArray(rows) && rows.length > 0; })
+        .catch(function () { return false; });
+    });
+  }
   function loadProducts() {
     prodMenuClose(); // 重渲列表前先收起开着的小菜单
     var tryLoad = function (withImages, withCur, noDescEn) {
@@ -2910,9 +2924,9 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     if (e.target.classList.contains('btn-display')) {
       var dact = e.target.getAttribute('data-act');
       var toDisplay = dact ? dact === 'display' : e.target.textContent === '设为仅展示';
-      api('products?id=eq.' + id, { method: 'PATCH', body: JSON.stringify({ display_only: toDisplay }) })
-        .then(function (r) { if (!r.ok) throw new Error(); toast(toDisplay ? '已设为仅展示' : '已恢复在售'); loadProducts(); })
-        .catch(function () { toast('操作失败'); });
+      apiAffected('products?id=eq.' + id, { display_only: toDisplay })
+        .then(function (ok) { if (!ok) throw new Error(); toast(toDisplay ? '已设为仅展示' : '已恢复在售'); loadProducts(); })
+        .catch(function () { toast('操作失败：没有真的改到商品，请重新登录后再试'); });
     }
     if (e.target.classList.contains('btn-home')) {
       var hact = e.target.getAttribute('data-act');
@@ -2925,9 +2939,9 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     if (e.target.classList.contains('btn-minus') || e.target.classList.contains('btn-plus')) {
       var cur = parseInt(card.getAttribute('data-stock'), 10) || 0;
       var next = e.target.classList.contains('btn-plus') ? cur + 1 : Math.max(0, cur - 1);
-      api('products?id=eq.' + id, { method: 'PATCH', body: JSON.stringify({ stock: next }) })
-        .then(function (r) { if (!r.ok) throw new Error(); toast('库存已改为 ' + next); loadProducts(); })
-        .catch(function () { toast('操作失败'); });
+      apiAffected('products?id=eq.' + id, { stock: next })
+        .then(function (ok) { if (!ok) throw new Error(); toast('库存已改为 ' + next); loadProducts(); })
+        .catch(function () { toast('操作失败：没有真的改到库存，请重新登录后再试'); });
     }
     var pdel = e.target.closest('.ph-del');
     if (pdel) { // 商品照片 ✕ → 删除（删封面时后一张自动顶上成为新封面）
@@ -3110,9 +3124,13 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       var pnm = cachedP.name || (nmEl ? nmEl.textContent.trim() : '') || '这件商品';
       // 她 21:44 §五.2：确认框里带商品名，避免误删
       uiConfirm('确定删除「' + pnm + '」吗？删了就找不回来了。想从店里拿掉的话，用「下架」就好。', function () {
-        api('products?id=eq.' + id, { method: 'DELETE' })
-          .then(function (r) { if (!r.ok) throw new Error(); toast('已删除'); loadProducts(); })
-          .catch(function () { toast('删除失败'); });
+        api('products?id=eq.' + id, { method: 'DELETE', headers: { 'Prefer': 'return=representation' } })
+          .then(function (r) { if (!r.ok) throw new Error(); return r.json(); })
+          .then(function (rows) {
+            if (!Array.isArray(rows) || !rows.length) throw new Error(); // 没真删到行，不能报「已删除」
+            toast('已删除'); loadProducts();
+          })
+          .catch(function () { toast('删除失败：没有真的删掉，请重新登录后再试'); });
       });
     }
   });
