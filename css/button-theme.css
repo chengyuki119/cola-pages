@@ -34,16 +34,17 @@
   --btn-bd-d: #EADCE2;
   --btn-fg-d: #B9A5AE;
 
-  /* 主按钮（淡粉填充） */
-  --btn-pri-bg: #FCE1EA;
-  --btn-pri-bd: #FCE1EA;
-  --btn-pri-fg: #A98D96;
-  --btn-pri-bg-h: #F8D3E2;
-  --btn-pri-bd-h: #F8D3E2;
-  --btn-pri-fg-h: #A98D96;
-  --btn-pri-bg-a: #F5C4D6;
-  --btn-pri-bd-a: #F5C4D6;
-  --btn-pri-fg-a: #A98D96;
+  /* 主按钮（淡粉填充）——2026-11-04 23:19 她要求：全站主按钮统一用「加入购物车」的实测色
+     基准来自 shop 页 .buy-btn.cart-quick / .pdp #d-add：底 #F8D3E2、hover #F0B9D2、字 #604C57 */
+  --btn-pri-bg: #F8D3E2;
+  --btn-pri-bd: #EFB0C5;
+  --btn-pri-fg: #604C57;
+  --btn-pri-bg-h: #F0B9D2;
+  --btn-pri-bd-h: #E4A0B8;
+  --btn-pri-fg-h: #55464E;
+  --btn-pri-bg-a: #EFB0C5;
+  --btn-pri-bd-a: #DD97B3;
+  --btn-pri-fg-a: #55464E;
 
   /* 危险按钮（柔和红，保留删除语义） */
   --btn-dg-bg: #FBE3E6;
@@ -56,13 +57,13 @@
   --btn-dg-bd-a: #E8ABB7;
   --btn-dg-fg-a: #A54A55;
 
-  /* 选择类 */
-  --opt-bg: #FFFFFF;
-  --opt-bd: #FFD9E6;
-  --opt-fg: #7C6A73;
-  --opt-bg-h: #FFF7FA;
+  /* 选择类（2026-11-04 23:19 按规范：未选 #FFF7FA / #FFD1E0 / #A98D96，选中 #FCE1EA 填充 + 同色描边） */
+  --opt-bg: #FFF7FA;
+  --opt-bd: #FFD1E0;
+  --opt-fg: #A98D96;
+  --opt-bg-h: #FCE1EA;
   --opt-bd-h: #F5BFD1;
-  --opt-fg-h: #7C6A73;
+  --opt-fg-h: #A98D96;
   --opt-sel-bg: #FCE1EA;
   --opt-sel-bd: #FCE1EA;
   --opt-sel-fg: #A98D96;
@@ -746,27 +747,150 @@ textarea {
   color: var(--btn-fg-a) !important;
 }
 
-/* ═══ 她 20261104 §七.1：Back to Home / Back to Shop 太浅，加深（只动这两个返回按钮，尺寸不变）═══ */
+/* ═══ 2026-11-04 23:19 她要求：返回小铺 / 返回主页 原来太深（#F5BFD1），
+   改成与「加入购物车」同一个浅粉色系（底 #F8D3E2 / 描边 #EFB0C5 / 字 #604C57）═══ */
 .back-link {
-  background-color: #F5BFD1 !important;
-  border-color: #EFB0C5 !important;
-  color: #55464E !important;
+  background-color: var(--btn-pri-bg) !important;
+  border-color: var(--btn-pri-bd) !important;
+  color: var(--btn-pri-fg) !important;
 }
 .back-link:hover {
-  background-color: #EFB0C5 !important;
-  color: #55464E !important;
+  background-color: var(--btn-pri-bg-h) !important;
+  border-color: var(--btn-pri-bd-h) !important;
+  color: var(--btn-pri-fg-h) !important;
 }
 .back-link:active {
-  background-color: #E9A8BE !important;
-  color: #55464E !important;
+  background-color: var(--btn-pri-bg-a) !important;
+  border-color: var(--btn-pri-bd-a) !important;
+  color: var(--btn-pri-fg-a) !important;
 }
 
-/* ═══ 她 20261104 §七.1：购物车 Checkout / 结账 Place Order 按钮太浅，加深 ═══ */
+/* ═══ 购物车 Checkout / 结账 Place Order：跟随主按钮同色系 ═══ */
 #cart-go, #ck-submit {
-  background-color: #F5BFD1 !important;
-  border: 1.6px solid #EFB0C5 !important;
-  color: #55464E !important;
+  background-color: var(--btn-pri-bg) !important;
+  border: 1.6px solid var(--btn-pri-bd) !important;
+  color: var(--btn-pri-fg) !important;
   font-weight: 600 !important;
 }
-#cart-go:hover, #ck-submit:hover { background-color: #EFB0C5 !important; }
-#cart-go:active, #ck-submit:active { background-color: #E9A8BE !important; }
+#cart-go:hover, #ck-submit:hover {
+  background-color: var(--btn-pri-bg-h) !important;
+  border-color: var(--btn-pri-bd-h) !important;
+}
+#cart-go:active, #ck-submit:active {
+  background-color: var(--btn-pri-bg-a) !important;
+  border-color: var(--btn-pri-bd-a) !important;
+}
+#cart-go:disabled, #ck-submit:disabled {
+  background-color: var(--btn-bg-d) !important;
+  border-color: var(--btn-bd-d) !important;
+  color: var(--btn-fg-d) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   2026-11-04 23:19 全站 UI 统一（尺寸 / 圆角 / 状态；颜色走上面的 --btn-* 令牌）
+   她这轮的要求：主按钮一律等于「加入购物车」的浅粉色；返回按钮同高同圆角；
+   自定义下拉不能和原生 select、输入框长得两套。
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* 1. 返回小铺 / 返回主页：高度 38、字号 16/600、999 胶囊 —— 与「加入购物车」一致 */
+.back-link {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  height: 38px !important;
+  padding: 0 16px !important;
+  box-sizing: border-box !important;
+  border-width: 1.6px !important;
+  border-style: solid !important;
+  border-radius: 999px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+
+/* 2. 首页长按钮：同一个胶囊形，悬停跟随主按钮（原来用 brightness 滤镜，会显得更脏） */
+.home-long-btn {
+  border-radius: 999px !important;
+}
+.home-long-btn:hover {
+  background-color: var(--btn-pri-bg-h) !important;
+  filter: none !important;
+}
+.home-long-btn:active {
+  background-color: var(--btn-pri-bg-a) !important;
+  filter: none !important;
+}
+
+/* 3. 自定义下拉 .sel-btn：改成和原生 select / 输入框同一家族（12px 圆角、白底、粉描边） */
+.sel-btn {
+  height: 38px !important;
+  padding: 0 14px !important;
+  box-sizing: border-box !important;
+  border: 1.4px solid #FFD1E0 !important;
+  border-radius: 12px !important;
+  background: #FFFFFF !important;
+  color: #55464E !important;
+  font-size: 15px !important;
+  font-weight: 400 !important;
+}
+.sel-btn:hover {
+  background: #FFF7FA !important;
+  border-color: #F5BFD1 !important;
+}
+.sel-btn:active {
+  background: #FCE1EA !important;
+}
+
+/* 4. 弹窗里的关闭 / 取消：统一成次要按钮（白底粉描边） */
+.modal-close, .pop-close, .lb-close, #pay-close, #biz-x {
+  background: var(--btn-bg) !important;
+  border-color: var(--btn-bd) !important;
+  color: var(--btn-fg) !important;
+}
+.modal-close:hover, .pop-close:hover, .lb-close:hover, #pay-close:hover, #biz-x:hover {
+  background: var(--btn-bg-h) !important;
+  border-color: var(--btn-bd-h) !important;
+}
+
+/* 5. 商品编码页里的次级按钮 / 分页按钮：走次要按钮令牌 */
+.biz-u-sub {
+  background: var(--btn-bg) !important;
+  border: 1.4px solid var(--btn-bd) !important;
+  color: var(--btn-fg) !important;
+}
+.biz-u-sub:hover { background: var(--btn-bg-h) !important; border-color: var(--btn-bd-h) !important; }
+.biz-u-sub:active { background: var(--btn-bg-a) !important; border-color: var(--btn-bd-a) !important; }
+.biz-u-pg {
+  background: var(--btn-bg) !important;
+  border: 1.4px solid var(--btn-bd) !important;
+  color: var(--btn-fg) !important;
+}
+.biz-u-pg:hover:not(:disabled) { background: var(--btn-bg-h) !important; border-color: var(--btn-bd-h) !important; }
+.biz-u-pg.on {
+  background: var(--opt-sel-bg) !important;
+  border-color: #F2A9C4 !important;
+  color: var(--opt-sel-fg) !important;
+}
+.biz-u-sel {
+  border-color: var(--btn-bd) !important;
+  color: #55464E !important;
+}
+/* 6. 后台表单控件：描边拉到规范色 #FFD1E0，聚焦态与前台一致（高度沿用后台原有 44px，不改密度） */
+#admin-body input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]):not([type=color]):not([type=button]):not([type=submit]):not([type=reset]):not([type=hidden]),
+#admin-body select,
+#admin-body textarea {
+  border-color: #FFD1E0 !important;
+  border-radius: 12px !important;
+}
+#admin-body input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]):not([type=color]):not([type=button]):not([type=submit]):not([type=reset]):not([type=hidden]):focus,
+#admin-body select:focus,
+#admin-body textarea:focus {
+  border-color: #F2A9C4 !important;
+  box-shadow: 0 0 0 3px rgba(242, 169, 196, .18) !important;
+}
+#admin-body input::placeholder,
+#admin-body textarea::placeholder {
+  color: #B9A5AE !important;
+  opacity: 1 !important;
+}

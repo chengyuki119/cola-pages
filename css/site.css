@@ -399,7 +399,7 @@
   .cal-side { flex: 1; min-width: 0; font-size:16px; }
   .cal-head { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
   .cal-head b { flex: 1; text-align: center; font-size:18px; }
-  .cal-btn { border: none; background: var(--card-hover); color: var(--text); width: 26px; height: 26px; border-radius: 8px; cursor: pointer; font-size:17px; line-height: 1; padding: 0; }
+  .cal-btn { border: none; background: var(--card-hover); color: var(--text); width: 26px; height: 26px; border-radius: 999px; cursor: pointer; font-size:17px; line-height: 1; padding: 0; } /* 2026-11-04 23:19 圆角统一（原 8px） */
   .cal-btn.wide { width: auto; padding: 0 12px; font-size:15px; color: var(--text, #604C57); background: var(--accent-soft, #FCE4EC); border-radius: 999px; font-weight: 600; transition: background .2s, transform .15s; }
   .cal-btn.wide:hover { background: var(--accent, #FFD9E6); }
   .cal-btn.wide:active { transform: scale(.96); }
@@ -539,16 +539,17 @@
   }
   .back-link {
     display: inline-flex; align-items: center; gap: 8px;
-    color: #A98D96;
-    font-size:16px; font-weight:600;
-    padding: 9px 18px;
+    height: 38px; padding: 0 16px; box-sizing: border-box;
+    color: #604C57;
+    font-size: 16px; font-weight: 600;
+    border: 1.6px solid #EFB0C5;
     border-radius: 999px;
-    background: #FCE1EA; /* 与后台「返回主页」胶囊同款（她 20261029 03:39：全站统一） */
-    transition: filter .2s;
+    background: #F8D3E2; /* 2026-11-04 23:19：与「加入购物车」同一个浅粉色 */
+    transition: background .2s, border-color .2s;
     white-space: nowrap;
   }
-  .back-link:hover { background: #F8D3E2; }
-  .back-link:active { transform: scale(.97); }
+  .back-link:hover { background: #F0B9D2; border-color: #E4A0B8; }
+  .back-link:active { background: #EFB0C5; transform: scale(.97); }
   /* 返回链接与横幅标题同轴（她 20261028 01:06：参考前台 PC 布局，不再悬在视口最左） */
   .back-link.page-back { margin-left: max(2px, calc((100% - 1200px) / 2 + 10px)) !important; }
   .subpage-title { font-size:31px; margin: 0 auto 6px; }

@@ -4,7 +4,7 @@
     <link rel="preload" href="/fonts/Millo-RiceSoyMilk80.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/fonts/Millo-RiceSoyMilk90.woff2" as="font" type="font/woff2" crossorigin>
 <meta charset="UTF-8">
-  <script src="/js/lang-path.js?v=20261104W"></script>
+  <script src="/js/lang-path.js?v=20261105C"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>小柚的小铺 · Yuki's Shop</title>
 <link rel="manifest" href="/manifest.json">
@@ -67,17 +67,17 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .shop-header p { color: var(--muted); font-size:17px; }
   .back-link {
     display: inline-flex; align-items: center; gap: 8px;
-    color: #55464E;
-    font-size:16px; font-weight:600;
-    padding: 8.4px 16.4px;
-    border-radius: 999px;
+    height: 38px; padding: 0 16px; box-sizing: border-box;
+    color: #604C57;
+    font-size: 16px; font-weight: 600;
     border: 1.6px solid #EFB0C5;
-    background: #F5BFD1; /* 她 20261104 §七.1：Back to Home / Back to Shop 太浅，加深（尺寸不变）*/
-    transition: background .2s;
+    border-radius: 999px;
+    background: #F8D3E2; /* 2026-11-04 23:19：与「加入购物车」同一个浅粉色（原 #F5BFD1 太深） */
+    transition: background .2s, border-color .2s;
     white-space: nowrap;
   }
-  .back-link:hover { background: #EFB0C5; }
-  .back-link:active { transform: scale(.97); }
+  .back-link:hover { background: #F0B9D2; border-color: #E4A0B8; }
+  .back-link:active { background: #EFB0C5; transform: scale(.97); }
 
   .shop-body {
     max-width: 1200px;
@@ -348,12 +348,12 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
   .keycap-notes-wrap .pol-card p { margin: 0 0 10px; }
   .keycap-notes-wrap .pol-card p:last-child { margin-bottom: 0; }
 </style>
-  <link rel="stylesheet" href="/site-menu.css?v=20261104W">
-  <script src="/js/site-common.js?v=20261104W"></script>
-  <script src="/js/policy-content.js?v=20261104W"></script>
-  <script src="/site-menu.js?v=20261104W" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261104W">
-    <link rel="stylesheet" href="/css/input-unify.css?v=20261104W">
+  <link rel="stylesheet" href="/site-menu.css?v=20261105C">
+  <script src="/js/site-common.js?v=20261105C"></script>
+  <script src="/js/policy-content.js?v=20261105C"></script>
+  <script src="/site-menu.js?v=20261105C" defer></script>
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261105C">
+    <link rel="stylesheet" href="/css/input-unify.css?v=20261105C">
   </head>
 <body>
 <header class="topbar">
@@ -864,8 +864,8 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     }, 300);
   }
 </script>
-<script src="/js/shop-app.js?v=20261105B"></script>
-<script src="/js/site-footer.js?v=20261104W"></script>
+<script src="/js/shop-app.js?v=20261105C"></script>
+<script src="/js/site-footer.js?v=20261105C"></script>
 <script>
   // 统一 Footer（已有 <footer> 则替换其内容，不新建第二个）
   function initSiteFooter() { renderSiteFooter(); }
