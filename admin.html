@@ -604,7 +604,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .section-item .sec-name { font-size:18px; font-weight: 600; }
   .section-item .sec-meta { font-size:15px; color: var(--muted); margin-top: 3px; }
   .edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex: 1; min-width: 0; }
-  .edit-grid .e-desc, .edit-grid .e-file { grid-column: 1 / -1; }
+  .edit-grid .e-desc, .edit-grid .e-desc-en, .edit-grid .e-file { grid-column: 1 / -1; } /* 她 20261104：英文介绍框原来只占半栏（中文框通栏），改成一样宽 */
   /* 商品货币选择：自定义胶囊（¥/美元），不用原生 select */
   .cur-chip { border: 1.5px solid var(--accent-soft,#FCE4EC); background: #fff; color: var(--muted,#81717A); font-size: 15px; padding: 5px 14px; border-radius: 999px; cursor: pointer; font-family: inherit; }
   .cur-chip.on { background: var(--accent-soft,#FCE4EC); color: var(--accent-strong,#A98D96); border-color: var(--accent-soft,#FCE4EC); }
@@ -2641,9 +2641,10 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       });
   }
   function loadProducts() {
-    var tryLoad = function (withImages, withCur) {
-      var _sel = 'id,name,name_en,cover_zh,cover_en,price' + (withCur ? ',currency' : '') + ',description,tag,image_url' + (withImages ? ',images' : '') + ',sold,stock,display_only,created_at&order=created_at.desc&limit=200';
-      var _selOld = 'id,name,price,variants,weight_oz' + (withCur ? ',currency' : '') + ',description,tag,image_url' + (withImages ? ',images' : '') + ',sold,stock,display_only,created_at&order=created_at.desc&limit=200'; // variants/weight_oz 列已存在，必须带上（规格总库存依赖它）
+    var tryLoad = function (withImages, withCur, noDescEn) {
+      var _desc = ',description' + (noDescEn ? '' : ',description_en');
+      var _sel = 'id,name,name_en,cover_zh,cover_en,price' + (withCur ? ',currency' : '') + _desc + ',tag,image_url' + (withImages ? ',images' : '') + ',sold,stock,display_only,created_at&order=created_at.desc&limit=200';
+      var _selOld = 'id,name,price,variants,weight_oz' + (withCur ? ',currency' : '') + _desc + ',tag,image_url' + (withImages ? ',images' : '') + ',sold,stock,display_only,created_at&order=created_at.desc&limit=200'; // variants/weight_oz 列已存在，必须带上（规格总库存依赖它）
       return api('products?select=' + _sel).then(function (r) {
         if (r.ok) return r;
         return api('products?select=' + _selOld); // 新列还没建：退回旧列（name_en/封面暂不可编）
@@ -2652,8 +2653,9 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         .then(function (rows) { if (!Array.isArray(rows)) throw new Error(); return rows; });
     };
     // currency 列还没建（未跑 SQL9）时逐层降级：多图 → 单图 → 无货币列
-    tryLoad(true, true).catch(function () { return tryLoad(false, true); })
-      .catch(function () { return tryLoad(false, false); })
+    tryLoad(true, true, false).catch(function () { return tryLoad(false, true, false); })
+      .catch(function () { return tryLoad(false, false, false); })
+      .catch(function () { return tryLoad(false, false, true); }) // description_en 列也读不到时兜底：列表照常出，英文介绍暂不可编
       .then(function (rows) {
         // 成本单独取一次再合并（products 列级权限跑过之后，anon/顾客已经读不到 cost）
         return loadCostMap().then(function (costMap) {
@@ -2866,6 +2868,10 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           if (b.name_en || b.cover_zh !== undefined || b.cover_en !== undefined) { // name_en/cover 列还没建：去掉重试，其余照常保存
             var b3 = Object.assign({}, b); delete b3.name_en; delete b3.cover_zh; delete b3.cover_en;
             return tryPatch(b3, true);
+          }
+          if (b.description_en) { // description_en 列还没建：去掉它重试，其余字段照常保存
+            var b4 = Object.assign({}, b); delete b4.description_en;
+            return tryPatch(b4, true);
           }
           throw new Error();
         });
