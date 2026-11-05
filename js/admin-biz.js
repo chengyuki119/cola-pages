@@ -79,10 +79,20 @@
       '#biz-cam-box video{width:100%;max-width:420px;border-radius:14px;background:#000;display:block;margin:0 auto;}',
       '@media (max-width:720px){.biz-modal{padding:16px 14px;}}',
       /* 20261102 她指定：生成编码弹窗加大（760-850px），内部可滚动，两列布局不变，手机自适应 */
-      '.biz-modal-lg{max-width:800px;padding:26px 30px;max-height:88vh;overflow-y:auto;}',
-      '.biz-modal-lg .biz-in{padding:9px 12px;}',
+      '.biz-modal-lg{max-width:800px;padding:26px 30px;max-height:88vh;overflow-y:auto;}',      '.biz-modal-lg .biz-in{padding:9px 12px;}',
       '.biz-modal-lg label{line-height:1.5;}',
       '@media (max-width:720px){.biz-modal-lg{padding:18px 16px;max-height:86vh;}}',
+      /* 20261104 21:59 她要求：商品编码页去分类筛选，一条记录一行干净展示 */
+      '.biz-u-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;}',
+      '.biz-u-main{flex:1 1 240px;min-width:0;}',
+      '.biz-u-code{font-size:16px;color:var(--price,#ff6fa5);cursor:pointer;}',
+      '.biz-u-code:hover{opacity:.78;}',
+      '.biz-u-name{font-size:14px;color:var(--text,#62545B);margin-top:2px;overflow-wrap:anywhere;}',
+      '.biz-u-meta{font-size:13px;color:var(--muted,#81717A);margin-top:3px;overflow-wrap:anywhere;}',
+      '.biz-u-side{display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex:none;}',
+      '.biz-u-tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px;}',
+      '.biz-u-tools .btn-mini{padding:6px 14px;font-size:13px;}',
+      '@media (max-width:600px){.biz-u-side{width:100%;flex-direction:row;align-items:center;justify-content:space-between;}}',
       /* 20261026k 整改：手机端弹窗不再横向溢出——双列表单转单列，日期框约束宽度，输入 16px 防 iOS 聚焦缩放 */
       '@media (max-width:600px){#biz-mask .biz-modal div[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr !important;}' +
         '.biz-in{font-size:16px;} input[type="date"].biz-in{min-width:0;width:100% !important;} select.biz-in{min-width:0;width:100% !important;}}',
@@ -701,11 +711,7 @@
   /* ══════════════════════════════════════════════════════════════
      模块二：商品编码（bootUnits → #tab-units）
      ══════════════════════════════════════════════════════════════ */
-  var UNITS = { list: [], products: [], orders: [], filter: 'all', search: '', pmap: {}, omap: {}, sel: {} };
-  var UNIT_FILTERS = [
-    { v: 'all', label: '全部' }, { v: 'pending', label: '待质检' }, { v: 'pass', label: '合格' },
-    { v: 'fail', label: '不合格' }, { v: 'rework', label: '返工' }, { v: 'quarantine', label: '隔离' }
-  ];
+  var UNITS = { list: [], products: [], orders: [], search: '', pmap: {}, omap: {}, sel: {} };
 
   function bootUnits() {
     var panel = $('tab-units');
@@ -715,29 +721,31 @@
   }
 
   function renderUnitsPage(panel) {
+    /* 20261104 21:59 她指定：去掉「全部/待质检/合格/不合格/返工/隔离」六个分类，
+       页面只留：标题 + 一句说明 + 搜索框 + 生成单件编码 + 列表；质检结果只在每条记录上显示。 */
     panel.innerHTML =
       '<div class="card" style="padding:16px 20px;margin-bottom:14px;">' +
         '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">' +
           '<b style="font-size:17px;color:var(--text,#62545B);">商品编码</b>' +
-          '<span style="font-size:13px;color:var(--muted,#81717A);">每件手工品一个唯一编码（SYU-XXXXXX），扫码可查真伪与质检</span>' +
+          '<span style="font-size:13px;color:var(--muted,#81717A);">每件作品一个唯一编码，扫码可查真伪与质检记录</span>' +
           '<button class="btn-save-tb" id="biz-u-new" style="margin-left:auto;">＋ 生成单件编码</button>' +
-          '<button class="btn-mini" id="biz-u-bulk" style="padding:7px 16px;">批量生成</button>' +
-          '<button class="btn-mini" id="biz-u-print" style="padding:7px 16px;">打印标签（当前列表）</button>' +
+        '</div>' +
+        '<input id="biz-u-q" placeholder="搜索单件编码 / 型号编码 / 批次号" style="margin-top:12px;width:100%;max-width:420px;padding:9px 14px;font-size:14px;border:1.5px solid #FFD9E6;border-radius:12px;outline:none;font-family:inherit;color:var(--text,#62545B);background:#fff;box-sizing:border-box;">' +
+        '<div class="biz-u-tools">' +
+          '<button class="btn-mini" id="biz-u-bulk">批量生成</button>' +
+          '<button class="btn-mini" id="biz-u-print">打印标签（当前列表）</button>' +
           '<button class="biz-chip" id="biz-u-print-sel" style="display:none;">打印标签（<span id="biz-u-seln">0</span> 张勾选）</button>' +
         '</div>' +
-        '<div id="biz-u-filters" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;"></div>' +
-        '<input id="biz-u-q" placeholder="搜索单件编码 / 型号编码 / 批次号" style="margin-top:10px;width:100%;max-width:360px;padding:8px 14px;font-size:14px;border:1.5px solid #FFD9E6;border-radius:12px;outline:none;font-family:inherit;color:var(--text,#62545B);background:#fff;box-sizing:border-box;">' +
       '</div>' +
       '<div id="biz-u-list"><p style="color:var(--muted,#81717A);text-align:center;padding:24px 0;">加载中…</p></div>';
     $('biz-u-new').addEventListener('click', function () { openUnitForm(1); });
     $('biz-u-print').addEventListener('click', function () {
       var rows = UNITS.list.filter(function (u) {
-        if (UNITS.filter !== 'all' && u.qc_status !== UNITS.filter) return false;
         if (!UNITS.search) return true;
         return [u.unit_code, u.model_code, u.batch_code].some(function (v) { return String(v || '').toLowerCase().indexOf(UNITS.search) >= 0; });
       });
       if (!rows.length) { toast('当前列表没有可打印的编码'); return; }
-      if (rows.length > 100) { toast('一次最多打印 100 张，请先用筛选缩小范围'); return; }
+      if (rows.length > 100) { toast('一次最多打印 100 张，请先搜索缩小范围'); return; }
       printLabelsBatch(rows);
     });
     $('biz-u-bulk').addEventListener('click', function () { openUnitForm(null); });
@@ -748,18 +756,6 @@
       printLabelsBatch(rows);
     });
     $('biz-u-q').addEventListener('input', function () { UNITS.search = this.value.trim().toLowerCase(); renderUnitRows(); });
-    renderUnitFilters();
-  }
-
-  function renderUnitFilters() {
-    var box = $('biz-u-filters');
-    if (!box) return;
-    box.innerHTML = UNIT_FILTERS.map(function (f) {
-      return '<button type="button" class="biz-chip' + (UNITS.filter === f.v ? ' on' : '') + '" data-f="' + f.v + '">' + CK + esc(f.label) + '</button>';
-    }).join('');
-    box.querySelectorAll('[data-f]').forEach(function (b) {
-      b.addEventListener('click', function () { UNITS.filter = b.getAttribute('data-f'); renderUnitFilters(); renderUnitRows(); });
-    });
   }
 
   function loadUnits() {
@@ -788,32 +784,31 @@
     var box = $('biz-u-list');
     if (!box) return;
     var rows = UNITS.list.filter(function (u) {
-      if (UNITS.filter !== 'all' && u.qc_status !== UNITS.filter) return false;
       if (!UNITS.search) return true;
       return [u.unit_code, u.model_code, u.batch_code].some(function (v) { return String(v || '').toLowerCase().indexOf(UNITS.search) >= 0; });
     });
     if (!rows.length) {
       box.innerHTML = '<p style="color:var(--muted,#81717A);text-align:center;padding:24px 0;">' +
-        (UNITS.list.length ? '没有符合筛选条件的编码，换个筛选或关键词试试' : '还没有单件编码，点右上角「生成单件编码」给第一批作品发编号吧') + '</p>';
+        (UNITS.list.length ? '没有搜到匹配的编码' : '还没有编码，点右上角「生成单件编码」开始') + '</p>';
       return;
     }
     box.innerHTML = rows.map(function (u) {
       var p = u.product_id ? UNITS.pmap[u.product_id] : null;
       var o = u.order_id ? UNITS.omap[u.order_id] : null;
-      return '<div class="card" style="padding:10px 14px;margin-bottom:10px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;">' +
+      return '<div class="card biz-u-row" style="padding:10px 14px;margin-bottom:10px;">' +
         '<button type="button" class="biz-uchk'+(UNITS.sel[u.id]?' on':'')+'" data-chk="'+escAttr(u.id)+'" title="勾选后可批量打印标签" aria-label="勾选 '+escAttr(u.unit_code||'')+'">'+(UNITS.sel[u.id]?UCHK:'')+'</button>' +
         (p && p.image_url
-          ? '<img src="' + escAttr(p.image_url) + '" alt="" style="width:60px;height:60px;object-fit:cover;border-radius:12px;flex:none;">'
-          : '<span style="width:60px;height:60px;border-radius:12px;background:var(--accent-soft,#FCE4EC);display:inline-flex;align-items:center;justify-content:center;color:#D9A7C7;font-size:11px;flex:none;">无图</span>') +
-        '<div style="min-width:120px;">' +
-          '<b style="font-size:16px;color:var(--price,#ff6fa5);cursor:pointer;" data-act="unit" data-id="' + escAttr(u.id) + '">' + esc(u.unit_code || '') + '</b>' +
-          '<div style="font-size:13px;color:var(--text,#62545B);margin-top:2px;">' + esc(p ? p.name : (u.model_code || '未关联商品')) + '</div>' +
+          ? '<img src="' + escAttr(p.image_url) + '" alt="" style="width:52px;height:52px;object-fit:cover;border-radius:12px;flex:none;">'
+          : '<span style="width:52px;height:52px;border-radius:12px;background:var(--accent-soft,#FCE4EC);display:inline-flex;align-items:center;justify-content:center;color:#D9A7C7;font-size:11px;flex:none;">无图</span>') +
+        '<div class="biz-u-main">' +
+          '<b class="biz-u-code" data-act="unit" data-id="' + escAttr(u.id) + '" title="点开看这件作品的质检记录">' + esc(u.unit_code || '') + '</b>' +
+          '<div class="biz-u-name">' + esc(p ? p.name : '未关联商品') + '</div>' +
+          '<div class="biz-u-meta">型号 ' + esc(u.model_code || '—') + ' · 批次 ' + esc(u.batch_code || '—') + ' · 生成 ' + esc(u.created_at ? fmtDT(u.created_at) : (u.made_at || '—')) + (o ? ' · 订单 ' + esc(o.order_no) : '') + '</div>' +
         '</div>' +
-        '<span style="font-size:13px;color:var(--muted,#81717A);">批次 ' + esc(u.batch_code || '—') + '</span>' +
-        '<span style="font-size:13px;color:var(--muted,#81717A);">制作 ' + esc(u.made_at || '—') + '</span>' +
-        qcBadge(u.qc_status) +
-        '<span style="margin-left:auto;font-size:13px;color:var(--muted,#81717A);">' + (o ? '订单 ' + esc(o.order_no) : '未关联订单') + '</span>' +
-        '<button type="button" class="btn-mini" data-act="viewcode" data-id="'+escAttr(u.id)+'" style="padding:5px 12px;font-size:13px;">查看条码</button>' +
+        '<div class="biz-u-side">' +
+          qcBadge(u.qc_status) +
+          '<button type="button" class="btn-mini" data-act="viewcode" data-id="'+escAttr(u.id)+'" style="padding:5px 12px;font-size:13px;">查看条码</button>' +
+        '</div>' +
       '</div>';
     }).join('');
     box.querySelectorAll('[data-chk]').forEach(function (b) {
