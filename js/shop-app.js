@@ -127,7 +127,7 @@
     var k = cartKey(item.id, item.sku);
     var hit = CART.filter(function (x) { return cartKey(x.id, x.sku) === k; })[0];
     if (hit) hit.qty += qty || 1;
-    else CART.push({ id: item.id, sku: item.sku || '', name: item.name, image: item.image || '', price: item.price, currency: item.currency || 'USD', qty: qty || 1, checked: true });
+    else CART.push({ id: item.id, sku: item.sku || '', name: item.name, image: item.image || '', price: item.price, currency: item.currency || 'USD', qty: qty || 1, checked: true, variantName: item.variantName || '', dims: item.dims || null });
     saveCart();
   }
   function paintCartBadge() {
@@ -244,6 +244,80 @@
     return vs.filter(function (v) { return (v.sku || v.name || '') === sku; })[0] || vs.filter(function (v) { return v.sku === sku; })[0] || null;
   }
   function varKey(v) { return (v && (v.sku || v.name)) || ''; }
+  /* ── 她 20261104 §五：多维度规格（款式 / 尺寸 / 键盘高度）───────────
+     维度直接存在每个规格对象的 dims 上：{款式:'现货款', 尺寸:'1U'}，不新增数据库表。
+     一旦所有规格都带 dims 且维度一致，前台就切成「逐维选」；否则维持原来的单层规格胶囊。 */
+  function dimsOrder(p) {
+    var vs = variantsOf(p) || [];
+    if (!vs.length) return null;
+    var order = null;
+    for (var i = 0; i < vs.length; i++) {
+      var d = vs[i] && vs[i].dims;
+      if (!d || typeof d !== 'object') return null;
+      var ks = Object.keys(d);
+      if (!ks.length) return null;
+      if (!order) order = ks;
+      else if (ks.length !== order.length) return null;
+    }
+    return order;
+  }
+  function variantByDims(vs, sel) {
+    var names = Object.keys(sel);
+    if (!names.length) return null;
+    for (var i = 0; i < vs.length; i++) {
+      var d = vs[i].dims || {};
+      var ok = true;
+      for (var j = 0; j < names.length; j++) { if (d[names[j]] !== sel[names[j]]) { ok = false; break; } }
+      if (ok) return vs[i];
+    }
+    return null;
+  }
+  function dimChipOut(vs, dim, val, sel) { // 选了这一项后，还有没有有货且未禁用的组合
+    var probe = {};
+    Object.keys(sel).forEach(function (k) { probe[k] = sel[k]; });
+    probe[dim] = val;
+    var names = Object.keys(probe);
+    var any = false;
+    for (var i = 0; i < vs.length; i++) {
+      var v = vs[i];
+      if (v.frozen) continue;
+      if (parseInt(v.stock, 10) <= 0) continue;
+      var d = v.dims || {};
+      var ok = true;
+      for (var j = 0; j < names.length; j++) { if (d[names[j]] !== probe[names[j]]) { ok = false; break; } }
+      if (ok) { any = true; break; }
+    }
+    return !any;
+  }
+  function variantsHtml(p, vs, curSku, selIn) {
+    var order = dimsOrder(p);
+    if (!order) {
+      return '<div class="d-variants" style="margin:10px 0;"><div style="font-size:16px;margin-bottom:6px;">' + t('规格', 'Option') + '</div><div id="d-variants" style="display:flex;gap:8px;flex-wrap:wrap;">' +
+        vs.map(function (x) {
+          var out = variantStock(x) <= 0 || x.frozen === true;
+          return '<button type="button" class="sku-chip' + (varKey(x) === curSku ? ' on' : '') + (out ? ' dis' : '') + '" data-sku="' + escAttr(varKey(x)) + '">' + esc(x.name || x.sku) + (out ? ' · ' + t('缺货', 'Out') : '') + '</button>';
+        }).join('') + '</div></div>';
+    }
+    var sel = {};
+    if (selIn && Object.keys(selIn).length) { order.forEach(function (n) { if (selIn[n]) sel[n] = selIn[n]; }); }
+    else {
+      var cur = curSku ? currentVariant(p, curSku) : null;
+      if (cur && cur.dims) order.forEach(function (n) { sel[n] = cur.dims[n]; });
+    }
+    var blocks = order.map(function (n) {
+      var vals = [];
+      vs.forEach(function (v) { var x = (v.dims || {})[n]; if (x && vals.indexOf(x) === -1) vals.push(x); });
+      return '<div class="d-dim" data-dim="' + escAttr(n) + '" style="margin-bottom:10px;">' +
+        '<div class="d-dim-name" style="font-size:15px;color:var(--text,#62545B);margin-bottom:5px;">' + esc(n) + '</div>' +
+        '<div class="d-dim-opts" style="display:flex;gap:8px;flex-wrap:wrap;">' +
+        vals.map(function (val) {
+          var on = sel[n] === val;
+          var out = dimChipOut(vs, n, val, sel);
+          return '<button type="button" class="sku-chip dim-chip' + (on ? ' on' : '') + (out ? ' dis' : '') + '" data-dim="' + escAttr(n) + '" data-val="' + escAttr(val) + '">' + esc(val) + (out ? ' · ' + t('缺货', 'Out') : '') + '</button>';
+        }).join('') + '</div></div>';
+    }).join('');
+    return '<div class="d-variants" id="d-dims" style="margin:10px 0;"><div style="font-size:16px;margin-bottom:6px;">' + t('规格', 'Option') + '</div>' + blocks + '</div>';
+  }
   function variantStock(v) { return v ? (parseInt(v.stock, 10) || 0) : 0; }
   function openDetail(id, sku, retry) {
     if (!PRODUCTS.length && !(retry > 79)) { setTimeout(function () { openDetail(id, sku, (retry || 0) + 1); }, 250); return; } // 等商品异步加载完（她 20261103：Supabase 偶发慢响应 >5s 时会假报商品不存在，放宽到 20s）
@@ -254,6 +328,11 @@
     // 她 20261103 淘宝式：默认不选任何规格——URL 带了 sku 才恢复选中；不自动选中第一个
     if (vs && sku) { if (!currentVariant(p, sku)) sku = ''; } else if (!vs) sku = '';
     DETAIL = { p: p, sku: sku || '', qty: 1, i: 0, gallery: fullGallery(p) };
+    // 多维度：URL 带了 sku 就回填成已选维度；否则全部未选（她要求：默认不选任何规格）
+    (function () {
+      var _cur = (vs && sku) ? currentVariant(p, sku) : null;
+      DETAIL.selDims = (_cur && _cur.dims) ? Object.assign({}, _cur.dims) : {};
+    })();
     // URL 带规格（刷新/切语言恢复）→ 大图直接定位到该规格的第一张图
     if (sku) { var gi = galleryIndexOfSku(p, sku); if (gi > -1) DETAIL.i = gi; }
     try { history.replaceState(null, '', '?id=' + encodeURIComponent(p.id) + (sku ? '&sku=' + encodeURIComponent(sku) : '')); } catch (err) {} // 她 20261103：进详情就写进 URL，刷新/切语言后原地回到这个商品的详情，不再从头来
@@ -381,12 +460,7 @@
         '<div class="d-desc card" style="padding:12px 14px;margin:12px 0 0;background:var(--bg,#FFFBFC);border:1.5px solid var(--accent-soft,#FCE4EC);border-radius:16px;">' +
           '<b style="font-size:15px;">' + t('商品详情 ♡', 'Product Description ♡') + '</b>' +
           '<p style="color:var(--muted);font-size:16px;line-height:1.8;margin:6px 0 0;white-space:pre-line;">' + escBr((window.LANG === 'en' && p.description_en) ? p.description_en : (p.description || '')) + '</p></div>' +
-        (vs ?
-          '<div class="d-variants" style="margin:10px 0;"><div style="font-size:16px;margin-bottom:6px;">' + t('规格', 'Option') + '</div><div id="d-variants" style="display:flex;gap:8px;flex-wrap:wrap;">' +
-          vs.map(function (x) {
-            var out = variantStock(x) <= 0;
-            return '<button type="button" class="sku-chip' + (varKey(x) === d.sku ? ' on' : '') + (out ? ' dis' : '') + '" data-sku="' + escAttr(varKey(x)) + '">' + esc(x.name || x.sku) + (out ? ' · ' + t('缺货', 'Out') : '') + '</button>';
-          }).join('') + '</div></div>' : '') +
+        (vs ? variantsHtml(p, vs, d.sku, d.selDims) : '') +
         (st === 'on' ?
           '<div class="d-notice card" style="padding:12px 14px;margin:12px 0 0;background:var(--bg,#FFFBFC);border:1.5px solid var(--accent-soft,#FCE4EC);border-radius:16px;">' +
             '<b style="font-size:15px;">' + t('购买须知 ♡', 'Before You Order ♡') + '</b>' +
@@ -489,6 +563,13 @@
     document.querySelectorAll('#d-variants .sku-chip').forEach(function (chip) {
       chip.classList.toggle('on', chip.getAttribute('data-sku') === d.sku);
     });
+    // 多维度：按已选维度点亮/熄灭
+    if (d.selDims) {
+      document.querySelectorAll('#d-dims .dim-chip').forEach(function (chip) {
+        chip.classList.toggle('on', d.selDims[chip.getAttribute('data-dim')] === chip.getAttribute('data-val'));
+        chip.classList.toggle('dis', dimChipOut(vs, chip.getAttribute('data-dim'), chip.getAttribute('data-val'), d.selDims));
+      });
+    }
     var num = document.getElementById('d-price-num');
     if (num) num.textContent = sym(curOf(p, v)) + money(v ? (v.price != null ? v.price : p.price) : (rng ? rng.min : p.price)) + (!v && rng && rng.max > rng.min ? t(' 起', '+') : '');
     var line = document.getElementById('d-sku-line');
@@ -512,6 +593,34 @@
         d.i = j > -1 ? j : d.i;
         paintDetail();
         try { history.replaceState(null, '', '?id=' + encodeURIComponent(p.id) + '&sku=' + encodeURIComponent(d.sku)); } catch (e) {}
+      });
+    });
+    // 多维度：逐维度点选，全部维度选完才确定规格（缺货组合直接拦）
+    document.querySelectorAll('#d-dims .dim-chip').forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        var dim = chip.getAttribute('data-dim'), val = chip.getAttribute('data-val');
+        if (chip.classList.contains('dis')) { toast(t('这个组合缺货啦，换一个吧', 'This combination is out of stock')); return; }
+        if (!d.selDims) d.selDims = {};
+        var prevSel = {};
+        Object.keys(d.selDims).forEach(function (k) { prevSel[k] = d.selDims[k]; });
+        d.selDims[dim] = val;
+        var need = dimsOrder(p) || [];
+        var allPicked = need.every(function (n) { return !!d.selDims[n]; });
+        var match = allPicked ? variantByDims(vs, d.selDims) : null;
+        if (allPicked && !match) { // 不存在的组合：退回上一次选择
+          d.selDims = prevSel;
+          toast(t('这个组合不存在，换一个吧', 'This combination does not exist'));
+          return;
+        }
+        if (match && (parseInt(match.stock, 10) <= 0 || match.frozen === true)) { // 缺货 / 已禁用的组合不能选
+          d.selDims = prevSel;
+          toast(t('这个组合缺货了，换一个吧', 'This combination is out of stock'));
+          return;
+        }
+        d.sku = match ? varKey(match) : '';
+        if (match) { var jj = galleryIndexOfSku(p, d.sku); if (jj > -1) d.i = jj; }
+        paintDetail();
+        try { history.replaceState(null, '', '?id=' + encodeURIComponent(p.id) + (d.sku ? '&sku=' + encodeURIComponent(d.sku) : '')); } catch (e) {}
       });
     });
     // 她 20261103 淘宝式：点大图选规格——点中某规格的图→自动选中该规格；点封面/普通详情图不改变规格状态
@@ -551,7 +660,7 @@
     var v = vs ? currentVariant(p, d.sku) : null;
     var price = v ? (v.price != null ? v.price : p.price) : p.price;
     var img = v && Array.isArray(v.images) && v.images.length ? v.images[0] : (Array.isArray(p.images) && p.images.length ? p.images[0] : p.image_url);
-    cartAdd({ id: p.id, sku: d.sku, name: p.name + (v ? ' · ' + (v.name || d.sku) : ''), image: img, price: price, currency: curOf(p, v) }, d.qty);
+    cartAdd({ id: p.id, sku: d.sku, name: p.name + (v ? ' · ' + (v.name || d.sku) : ''), image: img, price: price, currency: curOf(p, v), variantName: v ? (v.name || d.sku) : '', dims: (v && v.dims) ? v.dims : null }, d.qty);
     toast(t('已加入购物车', 'Added to cart'));
     if (goCheckout) { renderCart(); showView('cart'); }
   }

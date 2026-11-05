@@ -730,7 +730,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     body:not(.adm-in) .wrap .adm-head { margin: 0 var(--adm-edge, 40px) 22px; justify-content: center; }
   </style>
   <script src="site-menu.js" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261104P">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261104Q">
   <style>
     /* ═══ 她 20261030 §5：后台字体统一加深（三档，仅后台生效）═══
        主要文字 #55464E ｜ 普通正文 #62545B ｜ 辅助文字 #81717A
@@ -2523,11 +2523,16 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       var _cat = document.getElementById('p-cat') ? document.getElementById('p-cat').value.trim() : '';
       var _nen = document.getElementById('p-name-en') ? document.getElementById('p-name-en').value.trim() : '';
       if (_unit) body.unit = _unit;
-      if (_sku) body.sku = _sku;
+      // 她 20261104 §四.1：商品编码留空就自动发一个（SY-P00001），规格 SKU 自动 SY-P00001-001
+      var _code = _sku || (window.ykNextProdCode ? window.ykNextProdCode() : '');
+      if (_code) body.sku = _code;
       if (_cat) body.category = _cat;
       if (_nen) body.name_en = _nen;
       var av = window.smAddVarCollect ? window.smAddVarCollect() : []; // 上架时一并提交规格（她 2026-10-25 要求上架页也能加规格）
-      if (av.length) body.variants = av;
+      if (av.length) {
+        if (_code && window.ykVarSkuOf) av.forEach(function (v, i) { if (!v.sku || !/^SY-P/.test(v.sku)) v.sku = window.ykVarSkuOf(_code, i); });
+        body.variants = av;
+      }
       if (urls.length > 1) body.images = urls; // 多图：images 列还没建时下面会自动降级为只存主图
       var tryPost = function (b, triedCur) {
         return api('products', { method: 'POST', body: JSON.stringify(b) }).then(function (r) {
@@ -2692,8 +2697,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   function loadProducts() {
     var tryLoad = function (withImages, withCur, noDescEn) {
       var _desc = ',description' + (noDescEn ? '' : ',description_en');
-      var _sel = 'id,name,name_en,cover_zh,cover_en,price' + (withCur ? ',currency' : '') + _desc + ',tag,image_url' + (withImages ? ',images' : '') + ',sold,stock,display_only,created_at&order=created_at.desc&limit=200';
-      var _selOld = 'id,name,price,variants,weight_oz' + (withCur ? ',currency' : '') + _desc + ',tag,image_url' + (withImages ? ',images' : '') + ',sold,stock,display_only,created_at&order=created_at.desc&limit=200'; // variants/weight_oz 列已存在，必须带上（规格总库存依赖它）
+      var _sel = 'id,name,name_en,cover_zh,cover_en,price,sku' + (withCur ? ',currency' : '') + _desc + ',tag,image_url' + (withImages ? ',images' : '') + ',sold,stock,display_only,created_at&order=created_at.desc&limit=200';
+      var _selOld = 'id,name,price,sku,variants,weight_oz' + (withCur ? ',currency' : '') + _desc + ',tag,image_url' + (withImages ? ',images' : '') + ',sold,stock,display_only,created_at&order=created_at.desc&limit=200'; // variants/weight_oz 列已存在，必须带上（规格总库存依赖它）
       return api('products?select=' + _sel).then(function (r) {
         if (r.ok) return r;
         return api('products?select=' + _selOld); // 新列还没建：退回旧列（name_en/封面暂不可编）
@@ -2743,6 +2748,9 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
             '<h3>' + esc(p.name) + '<span class="sold-badge ' + st[1] + '">' + st[0] + '</span></h3>' +
             '<p>' + esc(p.price ? (p.currency === 'USD' ? '$' : '¥') + p.price + ' · ' : '') + esc(p.description || '') + '</p>' +
             '<div class="private-line">' + stockInfo + ' · ' + costInfo + '（成本只有你自己能看到）</div>' +
+            '<div class="prod-code" style="font-size:13px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">编码 ' + (p.sku ? esc(p.sku) : '未分配（保存时自动生成）') +
+              (p.sku ? '<button class="btn-mini yk-barcode-btn" data-code="' + String(p.sku).replace(/"/g, '&quot;') + '" data-title="' + String(p.name || '').replace(/"/g, '&quot;') + '">条码</button>' : '') +
+              '</div>' +
             '<div class="actions" style="justify-content:flex-start;">' +
             '<button class="btn-mini btn-display">' + (p.display_only ? '恢复在售' : '设为仅展示') + '</button>' +
             (vsum == null ? '<button class="btn-mini btn-minus">库存 -1</button><button class="btn-mini btn-plus">库存 +1</button>' : '') +
@@ -7175,18 +7183,18 @@ function loadEmailLog() {
 </script>
 
 
-<script src="js/admin-shop.js?v=20261104P"></script>
-<script src="js/admin-import.js?v=20261104P"></script>
-<script src="js/admin-crm.js?v=20261104P"></script>
-<script src="js/admin-vip.js?v=20261104P" data-legacy="1"></script>
-<script src="js/admin-customer.js?v=20261104P"></script>
-<script src="js/admin-invite.js?v=20261104P"></script>
-<script src="js/vendor/jsQR.js?v=20261104P"></script>
-<script src="js/vendor/qrcode-generator.js?v=20261104P"></script>
-<script src="js/vendor/JsBarcode.all.min.js?v=20261104P"></script>
-<script src="js/admin-workbench.js?v=20261104P"></script>
-<script src="js/admin-biz.js?v=20261104P"></script>
-<script src="js/admin-export.js?v=20261104P"></script>
+<script src="js/admin-shop.js?v=20261104Q"></script>
+<script src="js/admin-import.js?v=20261104Q"></script>
+<script src="js/admin-crm.js?v=20261104Q"></script>
+<script src="js/admin-vip.js?v=20261104Q" data-legacy="1"></script>
+<script src="js/admin-customer.js?v=20261104Q"></script>
+<script src="js/admin-invite.js?v=20261104Q"></script>
+<script src="js/vendor/jsQR.js?v=20261104Q"></script>
+<script src="js/vendor/qrcode-generator.js?v=20261104Q"></script>
+<script src="js/vendor/JsBarcode.all.min.js?v=20261104Q"></script>
+<script src="js/admin-workbench.js?v=20261104Q"></script>
+<script src="js/admin-biz.js?v=20261104Q"></script>
+<script src="js/admin-export.js?v=20261104Q"></script>
 <footer style="padding:18px 0 0; text-align:center;">© 2026 Yuki · Made with Cola</footer>
 <script id="np-mobile-js">
 /* ═══ 她 20261104：手机端「上架新商品」好用化 ═══

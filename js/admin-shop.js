@@ -1246,11 +1246,12 @@
       return '<div class="sm-var-row' + (v.frozen ? ' is-frozen' : '') + '" data-i="' + i + '" style="' + (v.frozen ? 'opacity:.62;' : '') + '">' +
         '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px;">' +
           '<b style="font-size:14px;color:#55464E;">规格 ' + (i + 1) + '</b>' +
-          (v.frozen ? '<span style="font-size:12px;color:#A98D96;background:#FCE1EA;border-radius:999px;padding:1px 8px;">已冻结</span>' : '') +
+          (v.dims ? '<span class="sm-var-dimcap" style="font-size:12px;color:#81717A;background:#FFF7FA;border:1px solid #FFD1E0;border-radius:999px;padding:1px 8px;">' + esc(Object.keys(v.dims).map(function (k) { return v.dims[k]; }).join(' / ')) + '</span>' : '') +
+          (v.frozen ? '<span style="font-size:12px;color:#A98D96;background:#FCE1EA;border-radius:999px;padding:1px 8px;">已禁用</span>' : '') +
           '<span style="flex:1;"></span>' +
           '<button type="button" class="btn-mini sm-var-up" data-i="' + i + '" title="上移"' + (i === 0 ? ' disabled' : '') + ' style="padding:4px 10px;font-size:13px;">↑</button>' +
           '<button type="button" class="btn-mini sm-var-down" data-i="' + i + '" title="下移"' + (i === arr(card.__variants).length - 1 ? ' disabled' : '') + ' style="padding:4px 10px;font-size:13px;">↓</button>' +
-          '<button type="button" class="btn-mini sm-var-freeze" data-i="' + i + '" style="padding:4px 10px;font-size:13px;">' + (v.frozen ? '解冻' : '冻结') + '</button>' +
+          '<button type="button" class="btn-mini sm-var-freeze" data-i="' + i + '" style="padding:4px 10px;font-size:13px;">' + (v.frozen ? '启用' : '禁用') + '</button>' +
         '</div>' +
         '<div class="sm-var-grid">' +
           '<div><label>规格名（买家看到的）</label><input class="sv-name" placeholder="如：粉色款" value="' + escAttr(v.name || '') + '"></div>' +
@@ -1261,12 +1262,174 @@
         '<div class="sm-var-imgs">' + smVarImgHtml(v, i) +
           '<label class="btn-mini" style="cursor:pointer;">＋ 上传图片<input type="file" class="sm-var-file" data-i="' + i + '" accept="image/*" multiple hidden></label>' +
           '<button type="button" class="btn-del sm-var-del" data-i="' + i + '" style="padding:6px 14px;font-size:14px;margin-left:auto;">删除此规格</button>' +
+          (v.sku ? '<button type="button" class="btn-mini yk-barcode-btn" data-code="' + escAttr(v.sku) + '" data-title="' + escAttr(v.name || v.sku) + '" style="padding:6px 12px;font-size:14px;">条码</button>' : '') +
         '</div>' +
         '</div>';
     }).join('') : '<p class="hint" style="background:var(--card,#FFF0F5);border-radius:12px;padding:14px;text-align:center;">还没有规格，点上面「＋ 添加规格」加第一个选项</p>';
     var foot = card.querySelector('.sm-var-addfoot'); // 有规格时，列表下方才出现添加与复制按钮
     if (foot) foot.style.display = arr(card.__variants).length ? 'flex' : 'none';
+    smVarRenderDims(card);
   }
+  /* 她 20261104 §五：多维度规格（款式 / 尺寸 / 键盘高度）
+     维度本身不存在商品列里——直接挂在每个规格对象的 dims 上：{款式:'现货款',尺寸:'1U'}，不动表结构 */
+  function smDimNames(card) {
+    if (card.__dimNames) return card.__dimNames;
+    var keys = [];
+    arr(card.__variants).forEach(function (v) {
+      if (!v || !v.dims) return;
+      Object.keys(v.dims).forEach(function (k) { if (keys.indexOf(k) === -1) keys.push(k); });
+    });
+    card.__dimNames = keys.slice(0, 3);
+    return card.__dimNames;
+  }
+  function smDimOptions(card, name) {
+    var out = [];
+    arr(card.__variants).forEach(function (v) {
+      if (!v || !v.dims || !v.dims[name]) return;
+      if (out.indexOf(v.dims[name]) === -1) out.push(v.dims[name]);
+    });
+    return out;
+  }
+  function smVarRenderDims(card) {
+    var box = card.querySelector('.sm-var-rows');
+    if (!box) return;
+    var panel = card.querySelector('.sm-dim-panel');
+    if (!panel) {
+      panel = document.createElement('div');
+      panel.className = 'sm-dim-panel';
+      panel.style.cssText = 'margin:0 0 12px;padding:12px;border:1.5px dashed #FFD1E0;border-radius:14px;background:#FFF7FA;';
+      box.parentNode.insertBefore(panel, box);
+    }
+    var names = smDimNames(card);
+    var rows = [0, 1, 2].map(function (i) {
+      var nm = names[i] || '';
+      var opts = nm ? smDimOptions(card, nm).join('，') : '';
+      return '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">' +
+        '<input class="sm-dim-name" data-d="' + i + '" placeholder="维度' + (i + 1) + '名称，如 款式" value="' + escAttr(nm) + '" style="width:130px;padding:7px 10px;border-radius:10px;border:1.5px solid #FFD1E0;background:#fff;color:#55464E;font-size:15px;font-family:inherit;">' +
+        '<input class="sm-dim-opts" data-d="' + i + '" placeholder="选项，用逗号隔开，如 现货款,贴纸瑕疵款" value="' + escAttr(opts) + '" style="flex:1;min-width:180px;padding:7px 10px;border-radius:10px;border:1.5px solid #FFD1E0;background:#fff;color:#55464E;font-size:15px;font-family:inherit;">' +
+        '</div>';
+    }).join('');
+    panel.innerHTML = '<div style="font-size:14px;font-weight:700;color:#55464E;margin-bottom:8px;">多维度规格（可留空不用）</div>' + rows +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">' +
+      '<button type="button" class="btn-mini sm-dim-gen" style="padding:8px 14px;font-size:14px;">按维度生成组合</button>' +
+      '<button type="button" class="btn-mini sm-dim-clear" style="padding:8px 14px;font-size:14px;">清空维度</button>' +
+      '<span style="font-size:13px;color:#81717A;">生成后逐个填价格/库存，SKU 可点「生成编码」</span>' +
+      '</div>';
+  }
+  window.smDimRead = function (card) {
+    var out = [];
+    Array.prototype.forEach.call(card.querySelectorAll('.sm-dim-panel .sm-dim-name'), function (inp) {
+      var i = parseInt(inp.getAttribute('data-d'), 10);
+      var nm = (inp.value || '').trim();
+      var optEl = card.querySelector('.sm-dim-panel .sm-dim-opts[data-d="' + i + '"]');
+      var opts = (optEl ? optEl.value : '').split(/[,，、\/]/).map(function (x) { return x.trim(); }).filter(function (x) { return x; });
+      if (nm && opts.length) out.push({ name: nm, options: opts });
+    });
+    return out;
+  };
+  window.smDimGenerate = function (card) {
+    var dims = window.smDimRead(card);
+    if (!dims.length) { toast('先填至少一个维度和它的选项'); return; }
+    var combos = [{}];
+    dims.forEach(function (d) {
+      var nxt = [];
+      combos.forEach(function (c) {
+        d.options.forEach(function (o) { var x = Object.assign({}, c); x[d.name] = o; nxt.push(x); });
+      });
+      combos = nxt;
+    });
+    var old = arr(card.__variants);
+    var oldByName = {};
+    old.forEach(function (v) { if (v && v.name) oldByName[v.name] = v; });
+    card.__variants.length = 0;
+    combos.forEach(function (c) {
+      var nm = dims.map(function (d) { return c[d.name]; }).join(' / ');
+      var prev = oldByName[nm] || null;
+      card.__variants.push({
+        name: nm, dims: c,
+        sku: prev ? (prev.sku || '') : '',
+        price: prev ? (prev.price == null ? '' : prev.price) : '',
+        stock: prev ? (prev.stock == null ? '' : prev.stock) : '',
+        images: prev && prev.images ? arr(prev.images).slice() : [],
+        frozen: prev ? prev.frozen === true : false
+      });
+    });
+    smVarRenderRows(card);
+    toast('已生成 ' + combos.length + ' 个组合，原来的价格/库存/图片已保留');
+  };
+  /* ── 商品编码 / 规格 SKU 自动生成（她 20261104 §四.1）───────────────
+     体系：商品 SY-P00001，规格 SY-P00001-001（规格 SKU 就是扫码用的条码）
+     序列号存 site_settings.prod_code_seq，单调递增，删商品也不回收 */
+  var SKU_SEQ = 0, SKU_SEQ_READY = false;
+  function padN(n, w) { n = String(n); while (n.length < w) n = '0' + n; return n; }
+  function skuSeqOf(rows) {
+    var m = 0;
+    arr(rows).forEach(function (r) {
+      var g = String((r && r.sku) || '').match(/^SY-P(\d{3,})/);
+      if (g) { var n = parseInt(g[1], 10); if (n > m) m = n; }
+    });
+    return m;
+  }
+  function initSkuSeq() {
+    if (SKU_SEQ_READY) return Promise.resolve(SKU_SEQ);
+    return Promise.all([
+      restGet('products?select=sku&limit=500').catch(function () { return []; }),
+      restGet('site_settings?select=value&key=eq.prod_code_seq').catch(function () { return []; })
+    ]).then(function (res) {
+      var saved = 0;
+      try { var v = JSON.parse((arr(res[1])[0] || {}).value || 'null'); saved = (v && parseInt(v.n, 10)) || 0; } catch (e) {}
+      SKU_SEQ = Math.max(saved, skuSeqOf(res[0]));
+      SKU_SEQ_READY = true;
+      return SKU_SEQ;
+    }).catch(function () { SKU_SEQ_READY = true; return SKU_SEQ; });
+  }
+  window.ykNextProdCode = function () {
+    SKU_SEQ = (SKU_SEQ || 0) + 1;
+    var n = SKU_SEQ;
+    api('site_settings?on_conflict=key', { method: 'POST', headers: { 'Prefer': 'resolution=merge-duplicates' }, body: JSON.stringify({ key: 'prod_code_seq', value: JSON.stringify({ n: n }) }) }).catch(function () {});
+    return 'SY-P' + padN(n, 5);
+  };
+  window.ykVarSkuOf = function (code, i) { return code + '-' + padN(i + 1, 3); };
+  /* 条码弹窗：手机举着屏幕就能扫（Code128，内容就是 SKU 本身） */
+  window.ykShowBarcode = function (code, title) {
+    if (!code) { toast('还没有编码'); return; }
+    var old = document.getElementById('yk-bc-mask');
+    if (old && old.parentNode) old.parentNode.removeChild(old);
+    var wrap = document.createElement('div');
+    wrap.id = 'yk-bc-mask';
+    wrap.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(85,70,78,.28);display:flex;align-items:center;justify-content:center;padding:16px;';
+    wrap.innerHTML = '<div style="background:#FFFBFC;border:1.6px solid #FFD1E0;border-radius:18px;padding:16px 18px 14px;max-width:420px;width:100%;text-align:center;">' +
+      '<div style="font-size:16px;color:#55464E;font-weight:700;margin-bottom:8px;">' + esc(title || '条码') + '</div>' +
+      '<svg id="yk-bc-svg" style="max-width:100%;"></svg>' +
+      '<div style="font-size:14px;color:#81717A;margin-top:6px;word-break:break-all;">' + esc(code) + '</div>' +
+      '<button type="button" id="yk-bc-close" style="margin-top:12px;width:100%;border:1.6px solid #EFB0C5;background:#F5BFD1;color:#55464E;font-weight:600;font-size:16px;padding:10px 0;border-radius:999px;font-family:inherit;">关闭</button></div>';
+    document.body.appendChild(wrap);
+    try { window.JsBarcode('#yk-bc-svg', code, { format: 'CODE128', width: 2, height: 70, fontSize: 13, margin: 6, background: '#FFFFFF', lineColor: '#55464E' }); } catch (e) { toast('条码生成失败：' + (e && e.message ? e.message : '')); }
+    function close() { if (wrap.parentNode) wrap.parentNode.removeChild(wrap); }
+    wrap.addEventListener('click', function (e) { if (e.target === wrap) close(); });
+    document.getElementById('yk-bc-close').addEventListener('click', close);
+  };
+  function varCardOf(el) {
+    var n = el;
+    while (n && n !== document.body) { if (n.__variants) return n; n = n.parentElement; }
+    return null;
+  }
+  document.addEventListener('click', function (e) {
+    var t2 = e.target;
+    if (!t2 || !t2.closest) return;
+    var gen = t2.closest('.sm-dim-gen');
+    if (gen) { var c1 = varCardOf(gen); if (c1) window.smDimGenerate(c1); return; }
+    var clr = t2.closest('.sm-dim-clear');
+    if (clr) {
+      var c2 = varCardOf(clr), panel = c2 && c2.querySelector('.sm-dim-panel');
+      if (panel) { Array.prototype.forEach.call(panel.querySelectorAll('input'), function (i) { i.value = ''; }); }
+      toast('维度已清空（规格列表本身没动）');
+      return;
+    }
+    var bc = t2.closest('.yk-barcode-btn');
+    if (bc) { window.ykShowBarcode(bc.getAttribute('data-code'), bc.getAttribute('data-title')); return; }
+  });
+  initSkuSeq();
   // 复制上一条：名称/价格/库存/SKU/规格图一起带过来，不用重新填；冻结状态不复制
   function smVarDupLast(list) {
     var last = arr(list)[arr(list).length - 1];
@@ -1292,8 +1455,15 @@
     var wEl = card.querySelector('.e-weight');
     var body = {};
     if (wEl) body.weight_oz = wEl.value.trim() === '' ? null : parseFloat(wEl.value);
-    var clean = vlist.filter(function (v) { return v.sku || v.name; }).map(function (v) {
-      return { sku: (v.sku || '').trim() || (v.name || '').trim(), name: v.name || '', price: fmtMoney(v.price), stock: parseInt(v.stock, 10) || 0, images: arr(v.images), frozen: v.frozen === true }; // SKU 留空时自动用规格名，保证下单 RPC 能精确匹配
+    var clean0 = vlist.filter(function (v) { return v.sku || v.name; });
+    // 她 20261104 §四.1：商品没编码就自动发一个（SY-P00001），规格 SKU = 商品编码-序号
+    var code = (card.__p && card.__p.sku) ? String(card.__p.sku) : '';
+    if (!code) code = window.ykNextProdCode ? window.ykNextProdCode() : '';
+    if (code) body.sku = code;
+    var clean = clean0.map(function (v, i) {
+      var raw = (v.sku || '').trim();
+      var sku = raw || (code ? window.ykVarSkuOf(code, i) : (v.name || '').trim());
+      return { sku: sku, name: v.name || '', price: fmtMoney(v.price), stock: parseInt(v.stock, 10) || 0, images: arr(v.images), frozen: v.frozen === true, dims: (v.dims && typeof v.dims === 'object' && Object.keys(v.dims).length) ? v.dims : undefined };
     });
     if (card.__p || clean.length) body.variants = clean;
     if (!Object.keys(body).length) return;
@@ -1319,7 +1489,7 @@
       v.stock = row.querySelector('.sv-stock').value.trim();
     });
     return ADDVAR.list.filter(function (v) { return v.sku || v.name; }).map(function (v) {
-      return { sku: (v.sku || '').trim() || (v.name || '').trim(), name: v.name || '', price: fmtMoney(v.price), stock: parseInt(v.stock, 10) || 0, images: arr(v.images), frozen: v.frozen === true }; // SKU 留空时自动用规格名，保证下单 RPC 能精确匹配
+      return { sku: (v.sku || '').trim() || (v.name || '').trim(), name: v.name || '', price: fmtMoney(v.price), stock: parseInt(v.stock, 10) || 0, images: arr(v.images), frozen: v.frozen === true, dims: (v.dims && typeof v.dims === 'object' && Object.keys(v.dims).length) ? v.dims : undefined }; // SKU 留空时自动用规格名，保证下单 RPC 能精确匹配
     });
   };
   window.smAddVarReset = function () { ADDVAR.list = []; smVarRenderRows(document.getElementById('tab-shop')); };
