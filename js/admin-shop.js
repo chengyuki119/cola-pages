@@ -126,6 +126,135 @@
     '@media (max-width:640px) { #tab-shopmgr .sm-stats { grid-template-columns:repeat(2,1fr); } #tab-shopmgr .sm-var-grid, #tab-shop .sm-var-grid { grid-template-columns:1fr 1fr; } }'
   ].join('\n');
   document.head.appendChild(css);
+  /* ── 商品规格区三步式 UI（2026-11-04 20:46）── */
+  (function () {
+    var c2 = document.createElement('style');
+    c2.id = 'sm-spec2-css';
+    c2.textContent = [
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec { font-size:15px; color:#62545B; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec * { box-sizing:border-box; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-spec-top { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:0 0 12px; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-mode-seg { display:inline-flex; padding:3px; background:#FFF7FA; border:1.5px solid #FFD1E0; border-radius:999px; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-mode-btn { border:0; background:transparent; color:#A98D96; font-size:14px; font-weight:600; padding:7px 16px; border-radius:999px; cursor:pointer; font-family:inherit; line-height:1.2; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-mode-btn.on { background:#FCE1EA; color:#55464E; box-shadow:inset 0 0 0 1.5px #F2A9C4; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-mode-hint { font-size:13px; color:#81717A; }',
+      /* 步骤条 */
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-steps { display:flex; align-items:center; gap:5px; flex-wrap:wrap; margin:0 0 12px; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-step { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:#B9A5AE; background:#FFF7FA; border:1.5px solid #F6E7EE; border-radius:999px; padding:4px 12px 4px 5px; line-height:1.3; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-step i { width:18px; height:18px; border-radius:50%; background:#F8F0F3; color:#B9A5AE; font-style:normal; font-size:12px; display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-step.on { color:#55464E; border-color:#F2A9C4; background:#FCE1EA; font-weight:600; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-step.on i { background:#F5BFD1; color:#55464E; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-step.done { color:#A98D96; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-step.done i { background:#F2A9C4; color:#fff; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-step-line { width:10px; height:1.5px; background:#F6E7EE; flex:0 0 auto; }',
+      /* 折叠区块 */
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-sec { border:1.5px solid #FFD9E6; border-radius:14px; background:#FFFCFD; padding:12px 14px; margin:0 0 12px; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-sec-h { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-sec-h b { font-size:16px; color:#55464E; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-cnt { font-size:13px; color:#A98D96; background:#FCE1EA; border-radius:999px; padding:1px 9px; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-sec-hint { font-size:13px; color:#81717A; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-fold-btn { margin-left:auto; border:1.5px solid #FFD1E0; background:#FFF7FA; color:#A98D96; border-radius:999px; padding:5px 12px; font-size:13px; font-family:inherit; cursor:pointer; line-height:1.4; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-fold-btn:hover { background:#FCE1EA; border-color:#F5BFD1; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-sec-body { margin-top:10px; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-sec.is-folded > .sm-sec-body { display:none; }',
+      /* 维度卡 */
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-dim-row { border:1.5px solid #FFD9E6; border-radius:12px; background:#fff; padding:10px 12px; margin:0 0 10px; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-dim-top { display:flex; align-items:center; gap:8px; position:relative; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-dim-name { flex:0 1 210px; min-width:110px; padding:7px 10px; border:1.5px solid #FFD1E0; border-radius:9px; background:#FFF7FA; color:#55464E; font-size:15px; font-family:inherit; font-weight:600; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-dim-name:focus { outline:none; border-color:#F2A9C4; background:#fff; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-dim-cnt { font-size:13px; color:#81717A; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-more-btn { margin-left:auto; width:30px; height:30px; border:1.5px solid transparent; background:transparent; color:#B9A5AE; border-radius:9px; font-size:17px; line-height:1; cursor:pointer; font-family:inherit; flex:0 0 auto; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-more-btn:hover { background:#FCE1EA; color:#A98D96; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-more-menu { display:none; position:absolute; right:0; top:calc(100% + 4px); z-index:30; min-width:124px; background:#FFFBFC; border:1.5px solid #FFD1E0; border-radius:12px; box-shadow:0 8px 22px rgba(180,120,150,.18); padding:5px; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-more-menu.open { display:block; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-more-menu button { display:block; width:100%; text-align:left; border:0; background:transparent; color:#55464E; font-size:14px; font-family:inherit; padding:8px 10px; border-radius:8px; cursor:pointer; white-space:nowrap; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-more-menu button:hover { background:#FCE1EA; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-more-menu button:disabled { color:#B9A5AE; background:transparent; cursor:default; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-more-menu button.sm-var-del, :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-more-menu button.sm-dim-del { color:#C4636E; }',
+      /* 选项胶囊 */
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-dim-opts { display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-top:9px; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-dim-empty { font-size:13px; color:#B9A5AE; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-opt-chip { display:inline-flex; align-items:center; gap:2px; background:#FCE1EA; border:1.5px solid #F2A9C4; border-radius:999px; padding:3px 4px 3px 10px; font-size:14px; color:#55464E; cursor:grab; user-select:none; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-opt-chip.dragging { opacity:.55; cursor:grabbing; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-opt-txt { cursor:text; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-opt-del { border:0; background:transparent; color:#A98D96; font-size:12px; line-height:1; padding:2px 4px; cursor:pointer; font-family:inherit; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-opt-del:hover { color:#C4636E; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-opt-addwrap { display:inline-flex; align-items:center; gap:6px; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-opt-add { border:1.5px dashed #FFD1E0; background:#FFF7FA; color:#A98D96; border-radius:999px; padding:4px 12px; font-size:14px; font-family:inherit; cursor:pointer; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-opt-add:hover { background:#FCE1EA; border-color:#F5BFD1; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-opt-in { width:158px; padding:5px 11px; border:1.5px solid #F2A9C4; border-radius:999px; background:#fff; color:#55464E; font-size:14px; font-family:inherit; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-opt-in:focus { outline:none; border-color:#EFB0C5; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-dim-foot { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-dim-add { border:1.5px dashed #FFD1E0; background:#FFF7FA; color:#A98D96; border-radius:999px; padding:8px 16px; font-size:14px; font-weight:600; font-family:inherit; cursor:pointer; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-dim-add:hover { background:#FCE1EA; border-color:#F5BFD1; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-dim-clear { border:0; background:transparent; color:#B9A5AE; font-size:13px; font-family:inherit; cursor:pointer; text-decoration:underline; padding:4px 2px; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-dim-clear:hover { color:#A98D96; }',
+      /* 生成条 */
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-genbar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:0 0 14px; padding:12px 14px; border:1.5px dashed #F2A9C4; border-radius:14px; background:#FFF7FA; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-gen-info { font-size:14px; color:#62545B; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-gen-info b { color:#55464E; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-gen-btn { margin-left:auto; border:1.6px solid #EFB0C5; background:#F5BFD1; color:#55464E; font-weight:700; font-size:16px; padding:11px 26px; border-radius:999px; font-family:inherit; cursor:pointer; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-gen-btn:hover { background:#EFB0C5; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-gen-btn:active { background:#E9A8BE; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-gen-btn:disabled { background:#F8F0F3; border-color:#EADCE2; color:#B9A5AE; cursor:not-allowed; }',
+      /* 组合表 */
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-head { display:grid; grid-template-columns:minmax(0,1.7fr) minmax(0,0.9fr) 112px 100px 104px 84px 34px; gap:8px; padding:0 9px 6px; font-size:13px; color:#81717A; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-row { display:grid; grid-template-columns:minmax(0,1.7fr) minmax(0,0.9fr) 112px 100px 104px 84px 34px; gap:8px; align-items:center; background:#fff; border:1.5px solid #F8E6EE; border-radius:10px; padding:7px 9px; margin:0 0 6px; box-shadow:none; position:relative; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-row:hover { border-color:#F2D3DF; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-row.is-off { background:#FDF7FA; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-row.is-off .sv-name, :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-row.is-off .sv-sku { color:#A98D96; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-row input { width:100%; padding:7px 9px; font-size:14px; border:1.5px solid #F4E2EA; border-radius:8px; background:#fff; color:#55464E; font-family:inherit; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec input[type=number]::-webkit-outer-spin-button, :is(#tab-shop,#tab-shopmgr) .sm-spec input[type=number]::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; height:auto; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec input[type=number] { -moz-appearance:textfield; appearance:textfield; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-row input:focus { outline:none; border-color:#F2A9C4; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-vc { min-width:0; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-vc-name input { font-weight:600; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-vc-dims { display:block; font-size:12px; color:#B9A5AE; margin-top:3px; padding-left:2px; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-vc-img { display:flex; align-items:center; gap:4px; flex-wrap:wrap; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-thumb { position:relative; display:inline-block; width:32px; height:32px; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-thumb img { width:32px; height:32px; border-radius:7px; object-fit:cover; background:#FFF7FA; cursor:pointer; display:block; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-imgdel { position:absolute; top:-5px; right:-5px; width:16px; height:16px; border:0; border-radius:50%; background:#FBE3E6; color:#C4636E; font-size:10px; line-height:16px; text-align:center; cursor:pointer; padding:0; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-thumb-more { font-size:12px; color:#81717A; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-thumb-empty { font-size:12px; color:#C9B2BC; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-thumb-add { width:32px; height:32px; border:1.5px dashed #FFD1E0; border-radius:7px; color:#C9B2BC; font-size:15px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-thumb-add:hover { border-color:#F2A9C4; color:#A98D96; background:#FFF7FA; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-freeze { border:1.5px solid #FFD1E0; background:#FFF7FA; color:#A98D96; border-radius:999px; padding:5px 10px; font-size:13px; font-family:inherit; cursor:pointer; white-space:nowrap; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-freeze:hover { background:#FCE1EA; border-color:#F5BFD1; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-freeze.off { background:#F8F0F3; border-color:#EADCE2; color:#B9A5AE; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-vc-more { position:relative; display:flex; justify-content:flex-end; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-combo-empty { margin:0; padding:16px 10px; text-align:center; font-size:14px; color:#B9A5AE; background:#FFF7FA; border:1.5px dashed #FFD9E6; border-radius:10px; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-batch { margin-top:10px; display:flex; flex-direction:column; align-items:flex-start; gap:8px; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-batch-btn { margin-left:0; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-batch-body { display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:10px 12px; background:#FFF7FA; border:1.5px dashed #FFD9E6; border-radius:12px; width:100%; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-batch-body input { width:130px; padding:7px 10px; border:1.5px solid #FFD1E0; border-radius:10px; background:#fff; color:#55464E; font-size:14px; font-family:inherit; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-addfoot { margin:14px 0 0; }',
+      /* 手机端 */
+      '@media (max-width:760px) {',
+      '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-head { display:none; }',
+      '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-row { grid-template-columns:1fr 1fr; gap:6px 8px; padding:10px; }',
+      '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-vc-name, :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-vc-sku { grid-column:1 / -1; }',
+      '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-vc-name input { padding-right:34px; }',
+      '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-vc-more { position:absolute; top:8px; right:8px; }',
+      '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-vc-img { grid-column:1 / 2; }',
+      '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-vc-state { grid-column:2 / 3; display:flex; justify-content:flex-end; }',
+      '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-row input { font-size:15px; padding:8px 10px; }',
+      '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-dim-name { flex:1 1 100%; font-size:15px; }',
+      '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-opt-in { width:100%; min-width:0; flex:1 1 140px; font-size:15px; }',
+      '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-opt-addwrap { flex:1 1 100%; }',
+      '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-opt-add, :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-dim-add { min-height:40px; }',
+      '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-gen-btn { width:100%; margin-left:0; min-height:50px; }',
+      '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-gen-info { width:100%; }',
+      '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-batch-body input { flex:1 1 120px; width:auto; min-height:42px; font-size:15px; }',
+      '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-more-btn { width:34px; height:34px; }',
+      '}',
+      '@media (max-width:360px) {',
+      '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-step { font-size:12px; padding:3px 9px 3px 4px; }',
+      '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-step-line { display:none; }',
+      '}'
+    ].join('\n');
+    document.head.appendChild(c2);
+  })();
+
 
   /* ── 状态 ── */
   var SM = {
@@ -1191,13 +1320,10 @@
       var block = document.createElement('div');
       block.className = 'sm-var-block';
       block.style.gridColumn = '1 / -1';
-      block.innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;">' +
+      block.innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">' +
         '<b style="font-size:16px;color:var(--text);">商品规格</b>' +
-        '<span class="hint" style="flex:1;min-width:180px;">一个规格＝买家看到的一个选项（比如一个颜色款）；全部留空＝单规格</span>' +
-        '<button type="button" class="btn-mini sm-var-add" style="background:#FCE1EA;color:#A98D96;padding:9px 20px;font-size:15px;">＋ 添加规格</button></div>' +
-        '<div class="sm-var-rows"></div>' +
-        '<div class="sm-var-addfoot"><button type="button" class="btn-mini sm-var-add">＋ 添加规格</button><button type="button" class="btn-mini sm-var-dup">复制上一条</button></div>' +
-        '<p class="hint" style="margin:6px 0 0;">每个规格可以传自己的图，第一张就是这个选项的封面；详情页点选项会换图、换价、换库存。</p>';
+        '<span class="hint" style="flex:1;min-width:180px;">一套卖同一件东西的多个选项时才用；不填价格 / 库存就跟随商品本身</span></div>' +
+        '<div class="sm-var-rows"></div>';
       slot.appendChild(block);
       card.__block = block; // 记住自己那块规格区，避免和上架表单（同在一个 tab 里）互相串到对方的 DOM
       smVarRenderRows(card);
@@ -1218,64 +1344,21 @@
       })
       .catch(function () { build(local); });
   }
-  function smVarImgHtml(v, i) {
-    var imgs = arr(v.images);
-    return imgs.map(function (u, k) {
-      return '<span style="position:relative;display:inline-block;"><img src="' + escAttr(u) + '">' +
-        '<button type="button" class="sm-var-imgdel" data-i="' + i + '" data-k="' + k + '" title="删除图片">✕</button>' +
-        (imgs.length > 1 && k > 0 ? '<button type="button" class="sm-var-imgmv" data-i="' + i + '" data-k="' + k + '" data-d="-1" title="往前一位（第一位＝这个规格的封面）" style="position:absolute;left:1px;bottom:1px;width:15px;height:15px;line-height:1;font-size:10px;padding:0;border:none;border-radius:50%;background:rgba(255,255,255,.92);color:#A98D96;cursor:pointer;">‹</button>' : '') +
-        (imgs.length > 1 && k < imgs.length - 1 ? '<button type="button" class="sm-var-imgmv" data-i="' + i + '" data-k="' + k + '" data-d="1" title="往后一位" style="position:absolute;right:1px;bottom:1px;width:15px;height:15px;line-height:1;font-size:10px;padding:0;border:none;border-radius:50%;background:rgba(255,255,255,.92);color:#A98D96;cursor:pointer;">›</button>' : '') +
-        (k === 0 && imgs.length > 1 ? '<span style="position:absolute;left:1px;bottom:1px;background:#A98D96;color:#fff;border-radius:999px;padding:0 4px;font-size:9px;line-height:12px;">封面</span>' : '') +
-        '</span>';
-    }).join('');
-  }
-  function smVarRenderRows(card) {
-    var scope = card.__block || card;
-    var box = scope.querySelector('.sm-var-rows');
-    if (!box) return;
-    var head = scope.querySelector('.sm-var-batchbar');
-    if (!head) {
-      head = document.createElement('div');
-      head.className = 'sm-var-batchbar';
-      head.style.cssText = 'display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:2px 0 10px;';
-      head.innerHTML = '<span class="hint" style="margin:0;">批量：</span>' +
-        '<input class="sm-batch-price" type="number" min="0" step="0.01" placeholder="统一价格" style="width:120px;padding:7px 10px;border-radius:10px;border:1.5px solid #FFD1E0;background:#FFF7FA;color:#55464E;font-size:14px;font-family:inherit;">' +
-        '<button type="button" class="btn-mini sm-apply-price" style="padding:7px 12px;font-size:14px;">套用价格</button>' +
-        '<input class="sm-batch-stock" type="number" min="0" placeholder="统一库存" style="width:120px;padding:7px 10px;border-radius:10px;border:1.5px solid #FFD1E0;background:#FFF7FA;color:#55464E;font-size:14px;font-family:inherit;">' +
-        '<button type="button" class="btn-mini sm-apply-stock" style="padding:7px 12px;font-size:14px;">套用库存</button>';
-      box.parentNode.insertBefore(head, box);
-    }
-    box.innerHTML = arr(card.__variants).length ? arr(card.__variants).map(function (v, i) {
-      return '<div class="sm-var-row' + (v.frozen ? ' is-frozen' : '') + '" data-i="' + i + '" style="' + (v.frozen ? 'opacity:.62;' : '') + '">' +
-        '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px;">' +
-          '<b style="font-size:14px;color:#55464E;">规格 ' + (i + 1) + '</b>' +
-          (v.dims ? '<span class="sm-var-dimcap" style="font-size:12px;color:#81717A;background:#FFF7FA;border:1px solid #FFD1E0;border-radius:999px;padding:1px 8px;">' + esc(Object.keys(v.dims).map(function (k) { return v.dims[k]; }).join(' / ')) + '</span>' : '') +
-          (v.frozen ? '<span style="font-size:12px;color:#A98D96;background:#FCE1EA;border-radius:999px;padding:1px 8px;">已禁用</span>' : '') +
-          '<span style="flex:1;"></span>' +
-          '<button type="button" class="btn-mini sm-var-up" data-i="' + i + '" title="上移"' + (i === 0 ? ' disabled' : '') + ' style="padding:4px 10px;font-size:13px;">↑</button>' +
-          '<button type="button" class="btn-mini sm-var-down" data-i="' + i + '" title="下移"' + (i === arr(card.__variants).length - 1 ? ' disabled' : '') + ' style="padding:4px 10px;font-size:13px;">↓</button>' +
-          '<button type="button" class="btn-mini sm-var-freeze" data-i="' + i + '" style="padding:4px 10px;font-size:13px;">' + (v.frozen ? '启用' : '禁用') + '</button>' +
-        '</div>' +
-        '<div class="sm-var-grid">' +
-          '<div><label>规格名（买家看到的）</label><input class="sv-name" placeholder="如：粉色款" value="' + escAttr(v.name || '') + '"></div>' +
-          '<div><label>SKU（区分用·唯一）</label><input class="sv-sku" placeholder="如：PINK-1" value="' + escAttr(v.sku || '') + '"></div>' +
-          '<div><label>价格 $（留空用商品价）</label><input class="sv-price" type="number" step="0.01" min="0" placeholder="0.00" value="' + escAttr(v.price == null ? '' : v.price) + '"></div>' +
-          '<div><label>库存（留空用商品库存）</label><input class="sv-stock" type="number" min="0" placeholder="如：5" value="' + escAttr(v.stock == null ? '' : v.stock) + '"></div>' +
-        '</div>' +
-        '<div class="sm-var-imgs">' + smVarImgHtml(v, i) +
-          '<label class="btn-mini" style="cursor:pointer;">＋ 上传图片<input type="file" class="sm-var-file" data-i="' + i + '" accept="image/*" multiple hidden></label>' +
-          '<button type="button" class="btn-del sm-var-del" data-i="' + i + '" style="padding:6px 14px;font-size:14px;margin-left:auto;">删除此规格</button>' +
-          (v.sku ? '<button type="button" class="btn-mini yk-barcode-btn" data-code="' + escAttr(v.sku) + '" data-title="' + escAttr(v.name || v.sku) + '" style="padding:6px 12px;font-size:14px;">条码</button>' : '') +
-        '</div>' +
-        '</div>';
-    }).join('') : '<p class="hint" style="background:var(--card,#FFF0F5);border-radius:12px;padding:14px;text-align:center;">还没有规格，点上面「＋ 添加规格」加第一个选项</p>';
-    var foot = scope.querySelector('.sm-var-addfoot'); // 有规格时，列表下方才出现添加与复制按钮
-    if (foot) foot.style.display = arr(card.__variants).length ? 'flex' : 'none';
-    smVarRenderDims(card);
-  }
-  /* 她 20261104 §五 + 18:57 补充：维度不限个数（＋添加维度）、选项逐项胶囊可增删排序、
-     显式「简单规格 / 多维度规格」开关。维度只挂在每个规格对象的 dims 上，不动数据库结构 */
+  /* ══════════════════════════════════════════════════════════════════
+     商品规格区（2026-11-04 20:46 三步式重做）
+     ① 设置维度 → ② 加选项 → ③ 生成组合 → ④ 填价格库存
+     数据层一点没动：维度仍挂在每个规格对象的 dims 上，存在 products.variants
+     ══════════════════════════════════════════════════════════════════ */
   var SM_ICON_BTN = 'border:0;background:transparent;color:#A98D96;font-size:15px;line-height:1;padding:0 3px;cursor:pointer;font-family:inherit;';
+  function smUi(card) {
+    if (!card.__ui) card.__ui = { dims: true, combos: true, batch: false, openDim: -1, focusOpt: false };
+    var u = card.__ui;
+    if (u.dims == null) u.dims = true;
+    if (u.combos == null) u.combos = true;
+    if (u.batch == null) u.batch = false;
+    if (u.openDim == null) u.openDim = -1;
+    return u;
+  }
   function smDimsOf(card) {
     if (card.__dims) return card.__dims;
     var names = [], map = {};
@@ -1297,8 +1380,9 @@
     return card.__mode;
   }
   function smDimsSync(card) { // 把面板里刚改的维度名收回内存（选项本身在内存里管）
-    var dims = smDimsOf(card);
-    Array.prototype.forEach.call((card.__block || card).querySelectorAll('.sm-dim-panel .sm-dim-row'), function (row) {
+    if (!card.__dims) return;
+    var dims = card.__dims;
+    Array.prototype.forEach.call((card.__block || card).querySelectorAll('.sm-dim-row'), function (row) {
       var i = parseInt(row.getAttribute('data-d'), 10);
       if (!dims[i]) return;
       var inp = row.querySelector('.sm-dim-name');
@@ -1315,67 +1399,183 @@
       b.style.display = show ? '' : 'none';
     });
   }
-  function smVarRenderDims(card) {
+  /* ── 步骤状态：1 维度 → 2 选项 → 3 生成 → 4 填价 ── */
+  function smStepState(card) {
+    var all = smDimsOf(card).filter(function (d) { return d.name || d.options.length; });
+    var named = all.filter(function (d) { return d.name; });
+    var ready = named.filter(function (d) { return d.options.length; });
+    var hasCombos = arr(card.__variants).length > 0;
+    var step = 1;
+    if (named.length) step = 2;
+    if (named.length && named.length === all.length && ready.length === named.length) step = 3;
+    if (hasCombos) step = 4;
+    return { step: step, all: all, named: named.length, ready: ready.length, hasCombos: hasCombos };
+  }
+  function smComboCount(card) {
+    var dims = smDimsOf(card).filter(function (d) { return d.name && d.options.length; });
+    if (!dims.length) return 0;
+    return dims.reduce(function (n, d) { return n * d.options.length; }, 1);
+  }
+  function smGenInfo(card) {
+    var dims = smDimsOf(card).filter(function (d) { return d.name || d.options.length; });
+    var broken = dims.filter(function (d) { return !d.name || !d.options.length; });
+    var cnt = smComboCount(card);
+    if (!dims.length) return { ok: false, html: '先加一个维度，填几个选项，再回来生成' };
+    if (broken.length) return { ok: false, html: '还有 ' + broken.length + ' 个维度的名字或选项没填完' };
+    return { ok: true, html: '将生成 <b>' + cnt + '</b> 个组合（' + dims.map(function (d) { return d.options.length; }).join(' × ') + '）' };
+  }
+  function smStepsHtml(card) {
+    var st = smStepState(card);
+    var items = [['设置维度'], ['添加选项'], ['生成组合'], ['填价格库存']];
+    return '<div class="sm-steps">' + items.map(function (x, i) {
+      var n = i + 1;
+      var cls = n < st.step ? 'done' : (n === st.step ? 'on' : '');
+      return '<span class="sm-step ' + cls + '"><i>' + (n < st.step ? '✓' : n) + '</i>' + x[0] + '</span>';
+    }).join('<span class="sm-step-line"></span>') + '</div>';
+  }
+  /* ── 第 1 步：一个维度一张小卡 ── */
+  function smDimCardHtml(card, d, i, dims, ui) {
+    var opts = d.options || [];
+    var chips = opts.map(function (o, k) {
+      return '<span class="sm-opt-chip" data-d="' + i + '" data-o="' + k + '">' +
+        '<span class="sm-opt-txt" data-d="' + i + '" data-o="' + k + '" title="点一下改名（已有组合跟着改，SKU 不变）· 按住可以拖动排序">' + esc(o) + '</span>' +
+        '<button type="button" class="sm-opt-del" data-d="' + i + '" data-o="' + k + '" title="删除这个选项">✕</button>' +
+        '</span>';
+    }).join('');
+    var open = ui.openDim === i;
+    return '<div class="sm-dim-row" data-d="' + i + '">' +
+      '<div class="sm-dim-top">' +
+        '<input class="sm-dim-name" data-d="' + i + '" placeholder="维度名称，如 款式 / 尺寸 / 颜色" value="' + escAttr(d.name || '') + '">' +
+        '<span class="sm-dim-cnt">' + (opts.length ? opts.length + ' 个选项' : '还没有选项') + '</span>' +
+        '<button type="button" class="sm-more-btn" data-more="dim" title="更多">⋯</button>' +
+        '<div class="sm-more-menu">' +
+          '<button type="button" class="sm-dim-mv" data-d="' + i + '" data-mv="-1"' + (i === 0 ? ' disabled' : '') + '>上移</button>' +
+          '<button type="button" class="sm-dim-mv" data-d="' + i + '" data-mv="1"' + (i === dims.length - 1 ? ' disabled' : '') + '>下移</button>' +
+          '<button type="button" class="sm-dim-del" data-d="' + i + '">删除维度</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="sm-dim-opts">' +
+        (chips || '<span class="sm-dim-empty">先加几个选项，比如 1U、2U</span>') +
+        '<span class="sm-opt-addwrap">' +
+          '<button type="button" class="sm-opt-add" data-d="' + i + '">＋ 添加选项</button>' +
+          '<input class="sm-opt-in" data-d="' + i + '" placeholder="回车添加，也可整段粘贴 1U,2U,4U"' + (open ? ' autofocus' : ' hidden') + '>' +
+        '</span>' +
+      '</div>' +
+    '</div>';
+  }
+  /* ── 第 4 步：一条组合 = 一行（手机自动变两栏） ── */
+  function smComboRowHtml(card, v, i, total) {
+    var imgs = arr(v.images);
+    var imgCell = imgs.length
+      ? imgs.slice(0, 2).map(function (u, k) {
+          return '<span class="sm-thumb"><img class="sm-thumb-cover" data-i="' + i + '" data-k="' + k + '" src="' + escAttr(u) + '" title="' + (k === 0 ? '这个选项的封面' : '点一下换成封面') + '">' +
+            '<button type="button" class="sm-var-imgdel" data-i="' + i + '" data-k="' + k + '" title="删除这张图">✕</button></span>';
+        }).join('') + (imgs.length > 2 ? '<span class="sm-thumb-more">+' + (imgs.length - 2) + '</span>' : '')
+      : '<span class="sm-thumb-empty">无图</span>';
+    return '<div class="sm-var-row' + (v.frozen ? ' is-off' : '') + '" data-i="' + i + '">' +
+      '<div class="sm-vc sm-vc-name">' +
+        '<input class="sv-name" value="' + escAttr(v.name || '') + '" placeholder="规格名">' +
+        (v.dims ? (function (dn) { return dn && dn !== String(v.name || '') ? '<span class="sm-vc-dims">' + esc(dn) + '</span>' : ''; })(Object.keys(v.dims).map(function (k) { return v.dims[k]; }).join(' / ')) : '') +
+      '</div>' +
+      '<div class="sm-vc sm-vc-sku"><input class="sv-sku" value="' + escAttr(v.sku || '') + '" placeholder="SKU"></div>' +
+      '<div class="sm-vc sm-vc-price"><input class="sv-price" type="number" min="0" step="0.01" value="' + escAttr(v.price == null ? '' : v.price) + '" placeholder="商品价" title="留空就用商品本身的价格"></div>' +
+      '<div class="sm-vc sm-vc-stock"><input class="sv-stock" type="number" min="0" value="' + escAttr(v.stock == null ? '' : v.stock) + '" placeholder="库存" title="留空就用商品本身的库存"></div>' +
+      '<div class="sm-vc sm-vc-img">' + imgCell +
+        '<label class="sm-thumb-add" title="上传这个规格的图">＋<input type="file" class="sm-var-file" data-i="' + i + '" accept="image/*" multiple hidden></label>' +
+      '</div>' +
+      '<div class="sm-vc sm-vc-state"><button type="button" class="sm-var-freeze' + (v.frozen ? ' off' : '') + '">' + (v.frozen ? '已禁用' : '启用') + '</button></div>' +
+      '<div class="sm-vc sm-vc-more">' +
+        '<button type="button" class="sm-more-btn" data-more="row" title="更多">⋯</button>' +
+        '<div class="sm-more-menu">' +
+          '<button type="button" class="sm-var-up" data-i="' + i + '"' + (i === 0 ? ' disabled' : '') + '>上移</button>' +
+          '<button type="button" class="sm-var-down" data-i="' + i + '"' + (i === total - 1 ? ' disabled' : '') + '>下移</button>' +
+          (v.sku ? '<button type="button" class="yk-barcode-btn" data-code="' + escAttr(v.sku) + '" data-title="' + escAttr(v.name || v.sku) + '">看条码</button>' : '') +
+          '<button type="button" class="sm-var-del" data-i="' + i + '">删除这个规格</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+  function smVarRenderRows(card) {
     var scope = card.__block || card;
     var box = scope.querySelector('.sm-var-rows');
     if (!box) return;
-    var panel = scope.querySelector('.sm-dim-panel');
-    if (!panel) {
-      panel = document.createElement('div');
-      panel.className = 'sm-dim-panel';
-      box.parentNode.insertBefore(panel, box);
-    }
+    smDimsSync(card);
+    var ui = smUi(card);
+    var vs = arr(card.__variants);
     var mode = smModeOf(card);
-    var mk = function (m, label, sub) {
-      var on = mode === m;
-      return '<button type="button" class="sm-mode-btn' + (on ? ' on' : '') + '" data-mode="' + m + '" style="padding:7px 16px;font-size:14px;border-radius:999px;border:1.5px solid ' + (on ? '#F2A9C4' : '#FFD1E0') + ';background:' + (on ? '#FCE1EA' : '#FFF7FA') + ';color:' + (on ? '#55464E' : '#A98D96') + ';font-weight:600;font-family:inherit;cursor:pointer;">' + label + '</button>';
-    };
-    var seg = '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 10px;">' +
-      '<span style="font-size:14px;font-weight:700;color:#55464E;">规格模式</span>' +
-      mk('simple', '简单规格') + mk('multi', '多维度规格') +
-      '<span style="font-size:13px;color:#81717A;">' + (mode === 'multi' ? '按维度组合生成' : '一个一个手动加') + '</span>' +
-      '</div>';
-    if (mode !== 'multi') {
-      panel.style.cssText = 'margin:0 0 12px;';
-      panel.innerHTML = seg;
-      smShowManualAdd(card, true);
-      return;
-    }
     var dims = smDimsOf(card);
-    var rows = dims.map(function (d, i) {
-      var chips = (d.options || []).map(function (o, k) {
-        return '<span class="sm-opt-chip" style="display:inline-flex;align-items:center;gap:1px;background:#FCE1EA;border:1.5px solid #F2A9C4;border-radius:999px;padding:3px 5px 3px 10px;font-size:14px;color:#55464E;">' +
-          '<span class="sm-opt-txt" data-d="' + i + '" data-o="' + k + '" title="点一下可以改名（已有的组合跟着改，SKU 不变）" style="cursor:text;">' + esc(o) + '</span>' +
-          '<button type="button" class="sm-opt-mv" data-d="' + i + '" data-o="' + k + '" data-mv="-1" title="往前移" style="' + SM_ICON_BTN + '" ' + (k === 0 ? 'disabled' : '') + '>‹</button>' +
-          '<button type="button" class="sm-opt-mv" data-d="' + i + '" data-o="' + k + '" data-mv="1" title="往后移" style="' + SM_ICON_BTN + '" ' + (k === d.options.length - 1 ? 'disabled' : '') + '>›</button>' +
-          '<button type="button" class="sm-opt-del" data-d="' + i + '" data-o="' + k + '" title="删除这个选项" style="' + SM_ICON_BTN + 'font-size:13px;color:#C4636E;">✕</button>' +
-          '</span>';
-      }).join('');
-      return '<div class="sm-dim-row" data-d="' + i + '" style="display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap;margin-bottom:10px;padding-bottom:10px;border-bottom:1px dashed #FFE0EA;">' +
-        '<div style="display:flex;align-items:center;gap:3px;flex-wrap:wrap;">' +
-          '<input class="sm-dim-name" data-d="' + i + '" placeholder="维度' + (i + 1) + '名称，如 款式" value="' + escAttr(d.name) + '" style="width:124px;padding:7px 10px;border-radius:10px;border:1.5px solid #FFD1E0;background:#fff;color:#55464E;font-size:15px;font-family:inherit;">' +
-          '<button type="button" class="sm-dim-mv" data-d="' + i + '" data-mv="-1" title="上移这个维度" style="' + SM_ICON_BTN + '" ' + (i === 0 ? 'disabled' : '') + '>↑</button>' +
-          '<button type="button" class="sm-dim-mv" data-d="' + i + '" data-mv="1" title="下移这个维度" style="' + SM_ICON_BTN + '" ' + (i === dims.length - 1 ? 'disabled' : '') + '>↓</button>' +
-          '<button type="button" class="sm-dim-del" data-d="' + i + '" title="删除这个维度" style="' + SM_ICON_BTN + 'color:#C4636E;">✕</button>' +
-        '</div>' +
-        '<div style="flex:1;min-width:200px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">' +
-          (chips || '<span style="font-size:13px;color:#B9A5AE;">还没有选项</span>') +
-          '<input class="sm-opt-in" data-d="' + i + '" placeholder="加选项，回车" style="width:118px;padding:6px 10px;border-radius:10px;border:1.5px dashed #FFD1E0;background:#fff;color:#55464E;font-size:14px;font-family:inherit;">' +
-          '<button type="button" class="sm-opt-add" data-d="' + i + '" style="border:1.5px solid #FFD1E0;background:#FFF7FA;color:#A98D96;border-radius:999px;padding:5px 12px;font-size:14px;font-family:inherit;cursor:pointer;font-weight:600;">＋</button>' +
-        '</div>' +
+    var out = '<div class="sm-spec">';
+    out += '<div class="sm-spec-top">' +
+      '<span class="sm-mode-seg">' +
+        '<button type="button" class="sm-mode-btn' + (mode !== 'multi' ? ' on' : '') + '" data-mode="simple">简单规格</button>' +
+        '<button type="button" class="sm-mode-btn' + (mode === 'multi' ? ' on' : '') + '" data-mode="multi">多维度规格</button>' +
+      '</span>' +
+      '<span class="sm-mode-hint">' + (mode === 'multi' ? '按维度组合自动生成，适合有款式 / 尺寸的商品' : '一个一个手动加，适合只有一两种选择的商品') + '</span>' +
       '</div>';
-    }).join('');
-    panel.style.cssText = 'margin:0 0 12px;';
-    panel.innerHTML = seg + '<div style="padding:12px;border:1.5px dashed #FFD1E0;border-radius:14px;background:#FFF7FA;">' +
-      '<div style="font-size:14px;font-weight:700;color:#55464E;margin-bottom:10px;">规格维度</div>' + rows +
-      '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">' +
-      '<button type="button" class="btn-mini sm-dim-add" style="padding:8px 14px;font-size:14px;">＋ 添加维度</button>' +
-      '<button type="button" class="btn-mini sm-dim-gen" style="padding:8px 14px;font-size:14px;">按维度生成组合</button>' +
-      '<button type="button" class="btn-mini sm-dim-clear" style="padding:8px 14px;font-size:14px;">清空维度</button>' +
-      '<span style="font-size:13px;color:#81717A;">组合数 = 各维度选项数相乘 · 点选项文字可以改名</span>' +
+    if (mode === 'multi') {
+      out += smStepsHtml(card);
+      out += '<div class="sm-sec' + (ui.dims ? '' : ' is-folded') + '" data-sec="dims">' +
+        '<div class="sm-sec-h"><b>① 规格维度</b>' +
+        '<span class="sm-cnt">' + smStepState(card).all.length + '</span>' +
+        '<span class="sm-sec-hint">点维度名可以直接改</span>' +
+        '<button type="button" class="sm-fold-btn" data-fold="dims">' + (ui.dims ? '收起' : '展开') + '</button></div>' +
+        '<div class="sm-sec-body">' +
+        dims.map(function (d, i) { return smDimCardHtml(card, d, i, dims, ui); }).join('') +
+        '<div class="sm-dim-foot">' +
+          '<button type="button" class="sm-dim-add">＋ 添加维度</button>' +
+          '<button type="button" class="sm-dim-clear">清空维度</button>' +
+        '</div></div></div>';
+      var gi = smGenInfo(card);
+      out += '<div class="sm-genbar">' +
+        '<span class="sm-gen-info">' + gi.html + '</span>' +
+        '<button type="button" class="sm-gen-btn sm-dim-gen"' + (gi.ok ? '' : ' disabled') + '>③ 生成规格组合</button>' +
+        '</div>';
+    }
+    var rowsHtml = vs.length ? vs.map(function (v, i) { return smComboRowHtml(card, v, i, vs.length); }).join('') : '';
+    out += '<div class="sm-sec' + (ui.combos ? '' : ' is-folded') + '" data-sec="combos">' +
+      '<div class="sm-sec-h"><b>' + (mode === 'multi' ? '规格组合' : '规格') + '</b>' +
+      '<span class="sm-cnt">' + vs.length + '</span>' +
+      '<span class="sm-sec-hint">价格 / 库存留空就跟随商品</span>' +
+      (mode === 'multi' ? '' : '<button type="button" class="btn-mini sm-var-add">＋ 添加规格</button>') +
+      '<button type="button" class="sm-fold-btn" data-fold="combos">' + (ui.combos ? '收起' : '展开') + '</button></div>' +
+      '<div class="sm-sec-body">' +
+      (vs.length ? '<div class="sm-var-head"><span>规格名称</span><span>SKU</span><span>价格</span><span>库存</span><span>图片</span><span>状态</span><span></span></div>' : '') +
+      (rowsHtml || '<p class="sm-combo-empty">' + (mode === 'multi' ? '还没有组合，点上面的「生成规格组合」' : '还没有规格，点「＋ 添加规格」加第一个') + '</p>') +
+      '<div class="sm-batch">' +
+        '<button type="button" class="sm-fold-btn sm-batch-btn" data-fold="batch">批量操作 ' + (ui.batch ? '▾' : '▸') + '</button>' +
+        '<div class="sm-batch-body"' + (ui.batch ? '' : ' style="display:none;"') + '>' +
+          '<input class="sm-batch-price" type="number" min="0" step="0.01" placeholder="统一价格">' +
+          '<button type="button" class="btn-mini sm-apply-price">套用价格</button>' +
+          '<input class="sm-batch-stock" type="number" min="0" placeholder="统一库存">' +
+          '<button type="button" class="btn-mini sm-apply-stock">套用库存</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="sm-var-addfoot">' +
+        '<button type="button" class="btn-mini sm-var-add">＋ 添加规格</button>' +
+        '<button type="button" class="btn-mini sm-var-dup">复制上一条</button></div>' +
       '</div></div>';
-    smShowManualAdd(card, false); // 多维模式下组合由生成器管，收起手动加规格
+    out += '</div>';
+    box.innerHTML = out;
+    smShowManualAdd(card, mode !== 'multi');
+    if (ui.focusOpt) {
+      ui.focusOpt = false;
+      var f = box.querySelector('.sm-opt-in[data-d="' + ui.openDim + '"]');
+      if (f) { try { f.focus(); } catch (e) {} }
+    }
   }
+  function smVarRenderDims(card) { smVarRenderRows(card); } // 兼容旧调用名
+  /* 只刷新步骤条 / 组合数 / 生成按钮，不重绘输入框（打字时不打断） */
+  function smRefreshStepBits(card, box) {
+    if (!box) return;
+    var steps = box.querySelector('.sm-steps');
+    if (steps) steps.outerHTML = smStepsHtml(card);
+    var gi = smGenInfo(card);
+    var info = box.querySelector('.sm-gen-info');
+    var btn = box.querySelector('.sm-gen-btn');
+    if (info) info.innerHTML = gi.html;
+    if (btn) { if (gi.ok) btn.removeAttribute('disabled'); else btn.setAttribute('disabled', 'disabled'); }
+  }
+
   window.smDimSetMode = function (card, mode) {
     if (!card) return;
     var cur = smModeOf(card);
@@ -1423,9 +1623,12 @@
     var dims = smDimsOf(card);
     if (!dims[i]) return;
     smDimsSync(card);
-    var vals = String(raw || '').split(/[,，、\/]/).map(function (s) { return s.trim(); }).filter(function (s) { return s; });
+    var vals = String(raw || '').split(/[,，、\/;；\n]/).map(function (s) { return s.trim(); }).filter(function (s) { return s; });
     var added = 0;
     vals.forEach(function (v) { if (dims[i].options.indexOf(v) === -1) { dims[i].options.push(v); added++; } });
+    var ui = smUi(card);
+    ui.openDim = i;            // 加完保持输入框开着，可以连着加下一个
+    ui.focusOpt = added > 0;
     if (!added && vals.length) toast('这个选项已经有了');
     smVarRenderRows(card);
   }
@@ -1446,6 +1649,7 @@
       combos = nxt;
     });
     card.__mode = 'multi'; // 生成即视为多维模式
+    smUi(card).openDim = -1; // 生成完把选项输入框收起来
     var old = arr(card.__variants);
     // SKU 保留规则（她 20261104 20:34 §二）：按完整组合匹配，不按行号
     // ① 组合名一致（忽略空格/大小写） ② 维度值集合一致（维度换顺序也能认）
@@ -1457,21 +1661,38 @@
       if (v.name) { var nk = normName(v.name); if (!byName[nk]) byName[nk] = v; }
       if (v.dims) { var dk = dimKey(v.dims); if (!byKey[dk]) byKey[dk] = v; }
     });
-    card.__variants.length = 0;
-    combos.forEach(function (c) {
+    // 先算好新组合和旧组合的对应，再决定要不要提醒
+    var preview = combos.map(function (c) {
       var nm = dims.map(function (d) { return c[d.name]; }).join(' / ');
-      var prev = byName[normName(nm)] || byKey[dimKey(c)] || null;
-      card.__variants.push({
-        name: nm, dims: c,
-        sku: prev ? (prev.sku || '') : '',
-        price: prev ? (prev.price == null ? '' : prev.price) : '',
-        stock: prev ? (prev.stock == null ? '' : prev.stock) : '',
-        images: prev && prev.images ? arr(prev.images).slice() : [],
-        frozen: prev ? prev.frozen === true : false
-      });
+      return { name: nm, dims: c, prev: byName[normName(nm)] || byKey[dimKey(c)] || null };
     });
-    smVarRenderRows(card);
-    toast('已生成 ' + combos.length + ' 个组合，原来的价格/库存/图片已保留');
+    var usedPrev = [];
+    preview.forEach(function (p) { if (p.prev && usedPrev.indexOf(p.prev) === -1) usedPrev.push(p.prev); });
+    var lost = old.filter(function (v) {
+      if (!v || usedPrev.indexOf(v) !== -1) return false;
+      return (v.price != null && String(v.price).trim() !== '') || (v.stock != null && String(v.stock).trim() !== '') || arr(v.images).length > 0 || v.frozen === true;
+    });
+    var applyGen = function () {
+      card.__variants.length = 0;
+      preview.forEach(function (p) {
+        card.__variants.push({
+          name: p.name, dims: p.dims,
+          sku: p.prev ? (p.prev.sku || '') : '',
+          price: p.prev ? (p.prev.price == null ? '' : p.prev.price) : '',
+          stock: p.prev ? (p.prev.stock == null ? '' : p.prev.stock) : '',
+          images: p.prev && p.prev.images ? arr(p.prev.images).slice() : [],
+          frozen: p.prev ? p.prev.frozen === true : false
+        });
+      });
+      smVarRenderRows(card);
+      toast('已生成 ' + preview.length + ' 个组合，能对上的价格/库存/图片都保留了');
+    };
+    // 有旧组合对不上、而且里面填过东西：先说一声，不默默把价格清掉
+    if (lost.length && typeof window.uiConfirm === 'function') {
+      window.uiConfirm('这次会生成 ' + preview.length + ' 个组合。其中 ' + lost.length + ' 个旧组合对不上名字或维度，里面填过的价格 / 库存 / 图片会被清空（SKU 不受影响）。要继续吗？', applyGen, '继续生成');
+      return;
+    }
+    applyGen();
   };
   /* ── 商品编码 / 规格 SKU 自动生成（她 20261104 §四.1）───────────────
      体系：商品 SY-P00001，规格 SY-P00001-001（规格 SKU 就是扫码用的条码）
@@ -1566,6 +1787,7 @@
     }
     var optTxt = t2.closest('.sm-opt-txt');
     if (optTxt) {
+      if (Date.now() < (SM_DRAG.until || 0)) return; // 刚才在拖排序，不算点击改名
       var ct = varCardOf(optTxt); if (!ct) return;
       if (optTxt.querySelector('input')) return;
       var ti = parseInt(optTxt.getAttribute('data-d'), 10), tk = parseInt(optTxt.getAttribute('data-o'), 10);
@@ -1581,6 +1803,11 @@
       var co = varCardOf(optAdd); if (!co) return;
       var oi = parseInt(optAdd.getAttribute('data-d'), 10);
       var inp = (co.__block || co).querySelector('.sm-opt-in[data-d="' + oi + '"]');
+      if (inp && inp.hidden) { // 第一次点只把输入框叫出来，不占地方
+        inp.hidden = false;
+        try { inp.focus(); } catch (err2) {}
+        return;
+      }
       smOptAdd(co, oi, inp ? inp.value : '');
       return;
     }
@@ -1609,6 +1836,131 @@
     }
     var bc = t2.closest('.yk-barcode-btn');
     if (bc) { window.ykShowBarcode(bc.getAttribute('data-code'), bc.getAttribute('data-title')); return; }
+    // 折叠：维度区 / 组合区 / 批量操作（只切 class，不重绘，输入框不会被清掉）
+    var fold = t2.closest('.sm-fold-btn');
+    if (fold) {
+      var cf = varCardOf(fold); if (!cf) return;
+      var key = fold.getAttribute('data-fold');
+      var uf = smUi(cf);
+      uf[key] = !uf[key];
+      if (key === 'batch') {
+        var bb = fold.parentElement.querySelector('.sm-batch-body');
+        if (bb) bb.style.display = uf.batch ? '' : 'none';
+        fold.textContent = '批量操作 ' + (uf.batch ? '▾' : '▸');
+      } else {
+        var sec = fold.closest('.sm-sec');
+        if (sec) sec.classList.toggle('is-folded', !uf[key]);
+        fold.textContent = uf[key] ? '收起' : '展开';
+      }
+      return;
+    }
+    // 「⋯」更多菜单
+    var moreBtn = t2.closest('.sm-more-btn');
+    if (moreBtn) {
+      var host2 = moreBtn.parentElement;
+      var menu2 = host2.querySelector('.sm-more-menu');
+      var wasOpen = menu2 && menu2.classList.contains('open');
+      Array.prototype.forEach.call(document.querySelectorAll('.sm-spec .sm-more-menu.open'), function (m) { m.classList.remove('open'); });
+      if (menu2 && !wasOpen) menu2.classList.add('open');
+      return;
+    }
+    // 点规格缩略图 = 把它设成这个选项的封面（挪到第一张）
+    var coverImg = t2.closest('.sm-thumb-cover');
+    if (coverImg) {
+      var cvg = varCardOf(coverImg); if (!cvg) return;
+      var ci = parseInt(coverImg.getAttribute('data-i'), 10), ck = parseInt(coverImg.getAttribute('data-k'), 10);
+      var cvv = arr(cvg.__variants)[ci];
+      if (cvv && arr(cvv.images).length > 1 && ck > 0) {
+        var one = cvv.images.splice(ck, 1)[0];
+        cvv.images.unshift(one);
+        smVarRenderRows(cvg);
+        toast('已设成这个选项的封面');
+      }
+      return;
+    }
+  });
+  /* 维度名实时同步（只刷新步骤条与生成按钮，不重绘输入框） */
+  document.addEventListener('input', function (e) {
+    var el = e.target;
+    if (!el || !el.classList || !el.classList.contains('sm-dim-name')) return;
+    var c = varCardOf(el); if (!c) return;
+    var i = parseInt(el.getAttribute('data-d'), 10);
+    var dims = smDimsOf(c);
+    if (dims[i]) dims[i].name = (el.value || '').trim();
+    var box = (c.__block || c).querySelector('.sm-var-rows');
+    smRefreshStepBits(c, box);
+    if (box) Array.prototype.forEach.call(box.querySelectorAll('.sm-dim-row'), function (row, k) {
+      var d2 = smDimsOf(c)[k], cnt = row.querySelector('.sm-dim-cnt');
+      if (d2 && cnt) cnt.textContent = d2.options.length ? d2.options.length + ' 个选项' : '还没有选项';
+    });
+  });
+  /* 选项输入框：支持整段粘贴（1U,2U,4U 或换行分隔），粘贴即拆成胶囊 */
+  document.addEventListener('paste', function (e) {
+    var el = e.target;
+    if (!el || !el.classList || !el.classList.contains('sm-opt-in')) return;
+    var txt = '';
+    try { txt = (e.clipboardData || window.clipboardData).getData('text') || ''; } catch (err) { return; }
+    if (!/[\n,，、\/;；]/.test(txt)) return;
+    e.preventDefault();
+    var c = varCardOf(el);
+    if (c) smOptAdd(c, parseInt(el.getAttribute('data-d'), 10), txt);
+  });
+  /* 选项胶囊拖动排序（鼠标和手机都能拖） */
+  var SM_DRAG = { el: null, card: null, d: -1, o: -1, x: 0, y: 0, moved: false, until: 0 };
+  document.addEventListener('pointerdown', function (e) {
+    var t = e.target;
+    if (!t || !t.closest) return;
+    var chip = t.closest('.sm-opt-chip');
+    if (!chip) return;
+    if (t.closest('.sm-opt-del') || t.tagName === 'INPUT' || t.closest('.sm-opt-rename')) return;
+    var c = varCardOf(chip); if (!c) return;
+    SM_DRAG = { el: chip, card: c, d: parseInt(chip.getAttribute('data-d'), 10), o: parseInt(chip.getAttribute('data-o'), 10), x: e.clientX, y: e.clientY, moved: false, until: 0 };
+  });
+  document.addEventListener('pointermove', function (e) {
+    if (!SM_DRAG.el) return;
+    if (!SM_DRAG.moved) {
+      if (Math.abs(e.clientX - SM_DRAG.x) < 6 && Math.abs(e.clientY - SM_DRAG.y) < 6) return;
+      SM_DRAG.moved = true;
+      SM_DRAG.el.classList.add('dragging');
+    }
+    var ss = SM_DRAG.card.__block || SM_DRAG.card;
+    var chips = Array.prototype.slice.call(ss.querySelectorAll('.sm-opt-chip[data-d="' + SM_DRAG.d + '"]'));
+    var over = -1;
+    chips.forEach(function (ch, k) { var r = ch.getBoundingClientRect(); if (e.clientX >= r.left - 2 && e.clientX <= r.right + 2 && e.clientY >= r.top - 2 && e.clientY <= r.bottom + 2) over = k; });
+    if (over < 0) return;
+    var target = chips[over];
+    if (!target || target === SM_DRAG.el) return;
+    var tr = target.getBoundingClientRect();
+    var parent = SM_DRAG.el.parentNode;
+    if (e.clientX < tr.left + tr.width / 2) parent.insertBefore(SM_DRAG.el, target);
+    else parent.insertBefore(SM_DRAG.el, target.nextSibling);
+  });
+  document.addEventListener('pointerup', function () {
+    if (!SM_DRAG.el) return;
+    var el = SM_DRAG.el, moved = SM_DRAG.moved, card = SM_DRAG.card, di = SM_DRAG.d, keepUntil = SM_DRAG.until;
+    el.classList.remove('dragging');
+    if (moved && card) {
+      var ss = card.__block || card;
+      var order = Array.prototype.slice.call(ss.querySelectorAll('.sm-opt-chip[data-d="' + di + '"]')).map(function (ch) {
+        var txt = ch.querySelector('.sm-opt-txt');
+        return txt ? txt.textContent : '';
+      });
+      var dd = smDimsOf(card)[di];
+      if (dd && order.length === dd.options.length) dd.options = order;
+      keepUntil = Date.now() + 300; // 拖完别把点击当成改名
+      smVarRenderRows(card);
+    }
+    SM_DRAG = { el: null, card: null, d: -1, o: -1, x: 0, y: 0, moved: false, until: keepUntil || 0 };
+  });
+  document.addEventListener('pointercancel', function () {
+    if (SM_DRAG.el) SM_DRAG.el.classList.remove('dragging');
+    SM_DRAG = { el: null, card: null, d: -1, o: -1, x: 0, y: 0, moved: false, until: Date.now() + 300 };
+  });
+  /* 点空白处关掉「⋯」菜单 */
+  document.addEventListener('click', function (e) {
+    var t = e.target;
+    if (t && t.closest && (t.closest('.sm-more-btn') || t.closest('.sm-more-menu'))) return;
+    Array.prototype.forEach.call(document.querySelectorAll('.sm-spec .sm-more-menu.open'), function (m) { m.classList.remove('open'); });
   });
   document.addEventListener('keydown', function (e) {
     var t3 = e.target;
@@ -1971,7 +2323,8 @@
   var ADDVAR = { list: [] };
   window.smAddVarCollect = function () {
     var card = document.getElementById('tab-shop');
-    Array.prototype.forEach.call(card.querySelectorAll('.sm-var-row'), function (row) {
+    var scope = card.__block || card; // 只认上架表单自己那块，不然会把正开着的商品编辑卡的规格一起收进来
+    Array.prototype.forEach.call(scope.querySelectorAll('.sm-var-row'), function (row) {
       var v = ADDVAR.list[parseInt(row.getAttribute('data-i'), 10)];
       if (!v) return;
       v.sku = row.querySelector('.sv-sku').value.trim();
@@ -2001,16 +2354,12 @@
     var block = document.createElement('div');
     block.className = 'sm-var-block pf-sec';
     block.setAttribute('data-sec', 'variants');
-    block.innerHTML = '<div class="pf-h"><b>商品规格</b><span class="pf-tip">可选；一个规格＝买家看到的一个选项，全部留空＝单规格</span></div>' +
-      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;">' +
-      '<span class="hint" style="flex:1;min-width:180px;">不填价格/库存就用上面的商品价/库存</span>' +
-      '<button type="button" class="btn-mini sm-var-add" style="background:#FCE1EA;color:#A98D96;padding:9px 20px;font-size:15px;">＋ 添加规格</button></div>' +
-      '<div class="sm-var-rows"></div>' +
-      '<div class="sm-var-addfoot"><button type="button" class="btn-mini sm-var-add">＋ 添加规格</button><button type="button" class="btn-mini sm-var-dup">复制上一条</button></div>' +
-      '<p class="hint" style="margin:6px 0 0;">每个规格可以传自己的图（与商品主图分开），第一张就是这个选项的封面。</p>';
+    block.innerHTML = '<div class="pf-h"><b>商品规格</b><span class="pf-tip">可选；同一个商品有多种款式 / 尺寸时用，不填价格 / 库存就跟随商品本身</span></div>' +
+      '<div class="sm-var-rows"></div>';
     form.appendChild(block); // 连续表单里直接接在「商品介绍」后面（保存按钮在 .pf 之外）
     var host = document.getElementById('tab-shop');
     if (host) host.__block = block; // 上架表单自己的规格区（tab 里还可能开着商品编辑卡，不能串）
+    if (host && !block.getAttribute('data-rendered')) { block.setAttribute('data-rendered', '1'); smVarRenderRows(host); } // 先把模式开关画出来，不然连入口按钮都没有
   })();
   (function () {
     var form = document.getElementById('tab-shop');
