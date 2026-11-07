@@ -375,7 +375,6 @@
 .chip.on, .pr-opt.active, .sku-chip.on, .sku-chip.active,
 .sm-tab.active,
 #rv-menu button.current,
-.pp-menu .tab-btn.active,
 #sc-pop .sc-opt.active, #share-pop .sc-opt.active {
   background-color: var(--opt-sel-bg) !important;
   border-color: var(--opt-sel-bd) !important;
@@ -387,7 +386,7 @@
 .msg-filters button.active:hover, .aix-filters button.active:hover,
 .aix-pager button.cur:hover, .vis-chip.vis-on:hover, .cur-chip.on:hover,
 .paytab.on:hover, .pf-chip.on:hover, .chip.on:hover, .pr-opt.active:hover,
-.sku-chip.on:hover, .pp-menu .tab-btn.active:hover {
+.sku-chip.on:hover {
   background-color: var(--btn-pri-bg-h) !important;
   border-color: var(--btn-pri-bd-h) !important;
   color: var(--opt-sel-fg) !important;
@@ -644,7 +643,6 @@ input[type="radio"]:checked::after {
 .sku-chip.on, .sku-chip.active, .pr-opt.active,
 .pf-chip.on, .paytab.on, .vis-chip.on, .vis-chip.vis-on,
 .adm-subtab.active, .tab-btn.active, .sm-tab.active,
-.pp-menu .tab-btn.active,
 .aix-pager button.cur, .aix-pager button.active,
 .msg-filters button.active, .aix-filters button.active,
 .topic-chips button.active,
