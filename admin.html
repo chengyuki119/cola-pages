@@ -171,6 +171,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     border: none; background: none; color: var(--text);
     font-size:16px; padding: 9px 12px;
     border-radius: 8px; cursor: pointer;
+    margin-bottom: 3px; /* 她 20261107：菜单项浅粉条块之间的白色间隙 */
   }
   .pp-menu .tab-btn:hover { background: var(--card-hover); }
   .pp-menu .tab-btn.active { background: var(--accent-soft); color: var(--accent-strong); }
@@ -409,6 +410,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .pf { border: 1.5px solid #FFE3EC; border-radius: 16px; background: #fff; padding: 2px 18px; }
   .pf-sec { padding: 14px 0; border-bottom: 1px dashed #FFE9F0; }
   .pf-sec:last-child { border-bottom: none; }
+  .sm-var-block.pf-sec { border-bottom: none; } /* 她 20261107 §五：规格区内部卡片自带边框，外层再叠虚线就是多余横线（库存/编码/条码下方） */
   .pf-h { display: flex; align-items: baseline; gap: 8px; margin: 0 0 10px; flex-wrap: wrap; }
   .pf-h b { font-size: 17px; font-weight: 700; color: #55464E; }
   .pf-tip { font-size: 13px; color: #81717A; }
@@ -730,7 +732,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     body:not(.adm-in) .wrap .adm-head { margin: 0 var(--adm-edge, 40px) 22px; justify-content: center; }
   </style>
   <script src="site-menu.js" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261107A">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261107B">
   <style>
     /* ═══ 她 20261030 §5：后台字体统一加深（三档，仅后台生效）═══
        主要文字 #55464E ｜ 普通正文 #62545B ｜ 辅助文字 #81717A
@@ -4794,6 +4796,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       var c = x.c, i = x.i;
       c = normCard(c);
       if (i !== CARDS_EDIT) {
+        // 她 20261107 §6.1：列表卡只留 封面/名称/主页展示开关/小编辑按钮——收卡价格、画师明细、总价只在编辑态显示（数据与编辑功能不动）
         return '<div class="card sc-artist" data-i="' + i + '" style="position:relative;padding:0;overflow:hidden;">' +
           '<button class="kebab sc-kebab" title="菜单">⋮</button>' +
           '<div class="sc-card-img">' +
@@ -4801,19 +4804,9 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           '</div>' +
           '<div class="sc-info">' +
           '<b class="sc-name">' + esc(c.name || '未命名色卡') + '</b>' +
-          '<div class="sc-shop">' + esc(c.shop || '') + '</div>' +
-          '<div class="sc-meta">画师 ' + c.artists.length + ' 位 · 共 ' + cardCount(c) + ' 张</div>' +
-          '<div class="tgl-label" style="margin-top:7px;"><button type="button" class="tgl c-home-toggle' + (c.homeShow !== false ? ' on' : '') + '" aria-pressed="' + (c.homeShow !== false) + '" aria-label="主页展示"><span class="tgl-knob"></span></button>主页展示</div>' +
-          (c.origPrice ? '<div class="sc-bd-line">收卡价格 <b style="color:var(--price,#ff6fa5);">¥' + fmtMoney(c.origPrice) + '</b></div>' : '') +
-          '<div class="sc-bd">' +
-          c.artists.map(function (a, ai) {
-            a = normArtist(a);
-            var bdRows = a.rows.filter(function (r) { return r.label || (r.price != null && r.price !== ''); });
-            return '<div class="sc-bd-a"><b>' + esc(a.name || ('画师 ' + (ai + 1))) + '</b>' +
-              (bdRows.length ? bdRows.map(function (r) { return '<span>' + esc(r.label || '项目') + ' ¥' + fmtMoney(r.price) + '×' + (parseInt(r.qty, 10) || 0) + ' = ¥' + fmtMoney(rowTotal(r)) + '</span>'; }).join('') : '<span>暂无项目</span>') +
-              '<i>小计 <span style="color:var(--price,#ff6fa5);">¥' + fmtMoney(artistSub(a)) + '</span>' + '</i></div>';
-          }).join('') +
-          '<div class="sc-bd-final">色卡总价 <b style="color:var(--price,#ff6fa5);">¥' + fmtMoney(cardFinal(c)) + '</b></div>' +
+          '<div style="display:flex;align-items:center;gap:10px;margin-top:7px;flex-wrap:wrap;">' +
+          '<div class="tgl-label" style="margin-top:0;"><button type="button" class="tgl c-home-toggle' + (c.homeShow !== false ? ' on' : '') + '" aria-pressed="' + (c.homeShow !== false) + '" aria-label="主页展示"><span class="tgl-knob"></span></button>主页展示</div>' +
+          '<button type="button" class="btn-mini sc-list-edit" data-i="' + i + '">编辑</button>' +
           '</div>' +
           '</div>' +
           '</div>';
@@ -5615,6 +5608,11 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   }
 
   document.getElementById('sc-artist-list').addEventListener('click', function (e) {
+    var ledit = e.target.closest('.sc-list-edit');
+    if (ledit) { // 她 20261107 §6.3：列表小编辑按钮 → 进入原完整编辑界面（功能不变）
+      var li = parseInt(ledit.getAttribute('data-i'), 10);
+      BJDS_EDIT = -1; CARDS_EDIT = li; EDIT_TYPE = 'card'; renderCards(); goEditTop(); return;
+    }
     var card = e.target.closest('.sc-artist');
     if (!card) return;
     var i = parseInt(card.getAttribute('data-i'), 10);
