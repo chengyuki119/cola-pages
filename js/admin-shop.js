@@ -138,15 +138,7 @@
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-mode-btn { border:0; background:transparent; color:#A98D96; font-size:14px; font-weight:600; padding:7px 16px; border-radius:999px; cursor:pointer; font-family:inherit; line-height:1.2; }',
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-mode-btn.on { background:#FCE1EA; color:#55464E; box-shadow:inset 0 0 0 1.5px #F2A9C4; }',
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-mode-hint { font-size:13px; color:#81717A; }',
-      /* 步骤条 */
-      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-steps { display:flex; align-items:center; gap:5px; flex-wrap:wrap; margin:0 0 12px; }',
-      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-step { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:#B9A5AE; background:#FFF7FA; border:1.5px solid #F6E7EE; border-radius:999px; padding:4px 12px 4px 5px; line-height:1.3; }',
-      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-step i { width:18px; height:18px; border-radius:50%; background:#F8F0F3; color:#B9A5AE; font-style:normal; font-size:12px; display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto; }',
-      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-step.on { color:#55464E; border-color:#F2A9C4; background:#FCE1EA; font-weight:600; }',
-      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-step.on i { background:#F5BFD1; color:#55464E; }',
-      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-step.done { color:#A98D96; }',
-      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-step.done i { background:#F2A9C4; color:#fff; }',
-      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-step-line { width:10px; height:1.5px; background:#F6E7EE; flex:0 0 auto; }',
+      /* 她 20261107 最终执行版 §3.2：步骤进度条已取消，不再输出，样式一并移除 */
       /* 折叠区块 */
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-sec { border:1.5px solid #FFD9E6; border-radius:14px; background:#FFFCFD; padding:12px 14px; margin:0 0 12px; }',
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-sec-h { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }',
@@ -197,9 +189,9 @@
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-gen-btn:hover { background:#EFB0C5; }',
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-gen-btn:active { background:#E9A8BE; }',
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-gen-btn:disabled { background:#F8F0F3; border-color:#EADCE2; color:#B9A5AE; cursor:not-allowed; }',
-      /* 组合表 */
-      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-head { display:grid; grid-template-columns:26px minmax(0,1.55fr) minmax(0,0.85fr) 108px 96px 100px 80px 34px; gap:8px; padding:0 9px 6px; font-size:13px; color:#81717A; }',
-      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-row { display:grid; grid-template-columns:26px minmax(0,1.55fr) minmax(0,0.85fr) 108px 96px 100px 80px 34px; gap:8px; align-items:center; background:#fff; border:1.5px solid #F8E6EE; border-radius:10px; padding:7px 9px; margin:0 0 6px; box-shadow:none; position:relative; }',
+      /* 组合表：她 20261107 最终执行版 §3.4 六列（选择/规格组合/SKU/价格/库存/图片） */
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-head { display:grid; grid-template-columns:26px minmax(0,1.5fr) minmax(0,0.9fr) 108px 96px 110px; gap:8px; padding:0 9px 6px; font-size:13px; color:#81717A; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-row { display:grid; grid-template-columns:26px minmax(0,1.5fr) minmax(0,0.9fr) 108px 96px 110px; gap:8px; align-items:center; background:#fff; border:1.5px solid #F8E6EE; border-radius:10px; padding:7px 9px; margin:0 0 6px; box-shadow:none; position:relative; }',
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-row:hover { border-color:#F2D3DF; }',
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-row.is-off { background:#FDF7FA; }',
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-row.is-off .sv-name, :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-row.is-off .sv-sku { color:#A98D96; }',
@@ -208,8 +200,17 @@
       ':is(#tab-shop,#tab-shopmgr) .sm-spec input[type=number] { -moz-appearance:textfield; appearance:textfield; }',
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-row input:focus { outline:none; border-color:#F2A9C4; }',
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-vc { min-width:0; }',
-      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-vc-name input { font-weight:600; }',
-      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-vc-dims { display:block; font-size:12px; color:#B9A5AE; margin-top:3px; padding-left:2px; }',
+      /* 规格组合格：点名称展开/收起这条的详细编辑（她 20261107 §3.4.11） */
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-row-name { display:flex; align-items:center; gap:6px; width:100%; border:0; background:none; color:#55464E; font-weight:600; font-size:14px; font-family:inherit; text-align:left; padding:2px 0; cursor:pointer; min-width:0; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-row-name:hover { color:#A98D96; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-row-name .sm-row-caret { font-style:normal; font-size:12px; color:#C9B2BC; flex:0 0 auto; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-row-name span + *, :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-row-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-row-name:hover .sm-row-caret { color:#A98D96; }',
+      /* 展开的详细编辑条：组合名/停售启用/条码/上下移/删除收在这里，默认不占页面 */
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-row-detail { grid-column:1 / -1; display:flex; align-items:center; gap:8px; flex-wrap:wrap; background:#FFF8FA; border:1.5px dashed #FFD9E6; border-radius:10px; padding:10px 12px; margin-top:2px; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-row-detail .sv-name { flex:1 1 180px; width:auto; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-row-detail-lab { display:flex; align-items:center; gap:6px; font-size:13px; color:#81717A; flex:1 1 220px; min-width:0; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-row-detail-act { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }',
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-vc-img { display:flex; align-items:center; gap:4px; flex-wrap:wrap; }',
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-thumb { position:relative; display:inline-block; width:32px; height:32px; }',
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-thumb img { width:32px; height:32px; border-radius:7px; object-fit:cover; background:#FFF7FA; cursor:pointer; display:block; }',
@@ -221,10 +222,10 @@
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-freeze { border:1.5px solid #FFD1E0; background:#FFF7FA; color:#A98D96; border-radius:999px; padding:5px 10px; font-size:13px; font-family:inherit; cursor:pointer; white-space:nowrap; }',
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-freeze:hover { background:#FCE1EA; border-color:#F5BFD1; }',
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-freeze.off { background:#F8F0F3; border-color:#EADCE2; color:#B9A5AE; }',
-      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-vc-more { position:relative; display:flex; justify-content:flex-end; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-vc-dims { font-size:12px; color:#B9A5AE; }',
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-combo-empty { margin:0; padding:16px 10px; text-align:center; font-size:14px; color:#B9A5AE; background:#FFF7FA; border:1.5px dashed #FFD9E6; border-radius:10px; }',
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-batch { margin-top:10px; display:flex; flex-direction:column; align-items:flex-start; gap:8px; }',
-      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-batch-btn { margin-left:0; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-batch-empty { font-size:13px; color:#B9A5AE; width:100%; }',
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-batch-body { display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:10px 12px; background:#FFF7FA; border:1.5px dashed #FFD9E6; border-radius:12px; width:100%; }',
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-batch-body input { width:130px; padding:7px 10px; border:1.5px solid #FFD1E0; border-radius:10px; background:#fff; color:#55464E; font-size:14px; font-family:inherit; }',
       /* 她 20261107 §4.3：勾选框（站内组件，非原生 checkbox）+ 选中计数 + 面板分隔 */
@@ -243,11 +244,12 @@
       '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-head { display:none; }',
       '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-row { grid-template-columns:26px 1fr 1fr; gap:6px 8px; padding:10px; }',
       '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-vc-chk { grid-row:1; grid-column:1; }',
-      '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-vc-name, :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-vc-sku { grid-column:2 / -1; }',
-      '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-vc-name input { padding-right:34px; }',
-      '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-vc-more { position:absolute; top:8px; right:8px; }',
-      '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-vc-img { grid-column:1 / 2; }',
-      '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-vc-state { grid-column:2 / 3; display:flex; justify-content:flex-end; }',
+      '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-vc-name { grid-column:2 / -1; }',
+      '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-vc-sku { grid-column:2 / 3; }',
+      '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-vc-price { grid-column:3 / 4; }',
+      '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-vc-stock { grid-column:2 / 3; }',
+      '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-vc-img { grid-column:3 / 4; }',
+      '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-row-detail { grid-column:1 / -1; }',
       '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-row input { font-size:15px; padding:8px 10px; }',
       '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-dim-name { flex:1 1 100%; font-size:15px; }',
       '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-opt-in { width:100%; min-width:0; flex:1 1 140px; font-size:15px; }',
@@ -257,10 +259,6 @@
       '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-gen-info { width:100%; }',
       '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-batch-body input { flex:1 1 120px; width:auto; min-height:42px; font-size:15px; }',
       '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-more-btn { width:34px; height:34px; }',
-      '}',
-      '@media (max-width:360px) {',
-      '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-step { font-size:12px; padding:3px 9px 3px 4px; }',
-      '  :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-step-line { display:none; }',
       '}'
     ].join('\n');
     document.head.appendChild(c2);
@@ -1362,12 +1360,13 @@
      ══════════════════════════════════════════════════════════════════ */
   var SM_ICON_BTN = 'border:0;background:transparent;color:#A98D96;font-size:15px;line-height:1;padding:0 3px;cursor:pointer;font-family:inherit;';
   function smUi(card) {
-    if (!card.__ui) card.__ui = { dims: true, combos: true, batch: false, openDim: -1, focusOpt: false };
+    if (!card.__ui) card.__ui = { dims: true, combos: true, batch: false, openDim: -1, focusOpt: false, openRow: -1 };
     var u = card.__ui;
     if (u.dims == null) u.dims = true;
     if (u.combos == null) u.combos = true;
     if (u.batch == null) u.batch = false;
     if (u.openDim == null) u.openDim = -1;
+    if (u.openRow == null) u.openRow = -1;
     return u;
   }
   function smDimsOf(card) {
@@ -1474,7 +1473,9 @@
       '</div>' +
     '</div>';
   }
-  /* ── 第 4 步：一条组合 = 一行（手机自动变两栏） ── */
+  /* ── 她 20261107 最终执行版 §3.4：规格明细表格六列（选择/规格组合/SKU/价格/库存/图片）──
+     默认不展开详细编辑；点「规格组合」名称进入该条的详细编辑（组合名/禁用/条码/删除）。
+     状态列、操作列取消；启用/禁用、上移/下移、删除、看条码都收进展开的详情条。 */
   function smComboRowHtml(card, v, i, total) {
     var imgs = arr(v.images);
     var imgCell = imgs.length
@@ -1483,11 +1484,27 @@
             '<button type="button" class="sm-var-imgdel" data-i="' + i + '" data-k="' + k + '" title="删除这张图">✕</button></span>';
         }).join('') + (imgs.length > 2 ? '<span class="sm-thumb-more">+' + (imgs.length - 2) + '</span>' : '')
       : '<span class="sm-thumb-empty">无图</span>';
+    var ui = smUi(card);
+    var open = ui.openRow === i;
+    var dimTxt = v.dims ? Object.keys(v.dims).map(function (k) { return v.dims[k]; }).join(' / ') : '';
+    var detail = '';
+    if (open) {
+      detail = '<div class="sm-row-detail" data-i="' + i + '">' +
+        '<label class="sm-row-detail-lab">规格名称<input class="sv-name" value="' + escAttr(v.name || '') + '" placeholder="规格名"></label>' +
+        (dimTxt && dimTxt !== String(v.name || '') ? '<span class="sm-vc-dims">维度：' + esc(dimTxt) + '</span>' : '') +
+        '<span class="sm-row-detail-act">' +
+          '<button type="button" class="sm-var-freeze' + (v.frozen ? ' off' : '') + '">' + (v.frozen ? '启用' : '停售') + '</button>' +
+          (v.sku ? '<button type="button" class="yk-barcode-btn" data-code="' + escAttr(v.sku) + '" data-title="' + escAttr(v.name || v.sku) + '">看条码</button>' : '') +
+          '<button type="button" class="sm-var-up" data-i="' + i + '"' + (i === 0 ? ' disabled' : '') + '>上移</button>' +
+          '<button type="button" class="sm-var-down" data-i="' + i + '"' + (i === total - 1 ? ' disabled' : '') + '>下移</button>' +
+          '<button type="button" class="sm-var-del" data-i="' + i + '">删除这个规格</button>' +
+        '</span>' +
+      '</div>';
+    }
     return '<div class="sm-var-row' + (v.frozen ? ' is-off' : '') + '" data-i="' + i + '">' +
       '<div class="sm-vc sm-vc-chk"><button type="button" class="sm-row-chk' + (card.__sel && card.__sel[i] ? ' on' : '') + '" data-i="' + i + '" aria-pressed="' + (!!(card.__sel && card.__sel[i])) + '" title="勾选这条组合（批量操作只作用于勾选的行）"></button></div>' +
       '<div class="sm-vc sm-vc-name">' +
-        '<input class="sv-name" value="' + escAttr(v.name || '') + '" placeholder="规格名">' +
-        (v.dims ? (function (dn) { return dn && dn !== String(v.name || '') ? '<span class="sm-vc-dims">' + esc(dn) + '</span>' : ''; })(Object.keys(v.dims).map(function (k) { return v.dims[k]; }).join(' / ')) : '') +
+        '<button type="button" class="sm-row-name" data-i="' + i + '" title="点开这条组合的详细编辑"><i class="sm-row-caret">' + (open ? '▾' : '▸') + '</i>' + esc(v.name || '（未命名规格）') + '</button>' +
       '</div>' +
       '<div class="sm-vc sm-vc-sku"><input class="sv-sku" value="' + escAttr(v.sku || '') + '" placeholder="SKU"></div>' +
       '<div class="sm-vc sm-vc-price"><input class="sv-price" type="number" min="0" step="0.01" value="' + escAttr(v.price == null ? '' : v.price) + '" placeholder="商品价" title="留空就用商品本身的价格"></div>' +
@@ -1495,16 +1512,7 @@
       '<div class="sm-vc sm-vc-img">' + imgCell +
         '<label class="sm-thumb-add" title="上传这个规格的图">＋<input type="file" class="sm-var-file" data-i="' + i + '" accept="image/*" multiple hidden></label>' +
       '</div>' +
-      '<div class="sm-vc sm-vc-state"><button type="button" class="sm-var-freeze' + (v.frozen ? ' off' : '') + '">' + (v.frozen ? '已禁用' : '启用') + '</button></div>' +
-      '<div class="sm-vc sm-vc-more">' +
-        '<button type="button" class="sm-more-btn" data-more="row" title="更多">⋯</button>' +
-        '<div class="sm-more-menu">' +
-          '<button type="button" class="sm-var-up" data-i="' + i + '"' + (i === 0 ? ' disabled' : '') + '>上移</button>' +
-          '<button type="button" class="sm-var-down" data-i="' + i + '"' + (i === total - 1 ? ' disabled' : '') + '>下移</button>' +
-          (v.sku ? '<button type="button" class="yk-barcode-btn" data-code="' + escAttr(v.sku) + '" data-title="' + escAttr(v.name || v.sku) + '">看条码</button>' : '') +
-          '<button type="button" class="sm-var-del" data-i="' + i + '">删除这个规格</button>' +
-        '</div>' +
-      '</div>' +
+      detail +
     '</div>';
   }
   function smVarRenderRows(card) {
@@ -1522,53 +1530,49 @@
         '<button type="button" class="sm-mode-btn' + (mode !== 'multi' ? ' on' : '') + '" data-mode="simple">简单规格</button>' +
         '<button type="button" class="sm-mode-btn' + (mode === 'multi' ? ' on' : '') + '" data-mode="multi">多维度规格</button>' +
       '</span>' +
-      '<span class="sm-mode-hint">' + (mode === 'multi' ? '按维度组合自动生成，适合有款式 / 尺寸的商品' : '一个一个手动加，适合只有一两种选择的商品') + '</span>' +
       '</div>';
     if (mode === 'multi') {
-      out += smStepsHtml(card);
-      out += '<div class="sm-sec' + (ui.dims ? '' : ' is-folded') + '" data-sec="dims">' +
-        '<div class="sm-sec-h"><b>① 规格维度</b>' +
-        '<span class="sm-cnt">' + smStepState(card).all.length + '</span>' +
-        '<span class="sm-sec-hint">点维度名可以直接改</span>' +
-        '<button type="button" class="sm-fold-btn" data-fold="dims">' + (ui.dims ? '收起' : '展开') + '</button></div>' +
+      /* 她 20261107 最终执行版 §3.2：不再要步骤进度条和重复说明，维度设置直接铺开 */
+      out += '<div class="sm-sec" data-sec="dims">' +
         '<div class="sm-sec-body">' +
         dims.map(function (d, i) { return smDimCardHtml(card, d, i, dims, ui); }).join('') +
         '<div class="sm-dim-foot">' +
-          '<button type="button" class="sm-dim-add">＋ 添加维度</button>' +
-          '<button type="button" class="sm-dim-clear">清空维度</button>' +
+          '<button type="button" class="sm-dim-add">＋ 添加规格</button>' +
+          '<button type="button" class="sm-gen-btn sm-dim-gen"' + (smGenInfo(card).ok ? '' : ' disabled') + '>生成规格明细</button>' +
         '</div></div></div>';
       var gi = smGenInfo(card);
       out += '<div class="sm-genbar">' +
         '<span class="sm-gen-info">' + gi.html + '</span>' +
-        '<button type="button" class="sm-gen-btn sm-dim-gen"' + (gi.ok ? '' : ' disabled') + '>③ 生成规格组合</button>' +
         '</div>';
     }
     var rowsHtml = vs.length ? vs.map(function (v, i) { return smComboRowHtml(card, v, i, vs.length); }).join('') : '';
+    var nSel = smSelCount(card);
     out += '<div class="sm-sec' + (ui.combos ? '' : ' is-folded') + '" data-sec="combos">' +
-      '<div class="sm-sec-h"><b>' + (mode === 'multi' ? '规格组合' : '规格') + '</b>' +
+      '<div class="sm-sec-h"><b>' + (mode === 'multi' ? '规格明细' : '规格') + '</b>' +
       '<span class="sm-cnt">' + vs.length + '</span>' +
-      '<span class="sm-sec-hint">价格 / 库存留空就跟随商品</span>' +
       (mode === 'multi' ? '' : '<button type="button" class="btn-mini sm-var-add">＋ 添加规格</button>') +
       '<button type="button" class="sm-fold-btn" data-fold="combos">' + (ui.combos ? '收起' : '展开') + '</button></div>' +
       '<div class="sm-sec-body">' +
-      (vs.length ? '<div class="sm-var-head"><span></span><span>规格名称</span><span>SKU</span><span>价格</span><span>库存</span><span>图片</span><span>状态</span><span></span></div>' : '') +
-      (rowsHtml || '<p class="sm-combo-empty">' + (mode === 'multi' ? '还没有组合，点上面的「生成规格组合」' : '还没有规格，点「＋ 添加规格」加第一个') + '</p>') +
+      (vs.length ? '<div class="sm-var-head"><span>选择</span><span>规格组合</span><span>SKU</span><span>价格</span><span>库存</span><span>图片</span></div>' : '') +
+      (rowsHtml || '<p class="sm-combo-empty">' + (mode === 'multi' ? '还没有组合，点上面的「生成规格明细」' : '还没有规格，点「＋ 添加规格」加第一个') + '</p>') +
       '<div class="sm-batch">' +
-        '<button type="button" class="sm-fold-btn sm-batch-btn" data-fold="batch">批量操作 ' + (ui.batch ? '▾' : '▸') + '</button>' +
-        '<div class="sm-batch-body"' + (ui.batch ? '' : ' style="display:none;"') + '>' +
-          '<span class="sm-sel-cnt">已选 <b class="sm-sel-n">' + smSelCount(card) + '</b> 条</span>' +
-          '<button type="button" class="btn-mini sm-sel-all">全选</button>' +
-          '<button type="button" class="btn-mini sm-sel-none">清空</button>' +
-          '<span class="sm-batch-sep"></span>' +
-          '<input class="sm-batch-price" type="number" min="0" step="0.01" placeholder="输入价格">' +
-          '<button type="button" class="btn-mini sm-set-price">统一价格</button>' +
-          '<button type="button" class="btn-mini sm-copy-price" title="把第一条勾选组合的价格套用到其余勾选组合">套用价格</button>' +
-          '<span class="sm-batch-sep"></span>' +
-          '<input class="sm-batch-stock" type="number" min="0" placeholder="输入库存">' +
-          '<button type="button" class="btn-mini sm-set-stock">统一库存</button>' +
-          '<button type="button" class="btn-mini sm-copy-stock" title="把第一条勾选组合的库存套用到其余勾选组合">套用库存</button>' +
-          '<span class="sm-batch-tip">只作用于勾选的组合，不会碰未勾选的行</span>' +
-        '</div>' +
+        (nSel > 0
+          ? '<div class="sm-batch-body">' +
+            '<span class="sm-sel-cnt">已选 <b class="sm-sel-n">' + nSel + '</b> 条</span>' +
+            '<button type="button" class="btn-mini sm-sel-all">全选</button>' +
+            '<button type="button" class="btn-mini sm-sel-flip">反选</button>' +
+            '<button type="button" class="btn-mini sm-sel-none">取消选择</button>' +
+            '<span class="sm-batch-sep"></span>' +
+            '<input class="sm-batch-price" type="number" min="0" step="0.01" placeholder="输入价格">' +
+            '<button type="button" class="btn-mini sm-set-price">统一价格</button>' +
+            '<button type="button" class="btn-mini sm-copy-price" title="把第一条勾选组合的价格套用到其余勾选组合">套用价格</button>' +
+            '<span class="sm-batch-sep"></span>' +
+            '<input class="sm-batch-stock" type="number" min="0" placeholder="输入库存">' +
+            '<button type="button" class="btn-mini sm-set-stock">统一库存</button>' +
+            '<button type="button" class="btn-mini sm-copy-stock" title="把第一条勾选组合的库存套用到其余勾选组合">套用库存</button>' +
+            '<span class="sm-batch-tip">只作用于勾选的组合，不会碰未勾选的行</span>' +
+          '</div>'
+          : '<div class="sm-batch-empty">勾选上面的组合后，这里会出现批量改价格 / 库存</div>') +
       '</div>' +
       '<div class="sm-var-addfoot">' +
         '<button type="button" class="btn-mini sm-var-add">＋ 添加规格</button>' +
@@ -1658,6 +1662,9 @@
       .map(function (d) { return { name: d.name, options: d.options.slice() }; });
   };
   window.smDimGenerate = function (card) {
+    if (card.__genBusy) return; // 防（她 20261107 §4.18）重复生成
+    card.__genBusy = true;
+    try {
     var dims = window.smDimRead(card);
     if (!dims.length) { toast('先填至少一个维度和它的选项'); return; }
     var combos = [{}];
@@ -1713,6 +1720,7 @@
       return;
     }
     applyGen();
+    } finally { card.__genBusy = false; }
   };
   /* ── 商品编码 / 规格 SKU 自动生成（她 20261104 §四.1）───────────────
      体系：商品 SY-P00001，规格 SY-P00001-001（规格 SKU 就是扫码用的条码）
@@ -1793,13 +1801,29 @@
       var cnt = cc.querySelector('.sm-sel-n'); if (cnt) cnt.textContent = String(smSelCount(cc));
       return;
     }
-    var selAll = t2.closest('.sm-sel-all') || t2.closest('.sm-sel-none');
+    var selAll = t2.closest('.sm-sel-all') || t2.closest('.sm-sel-none') || t2.closest('.sm-sel-flip');
     if (selAll) {
       var ca2 = varCardOf(selAll); if (!ca2) return;
-      var on = selAll.classList.contains('sm-sel-all');
-      ca2.__sel = {};
-      arr(ca2.__variants).forEach(function (v, k) { ca2.__sel[k] = on; });
+      if (selAll.classList.contains('sm-sel-flip')) {
+        // 她 20261107 最终执行版 §3.5：反选
+        if (!ca2.__sel) ca2.__sel = {};
+        arr(ca2.__variants).forEach(function (v, k) { ca2.__sel[k] = !ca2.__sel[k]; });
+      } else {
+        var on = selAll.classList.contains('sm-sel-all');
+        ca2.__sel = {};
+        arr(ca2.__variants).forEach(function (v, k) { ca2.__sel[k] = on; });
+      }
       smVarRenderRows(ca2);
+      return;
+    }
+    /* 她 20261107 最终执行版 §3.4.11：点「规格组合」名称展开/收起这条的详细编辑 */
+    var rowName = t2.closest('.sm-row-name');
+    if (rowName) {
+      var cr = varCardOf(rowName); if (!cr) return;
+      var ri = parseInt(rowName.getAttribute('data-i'), 10);
+      var ru = smUi(cr);
+      ru.openRow = (ru.openRow === ri) ? -1 : ri;
+      smVarRenderRows(cr);
       return;
     }
     var batchBtn = t2.closest('.sm-set-price') || t2.closest('.sm-copy-price') || t2.closest('.sm-set-stock') || t2.closest('.sm-copy-stock');
@@ -1822,6 +1846,13 @@
         if (val === '') { toast('第一条勾选组合还没填' + kindName + '，没法套用'); return; }
       }
       var nSel = sel.length;
+      /* 她 20261107 最终执行版 §3.5：批量前把选中的组合数量、修改前→修改后都列出来 */
+      var lines = sel.slice(0, 8).map(function (k) {
+        var v = cb.__variants[k]; if (!v) return '';
+        var oldV = isP ? (v.price == null ? '' : String(v.price).trim()) : (v.stock == null ? '' : String(v.stock).trim());
+        return '· ' + (v.name || '（未命名）') + '：' + (oldV === '' ? '（空，跟随商品）' : oldV) + ' → ' + val;
+      }).filter(Boolean);
+      if (nSel > 8) lines.push('· ……共 ' + nSel + ' 条');
       var doBatch = function () {
         var ok = 0;
         sel.forEach(function (k) { var v = cb.__variants[k]; if (v) { if (isP) v.price = val; else v.stock = val; ok++; } });
@@ -1829,7 +1860,7 @@
         toast('已把 ' + ok + ' 条勾选组合的' + kindName + (isSet ? '统一设为 ' : '套用为 ') + val + '；未勾选的行没动，记得点保存');
       };
       if (typeof window.uiConfirm === 'function') {
-        window.uiConfirm('将把 ' + nSel + ' 条已勾选组合的' + kindName + (isSet ? '统一设为 ' : '套用为 ') + val + '。\n未勾选的组合、其他商品、商品基础信息都不会被改动。确定吗？', doBatch, '批量' + kindName);
+        window.uiConfirm('将修改 ' + nSel + ' 条已勾选组合的' + kindName + '：\n' + lines.join('\n') + '\n未勾选的组合、SKU、规格名、图片和商品基础信息都不会被改动。确定吗？', doBatch, '批量' + kindName);
       } else doBatch();
       return;
     }
