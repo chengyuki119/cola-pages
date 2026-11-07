@@ -168,19 +168,19 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .pp-menu.open { display: block; }
   .pp-menu .tab-btn {
     display: block; width: 100%; text-align: left; box-sizing: border-box;
-    border: none; background: none; color: var(--text);
+    border: none; background: #FBEDF4; color: var(--text);
     font-size:16px; padding: 9px 12px;
     border-radius: 8px; cursor: pointer;
     margin-bottom: 3px; /* 她 20261107：菜单项浅粉条块之间的白色间隙 */
   }
-  .pp-menu .tab-btn:hover { background: var(--card-hover); }
-  .pp-menu .tab-btn.active { background: var(--accent-soft); color: var(--accent-strong); }
-  /* 她 20261107 14:33 澄清：桌面端菜单项不是浅粉条块，按她的电脑端 mockup =
-     白底 + 浅描边条，选中才填浅粉 + 粉描边；浅粉条块只留给手机端浮层。 */
+  .pp-menu .tab-btn:hover { background: #F8D3E2; }
+  .pp-menu .tab-btn.active { background: #F8D3E2; color: var(--accent-strong); font-weight: 600; }
+  /* 她 20261107 14:33 澄清：手机端浮层=浅粉条块（她手机版 mockup）；
+     桌面端=白底+浅描边、选中才浅粉填充+粉描边（她电脑端 mockup）。侧栏样式从这里收敛管理。 */
   @media (min-width: 900px) {
     .pp-menu .tab-btn { background: #fff; box-shadow: inset 0 0 0 1.5px #F6E7EE; }
-    .pp-menu .tab-btn:hover { background: #FFF0F5; }
-    .pp-menu .tab-btn.active { background: var(--accent-soft); box-shadow: inset 0 0 0 1.5px #EFB0C5; }
+    .pp-menu .tab-btn:hover { background: #FFF0F5; box-shadow: inset 0 0 0 1.5px #F6E7EE; }
+    .pp-menu .tab-btn.active { background: #F8D3E2; box-shadow: inset 0 0 0 1.5px #EFB0C5; }
   }
   @keyframes ppIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
   /* ── 后台导航五组分组标签 ── */
@@ -739,7 +739,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     body:not(.adm-in) .wrap .adm-head { margin: 0 var(--adm-edge, 40px) 22px; justify-content: center; }
   </style>
   <script src="site-menu.js" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261107B">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261107C">
   <style>
     /* ═══ 她 20261030 §5：后台字体统一加深（三档，仅后台生效）═══
        主要文字 #55464E ｜ 普通正文 #62545B ｜ 辅助文字 #81717A
