@@ -175,6 +175,13 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   }
   .pp-menu .tab-btn:hover { background: var(--card-hover); }
   .pp-menu .tab-btn.active { background: var(--accent-soft); color: var(--accent-strong); }
+  /* 她 20261107 14:33 澄清：桌面端菜单项不是浅粉条块，按她的电脑端 mockup =
+     白底 + 浅描边条，选中才填浅粉 + 粉描边；浅粉条块只留给手机端浮层。 */
+  @media (min-width: 900px) {
+    .pp-menu .tab-btn { background: #fff; box-shadow: inset 0 0 0 1.5px #F6E7EE; }
+    .pp-menu .tab-btn:hover { background: #FFF0F5; }
+    .pp-menu .tab-btn.active { background: var(--accent-soft); box-shadow: inset 0 0 0 1.5px #EFB0C5; }
+  }
   @keyframes ppIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
   /* ── 后台导航五组分组标签 ── */
   .pp-menu .pp-group {
