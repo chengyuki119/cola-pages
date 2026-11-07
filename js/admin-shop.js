@@ -1796,9 +1796,8 @@
       var ci = parseInt(chk.getAttribute('data-i'), 10);
       if (!cc.__sel) cc.__sel = {};
       cc.__sel[ci] = !cc.__sel[ci];
-      chk.classList.toggle('on', !!cc.__sel[ci]);
-      chk.setAttribute('aria-pressed', String(!!cc.__sel[ci]));
-      var cnt = cc.querySelector('.sm-sel-n'); if (cnt) cnt.textContent = String(smSelCount(cc));
+      /* 她 20261107 最终执行版 §3.5：只有勾选后才显示批量操作区，勾选态变化直接重绘 */
+      smVarRenderRows(cc);
       return;
     }
     var selAll = t2.closest('.sm-sel-all') || t2.closest('.sm-sel-none') || t2.closest('.sm-sel-flip');
