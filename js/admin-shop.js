@@ -1879,9 +1879,18 @@
     if (dimDel) {
       var cd = varCardOf(dimDel); if (!cd) return;
       var di = parseInt(dimDel.getAttribute('data-d'), 10);
-      smDimsSync(cd); cd.__dims.splice(di, 1);
-      if (!cd.__dims.length) cd.__dims = [{ name: '', options: [] }];
-      smVarRenderRows(cd); toast('维度已删（已生成的规格行还在，可重新生成）');
+      smDimsSync(cd);
+      var dd = cd.__dims[di];
+      var delDim = function () {
+        cd.__dims.splice(di, 1);
+        if (!cd.__dims.length) cd.__dims = [{ name: '', options: [] }];
+        smVarRenderRows(cd); toast('维度已删（已生成的规格行还在，可重新生成）');
+      };
+      /* 她 20261107 最终执行版 §3.3/§4.8：删维度先说影响 */
+      var affD = (dd && dd.name) ? arr(cd.__variants).filter(function (v) { return v && v.dims && v.dims[dd.name] != null; }).length : 0;
+      if (affD > 0 && typeof window.uiConfirm === 'function') {
+        window.uiConfirm('删除维度「' + dd.name + '」会影响 ' + affD + ' 个已有组合（它们都带这个维度）。规格行本身不会被立刻删掉，但重新生成时会按剩余维度重新匹配，对不上的组合填过的价格 / 库存 / 图片会被清空。确定删除吗？', delDim, '删除维度');
+      } else delDim();
       return;
     }
     var dimMv = t2.closest('.sm-dim-mv');
@@ -1923,7 +1932,17 @@
       var cx = varCardOf(optDel); if (!cx) return;
       var xi = parseInt(optDel.getAttribute('data-d'), 10), xo = parseInt(optDel.getAttribute('data-o'), 10);
       smDimsSync(cx); var xd = cx.__dims[xi];
-      if (xd && xd.options[xo] != null) { xd.options.splice(xo, 1); smVarRenderRows(cx); }
+      if (xd && xd.options[xo] != null) {
+        var delOpt = function () {
+          xd.options.splice(xo, 1); smVarRenderRows(cx);
+          toast('选项已删除；受影响的组合行还在，重新生成时会按新维度重新匹配');
+        };
+        /* 她 20261107 最终执行版 §4.8：删选项先说影响，不静默 */
+        var aff = xd.name ? arr(cx.__variants).filter(function (v) { return v && v.dims && v.dims[xd.name] === xd.options[xo]; }).length : 0;
+        if (aff > 0 && typeof window.uiConfirm === 'function') {
+          window.uiConfirm('删除「' + xd.options[xo] + '」会影响 ' + aff + ' 个已有组合（它们都带这个选项）。规格行本身不会被立刻删掉，但重新生成时对不上的组合，填过的价格 / 库存 / 图片会被清空。确定删除吗？', delOpt, '删除选项');
+        } else delOpt();
+      }
       return;
     }
     var optMv = t2.closest('.sm-opt-mv');
