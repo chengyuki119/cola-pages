@@ -6,13 +6,13 @@
    所以这里只出现 background-color / border-color / color / accent-color 四类属性。
 
    分层约定（在"不改几何"的前提下保住视觉层次）：
-     1. 主按钮      → 淡粉填充 #FCE1EA + 文字 #A98D96（加入购物车 / 保存 / 确认 / 主要行动）
-     2. 次要按钮·有描边 → 底 #FFF7FA + 描边 #FFD1E0 + 文字 #A98D96（= 规范里的 Default）
-     3. 次要按钮·无描边 → 淡粉填充 #FCE1EA + 文字 #A98D96（不能加描边，加了会改按钮宽度，
+     1. 主按钮      → 淡粉填充 #F6C5D7 + 文字 #897783（加入购物车 / 保存 / 确认 / 主要行动）
+     2. 次要按钮·有描边 → 底 #FFF8FA + 描边 #F8DDE8 + 文字 #897783（= 规范里的 Default）
+     3. 次要按钮·无描边 → 淡粉填充 #F6C5D7 + 文字 #897783（不能加描边，加了会改按钮宽度，
                           所以用同色系填充保持可见度）
      4. 危险按钮    → 柔和红底 #FBE3E6 + 文字 #C4636E（保留"删除"的语义，不用深红、不用鲜艳粉）
      5. 选择类      → 未选中 白/淡粉白 + 柔和浅粉描边 + 柔和灰棕文字；
-                      选中   淡粉填充 + 描边与底色同色（= 无可视描边）+ 文字 #A98D96 + 加粗沿用原样式
+                      选中   淡粉填充 + 描边与底色同色（= 无可视描边）+ 文字 #897783 + 加粗沿用原样式
      6. Checkbox / Radio → 未选 淡粉白底 + 浅粉描边；选中 粉色填充 + 白色勾/点
 
    注意：--accent / --accent-soft / --accent-strong / --price 允许被后台"主题颜色"（Supabase）
@@ -21,30 +21,30 @@
 
 :root {
   /* 普通按钮 */
-  --btn-bg: #FFF7FA;
-  --btn-bd: #FFD1E0;
-  --btn-fg: #A98D96;
-  --btn-bg-h: #FCE1EA;
-  --btn-bd-h: #F5BFD1;
-  --btn-fg-h: #A98D96;
-  --btn-bg-a: #F8D3E2;
-  --btn-bd-a: #EFB0C5;
-  --btn-fg-a: #A98D96;
-  --btn-bg-d: #F8F0F3;
-  --btn-bd-d: #EADCE2;
-  --btn-fg-d: #B9A5AE;
+  --btn-bg: #FFF8FA;
+  --btn-bd: #F8DDE8;
+  --btn-fg: #897783;
+  --btn-bg-h: #F6C5D7;
+  --btn-bd-h: #F6C5D7;
+  --btn-fg-h: #897783;
+  --btn-bg-a: #F6C5D7;
+  --btn-bd-a: #F6C5D7;
+  --btn-fg-a: #65515D;
+  --btn-bg-d: #FFF8FA;
+  --btn-bd-d: #F9E5ED;
+  --btn-fg-d: #897783;
 
   /* 主按钮（淡粉填充）——2026-11-04 23:19 她要求：全站主按钮统一用「加入购物车」的实测色
-     基准来自 shop 页 .buy-btn.cart-quick / .pdp #d-add：底 #F8D3E2、hover #F0B9D2、字 #604C57 */
-  --btn-pri-bg: #F8D3E2;
-  --btn-pri-bd: #EFB0C5;
-  --btn-pri-fg: #604C57;
-  --btn-pri-bg-h: #F0B9D2;
-  --btn-pri-bd-h: #E4A0B8;
-  --btn-pri-fg-h: #55464E;
-  --btn-pri-bg-a: #EFB0C5;
-  --btn-pri-bd-a: #DD97B3;
-  --btn-pri-fg-a: #55464E;
+     基准来自 shop 页 .buy-btn.cart-quick / .pdp #d-add：底 #FCECF2、hover #F6C5D7、字 #65515D */
+  --btn-pri-bg: #FCECF2;
+  --btn-pri-bd: #F8DDE8;
+  --btn-pri-fg: #65515D;
+  --btn-pri-bg-h: #F6C5D7;
+  --btn-pri-bd-h: #F6C5D7;
+  --btn-pri-fg-h: #65515D;
+  --btn-pri-bg-a: #F6C5D7;
+  --btn-pri-bd-a: #F6C5D7;
+  --btn-pri-fg-a: #65515D;
 
   /* 危险按钮（柔和红，保留删除语义） */
   --btn-dg-bg: #FBE3E6;
@@ -57,21 +57,21 @@
   --btn-dg-bd-a: #E8ABB7;
   --btn-dg-fg-a: #A54A55;
 
-  /* 选择类（2026-11-04 23:19 按规范：未选 #FFF7FA / #FFD1E0 / #A98D96，选中 #FCE1EA 填充 + 同色描边） */
-  --opt-bg: #FFF7FA;
-  --opt-bd: #FFD1E0;
-  --opt-fg: #A98D96;
-  --opt-bg-h: #FCE1EA;
-  --opt-bd-h: #F5BFD1;
-  --opt-fg-h: #A98D96;
-  --opt-sel-bg: #FCE1EA;
-  --opt-sel-bd: #FCE1EA;
-  --opt-sel-fg: #A98D96;
+  /* 选择类（2026-11-04 23:19 按规范：未选 #FFF8FA / #F8DDE8 / #897783，选中 #F6C5D7 填充 + 同色描边） */
+  --opt-bg: #FFF8FA;
+  --opt-bd: #F8DDE8;
+  --opt-fg: #897783;
+  --opt-bg-h: #F6C5D7;
+  --opt-bd-h: #F6C5D7;
+  --opt-fg-h: #897783;
+  --opt-sel-bg: #F6C5D7;
+  --opt-sel-bd: #F6C5D7;
+  --opt-sel-fg: #65515D;
 
   /* Checkbox / Radio */
-  --cb-bg: #FFF7FA;
-  --cb-bd: #FFD1E0;
-  --cb-on: #F2A9C4;
+  --cb-bg: #FFF8FA;
+  --cb-bd: #F8DDE8;
+  --cb-on: #F6C5D7;
   --cb-mark: #FFFFFF;
 }
 
@@ -267,7 +267,7 @@
 
 /* ─────────────────────────────────────────────────────────────
    4b. 购买链路上的 .buy-btn：同一个 class 在站里同时用于主按钮 / 次按钮 / 危险按钮
-       区分信息存在原有的 inline 样式里（#FCE1EA 主、#fff 次、--danger 删），
+       区分信息存在原有的 inline 样式里（#F6C5D7 主、#fff 次、--danger 删），
        这里按 inline 标记收色，不改一行 JS/hTML，也不改变任何尺寸
    ───────────────────────────────────────────────────────────── */
 .buy-btn {
@@ -285,19 +285,19 @@
   border-color: var(--btn-bd-a) !important;
   color: var(--btn-fg-a) !important;
 }
-.buy-btn[style*="background:#FCE1EA"], .buy-btn[style*="background: #FCE1EA"],
-.buy-btn[style*="background:#fce1ea"] {
+.buy-btn[style*="background:#F6C5D7"], .buy-btn[style*="background: #F6C5D7"],
+.buy-btn[style*="background:#F6C5D7"] {
   background-color: var(--btn-pri-bg) !important;
   border-color: var(--btn-pri-bd) !important;
   color: var(--btn-pri-fg) !important;
 }
-.buy-btn[style*="background:#FCE1EA"]:hover, .buy-btn[style*="background: #FCE1EA"]:hover,
-.buy-btn[style*="background:#fce1ea"]:hover {
+.buy-btn[style*="background:#F6C5D7"]:hover, .buy-btn[style*="background: #F6C5D7"]:hover,
+.buy-btn[style*="background:#F6C5D7"]:hover {
   background-color: var(--btn-pri-bg-h) !important;
   border-color: var(--btn-pri-bd-h) !important;
   color: var(--btn-pri-fg-h) !important;
 }
-.buy-btn[style*="background:#FCE1EA"]:active, .buy-btn[style*="background: #FCE1EA"]:active {
+.buy-btn[style*="background:#F6C5D7"]:active, .buy-btn[style*="background: #F6C5D7"]:active {
   background-color: var(--btn-pri-bg-a) !important;
   border-color: var(--btn-pri-bd-a) !important;
   color: var(--btn-pri-fg-a) !important;
@@ -704,7 +704,7 @@ textarea {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   20261102 她指定：保存类=深粉主按钮(#FCE1EA)，取消类=浅底(#FFF7FA+描边)
+   20261102 她指定：保存类=深粉主按钮(#F6C5D7)，取消类=浅底(#FFF8FA+描边)
    放在文件末尾以胜过前面 .btn-mini 统一组（该组把两者都压成了浅底）
    ───────────────────────────────────────────────────────────── */
 .btn-save, .btn-save-tb, .btn-ok, .btn-save-link,
@@ -743,8 +743,8 @@ textarea {
   color: var(--btn-fg-a) !important;
 }
 
-/* ═══ 2026-11-04 23:19 她要求：返回小铺 / 返回主页 原来太深（#F5BFD1），
-   改成与「加入购物车」同一个浅粉色系（底 #F8D3E2 / 描边 #EFB0C5 / 字 #604C57）═══ */
+/* ═══ 2026-11-04 23:19 她要求：返回小铺 / 返回主页 原来太深（#F6C5D7），
+   改成与「加入购物车」同一个浅粉色系（底 #FCECF2 / 描边 #F8DDE8 / 字 #65515D）═══ */
 .back-link {
   background-color: var(--btn-pri-bg) !important;
   border-color: var(--btn-pri-bd) !important;
@@ -823,19 +823,19 @@ textarea {
   height: 38px !important;
   padding: 0 14px !important;
   box-sizing: border-box !important;
-  border: 1.4px solid #FFD1E0 !important;
+  border: 1.4px solid #F8DDE8 !important;
   border-radius: 12px !important;
   background: #FFFFFF !important;
-  color: #55464E !important;
+  color: #65515D !important;
   font-size: 15px !important;
   font-weight: 400 !important;
 }
 .sel-btn:hover {
-  background: #FFF7FA !important;
-  border-color: #F5BFD1 !important;
+  background: #FFF8FA !important;
+  border-color: #F6C5D7 !important;
 }
 .sel-btn:active {
-  background: #FCE1EA !important;
+  background: #F6C5D7 !important;
 }
 
 /* 4. 弹窗里的关闭 / 取消：统一成次要按钮（白底粉描边） */
@@ -865,28 +865,28 @@ textarea {
 .biz-u-pg:hover:not(:disabled) { background: var(--btn-bg-h) !important; border-color: var(--btn-bd-h) !important; }
 .biz-u-pg.on {
   background: var(--opt-sel-bg) !important;
-  border-color: #F2A9C4 !important;
+  border-color: #F6C5D7 !important;
   color: var(--opt-sel-fg) !important;
 }
 .biz-u-sel {
   border-color: var(--btn-bd) !important;
-  color: #55464E !important;
+  color: #65515D !important;
 }
-/* 6. 后台表单控件：描边拉到规范色 #FFD1E0，聚焦态与前台一致（高度沿用后台原有 44px，不改密度） */
+/* 6. 后台表单控件：描边拉到规范色 #F8DDE8，聚焦态与前台一致（高度沿用后台原有 44px，不改密度） */
 #admin-body input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]):not([type=color]):not([type=button]):not([type=submit]):not([type=reset]):not([type=hidden]),
 #admin-body select,
 #admin-body textarea {
-  border-color: #FFD1E0 !important;
+  border-color: #F8DDE8 !important;
   border-radius: 12px !important;
 }
 #admin-body input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]):not([type=color]):not([type=button]):not([type=submit]):not([type=reset]):not([type=hidden]):focus,
 #admin-body select:focus,
 #admin-body textarea:focus {
-  border-color: #F2A9C4 !important;
+  border-color: #F6C5D7 !important;
   box-shadow: 0 0 0 3px rgba(242, 169, 196, .18) !important;
 }
 #admin-body input::placeholder,
 #admin-body textarea::placeholder {
-  color: #B9A5AE !important;
+  color: #897783 !important;
   opacity: 1 !important;
 }

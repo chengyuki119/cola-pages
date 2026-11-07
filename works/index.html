@@ -11,10 +11,10 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/icon-yuki2-180.png">
 <link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki2-180.png">
 <meta name="apple-mobile-web-app-title" content="小柚的小世界">
-<link rel="stylesheet" href="/css/site.css?v=20261105C">
+<link rel="stylesheet" href="/css/site.css?v=20261107E">
 <link rel="stylesheet" href="/site-menu.css?v=20261105C">
 <script src="/site-menu.js" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261107D">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261107E">
 </head>
 <body>
 
@@ -78,7 +78,7 @@
 <div id="share-pop"></div>
 <div class="toast" id="toast"></div>
 
-<script src="/js/site-common.js?v=20261105C"></script>
+<script src="/js/site-common.js?v=20261107E"></script>
 <script>
   // ===== 稿件展示：独立子页（稿件墙 + 稿件详情 /works/?id=N）=====
   // 数据：site_settings.works（与后台「稿件管理」同一份，单一数据源）
@@ -157,7 +157,7 @@
         '</div>' +
         (w.date ? '<div style="font-size:15px;color:var(--muted);margin-top:3px;">' + escDb(fmtWorkDate(w.date)) + '</div>' : '') +
         (w.cat || w.artist ? '<div style="font-size:15px;color:var(--muted);margin-top:3px;">' + escDb([w.cat, w.artist].filter(Boolean).join(' · ')) + '</div>' : '') +
-        (parseFloat(w.price) ? '<div style="font-size:17px;color:var(--price,#ff6fa5);font-weight:600;margin-top:4px;">¥' + fmtMoney(w.price) + '</div>' : '') +
+        (parseFloat(w.price) ? '<div style="font-size:17px;color:var(--price,#F48FB1);font-weight:600;margin-top:4px;">¥' + fmtMoney(w.price) + '</div>' : '') +
         (workDesc(w) ? '<div style="font-size:16px;color:var(--text);margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">' + escDb(workDesc(w)) + '</div>' : '') +
         '</div></div>';
     }).join('');
@@ -182,9 +182,9 @@
       '<span style="font-size:21px;font-weight:700;">' + escDb(w.name || t('未命名稿件', 'Untitled work')) + '</span>' +
       (w.date ? '<span style="color:var(--muted);font-size:17px;">　|　' + t('约稿日期', 'Commission Date') + t('：', ': ') + escDb(fmtWorkDate(w.date)) + '</span>' : '') +
       (w.cat || w.artist ? '<span style="color:var(--muted);font-size:17px;">　|　' + t('画师', 'Artist') + t('：', ': ') + escDb([w.cat, w.artist].filter(Boolean).join(' · ')) + '</span>' : '') +
-      (parseFloat(w.price) ? '<span style="color:var(--price,#ff6fa5);font-size:18px;font-weight:700;">　|　¥' + fmtMoney(w.price) + '</span>' : '') +
+      (parseFloat(w.price) ? '<span style="color:var(--price,#F48FB1);font-size:18px;font-weight:700;">　|　¥' + fmtMoney(w.price) + '</span>' : '') +
       '</div>' +
-      (workDesc(w) ? '<div style="font-size:14px;letter-spacing:.06em;color:var(--muted,#A88E9B);margin:0 0 6px 2px;">' + t('约稿详情', 'Commission Details') + '</div>' +
+      (workDesc(w) ? '<div style="font-size:14px;letter-spacing:.06em;color:var(--muted,#897783);margin:0 0 6px 2px;">' + t('约稿详情', 'Commission Details') + '</div>' +
         '<div class="card" style="padding:18px 20px;margin-bottom:14px;font-size:17px;line-height:1.9;white-space:pre-wrap;word-break:break-word;">' + escDb(workDesc(w)) + '</div>' : '');
   }
   function routeWorks() {

@@ -27,10 +27,10 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/icon-yuki2-180.png">
 <link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki2-180.png">
 <meta name="apple-mobile-web-app-title" content="小柚的小世界">
-<link rel="stylesheet" href="/css/site.css?v=20261105C">
+<link rel="stylesheet" href="/css/site.css?v=20261107E">
   <link rel="stylesheet" href="/site-menu.css?v=20261105C">
     <script src="/site-menu.js" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261107D">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261107E">
 </head>
 <body>
 
@@ -100,7 +100,7 @@
 </div>
 <div id="share-pop"></div>
 <div class="toast" id="toast"></div>
-<script src="/js/site-common.js?v=20261105C"></script>
+<script src="/js/site-common.js?v=20261107E"></script>
 <script>
   // ===== BJD：独立子页（娃娃墙 + 娃娃详情 /bjd/?id=N）=====
   var BJD_FILTER = '全部';
@@ -127,7 +127,7 @@
         // §6.2 总价行永远渲染（无值显示 —），钉在卡片底部，位置稳定
         if (!pv) pv = '—';
         return '<div style="display:flex;align-items:center;gap:8px;margin-top:auto;padding-top:6px;">' +
-          '<span style="flex:1;font-size:16px;color:var(--text,#604C57);font-weight:600;">' + t('总价', 'Total') + ' <span style="color:var(--price,#ff6fa5);">' + escDb(pv) + '</span></span>' +
+          '<span style="flex:1;font-size:16px;color:var(--text,#65515D);font-weight:600;">' + t('总价', 'Total') + ' <span style="color:var(--price,#F48FB1);">' + escDb(pv) + '</span></span>' +
           eb + '</div>';
       })() +
       '</div></div>';
@@ -182,7 +182,7 @@
   }
   function bjdPriceRow(label, val) { // 价格专用行：数值亮粉（她定的标价色），标签仍灰色
     if (val == null || String(val).trim() === '') return '';
-    return '<div style="display:flex;gap:12px;padding:3px 0;font-size:16px;"><span style="color:var(--muted);flex-shrink:0;width:96px;">' + label + '</span><span class="f-data" style="color:var(--price,#ff6fa5);">' + escDb(val) + '</span></div>';
+    return '<div style="display:flex;gap:12px;padding:3px 0;font-size:16px;"><span style="color:var(--muted);flex-shrink:0;width:96px;">' + label + '</span><span class="f-data" style="color:var(--price,#F48FB1);">' + escDb(val) + '</span></div>';
   }
   function renderBjdView() {
     var body = document.getElementById('bjd-view-body');
@@ -217,7 +217,7 @@
       (b.parts.head !== false ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:19px;">' + t('妆面', 'Face-up') + '</h2>' +
       (bjdRow(t('妆面 / Face-up', 'Face-up'), b.faceup.faceup) + bjdRow(t('妆师', 'Face-up artist'), b.faceup.artist) + bjdRow(t('完成时间', 'Completed'), b.faceup.date) || '<p style="color:var(--muted);font-size:16px;">' + t('暂无记录', 'No records yet') + '</p>') + '</div>' : '') +
       ((b.price.total || priceRows || totalV) ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:19px;">' + t('价格', 'Price') + '</h2>' +
-      (totalV > 0 ? '<div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--card-hover);padding:10px 0;margin-bottom:10px;"><span style="font-size:18px;font-weight:700;">' + t('娃娃总价', 'Total price') + '</span><b style="font-size:20px;color:var(--price,#ff6fa5);">¥' + fmtMoney(totalV) + '</b></div>' : '') +
+      (totalV > 0 ? '<div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--card-hover);padding:10px 0;margin-bottom:10px;"><span style="font-size:18px;font-weight:700;">' + t('娃娃总价', 'Total price') + '</span><b style="font-size:20px;color:var(--price,#F48FB1);">¥' + fmtMoney(totalV) + '</b></div>' : '') +
       (bjdPriceRow(t('娃娃价格', 'Total price'), fmtPriceRow(b.price.total)) + priceRows) + '</div>' : '') +
       ((b.purchase.date || b.purchase.channel || b.purchase.status || b.birth) ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:19px;">' + t('购买信息', 'Purchase Info') + '</h2>' +
       (bjdRow(t('购买日期', 'Purchase date'), b.purchase.date) + bjdRow(t('出生日期', 'Birth date'), b.birth) + bjdRow(t('渠道 / 商家', 'Channel / Seller'), b.purchase.channel) + bjdRow(t('状态', 'Status'), b.purchase.status)) + '</div>' : '') +

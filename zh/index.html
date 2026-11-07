@@ -36,10 +36,10 @@
 <meta name="twitter:title" content="小柚的小世界">
 <meta name="twitter:description" content="欢迎来到小柚的小世界">
 <meta name="twitter:image" content="https://yukicheng.com/zh/">
-<link rel="stylesheet" href="/css/site.css?v=20261105C">
+<link rel="stylesheet" href="/css/site.css?v=20261107E">
   <link rel="stylesheet" href="/site-menu.css?v=20261105C">
     <script src="/site-menu.js" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261107D">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261107E">
 </head>
 <body class="home">
 
@@ -164,7 +164,7 @@
 <div id="share-pop"></div>
 
 
-<script src="/js/site-common.js?v=20261105C"></script>
+<script src="/js/site-common.js?v=20261107E"></script>
 
 <!-- ═══════════ 小柚助手（AI 入口 · 第一阶段测试：模拟回复 + 后台知识库匹配，未接真 AI）═══════════ -->
 <style>
@@ -175,7 +175,7 @@
     border-radius: 50%;
     border: 1px solid var(--card-hover);
     background: #ffffff; /* 未悬停不用粉底（她 17:46 要求），悬停才上粉色 */
-    color: var(--muted,#A88E9B);
+    color: var(--muted,#897783);
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
     box-shadow: inset 0 2px 3px rgba(255,255,255,.9), inset 0 -2px 4px rgba(220,170,190,.28), 0 4px 10px rgba(180,120,150,.16);
     cursor: pointer;
@@ -183,8 +183,8 @@
     transition: transform .28s ease, box-shadow .18s ease, opacity .2s ease;
     font-family: inherit;
   }
-  .ai-fab .l1 { font-size:15px; font-weight: 600; line-height: 1.25; color: var(--muted,#A88E9B); }
-  .ai-fab .l2 { font-size:14px; font-weight: 600; line-height: 1.25; color: var(--muted,#A88E9B); }
+  .ai-fab .l1 { font-size:15px; font-weight: 600; line-height: 1.25; color: var(--muted,#897783); }
+  .ai-fab .l2 { font-size:14px; font-weight: 600; line-height: 1.25; color: var(--muted,#897783); }
   .ai-fab:not(.docked):hover { background: var(--card, #FFFFFF); transform: translateY(-2px); box-shadow: inset 0 2px 3px rgba(255,255,255,.9), inset 0 -2px 4px rgba(220,170,190,.28), 0 7px 14px rgba(180,120,150,.20); }
   .ai-fab:not(.docked):active { transform: scale(.95); }
   /* 「今天」避让（20261029）：日历的今天按钮滚到右下角与小助手重叠时，小助手临时滑出，错开即回；不再给内容加高层级 */
@@ -254,7 +254,7 @@
   .ai-input { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: #fff; border-top: 1px solid var(--card-hover); flex-shrink: 0; padding-bottom: max(10px, env(safe-area-inset-bottom)); }
   .ai-input input { flex: 1; border: 1px solid var(--card-hover); border-radius: 999px; background: var(--bg); padding: 9px 14px; font-size:16px; font-family: inherit; color: var(--text); outline: none; min-width: 0; }
   .ai-input input:focus { border-color: var(--accent-soft); }
-  .ai-input .send { width: 36px; height: 36px; flex-shrink: 0; border: none; border-radius: 50%; background:#FCE1EA; color: #A98D96; display: flex; align-items: center; justify-content: center; transition: transform .12s; cursor: pointer; }
+  .ai-input .send { width: 36px; height: 36px; flex-shrink: 0; border: none; border-radius: 50%; background:#F6C5D7; color: #897783; display: flex; align-items: center; justify-content: center; transition: transform .12s; cursor: pointer; }
   .ai-input .send:active { transform: scale(.92); }
   .ai-input .send svg { width: 16px; height: 16px; fill: #fff; }
 
@@ -566,7 +566,7 @@
         bjdEditBtn(x.i) + // 登录后台后才出现
         '</div>' +
         (b.head.size ? '<div style="font-size:15px;color:var(--muted);margin-top:4px;">' + escDb(LANG === 'en' && window.sizeEnKeep ? sizeEnKeep(b.head.size) : b.head.size) + '</div>' : '') +
-        '<div style="display:flex;align-items:center;gap:8px;margin-top:auto;padding-top:6px;"><span style="flex:1;font-size:17px;color:var(--text,#604C57);font-weight:600;">' + (LANG === 'en' ? 'Total ' : '总价 ') + '</span><span style="color:var(--price,#ff6fa5);font-weight:600;">' + (pv ? '¥' + pv : '—') + '</span></div>' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-top:auto;padding-top:6px;"><span style="flex:1;font-size:17px;color:var(--text,#65515D);font-weight:600;">' + (LANG === 'en' ? 'Total ' : '总价 ') + '</span><span style="color:var(--price,#F48FB1);font-weight:600;">' + (pv ? '¥' + pv : '—') + '</span></div>' +
         '</div></div>';
     }).join('');
   }
@@ -700,7 +700,7 @@
     var cov = parseSetting('cover', null);
     if (cov && cov.url) {
       var heroEl = document.querySelector('.hero');
-      if (heroEl) heroEl.style.backgroundImage = 'url("' + cov.url + '"), linear-gradient(180deg, rgba(255,251,252,0) 45%, var(--bg,#FFFBFC) 100%)';
+      if (heroEl) heroEl.style.backgroundImage = 'url("' + cov.url + '"), linear-gradient(180deg, rgba(255,251,252,0) 45%, var(--bg,#FFF8FA) 100%)';
     }
     // 入口卡片文案
     var en = parseSetting('entries', {});
@@ -741,7 +741,7 @@
             '</div>' +
             '<div style="font-size:15px;color:var(--muted);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (c.shop ? escDb(c.shop) : '&nbsp;') + '</div>' +
             '<div style="display:flex;align-items:center;gap:8px;margin-top:4px;">' +
-            '<span style="flex:1;font-size:17px;color:var(--text,#604C57);font-weight:600;">' + (LANG === 'en' ? 'Total ' : '色卡总价 ') + '</span><span style="color:var(--price,#ff6fa5);font-weight:600;">¥' + fmtMoney(cardFinalV(c)) + '</span>' +
+            '<span style="flex:1;font-size:17px;color:var(--text,#65515D);font-weight:600;">' + (LANG === 'en' ? 'Total ' : '色卡总价 ') + '</span><span style="color:var(--price,#F48FB1);font-weight:600;">¥' + fmtMoney(cardFinalV(c)) + '</span>' +
             cardEditBtn(i) +
             '</div>' +
             '</div></div>';
@@ -785,7 +785,7 @@
             workEditBtn(i, worksRaw) +
             '</div>' +
             (w.date ? '<div style="font-size:15px;color:var(--muted);margin-top:3px;">' + escDb(String(w.date).replace(/-/g, '/')) + '</div>' : '') +
-            (parseFloat(w.price) ? '<div style="font-size:17px;color:var(--price,#ff6fa5);font-weight:600;margin-top:4px;">¥' + fmtMoney(w.price) + '</div>' : '') +
+            (parseFloat(w.price) ? '<div style="font-size:17px;color:var(--price,#F48FB1);font-weight:600;margin-top:4px;">¥' + fmtMoney(w.price) + '</div>' : '') +
             '</div></div>';
         }).join('');
       }

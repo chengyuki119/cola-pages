@@ -24,12 +24,12 @@
     return Math.ceil((end - Date.now()) / 86400000);
   }
   function vipState(c) {
-    if (!c.vip) return { key: 'normal', label: t('普通客户', 'Regular'), color: '#81717A' };
+    if (!c.vip) return { key: 'normal', label: t('普通客户', 'Regular'), color: '#897783' };
     var d = daysUntil(c.vip_until);
-    if (d == null) return { key: 'vip', label: 'VIP', color: '#A98D96' };
+    if (d == null) return { key: 'vip', label: 'VIP', color: '#897783' };
     if (d < 0) return { key: 'expired', label: t('VIP 已过期', 'Expired'), color: '#C4636E' };
     if (d <= 30) return { key: 'soon', label: t('VIP · ' + d + ' 天后到期', 'ends in ' + d + 'd'), color: '#B98598' };
-    return { key: 'vip', label: 'VIP', color: '#A98D96' };
+    return { key: 'vip', label: 'VIP', color: '#897783' };
   }
   function isAdminRecord(c) { return c.role === 'admin' || c.is_admin === true || c.account_type === 'admin'; }
   function avatarOf(c) {
@@ -63,23 +63,23 @@
     st.textContent = [
       '#tab-vip .cust-av{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;font-size:16px;font-weight:700;flex-shrink:0;}',
       '#tab-vip .cust-row{display:grid;grid-template-columns:44px 1.6fr 1.5fr 92px 70px 110px 130px;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;cursor:pointer;}',
-      '#tab-vip .cust-row:hover{background:#FFF7FA;}',
-      '#tab-vip .cust-row.on{background:#FCE1EA;}',
-      '#tab-vip .cust-head{font-size:13px;color:#81717A;font-weight:600;padding:6px 12px;cursor:default;}',
+      '#tab-vip .cust-row:hover{background:#FFF8FA;}',
+      '#tab-vip .cust-row.on{background:#F6C5D7;}',
+      '#tab-vip .cust-head{font-size:13px;color:#897783;font-weight:600;padding:6px 12px;cursor:default;}',
       '#tab-vip .cust-head:hover{background:none;}',
-      '#tab-vip .cust-cell{font-size:15px;color:#62545B;min-width:0;overflow:hidden;text-overflow:ellipsis;}',
-      '#tab-vip .cust-cell b{color:#55464E;}',
-      '#tab-vip .cust-sub{font-size:12px;color:#81717A;}',
+      '#tab-vip .cust-cell{font-size:15px;color:#65515D;min-width:0;overflow:hidden;text-overflow:ellipsis;}',
+      '#tab-vip .cust-cell b{color:#65515D;}',
+      '#tab-vip .cust-sub{font-size:12px;color:#897783;}',
       '#tab-vip .cust-sec{border:1.5px solid #FFE3EC;border-radius:16px;background:#fff;padding:16px 18px;margin-bottom:12px;}',
-      '#tab-vip .cust-sec h4{margin:0 0 4px;font-size:17px;color:#55464E;font-weight:700;}',
-      '#tab-vip .cust-sec .tip{font-size:13px;color:#81717A;margin:0 0 12px;}',
-      '#tab-vip .cust-kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px 18px;font-size:15px;color:#62545B;}',
-      '#tab-vip .cust-kv b{color:#55464E;}',
+      '#tab-vip .cust-sec h4{margin:0 0 4px;font-size:17px;color:#65515D;font-weight:700;}',
+      '#tab-vip .cust-sec .tip{font-size:13px;color:#897783;margin:0 0 12px;}',
+      '#tab-vip .cust-kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px 18px;font-size:15px;color:#65515D;}',
+      '#tab-vip .cust-kv b{color:#65515D;}',
       '#tab-vip .cust-kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;}',
-      '#tab-vip .cust-kpi > div{background:#FFF7FA;border:1.5px solid #FFE3EC;border-radius:12px;padding:10px 14px;}',
-      '#tab-vip .cust-kpi .l{font-size:13px;color:#81717A;}',
-      '#tab-vip .cust-kpi .v{font-size:19px;font-weight:700;color:#55464E;margin-top:2px;font-variant-numeric:tabular-nums;}',
-      '#tab-vip .cust-log{font-size:13px;color:#62545B;line-height:1.9;}',
+      '#tab-vip .cust-kpi > div{background:#FFF8FA;border:1.5px solid #FFE3EC;border-radius:12px;padding:10px 14px;}',
+      '#tab-vip .cust-kpi .l{font-size:13px;color:#897783;}',
+      '#tab-vip .cust-kpi .v{font-size:19px;font-weight:700;color:#65515D;margin-top:2px;font-variant-numeric:tabular-nums;}',
+      '#tab-vip .cust-log{font-size:13px;color:#65515D;line-height:1.9;}',
       '#tab-vip .cust-badge{display:inline-flex;align-items:center;gap:4px;font-size:12px;padding:1px 9px;border-radius:999px;border:1.5px solid currentColor;}',
       '@media (max-width:900px){#tab-vip .cust-row{grid-template-columns:40px 1fr 110px;}#tab-vip .cust-col-hide{display:none;}#tab-vip .cust-head{display:none;}}'
     ].join('\n');
@@ -96,16 +96,16 @@
       panel.innerHTML =
         '<div class="card" style="padding:14px 16px;margin-bottom:14px;">' +
           '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">' +
-            '<input id="cust-q" placeholder="' + t('搜索姓名 / 昵称 / 邮箱 / 电话 / 客户编号') + '" style="flex:1;min-width:220px;padding:10px 16px;font-size:15px;border:1.5px solid #FCE4EC;border-radius:12px;outline:none;font-family:inherit;color:#62545B;background:#fff;box-sizing:border-box;">' +
+            '<input id="cust-q" placeholder="' + t('搜索姓名 / 昵称 / 邮箱 / 电话 / 客户编号') + '" style="flex:1;min-width:220px;padding:10px 16px;font-size:15px;border:1.5px solid #FCECF2;border-radius:12px;outline:none;font-family:inherit;color:#65515D;background:#fff;box-sizing:border-box;">' +
             '<button class="btn-save-tb" id="cust-reload">' + t('刷新') + '</button>' +
           '</div>' +
           '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px;">' +
-            '<span style="font-size:13px;color:#81717A;">' + t('筛选') + '</span>' +
+            '<span style="font-size:13px;color:#897783;">' + t('筛选') + '</span>' +
             [['all', '全部'], ['vip', '仅 VIP'], ['normal', '仅普通'], ['soon', '30 天内到期'], ['expired', '已过期']].map(function (p) {
               return '<button type="button" class="chip' + (p[0] === 'all' ? ' on' : '') + '" data-f="' + p[0] + '">' + p[1] + '</button>';
             }).join('') +
-            '<span style="font-size:13px;color:#81717A;margin-left:auto;">' + t('排序') + '</span>' +
-            '<select id="cust-sort" style="padding:7px 12px;border-radius:10px;border:1.5px solid #FCE4EC;background:#fff;font-size:14px;font-family:inherit;color:#62545B;">' +
+            '<span style="font-size:13px;color:#897783;margin-left:auto;">' + t('排序') + '</span>' +
+            '<select id="cust-sort" style="padding:7px 12px;border-radius:10px;border:1.5px solid #FCECF2;background:#fff;font-size:14px;font-family:inherit;color:#65515D;">' +
               '<option value="recent">' + t('最近下单') + '</option>' +
               '<option value="spend">' + t('累计消费') + '</option>' +
               '<option value="created">' + t('注册时间') + '</option>' +
@@ -134,7 +134,7 @@
 
   function load() {
     var listCard = document.getElementById('cust-list-card');
-    if (listCard) listCard.innerHTML = '<p style="color:#81717A;text-align:center;padding:22px 0;font-size:15px;">' + t('正在读取客户…') + '</p>';
+    if (listCard) listCard.innerHTML = '<p style="color:#897783;text-align:center;padding:22px 0;font-size:15px;">' + t('正在读取客户…') + '</p>';
     api('shop_customers?select=*&order=created_at.desc&limit=500').then(function (r) { return r.json(); }).then(function (rows) {
       S.list = Array.isArray(rows) ? rows : [];
       return api('shop_orders?select=id,order_no,customer_id,user_id,email,status,total,currency,items,created_at&status=neq.deleted&order=created_at.desc&limit=1000')
@@ -172,10 +172,10 @@
     var spend = 0;
     S.list.forEach(function (c) { spend += statOf(c).sum; });
     var cell = function (l, v, sub) {
-      return '<div style="background:#FFF7FA;border:1.5px solid #FFE3EC;border-radius:12px;padding:10px 14px;min-width:130px;">' +
-        '<div style="font-size:13px;color:#81717A;">' + l + '</div>' +
-        '<div style="font-size:19px;font-weight:700;color:#55464E;margin-top:2px;">' + v + '</div>' +
-        (sub ? '<div style="font-size:12px;color:#81717A;">' + sub + '</div>' : '') + '</div>';
+      return '<div style="background:#FFF8FA;border:1.5px solid #FFE3EC;border-radius:12px;padding:10px 14px;min-width:130px;">' +
+        '<div style="font-size:13px;color:#897783;">' + l + '</div>' +
+        '<div style="font-size:19px;font-weight:700;color:#65515D;margin-top:2px;">' + v + '</div>' +
+        (sub ? '<div style="font-size:12px;color:#897783;">' + sub + '</div>' : '') + '</div>';
     };
     box.innerHTML = cell(t('客户总数'), total) + cell('VIP', vips.length, soon.length ? soon.length + t(' 位 30 天内到期') : '') +
       cell(t('已过期 VIP'), expired.length) + cell(t('累计消费'), money(spend), t('按已付款订单合计'));
@@ -215,11 +215,11 @@
     if (!card) return;
     var rows = visible();
     if (!S.list.length) {
-      card.innerHTML = '<p style="color:#81717A;text-align:center;padding:22px 0;font-size:15px;">' + t('还没有客户档案。客户会在下单或线下开单时自动建档。') + '</p>';
+      card.innerHTML = '<p style="color:#897783;text-align:center;padding:22px 0;font-size:15px;">' + t('还没有客户档案。客户会在下单或线下开单时自动建档。') + '</p>';
       return;
     }
     if (!rows.length) {
-      card.innerHTML = '<p style="color:#81717A;text-align:center;padding:22px 0;font-size:15px;">' + t('没有符合筛选的客户') + '</p>';
+      card.innerHTML = '<p style="color:#897783;text-align:center;padding:22px 0;font-size:15px;">' + t('没有符合筛选的客户') + '</p>';
       return;
     }
     card.innerHTML =
@@ -276,7 +276,7 @@
       '<div class="cust-sec"><h4>' + t('① 基本资料') + '</h4>' +
         '<p class="tip">' + esc(c.c_no || '') + ' · ' + t('建档于 ') + esc(String(c.created_at || '').slice(0, 10)) + '</p>' +
         '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">' + avatarOf(c) +
-          '<div><b style="font-size:18px;color:#55464E;">' + esc(c.name || t('未命名')) + '</b>' +
+          '<div><b style="font-size:18px;color:#65515D;">' + esc(c.name || t('未命名')) + '</b>' +
           '<div class="cust-sub">' + (adm ? t('管理员账号 · 权限不要在这里改') : (c.source === 'online' ? t('线上客户') : t('线下客户'))) + '</div></div></div>' +
         '<div class="cust-kv">' +
           '<div>' + t('邮箱') + '：<b>' + esc(c.email || '—') + '</b></div>' +
@@ -301,11 +301,11 @@
               '<button type="button" class="btn-mini" data-act="vip-30">+30 天</button>' +
               '<button type="button" class="btn-mini" data-act="vip-90">+90 天</button>' +
               '<button type="button" class="btn-mini" data-act="vip-365">+365 天</button>' +
-              '<input id="cust-until" type="date" value="' + escAttr(c.vip_until ? String(c.vip_until).slice(0, 10) : '') + '" style="padding:7px 10px;border-radius:10px;border:1.5px solid #FCE4EC;font-size:14px;font-family:inherit;color:#62545B;">' +
+              '<input id="cust-until" type="date" value="' + escAttr(c.vip_until ? String(c.vip_until).slice(0, 10) : '') + '" style="padding:7px 10px;border-radius:10px;border:1.5px solid #FCECF2;font-size:14px;font-family:inherit;color:#65515D;">' +
               '<button type="button" class="btn-mini" data-act="vip-set">' + t('按这个日期设置') + '</button>' +
               (c.vip ? '<button type="button" class="btn-del" data-act="vip-off">' + t('取消 VIP') + '</button>' : '') +
             '</div>') +
-        '<div style="margin-top:14px;"><b style="font-size:15px;color:#55464E;">' + t('会员记录') + '</b>' +
+        '<div style="margin-top:14px;"><b style="font-size:15px;color:#65515D;">' + t('会员记录') + '</b>' +
           (logs.length
             ? '<div class="cust-log">' + logs.map(function (x) {
                 return '· ' + esc(String(x.at || '').replace('T', ' ').slice(0, 16)) + '　' + esc(x.label || x.action || '') +
@@ -328,8 +328,8 @@
       /* ④ 历史订单 */
       '<div class="cust-sec"><h4>' + t('④ 历史订单') + '</h4>' +
         '<p class="tip">' + t('点订单号可以直接跳到订单管理里定位这一单。') + '</p>' +
-        '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:14px;color:#62545B;">' +
-          '<thead><tr style="color:#81717A;text-align:left;">' +
+        '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:14px;color:#65515D;">' +
+          '<thead><tr style="color:#897783;text-align:left;">' +
             '<th style="padding:8px 10px;">' + t('订单编号') + '</th><th style="padding:8px 10px;">' + t('日期') + '</th>' +
             '<th style="padding:8px 10px;">' + t('商品') + '</th><th style="padding:8px 10px;text-align:right;">' + t('金额') + '</th>' +
             '<th style="padding:8px 10px;">' + t('状态') + '</th></tr></thead><tbody>' +
@@ -338,18 +338,18 @@
             var items = [];
             try { items = typeof o.items === 'string' ? JSON.parse(o.items) : (o.items || []); } catch (e) { items = []; }
             var txt = (Array.isArray(items) ? items : []).map(function (it) { return (it.name || it.title || '?') + ' ×' + (it.qty || it.quantity || 1) + (it.variant || it.sku ? '（' + (it.variant || it.sku) + '）' : ''); }).join('、') || '—';
-            return '<tr><td style="padding:8px 10px;"><a href="javascript:void(0)" class="cust-o" data-no="' + escAttr(o.order_no || '') + '" style="color:#A98D96;font-weight:600;text-decoration:underline;white-space:nowrap;">' + esc(o.order_no || '') + '</a>' + (isTest(o) ? ' <span class="cust-badge" style="color:#81717A;">TEST</span>' : '') + '</td>' +
+            return '<tr><td style="padding:8px 10px;"><a href="javascript:void(0)" class="cust-o" data-no="' + escAttr(o.order_no || '') + '" style="color:#897783;font-weight:600;text-decoration:underline;white-space:nowrap;">' + esc(o.order_no || '') + '</a>' + (isTest(o) ? ' <span class="cust-badge" style="color:#897783;">TEST</span>' : '') + '</td>' +
               '<td style="padding:8px 10px;white-space:nowrap;">' + esc(String(o.created_at).slice(0, 10)) + '</td>' +
               '<td style="padding:8px 10px;min-width:160px;">' + esc(txt) + '</td>' +
               '<td style="padding:8px 10px;text-align:right;white-space:nowrap;font-weight:600;">' + money(num(o.total)) + '</td>' +
               '<td style="padding:8px 10px;white-space:nowrap;">' + esc(label) + '</td></tr>';
-          }).join('') : '<tr><td colspan="5" style="padding:16px 10px;color:#81717A;">' + t('还没有订单') + '</td></tr>') +
+          }).join('') : '<tr><td colspan="5" style="padding:16px 10px;color:#897783;">' + t('还没有订单') + '</td></tr>') +
           '</tbody></table></div></div>' +
 
       /* ⑤ 备注 */
       '<div class="cust-sec"><h4>' + t('⑤ 店主备注') + '</h4>' +
         '<p class="tip">' + t('只有你能看到，与订单里的内部备注是两回事。') + '</p>' +
-        '<textarea id="cust-note" rows="3" style="width:100%;box-sizing:border-box;background:#FFF8FA;border:1.5px solid #FFE3EC;border-radius:12px;padding:10px 14px;font-size:15px;font-family:inherit;color:#55464E;outline:none;resize:vertical;">' + esc(c.note || '') + '</textarea>' +
+        '<textarea id="cust-note" rows="3" style="width:100%;box-sizing:border-box;background:#FFF8FA;border:1.5px solid #FFE3EC;border-radius:12px;padding:10px 14px;font-size:15px;font-family:inherit;color:#65515D;outline:none;resize:vertical;">' + esc(c.note || '') + '</textarea>' +
         '<div style="display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap;">' +
           '<button type="button" class="btn-save-tb" id="cust-note-save">' + t('保存备注') + '</button>' +
           '<span class="cust-sub">' + t('走 shop_customer_save，只改 note，其它字段原样回传，不会覆盖资料') + '</span>' +

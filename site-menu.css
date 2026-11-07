@@ -11,7 +11,7 @@
   align-items: center; justify-content: center;
   gap: 5px;
 }
-.burger:hover { background: var(--card-hover, #FCE4EC); }
+.burger:hover { background: var(--card-hover, #FCECF2); }
 .burger span {
   width: 20px; height: 2px;
   background: var(--text);
@@ -34,7 +34,7 @@
   position: fixed;
   top: 60px; right: 0; bottom: 0;
   width: 250px;
-  background: var(--bg,#FFFBFC);
+  background: var(--bg,#FFF8FA);
   box-shadow: -4px 0 24px rgba(255,143,171,.18);
   transform: translateX(100%);
   transition: transform .25s;
@@ -111,8 +111,8 @@
 .menu-owner:hover { background: var(--card-hover); }
 
 /* 当前所在页面：柔和粉色高亮（所有页面统一，只标当前，不重排不隐藏） */
-.menu a.current, .menu-link.current { background: var(--accent-soft,#FCE4EC); font-weight: 600; }
-.menu-group.current > .menu-toggle { background: var(--accent-soft,#FCE4EC); font-weight: 600; }
+.menu a.current, .menu-link.current { background: var(--accent-soft,#FCECF2); font-weight: 600; }
+.menu-group.current > .menu-toggle { background: var(--accent-soft,#FCECF2); font-weight: 600; }
 
 /* 顶栏中间 logo：全站统一组件（只按高度等比缩放，永不拉伸/裁切/压扁） */
 .site-logo {
@@ -138,15 +138,15 @@
   width: 42px; height: 42px;
   border-radius: 12px;
   background: #ffffff; /* 未悬停不用粉底（她 17:46 要求），悬停才上粉色 */
-  color: var(--text, #604C57);
+  color: var(--text, #65515D);
   transition: background .2s;
 }
-.topbar-cart:hover { background: var(--card-hover, #FCE4EC); }
+.topbar-cart:hover { background: var(--card-hover, #FCECF2); }
 .topbar-cart svg { display: block; }
 .topbar-cart-badge {
   position: absolute; top: -5px; right: -5px;
   min-width: 19px; height: 19px; border-radius: 999px;
-  background:var(--accent,#ffd9e6); color: var(--text, #604C57);
+  background:var(--accent,#F9E5ED); color: var(--text, #65515D);
   font-size: 12px; line-height: 19px; text-align: center; padding: 0 5px;
   font-weight: 600; box-sizing: border-box;
 }
@@ -157,12 +157,12 @@
   border-radius: 12px;
   font-size: 17px;
   text-decoration: none;
-  background: var(--accent,#ffd9e6); color: var(--text, #604C57); /* 登录按钮：粉底深字（她 2026-10-26 全站清浅底白字） */
+  background: var(--accent,#F9E5ED); color: var(--text, #65515D); /* 登录按钮：粉底深字（她 2026-10-26 全站清浅底白字） */
   transition: opacity .2s;
 }
 .menu-acct-bottom:hover { opacity: .88; }
 .menu a.menu-acct-bottom.is-in {
-  background: var(--accent-soft, #FCE4EC); color: var(--text, #604C57); /* 已登录态：浅粉底深字 */
+  background: var(--accent-soft, #FCECF2); color: var(--text, #65515D); /* 已登录态：浅粉底深字 */
   box-shadow: none;
 }
 
@@ -171,7 +171,7 @@
   padding: 11px 16px;
   border-radius: 12px;
   font-size: 15px;
-  color: var(--muted, #A88E9B);
+  color: var(--muted, #897783);
   background: var(--card, #FFFFFF);
   text-align: center;
 }
@@ -181,14 +181,14 @@
 .idx-wrap { position: relative; display: none; margin: 12px 12px 0; z-index: 80; }
 .idx-btn {
   display: inline-flex; align-items: center; gap: 8px;
-  border: 1px solid var(--card-hover, #FFD9E6);
-  background: var(--card, #FFFFFF); color: var(--text, #604C57);
+  border: 1px solid var(--card-hover, #F9E5ED);
+  background: var(--card, #FFFFFF); color: var(--text, #65515D);
   font-size: 15px; padding: 8px 14px; border-radius: 999px; cursor: pointer;
   font-family: inherit; box-shadow: 0 1px 6px rgba(255,143,171,.14);
   transition: background .2s;
 }
-.idx-btn:hover { background: var(--card-hover, #FCE4EC); }
-.idx-arrow { font-size: 11px; color: var(--muted, #A88E9B); }
+.idx-btn:hover { background: var(--card-hover, #FCECF2); }
+.idx-arrow { font-size: 11px; color: var(--muted, #897783); }
 .idx-menu {
   position: absolute; top: calc(100% + 6px); left: 0; z-index: 95;
   background: #fff; border-radius: 14px;
@@ -201,17 +201,17 @@
 @keyframes idxIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 .idx-link {
   display: block; padding: 9px 12px; border-radius: 8px;
-  color: var(--text, #604C57); font-size: 15px; text-decoration: none;
+  color: var(--text, #65515D); font-size: 15px; text-decoration: none;
 }
-.idx-link:hover { background: var(--card-hover, #FCE4EC); }
-.idx-link.current { background: var(--accent-soft, #FCE4EC); color: var(--accent-strong, #A98D96); font-weight: 600; }
+.idx-link:hover { background: var(--card-hover, #FCECF2); }
+.idx-link.current { background: var(--accent-soft, #FCECF2); color: var(--accent-strong, #897783); font-weight: 600; }
 @media (max-width: 700px) { .idx-wrap { display: block; } }
 
-/* ═══ 她 20261030 §5：Index / 全站导航文字统一 #62545B ═══
+/* ═══ 她 20261030 §5：Index / 全站导航文字统一 #65515D ═══
    普通、悬停、选中、下拉（子菜单）、手机端侧边导航一律同一深色；选中只靠原有粉色背景区分，
    不再出现多种深浅。只改文字颜色，不动背景、尺寸、间距、布局。
    用 .menu / #menu 前缀 + !important：压过 button-theme.css 里给 .menu-toggle 的按钮配色层。 */
-:root { --nav-text: #62545B; }
+:root { --nav-text: #65515D; }
 .menu a,
 .menu .menu-toggle,
 .menu .submenu a,
@@ -233,10 +233,10 @@
 #menu .submenu a,
 #menu .menu-link,
 #menu .menu-toggle:hover,
-#menu .submenu a:hover { color: #62545B !important; }
+#menu .submenu a:hover { color: #65515D !important; }
 .idx-link,
 .idx-link:hover,
-.idx-link.current { color: #62545B !important; }
+.idx-link.current { color: #65515D !important; }
 /* ═══════════════════════════════════════════════════════════════
    她 20261031 §一：全站顶栏汉堡菜单位置统一
    规则只有这一条，所有页面共用（不逐页打补丁）：

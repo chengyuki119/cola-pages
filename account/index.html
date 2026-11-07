@@ -19,14 +19,14 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   @font-face { font-family: "Millo Body"; src: url("/fonts/Millo-RiceSoyMilk80.woff2") format("woff2"), url("/fonts/Millo-RiceSoyMilk80.ttf") format("truetype"); font-display: swap; }
 
   :root {
-    --bg: #FFFBFC;
+    --bg: #FFF8FA;
     --card: #FFFFFF;
-    --card-hover: #FCE4EC;
-    --text: #604C57;
-    --muted: #A88E9B;
-    --accent: #ffd9e6;
-    --accent-soft: #FCE4EC;
-    --accent-strong: #A98D96;
+    --card-hover: #FCECF2;
+    --text: #65515D;
+    --muted: #897783;
+    --accent: #F9E5ED;
+    --accent-soft: #FCECF2;
+    --accent-strong: #897783;
     --radius: 16px;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -49,16 +49,16 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     color: #fff;
   }
   /* 她 20261102：角标与小铺同步配色（合格绿/淡紫/淡红，深字） */
-  .st-on { background: #DCE8DA; color: var(--text,#604C57); font-weight:600; }
-  .st-display { background: #E7DFEC; color: var(--text,#604C57); font-weight:600; }
-  .st-out { background: #F2DADB; color: var(--text,#604C57); font-weight:600; }
+  .st-on { background: #DCE8DA; color: var(--text,#65515D); font-weight:600; }
+  .st-display { background: #E7DFEC; color: var(--text,#65515D); font-weight:600; }
+  .st-out { background: #F2DADB; color: var(--text,#65515D); font-weight:600; }
   .product.off .product-img { filter: grayscale(.7); }
   .no-buy { font-size:16px; color: var(--muted); }
   a { color: inherit; text-decoration: none; }
   button { font-family: inherit; }
 
   .shop-header {
-    background: var(--accent-soft,#FCE4EC);
+    background: var(--accent-soft,#FCECF2);
     padding: 84px 0 40px;
     position: relative;
   }
@@ -68,16 +68,16 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .back-link {
     display: inline-flex; align-items: center; gap: 8px;
     height: 38px; padding: 0 16px; box-sizing: border-box;
-    color: #604C57;
+    color: #65515D;
     font-size: 16px; font-weight: 600;
-    border: 1.6px solid #EFB0C5;
+    border: 1.6px solid #F8DDE8;
     border-radius: 999px;
-    background: #F8D3E2; /* 2026-11-04 23:19：与「加入购物车」同一个浅粉色 */
+    background: #FCECF2; /* 2026-11-04 23:19：与「加入购物车」同一个浅粉色 */
     transition: background .2s, border-color .2s;
     white-space: nowrap;
   }
-  .back-link:hover { background: #F0B9D2; border-color: #E4A0B8; }
-  .back-link:active { background: #EFB0C5; transform: scale(.97); }
+  .back-link:hover { background: #F6C5D7; border-color: #F6C5D7; }
+  .back-link:active { background: #F8DDE8; transform: scale(.97); }
 
   /* ===== 独立账号页：分组侧栏面板（同柚子专属后台的交互风格） ===== */
   #acc-shell { display: flex; gap: 18px; align-items: flex-start; }
@@ -87,7 +87,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     padding: 14px; position: sticky; top: 74px;
   }
   #acc-views { flex: 1; min-width: 0; }
-  .acc-group + .acc-group { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--card-hover, #FCE4EC); }
+  .acc-group + .acc-group { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--card-hover, #FCECF2); }
   .acc-group-title { font-size: 13px; color: var(--muted); padding: 4px 10px 8px; }
   .acc-item {
     display: block; width: 100%; text-align: left; border: none;
@@ -96,14 +96,14 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     font-family: inherit; transition: background .15s;
   }
   .acc-item:hover { background: var(--card, #FFFFFF); }
-  .acc-item.on { background: var(--accent-soft,#FCE4EC); color: var(--accent-strong); font-weight: 600; }
+  .acc-item.on { background: var(--accent-soft,#FCECF2); color: var(--accent-strong); font-weight: 600; }
   .acc-logout {
     display: block; width: 100%; text-align: center; border: none;
-    background: var(--accent,#ffd9e6); color: var(--text, #604C57); font-size: 16px; font-weight: 600;
+    background: var(--accent,#F9E5ED); color: var(--text, #65515D); font-size: 16px; font-weight: 600;
     padding: 11px 12px; border-radius: 12px; cursor: pointer; font-family: inherit;
     transition: background .15s;
   }
-  .acc-logout:hover { background: var(--accent-soft,#FCE4EC); }
+  .acc-logout:hover { background: var(--accent-soft,#FCECF2); }
   @media (max-width: 760px) {
     #acc-shell { flex-direction: column; }
     #acc-menu { width: 100%; position: static; display: flex; flex-wrap: wrap; gap: 4px; padding: 10px; }
@@ -149,7 +149,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .product-img {
     position: relative;
     aspect-ratio: 1;
-    background: var(--accent-soft,#FCE4EC);
+    background: var(--accent-soft,#FCECF2);
     display: flex; align-items: center; justify-content: center;
     font-size:61px;
     overflow: hidden;
@@ -160,8 +160,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .product-tag {
     align-self: flex-start;
     font-size:14px;
-    color:var(--text,#604C57);
-    background: var(--accent-soft,#FCE4EC);
+    color:var(--text,#65515D);
+    background: var(--accent-soft,#FCECF2);
     border-radius: 999px;
     padding: 2px 10px;
     margin-bottom: 8px;
@@ -170,9 +170,9 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .product-info p { color: var(--muted); font-size:16px; margin: 4px 0 12px; flex: 1; }
   .product-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; row-gap: 8px; }
   .product-row .buy-btn, .product-row .card-edit-btn, .product-row .no-buy, .product-row .price { white-space: nowrap; flex-shrink: 0; }
-  .card-edit-btn { border: none; background: var(--card-hover); color:var(--text,#604C57); font-size:14px; cursor: pointer; padding: 4px 12px; border-radius: 999px; font-family: inherit; transition: background .2s, color .2s; white-space: nowrap; }
-  .card-edit-btn:hover { background: var(--accent-soft); color: var(--text, #604C57); }
-  .price { font-size:21px; font-weight: 700; color:var(--text,#604C57); font-family: "Millo Body", -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; }
+  .card-edit-btn { border: none; background: var(--card-hover); color:var(--text,#65515D); font-size:14px; cursor: pointer; padding: 4px 12px; border-radius: 999px; font-family: inherit; transition: background .2s, color .2s; white-space: nowrap; }
+  .card-edit-btn:hover { background: var(--accent-soft); color: var(--text, #65515D); }
+  .price { font-size:21px; font-weight: 700; color:var(--text,#65515D); font-family: "Millo Body", -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; }
   .price small { font-size:15px; font-weight: 400; }
   .buy-btn {
     border: none;
@@ -184,20 +184,20 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     cursor: pointer;
     transition: background .2s;
   }
-  .buy-btn:hover { background:var(--accent,#ffd9e6); }
+  .buy-btn:hover { background:var(--accent,#F9E5ED); }
 
 
   /* 收藏心心 */
   .fav-btn {
     border: none; background: rgba(255,251,252,.92);
-    color:var(--text,#604C57); cursor: pointer;
+    color:var(--text,#65515D); cursor: pointer;
     font-size: 18px; line-height: 1;
     width: 34px; height: 34px; border-radius: 50%;
     display: inline-flex; align-items: center; justify-content: center;
     transition: transform .15s, background .2s;
     font-family: inherit;
   }
-  .fav-btn:hover { transform: scale(1.12); background: var(--accent-soft,#FCE4EC); }
+  .fav-btn:hover { transform: scale(1.12); background: var(--accent-soft,#FCECF2); }
   .product-img .fav-btn { position: absolute; top: 10px; right: 10px; z-index: 2; }
   .product-img { position: relative; }
   .fav-btn.detail-fav { width: 40px; height: 40px; font-size: 22px; vertical-align: middle; margin-left: 8px; }
@@ -205,8 +205,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   /* 售尽 / 仅展示：图片灰化，不放购买按钮 */
 
   .star { cursor: pointer; font-size:25px; color: #f0c3da; transition: color .15s; }
-  .star:hover { color:var(--text,#604C57); }
-  .star.on { color:var(--text,#604C57); }
+  .star:hover { color:var(--text,#65515D); }
+  .star.on { color:var(--text,#65515D); }
 
   /* 评价卡：登录了后台才会出现的 ⋮ 管理菜单（删除） */
   .rv-kebab { position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; border: none; border-radius: 10px; background: var(--card); color: var(--muted); font-size: 19px; line-height: 1; cursor: pointer; font-family: inherit; }
@@ -215,8 +215,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   #rv-menu.open { display: block; }
   #rv-menu button { display: block; width: 100%; text-align: left; border: none; background: none; border-radius: 9px; padding: 9px 12px; font-size: 16px; font-family: inherit; color: var(--text); cursor: pointer; }
   #rv-menu button:hover { background: var(--card); }
-  #rv-menu .rv-menu-del { background: var(--accent,#FFD9E6); }
-  #rv-menu .rv-menu-del:hover { background: var(--accent-soft,#FCE4EC); }
+  #rv-menu .rv-menu-del { background: var(--accent,#F9E5ED); }
+  #rv-menu .rv-menu-del:hover { background: var(--accent-soft,#FCECF2); }
 
   .toast {
     position: fixed;
@@ -289,7 +289,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .lang-switch {
     display: flex;
     gap: 4px;
-    background: var(--accent-soft, #FCE4EC); /* 20261026s 她指定款：粉胶囊底座+白胶囊选中（全站同款） */
+    background: var(--accent-soft, #FCECF2); /* 20261026s 她指定款：粉胶囊底座+白胶囊选中（全站同款） */
     padding: 4px;
     border-radius: 999px;
   }
@@ -305,7 +305,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   }
   .lang-btn.active {
     background: #ffffff;
-    color: var(--text, #604C57);
+    color: var(--text, #65515D);
     font-weight: 600;
     box-shadow: 0 1px 4px rgba(180,120,150,.28);
   }
@@ -327,10 +327,10 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
 .pg-thumbs { position: absolute; left: 0; right: 0; bottom: 8px; display: flex; gap: 5px; overflow-x: auto; padding: 3px 10px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
 .pg-thumbs::-webkit-scrollbar { display: none; }
 .pg-thumb { width: 30px; height: 30px; border-radius: 8px; object-fit: cover; flex-shrink: 0; border: 2px solid rgba(255,255,255,.9); cursor: pointer; opacity: .85; transition: opacity .2s, border-color .2s; box-sizing: border-box; background: var(--card); display: block; }
-.pg-thumb.on { border-color: var(--card-hover, #FCE4EC); opacity: 1; }
+.pg-thumb.on { border-color: var(--card-hover, #FCECF2); opacity: 1; }
   /* ===== 商城新增：视图 / 规格 / 订单 / 拼团 ===== */
   .sku-chip { border: 2px solid var(--accent-soft); background: #fff; color: var(--text); border-radius: 999px; padding: 7px 16px; font-size: 16px; font-family: inherit; cursor: pointer; transition: all .2s; }
-  .sku-chip.on { border-color:var(--accent-soft,#FCE4EC); background:var(--accent-soft,#FCE4EC); color: var(--accent-strong); }
+  .sku-chip.on { border-color:var(--accent-soft,#FCECF2); background:var(--accent-soft,#FCECF2); color: var(--accent-strong); }
   .sku-chip.dis { opacity: .45; cursor: not-allowed; }
   .qty-btn { border: none; background: var(--card-hover); color: var(--text); width: 30px; height: 30px; border-radius: 50%; font-size: 16px; cursor: pointer; font-family: inherit; }
   .card { background: #fff; border-radius: var(--radius); box-shadow: 0 2px 14px rgba(255,143,171,.12); }
@@ -338,14 +338,14 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
   @media (max-width: 700px) { #view-detail > div { grid-template-columns: 1fr !important; } }
 
   /* ── 原生 select 外观对齐设计系统（仅样式，行为不变 · 20261026k） ── */
-  select { font-family: inherit; font-size: 15px; color: var(--text, #604C57); background: #fff; border: 1.5px solid var(--border, #FFD9E6); border-radius: 10px; padding: 7px 10px; outline: none; max-width: 100%; cursor: pointer; box-sizing: border-box; }
-  select:focus { border-color: var(--text, #604C57); }
+  select { font-family: inherit; font-size: 15px; color: var(--text, #65515D); background: #fff; border: 1.5px solid var(--border, #F9E5ED); border-radius: 10px; padding: 7px 10px; outline: none; max-width: 100%; cursor: pointer; box-sizing: border-box; }
+  select:focus { border-color: var(--text, #65515D); }
 </style>
   <link rel="stylesheet" href="/site-menu.css?v=20261105C">
-  <script src="/js/site-common.js?v=20261105C"></script>
+  <script src="/js/site-common.js?v=20261107E"></script>
   <script src="/site-menu.js?v=20261105C" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261107D">
-    <link rel="stylesheet" href="/css/input-unify.css?v=20261105C">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261107E">
+    <link rel="stylesheet" href="/css/input-unify.css?v=20261107E">
   </head>
 <body>
 <header class="topbar">
@@ -385,12 +385,12 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
   </div>
 
   <section id="past" style="margin-top:44px;display:none;">
-    <h2 style="font-size:24px;margin-bottom:14px;display:flex;align-items:center;gap:8px;"><span style="width:4px;height:18px;background:var(--accent,#ffd9e6);border-radius:2px;display:inline-block;"></span><span data-zh="往期商品" data-en="Past Items">往期商品</span></h2>
+    <h2 style="font-size:24px;margin-bottom:14px;display:flex;align-items:center;gap:8px;"><span style="width:4px;height:18px;background:var(--accent,#F9E5ED);border-radius:2px;display:inline-block;"></span><span data-zh="往期商品" data-en="Past Items">往期商品</span></h2>
     <div class="grid" id="past-grid"></div>
   </section>
 
   <section id="reviews" style="margin-top:44px;display:none;">
-    <h2 style="font-size:24px;margin-bottom:14px;display:flex;align-items:center;gap:8px;"><span style="width:4px;height:18px;background:var(--accent,#ffd9e6);border-radius:2px;display:inline-block;"></span><span data-zh="评价返图" data-en="Reviews">评价返图</span></h2>
+    <h2 style="font-size:24px;margin-bottom:14px;display:flex;align-items:center;gap:8px;"><span style="width:4px;height:18px;background:var(--accent,#F9E5ED);border-radius:2px;display:inline-block;"></span><span data-zh="评价返图" data-en="Reviews">评价返图</span></h2>
     <div class="card" style="background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:20px;">
       <p style="font-size:16px;color:var(--muted);margin-bottom:10px;"><span data-zh="买过小铺东西的小可爱，欢迎晒图评价～" data-en="Bought something? Share your photos & review~">买过小铺东西的小可爱，欢迎晒图评价～</span></p>
       <input id="r-name" maxlength="30" data-ph-zh="你的名字（选填）" data-ph-en="Your name (optional)" style="width:100%;margin-bottom:10px;padding:12px 14px;font-size:18px;border:none;border-radius:12px;background:#fff;outline:none;color:var(--text);font-family:inherit;">
@@ -399,7 +399,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
         <span id="r-stars" style="display:inline-flex;gap:4px;">
           <span class="star" data-v="1">★</span><span class="star" data-v="2">★</span><span class="star" data-v="3">★</span><span class="star" data-v="4">★</span><span class="star" data-v="5">★</span>
         </span>
-        <span id="r-star-text" style="font-size:16px;color:var(--text,#604C57);">5/5</span>
+        <span id="r-star-text" style="font-size:16px;color:var(--text,#65515D);">5/5</span>
       </div>
       <textarea id="r-text" style="width:100%;min-height:70px;border:none;border-radius:12px;background:#fff;padding:12px 14px;font-family:inherit;font-size:18px;color:var(--text);resize:none;outline:none;" data-ph-zh="写下你的评价～" data-ph-en="Write your review~"></textarea>
       <div style="margin-top:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
@@ -415,7 +415,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
   </section>
 
   <section id="pay" style="margin-top:44px;">
-    <h2 style="font-size:24px;margin-bottom:14px;display:flex;align-items:center;gap:8px;"><span style="width:4px;height:18px;background:var(--accent,#ffd9e6);border-radius:2px;display:inline-block;"></span><span data-zh="付款方式" data-en="Payment">付款方式</span></h2>
+    <h2 style="font-size:24px;margin-bottom:14px;display:flex;align-items:center;gap:8px;"><span style="width:4px;height:18px;background:var(--accent,#F9E5ED);border-radius:2px;display:inline-block;"></span><span data-zh="付款方式" data-en="Payment">付款方式</span></h2>
     <div class="pay-cta">
       <p data-zh="支持微信 / 支付宝，点下面看收款方式～" data-en="WeChat / Alipay — tap below to see the payment codes~">支持微信 / 支付宝，点下面看收款方式～</p>
       <button class="buy-btn" id="pay-open" style="padding:10px 26px;"><span data-zh="查看收款方式" data-en="View payment methods">查看收款方式</span></button>
@@ -791,7 +791,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
       }
       list.innerHTML = rows.map(function (rv) {
         var img = rv.image_url ? '<img src="' + esc(imgUrl(rv.image_url)) + '" style="width:120px;height:120px;object-fit:cover;border-radius:12px;margin-top:10px;display:block;">' : '';
-        var stars = '<span style="color:var(--text,#604C57);letter-spacing:2px;">' + starText(rv.rating || 5) + '</span> <span style="font-size:15px;">' + (rv.rating || 5) + '/5</span>';
+        var stars = '<span style="color:var(--text,#65515D);letter-spacing:2px;">' + starText(rv.rating || 5) + '</span> <span style="font-size:15px;">' + (rv.rating || 5) + '/5</span>';
         var kebab = SHOP_ADMIN ? '<button class="rv-kebab" data-id="' + esc(rv.id) + '" aria-label="管理">⋮</button>' : '';
         return '<div class="rv-card" data-rv="' + esc(rv.id) + '" style="background:#fff;border-radius:var(--radius);padding:14px 16px;' + (SHOP_ADMIN ? 'padding-right:52px;' : '') + 'margin-bottom:12px;box-shadow:0 2px 10px rgba(180,120,150,.10);position:relative;">' +
           '<div style="font-size:16px;color:var(--muted);">' + esc(rv.name || t('小可爱','A lovely buyer')) + ' · ' + fmtDate(rv.created_at) + '</div>' +
@@ -888,7 +888,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     }, 300);
   }
 </script>
-<script src="/js/shop-app.js?v=20261105C"></script>
+<script src="/js/shop-app.js?v=20261107E"></script>
 <script src="/js/site-footer.js?v=20261105C"></script>
 <script>
   // 统一 Footer（已有 <footer> 则替换其内容，不新建第二个）

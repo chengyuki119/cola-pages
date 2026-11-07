@@ -1,16 +1,16 @@
 /* ═她 20261102：全站输入控件统一（单一来源；site.css @import 本文件，
    不加载 site.css 的页面直接 <link> 引入）═══════════════════════════════
-   口径与后台一致：16px 字 · 1.5px 粉描边 #FFD1E0 · 12px 圆角 · 白底 · 字 #55464E
-   （2026-11-04 23:19 她要求全站统一：描边改用规范色 #FFD1E0，字色收成 #55464E） */
+   口径与后台一致：16px 字 · 1.5px 粉描边 #F8DDE8 · 12px 圆角 · 白底 · 字 #65515D
+   （2026-11-04 23:19 她要求全站统一：描边改用规范色 #F8DDE8，字色收成 #65515D） */
 input:not([type]):not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]):not([type=color]):not([type=button]):not([type=submit]):not([type=reset]):not([type=hidden]),
 input[type=text], input[type=search], input[type=number], input[type=email], input[type=password],
 input[type=date], input[type=time], input[type=url], input[type=tel], textarea, select {
   font-size: 16px !important;
   font-family: inherit !important;
-  border: 1.5px solid #FFD1E0 !important;
+  border: 1.5px solid #F8DDE8 !important;
   border-radius: 12px !important;
   background: #fff !important;
-  color: #55464E !important;
+  color: #65515D !important;
   padding: 10px 14px !important;
   outline: none !important;
   box-sizing: border-box !important;
@@ -20,20 +20,20 @@ input[type=date], input[type=time], input[type=url], input[type=tel], textarea, 
 input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]):not([type=color]):not([type=button]):not([type=submit]):not([type=reset]):not([type=hidden]):focus,
 textarea:focus,
 select:focus {
-  border-color: #F2A9C4 !important;
+  border-color: #F6C5D7 !important;
   box-shadow: 0 0 0 3px rgba(242, 169, 196, .18) !important;
 }
 input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]):not([type=color]):not([type=button]):not([type=submit]):not([type=reset]):not([type=hidden]):disabled,
 textarea:disabled,
 select:disabled {
-  background: #F8F0F3 !important;
-  border-color: #EADCE2 !important;
-  color: #B9A5AE !important;
+  background: #FFF8FA !important;
+  border-color: #F9E5ED !important;
+  color: #897783 !important;
   cursor: not-allowed !important;
 }
 input::placeholder,
 textarea::placeholder {
-  color: #B9A5AE !important;
+  color: #897783 !important;
   opacity: 1 !important;
 }
 textarea {

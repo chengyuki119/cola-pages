@@ -84,13 +84,13 @@
     /* 电商多列 Footer（她 2026-10-26：参考 lululemon 多列布局，去掉大圆角粉卡，白/极浅粉底、顶部细分隔线） */
     st.textContent =
       '.sy-footer{max-width:1400px;margin:26px auto 22px;padding:0 24px;font-family:inherit;box-sizing:border-box;}' +
-      '.sy-footer-inner{border-top:1px solid var(--accent,#FFD9E6);padding-top:30px;}' +
+      '.sy-footer-inner{border-top:1px solid var(--accent,#F9E5ED);padding-top:30px;}' +
       '.sy-footer-cols{display:grid;grid-template-columns:repeat(4,1fr);gap:26px 36px;}' +
       '.sy-footer-col{text-align:left;}' +
       '@media (max-width:899px){.sy-footer-cols{grid-template-columns:1fr 1fr;}}' +
       '@media (max-width:559px){.sy-footer{padding:0 18px 6px;margin-bottom:30px;}.sy-footer-cols{grid-template-columns:1fr;gap:22px;}}' +
-      '.sy-footer-head{display:inline-block;font-size:15px;font-weight:700;color:var(--text,#604C57);margin-bottom:12px;letter-spacing:.03em;text-decoration:none;}' +
-      '.sy-footer-head:hover{color:var(--price,#FF6FA5);}' +
+      '.sy-footer-head{display:inline-block;font-size:15px;font-weight:700;color:var(--text,#65515D);margin-bottom:12px;letter-spacing:.03em;text-decoration:none;}' +
+      '.sy-footer-head:hover{color:var(--price,#F48FB1);}' +
       '.sy-footer-links{display:flex;flex-direction:column;align-items:flex-start;}' +
       '.sy-footer-social{margin-top:10px;display:flex;flex-direction:column;align-items:flex-start;gap:0;}' +
       '.sy-footer-social .sy-sicon{display:inline-block;vertical-align:middle;line-height:0;filter:saturate(1);transition:opacity .2s;}' +
@@ -101,14 +101,14 @@
       '.sy-footer-social.sy-iconrow-mode .sy-ic:hover{opacity:.75;}' +
       '.sy-footer-social.sy-iconrow-mode .sy-ic .sy-sicon{margin-right:0 !important;}' +
       '.sy-footer-social .sy-footer-link:hover .sy-sicon{opacity:.78;}' +
-      '.sy-footer-link{color:var(--muted,#A88E9B);font-size:15px;line-height:2.15;text-decoration:none;transition:color .2s;}' +
-      '.sy-footer-link:hover{color:var(--price,#FF6FA5);}' +
+      '.sy-footer-link{color:var(--muted,#897783);font-size:15px;line-height:2.15;text-decoration:none;transition:color .2s;}' +
+      '.sy-footer-link:hover{color:var(--price,#F48FB1);}' +
       '.sy-footer-bottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px 18px;' +
-        'border-top:1px solid var(--accent,#FFD9E6);margin-top:30px;padding-top:18px;font-size:14px;color:var(--muted,#A88E9B);}' +
+        'border-top:1px solid var(--accent,#F9E5ED);margin-top:30px;padding-top:18px;font-size:14px;color:var(--muted,#897783);}' +
       '@media (max-width:559px){.sy-footer-bottom{flex-direction:column;align-items:flex-start;}}' +
       '.sy-footer-bottom .sy-footer-legal{display:flex;gap:18px;flex-wrap:wrap;}' +
-      '.sy-footer-bottom a{color:var(--muted,#A88E9B);text-decoration:none;transition:color .2s;}' +
-      '.sy-footer-bottom a:hover{color:var(--price,#FF6FA5);}';;
+      '.sy-footer-bottom a{color:var(--muted,#897783);text-decoration:none;transition:color .2s;}' +
+      '.sy-footer-bottom a:hover{color:var(--price,#F48FB1);}';;
     document.head.appendChild(st);
   }
 
@@ -196,7 +196,7 @@
         if (window.syToast) { window.syToast(ok ? (isEn ? 'WeChat ID copied ♡' : '已复制微信号 ♡') : (isEn ? 'Copy failed' : '复制失败，请手动复制'), ok); return; }
         var t = document.createElement('div');
         t.textContent = ok ? (isEn ? 'WeChat ID copied ♡' : '已复制微信号 ♡') : txt;
-        t.style.cssText = 'position:fixed;left:50%;bottom:34px;transform:translateX(-50%);z-index:99999;background:#fff;border:1.5px solid #FFD9E6;border-radius:999px;padding:9px 22px;font-size:15px;color:#604C57;box-shadow:0 4px 18px rgba(255,143,171,.25);font-family:inherit;';
+        t.style.cssText = 'position:fixed;left:50%;bottom:34px;transform:translateX(-50%);z-index:99999;background:#fff;border:1.5px solid #F9E5ED;border-radius:999px;padding:9px 22px;font-size:15px;color:#65515D;box-shadow:0 4px 18px rgba(255,143,171,.25);font-family:inherit;';
         document.body.appendChild(t);
         setTimeout(function () { if (t.parentNode) t.parentNode.removeChild(t); }, 1600);
       };
@@ -217,14 +217,14 @@
     var footer = document.querySelector('footer');
     if (footer) {
       footer.style.padding = '0';
-      footer.style.background = '#FFFBFC'; /* §5.5.6：主背景 #FFFBFC，不恢复浓粉卡 */
+      footer.style.background = '#FFF8FA'; /* §5.5.6：主背景 #FFF8FA，不恢复浓粉卡 */
       footer.innerHTML = html;
       renderSocial();
       return;
     }
     var el = document.createElement('footer');
     el.style.padding = '0';
-    el.style.background = '#FFFBFC';
+    el.style.background = '#FFF8FA';
     el.innerHTML = html;
     document.body.appendChild(el);
     renderSocial();
