@@ -352,7 +352,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
   .keycap-notes-wrap .pol-card p:last-child { margin-bottom: 0; }
 </style>
   <link rel="stylesheet" href="/site-menu.css?v=20261105C">
-  <script src="/js/site-common.js?v=20261107G"></script>
+  <script src="/js/site-common.js?v=20261107H"></script>
   <script src="/js/policy-content.js?v=20261105C"></script>
   <script src="/site-menu.js?v=20261105C" defer></script>
   <link rel="stylesheet" href="/css/button-theme.css?v=20261107F">
@@ -394,11 +394,6 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
   <div class="grid" id="product-grid">
     <p data-zh="加载中…" data-en="Loading…" style="grid-column:1/-1;text-align:center;color:var(--muted);">加载中…</p>
   </div>
-
-  <section id="past" style="margin-top:44px;">
-    <h2 style="font-size:24px;margin-bottom:14px;display:flex;align-items:center;gap:8px;"><span style="width:4px;height:18px;background:var(--accent,#F9E5ED);border-radius:2px;display:inline-block;"></span><span data-zh="往期商品" data-en="Past Items">往期商品</span></h2>
-    <div class="grid" id="past-grid"></div>
-  </section>
 
   <section id="reviews" style="margin-top:44px;">
     <h2 style="font-size:24px;margin-bottom:14px;display:flex;align-items:center;gap:8px;"><span style="width:4px;height:18px;background:var(--accent,#F9E5ED);border-radius:2px;display:inline-block;"></span><span data-zh="评价返图" data-en="Reviews">评价返图</span></h2>
@@ -660,7 +655,6 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
   }
   function renderProducts() {
     var onSale = PRODUCTS.filter(function (p) { return statusOf(p) !== 'out'; });
-    var past = PRODUCTS.filter(function (p) { return statusOf(p) === 'out'; });
     var grid = document.getElementById('product-grid');
     if (!onSale.length) {
       grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--muted);">' + t('新品准备中，敬请期待～', 'New goodies coming soon~') + '</p>';
@@ -668,15 +662,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
       grid.innerHTML = onSale.map(productCard).join('');
       grid.querySelectorAll('.buy-btn').forEach(bindBuy);
     }
-    var pastSec = document.getElementById('past');
-    var pastGrid = document.getElementById('past-grid');
-    if (!past.length) {
-      pastSec.style.display = 'none';
-    } else {
-      pastSec.style.display = '';
-      pastGrid.innerHTML = past.map(productCard).join('');
-      pastGrid.querySelectorAll('.buy-btn').forEach(bindBuy);
-    }
+    // 她 20261107：往期商品区块已整块删掉
   }
 
 

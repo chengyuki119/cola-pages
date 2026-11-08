@@ -218,7 +218,7 @@
   })();
 
   // ===== 视图路由 =====
-  var LIST_SELS = ['.notice', '#product-grid', '#past', '#reviews', '#pay'];
+  var LIST_SELS = ['.notice', '#product-grid', '#reviews', '#pay'];
   function showView(name) {
     LIST_SELS.forEach(function (s) { var el = document.querySelector(s); if (el) el.style.display = (name === 'list') ? '' : 'none'; });
     ['detail', 'cart', 'checkout', 'orders', 'account', 'groups', 'myreviews', 'myquestions'].forEach(function (v) {
@@ -1765,7 +1765,7 @@
             '<div style="font-size:15px;color:var(--price,#F48FB1);font-weight:700;margin-top:4px;">' + sym(curOf(null, x)) + money(x.price) + '</div>' +
             '<div style="display:flex;align-items:center;gap:10px;margin-top:8px;">' +
               '<button class="qty-btn cart-q" data-i="' + i + '" data-d="-1">−</button><b style="color:var(--text,#65515D);">' + x.qty + '</b><button class="qty-btn cart-q" data-i="' + i + '" data-d="1">＋</button>' +
-              '<button class="cart-rm" data-i="' + i + '" style="border:none;background:none;color:var(--danger,#D96570);font-size:13px;cursor:pointer;text-decoration:underline;padding:0;font-family:inherit;">' + t('删除', 'Remove') + '</button>' +
+              '<button class="cart-rm" data-i="' + i + '" style="border:1.5px solid #F2C7CC;background:#FBE3E6;color:#C4636E;font-size:13px;cursor:pointer;padding:5px 12px;border-radius:999px;font-family:inherit;font-weight:600;line-height:1;">' + t('删除', 'Remove') + '</button>' +
             '</div>' +
           '</div>' +
           '<div style="text-align:right;flex-shrink:0;">' +
@@ -1809,9 +1809,7 @@
       var g = document.getElementById('product-grid');
       g.innerHTML = onSale.length ? onSale.map(productCardShop).join('') : '<p style="grid-column:1/-1;text-align:center;color:var(--muted);">' + t('没有找到相关商品', 'Nothing found') + '</p>';
       bindCards(g);
-      var pastSec = document.getElementById('past'), pg = document.getElementById('past-grid');
-      if (!past.length) { pastSec.style.display = 'none'; }
-      else { pastSec.style.display = ''; pg.innerHTML = past.map(productCardShop).join(''); bindCards(pg); }
+      // 她 20261107：往期商品区块已整块删掉（不再区分在售/售尽展示，售尽商品也不上前台列表）
     }
     function statusOfG(p) { if (p.display_only) return 'display'; if (p.sold) return 'out'; var ts = totalStock(p); if (ts != null) return ts > 0 ? 'on' : 'out'; if (!(p.stock > 0)) return 'out'; return 'on'; }
     window.__shopPaint = paint;
