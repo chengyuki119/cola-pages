@@ -1435,7 +1435,17 @@
           .then(function (r) { return r.json(); }).then(toRows).catch(function () { return []; });
       });
   }
-  function statusOf(p) { return p.display_only ? 'display' : (p.sold || !(p.stock > 0)) ? 'out' : 'on'; }
+  function statusOf(p) {
+    if (p.display_only) return 'display';
+    if (p.sold) return 'out';
+    var vs = Array.isArray(p.variants) ? p.variants.filter(function (v) { return v && v.frozen !== true; }) : [];
+    if (vs.length) { // 她 20261108：有规格的商品总库存=全部规格相加（空规格回退商品库存）
+      var tt = 0;
+      vs.forEach(function (v) { var x = v.stock; tt += (x == null || x === '') ? (p.stock == null || p.stock === '' ? 0 : (parseInt(p.stock, 10) || 0)) : (parseInt(x, 10) || 0); });
+      return tt > 0 ? 'on' : 'out';
+    }
+    return (p.stock > 0) ? 'on' : 'out';
+  }
   function hsPrice(p) { // 价格文本兼容（旧数据可能带 $/¥ 符号）；纯文字价格原样不加符号
     var v = fmtPriceText(p.price);
     return v ? ((/^\d/.test(v) ? '<small>' + ((p.currency || 'USD') === 'CNY' ? '¥' : '$') + '</small>' : '') + v) : '';

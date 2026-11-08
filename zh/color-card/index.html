@@ -88,7 +88,7 @@
   </div>
   <div id="card-page-view" style="display:none;">
   <div class="subpage-header">
-    <a class="back-link" href="/zh/color-card/"><span data-zh="← 返回色卡列表" data-en="← Back to Color Cards">← 返回色卡列表</span></a>
+    <a class="back-link" href="/zh/color-card/" style="margin:14px 0 24px 14px;"><span data-zh="← 返回色卡列表" data-en="← Back to Color Cards">← 返回色卡列表</span></a>
     <h1 class="subpage-title" id="card-view-title" data-zh="色卡详情" data-en="Color Card Details">色卡详情</h1>
     <p class="subpage-sub" data-zh="原创圈我的色卡宝宝们" data-en="My color card babies">原创圈我的色卡宝宝们</p>
   </div>
@@ -152,7 +152,7 @@
         shareBtnHtml(i, null, true) +
         '</div>' +
         (c.shop ? '<div style="font-size:15px;color:var(--muted);margin-top:2px;">' + escDb(c.shop) + '</div>' : '') +
-        '<div style="font-size:15px;color:var(--muted);margin-top:3px;">' + (LANG === 'en' ? cardCountV(c) + ' cards · ' + c.artists.length + ' artists' : '画师 ' + c.artists.length + ' 位 · 共 ' + cardCountV(c) + ' 张') + '</div>' +
+        '<div style="font-size:15px;color:var(--muted);margin-top:3px;">' + (LANG === 'en' ? cardCountV(c) + ' cards' : '共 ' + cardCountV(c) + ' 张') + '</div>' +
         '<div style="display:flex;align-items:center;gap:8px;margin-top:4px;">' +
         '<span style="flex:1;font-size:17px;color:var(--text,#65515D);font-weight:600;">' + t('色卡总价', 'Total price') + ' <span style="color:var(--price,#F48FB1);">¥' + fmtMoney(cardFinalV(c)) + '</span></span>' +
         cardEditBtn(i) +

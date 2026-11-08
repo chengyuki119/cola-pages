@@ -311,7 +311,7 @@
       return '<div class="d-variants" style="margin:10px 0;"><div style="font-size:16px;margin-bottom:6px;">' + t('规格', 'Option') + '</div><div id="d-variants" style="display:flex;gap:8px;flex-wrap:wrap;">' +
         vs.map(function (x) {
           var out = variantStock(x) <= 0 || x.frozen === true;
-          return '<button type="button" class="sku-chip' + (varKey(x) === curSku ? ' on' : '') + (out ? ' dis' : '') + '" data-sku="' + escAttr(varKey(x)) + '">' + esc(x.name || x.sku) + (out ? ' · ' + t('缺货', 'Out') : '') + '</button>';
+          return '<button type="button" class="sku-chip' + (varKey(x) === curSku ? ' on' : '') + (out ? ' dis' : '') + '" data-sku="' + escAttr(varKey(x)) + '">' + esc(x.name || x.sku) + '</button>';
         }).join('') + '</div></div>';
     }
     var sel = {};
@@ -327,11 +327,8 @@
       var chips = vals.map(function (val) {
         var on = sel[n] === val;
         var out = dimChipOut(vs, n, val, sel);
-        return '<button type="button" class="sku-chip dim-chip' + (on ? ' on' : '') + (out ? ' dis' : '') + '" data-dim="' + escAttr(n) + '" data-val="' + escAttr(val) + '">' + esc(val) + (out ? ' · ' + t('缺货', 'Out') : '') + '</button>';
+        return '<button type="button" class="sku-chip dim-chip' + (on ? ' on' : '') + (out ? ' dis' : '') + '" data-dim="' + escAttr(n) + '" data-val="' + escAttr(val) + '">' + esc(val) + '</button>';
       }).join('');
-      // 她 20261108：当前已选下整行无可用选项则整行隐藏（切类型后不出现无关规格行）
-      var anyLive = vals.some(function (val) { return sel[n] === val || !dimChipOut(vs, n, val, sel); });
-      if (!anyLive && !sel[n]) return '';
       return '<div class="d-dim" data-dim="' + escAttr(n) + '" style="margin-bottom:10px;">' +
         '<div class="d-dim-name" style="font-size:15px;color:var(--text,#65515D);margin-bottom:5px;">' + esc(n) + '</div>' +
         '<div class="d-dim-opts" style="display:flex;gap:8px;flex-wrap:wrap;">' + chips + '</div></div>';
@@ -479,10 +476,6 @@
         '</div>' +
         (needContactType(p) ? '<div class="d-contact card" style="padding:12px 14px;margin:12px 0 0;background:var(--card,#FFFFFF);border:1.5px solid var(--card-border,#F9E5ED);border-radius:16px;">' +
           '<p style="font-size:15px;line-height:1.7;color:var(--text,#65515D);margin:0;">' + t('请联系小柚沟通具体需求和价格。', 'Please contact Yuki to discuss your custom requirements and pricing.') + '</p></div>' : '') +
-        (function () { var k = typeKey(p); if (!k || !TYPE_NOTE[k]) return ''; return '<div class="d-type card" style="padding:12px 14px;margin:12px 0 0;background:var(--card,#FFFFFF);border:1.5px solid var(--card-border,#F9E5ED);border-radius:16px;"><b style="font-size:15px;">' + t('商品类型 ♡', 'Product Type ♡') + '</b><p style="font-size:15px;line-height:1.7;color:var(--text,#65515D);margin:6px 0 0;">' + t(TYPE_NOTE[k][0], TYPE_NOTE[k][1]) + '</p></div>'; })() +
-        '<div class="d-desc card" style="padding:12px 14px;margin:12px 0 0;background:var(--card,#FFFFFF);border:1.5px solid var(--card-border,#F9E5ED);border-radius:16px;">' +
-          '<b style="font-size:15px;">' + t('商品详情 ♡', 'Product Description ♡') + '</b>' +
-          '<p style="color:var(--muted);font-size:16px;line-height:1.8;margin:6px 0 0;white-space:pre-line;">' + escBr((window.LANG === 'en' && p.description_en) ? p.description_en : (p.description || '')) + '</p></div>' +
         (vs ? variantsHtml(p, vs, d.sku, d.selDims) : '') +
         (st === 'on' ?
           '<div class="d-notice card" style="padding:12px 14px;margin:12px 0 0;background:var(--card,#FFFFFF);border:1.5px solid var(--card-border,#F9E5ED);border-radius:16px;">' +
@@ -506,8 +499,11 @@
           : '<div class="d-actions"><p class="no-buy" style="margin:14px 0;">' + (st === 'out' ? t('已售罄，看看别的吧～', 'Sold out — take a look at other items~') : t('仅展示，不能下单', 'Not for sale')) + '</p></div>') +
         '</div>' +
       '</div>' +
-      // 20261028p18：键帽商品购买须知（手工/气泡/色差/兼容性/定制/规格；仅键帽类商品显示）
-      (isKeycapProduct(p) ? '<div class="keycap-notes-wrap" id="keycap-notes"></div>' : '') +
+      // 她 20261108：商品类型卡 + 商品详情卡移到购买按钮之后（原键帽购买须知位置）；键帽须知整体挪到关于页
+      (function () { var k = typeKey(p); if (!k || !TYPE_NOTE[k]) return ''; return '<div class="d-type card" style="padding:12px 14px;margin:12px 0 0;background:var(--card,#FFFFFF);border:1.5px solid var(--card-border,#F9E5ED);border-radius:16px;"><b style="font-size:15px;">' + t('商品类型 ♡', 'Product Type ♡') + '</b><p style="font-size:15px;line-height:1.7;color:var(--text,#65515D);margin:6px 0 0;">' + t(TYPE_NOTE[k][0], TYPE_NOTE[k][1]) + '</p></div>'; })() +
+      '<div class="d-desc card" style="padding:12px 14px;margin:12px 0 0;background:var(--card,#FFFFFF);border:1.5px solid var(--card-border,#F9E5ED);border-radius:16px;">' +
+        '<b style="font-size:15px;">' + t('商品详情 ♡', 'Product Description ♡') + '</b>' +
+        '<p style="color:var(--muted);font-size:16px;line-height:1.8;margin:6px 0 0;white-space:pre-line;">' + escBr((window.LANG === 'en' && p.description_en) ? p.description_en : (p.description || '')) + '</p></div>' +
       '<div id="d-group-form" style="display:none;margin-top:16px;" class="card"></div>';
     return el;
   }
@@ -558,7 +554,6 @@
     }
     bindDetail();
     // 键帽购买须知渲染（数据源 js/policy-content.js，与政策页口径一致）
-    if (isKeycapProduct(p) && typeof window.renderKeycapNotes === 'function') window.renderKeycapNotes('keycap-notes');
   }
   function ensureSkuBadge(wrap) { // 大图左上角归属角标：规格图标规格名，封面标「封面」，普通详情图不标——封面/详情/规格看得清区分
     if (!wrap || wrap.querySelector('.d-sku-badge')) return;
@@ -625,6 +620,20 @@
         var dim = chip.getAttribute('data-dim'), val = chip.getAttribute('data-val');
         if (chip.classList.contains('dis')) { toast(t('这个组合缺货啦，换一个吧', 'This combination is out of stock')); return; }
         if (!d.selDims) d.selDims = {};
+        if (d.selDims[dim] === val) { // 她 20261108：再点一次已选值 = 取消选择
+          delete d.selDims[dim];
+          var m2 = null, c2 = 0;
+          for (var i2 = 0; i2 < vs.length; i2++) {
+            var v2 = vs[i2]; if (v2.frozen) continue;
+            var dd2 = v2.dims || {}, ok2 = true;
+            for (var k2 in d.selDims) { if (dd2[k2] !== d.selDims[k2]) { ok2 = false; break; } }
+            if (ok2) { c2 += 1; if (!m2) m2 = v2; }
+          }
+          d.sku = (m2 && c2 === 1) ? varKey(m2) : '';
+          paintDetail();
+          try { history.replaceState(null, '', '?id=' + encodeURIComponent(p.id) + (d.sku ? '&sku=' + encodeURIComponent(d.sku) : '')); } catch (e) {}
+          return;
+        }
         var prevSel = {};
         Object.keys(d.selDims).forEach(function (k) { prevSel[k] = d.selDims[k]; });
         d.selDims[dim] = val;
@@ -1807,7 +1816,7 @@
         '</div>';
       }).join('') +
       '<div class="card" style="padding:14px;display:flex;justify-content:space-between;align-items:center;">' +
-        '<span style="font-size:17px;">' + t('已选小计', 'Selected subtotal') + '</span><b style="font-size:20px;color:var(--price,#F48FB1);">' + sym(subCur) + money(sub) + '</b></div>' +
+        '<span style="font-size:19px;font-weight:600;">' + t('已选小计', 'Selected subtotal') + '</span><b style="font-size:24px;color:var(--price,#F48FB1);">' + sym(subCur) + money(sub) + '</b></div>' +
       '<button class="buy-btn" id="cart-go" style="width:100%;margin-top:12px;padding:12px;background:#F6C5D7;border:1.6px solid #F8DDE8;color:#65515D;font-size:18px;font-weight:600;">' + t('去结算', 'Check out') + '</button>';
     box.querySelectorAll('.ck-box').forEach(function (el) { el.addEventListener('click', function () {
       var x = CART[+el.getAttribute('data-i')]; x.checked = x.checked === false; saveCart(); renderCart();

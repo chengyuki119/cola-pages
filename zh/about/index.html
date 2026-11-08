@@ -19,6 +19,7 @@
     #links .sy-linkline:first-child { border-top: 1px solid var(--accent,#F9E5ED); }
   </style>
   <link rel="stylesheet" href="/css/button-theme.css?v=20261107H">
+  <script src="js/policy-content.js?v=20261108A"></script>
 </head>
 <body>
 
@@ -53,6 +54,9 @@
       <div class="links" id="about-links"></div>
     </section>
   </div>
+  <section style="max-width:1200px;margin:0 auto;padding:0 20px 48px;">
+    <div id="keycap-notes"></div>
+  </section>
 
 <footer></footer>
   <script src="/js/social-cards.js?v=20261105C"></script>
@@ -65,3 +69,5 @@
 </script>
 </body>
 </html>
+
+<script>document.addEventListener("DOMContentLoaded", function(){ if (window.renderKeycapNotes) window.renderKeycapNotes("keycap-notes"); });</script>

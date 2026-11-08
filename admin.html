@@ -330,6 +330,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   input[type="number"] { appearance: textfield; -moz-appearance: textfield; }
   input[type="number"]::-webkit-outer-spin-button,
   input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; } /* 她 20261108：库存/价格输入框去掉上下箭头 */
+  input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
   .btn-del { border: none; background: #FBE3E6; color: #D96570; font-family: inherit; cursor: pointer; } /* 柔和危险色：与主粉按钮区分（她 20261029 §4） */
   /* 确认弹窗的确认按钮（此前无样式定义导致浏览器默认外观，她 20261026 第三轮 §3.2） */
   .btn-ok { border: none; background: #F6C5D7; color: #897783; font-family: inherit; cursor: pointer; }
