@@ -954,6 +954,7 @@
     } else {
       head += '<div class="biz-bc-gcnt" style="font-size:12px;color:var(--muted,#897783);">' + units.length + ' 个单件条码</div>' + chev;
     }
+    head += '</div>'; // 闭合 .biz-bc-ghead——不闭合的话浏览器会把 grid-wrap 塞进组头里，折叠 CSS 就失效了
     if (units.length || !isOrphan) {
       body += '<div style="margin-top:12px;padding-top:10px;border-top:1px dashed var(--card-hover,#F9E5ED);">' +
         '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">' +
