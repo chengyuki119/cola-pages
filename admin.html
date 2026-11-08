@@ -2804,9 +2804,11 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       });
   }
   var EDIT_OPEN_ID = null; // 她 20261104 §二.4：同时只允许一个商品处于编辑态
-  function prodMenuHtml(off, displayOnly, noVar, homeOff) {
+  function prodMenuHtml(off, displayOnly, noVar, homeOff, sku) {
     // 20261104 21:44：⋮ 菜单只列当前状态下有效且不冲突的动作（她 21:44 任务书 §二）
+    // 20261107 晚：编码/条码从列表卡收进菜单（她：列表卡不展示编码和描述）
     var h = '';
+    if (sku) h += '<button type="button" class="mi yk-barcode-mi" data-code="' + String(sku).replace(/"/g, '&quot;') + '">看条码</button>';
     if (off) {
       h += '<button type="button" class="mi btn-off" data-act="show">上架商品</button>';
     } else {
@@ -2897,17 +2899,13 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
             '<h3><span class="nm">' + esc(p.name) + '</span><span class="sold-badge ' + st[1] + '">' + st[0] + '</span></h3>' +
             '<div class="sc-shop">' + esc(p.tag || '&nbsp;') + '</div>' +
             '<div class="sc-shop adm-price-line">' + (p.price ? '<span style="color:var(--price,#F48FB1);font-weight:600;">' + (p.currency === 'USD' ? '$' : '¥') + esc(String(p.price)) + '</span>' : '<span style="color:var(--muted);">—</span>') + '</div>' +
-            '<p>' + esc(p.description || '') + '</p>' +
             '<div class="private-line">' + stockInfo + ' · ' + costInfo + '（成本只有你自己能看到）</div>' +
-            '<div class="prod-code" style="font-size:13px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">编码 ' + (p.sku ? esc(p.sku) : '未分配（保存时自动生成）') +
-              (p.sku ? '<button class="btn-mini yk-barcode-btn" data-code="' + String(p.sku).replace(/"/g, '&quot;') + '" data-title="' + String(p.name || '').replace(/"/g, '&quot;') + '">条码</button>' : '') +
-              '</div>' +
             '<span class="tgl-label" style="margin-top:7px;"><button type="button" class="tgl p-home-toggle' + (isHomeOff(p.id) ? '' : ' on') + '" aria-pressed="' + !isHomeOff(p.id) + '" data-id="' + esc(p.id) + '" aria-label="主页展示"><span class="tgl-knob"></span></button>主页展示</span>' +
             '<div class="actions">' +
             '<button type="button" class="btn-edit-prod">编辑</button>' +
             '</div></div>' +
             '<button type="button" class="kebab" title="更多操作" aria-haspopup="true">⋮</button>' +
-            '<div class="card-menu" hidden>' + prodMenuHtml(off, !!p.display_only, vsum == null, isHomeOff(p.id)) + '</div>' +
+            '<div class="card-menu" hidden>' + prodMenuHtml(off, !!p.display_only, vsum == null, isHomeOff(p.id), p.sku) + '</div>' +
             '</div>';
         }).join('');
         // 前台「编辑商品」直达：按商品 id 展开对应商品的编辑状态
@@ -2976,6 +2974,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     var card = e.target.closest('.shop-item');
     if (!card) return;
     var id = card.getAttribute('data-id');
+    var bcmi = e.target.closest('.yk-barcode-mi'); // 20261107 晚：条码入口从列表卡收进 ⋮ 菜单
+    if (bcmi) { prodMenuClose(); window.ykShowBarcode(bcmi.getAttribute('data-code'), (PRODUCT_CACHE[id] || {}).name || ''); return; }
     if (e.target.classList.contains('kebab')) { prodMenuToggle(card); return; }
     if (e.target.classList.contains('mi') || e.target.closest('.mi-row')) setTimeout(prodMenuClose, 0); // 点操作 → 菜单自动关
     if (e.target.classList.contains('btn-display')) {
