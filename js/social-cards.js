@@ -189,9 +189,9 @@
       '.sy-rowcard .sy-rc-top{display:flex;align-items:center;gap:8px;min-width:0;}' +
       '.sy-rowcard .sy-rc-top .sy-sicon{margin-right:0 !important;}' +
       '.sy-rowcard .sy-rc-top b{font-size:17px;font-weight:700;color:#65515D;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}' +
-      '.sy-rowcard .sy-rc-sub{font-size:17px;line-height:1.55;color:#897783;word-break:break-word;overflow-wrap:anywhere;}' +
+      '.sy-rowcard .sy-rc-sub{font-size:15px;line-height:1.55;color:#897783;word-break:break-word;overflow-wrap:anywhere;}' +
       '@media (min-width:600px){.sy-rowcard .sy-rc-sub{padding-left:30px;}}' +
-      '@media (max-width:599px){.sy-rowlist{grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px 10px;}.sy-rowcard{padding:12px 13px;border-radius:14px;}.sy-rowcard .sy-rc-top b{font-size:17px;}.sy-rowcard .sy-rc-sub{font-size:17px;}}';
+      '@media (max-width:599px){.sy-rowlist{grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px 10px;}.sy-rowcard{padding:12px 13px;border-radius:14px;}.sy-rowcard .sy-rc-top b{font-size:16px;}.sy-rowcard .sy-rc-sub{font-size:14px;}}';
     document.head.appendChild(st);
   }
 
@@ -210,7 +210,7 @@
   function syToast(msg, ok) {
     var t=document.getElementById('sy-copy-toast');
     if(!t){ t=document.createElement('div'); t.id='sy-copy-toast';
-      t.style.cssText='position:fixed;left:50%;bottom:34px;transform:translateX(-50%);z-index:99999;background:#fff;border:1.5px solid #F9E5ED;border-radius:999px;padding:9px 22px;font-size:17px;color:#65515D;box-shadow:0 4px 18px rgba(255,143,171,.25);transition:opacity .25s;opacity:0;pointer-events:none;font-family:inherit;';
+      t.style.cssText='position:fixed;left:50%;bottom:34px;transform:translateX(-50%);z-index:99999;background:#fff;border:1.5px solid #F9E5ED;border-radius:999px;padding:9px 22px;font-size:15px;color:#65515D;box-shadow:0 4px 18px rgba(255,143,171,.25);transition:opacity .25s;opacity:0;pointer-events:none;font-family:inherit;';
       document.body.appendChild(t); }
     t.textContent=msg; t.style.color=ok?'#65515D':'#D96570';
     t.style.opacity='1'; clearTimeout(t._tm); t._tm=setTimeout(function(){t.style.opacity='0';},1800);
@@ -229,10 +229,10 @@
         var pop=document.getElementById('sy-mail-pop'); if(!pop) return;
         if (pop.style.display==='block' && pop._for===addr) { pop.style.display='none'; return; }
         pop._for=addr;
-        pop.innerHTML='<div style="max-width:420px;margin:10px auto 0;background:#fff;border:1.5px solid #F9E5ED;border-radius:14px;padding:14px 18px;font-size:17px;color:#65515D;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">'+
+        pop.innerHTML='<div style="max-width:420px;margin:10px auto 0;background:#fff;border:1.5px solid #F9E5ED;border-radius:14px;padding:14px 18px;font-size:15px;color:#65515D;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">'+
           '<b style="word-break:break-all;">'+addr+'</b>'+
-          '<button type="button" data-sy-copybtn="'+addr+'" style="border:none;background:#FCECF2;color:#897783;border-radius:999px;padding:6px 16px;font-size:17px;cursor:pointer;font-family:inherit;">复制邮箱</button>'+
-          '<a href="mailto:'+addr+'" style="border:1.5px solid #F9E5ED;color:#65515D;border-radius:999px;padding:5px 16px;font-size:17px;text-decoration:none;">打开邮箱</a>'+
+          '<button type="button" data-sy-copybtn="'+addr+'" style="border:none;background:#FCECF2;color:#897783;border-radius:999px;padding:6px 16px;font-size:14px;cursor:pointer;font-family:inherit;">复制邮箱</button>'+
+          '<a href="mailto:'+addr+'" style="border:1.5px solid #F9E5ED;color:#65515D;border-radius:999px;padding:5px 16px;font-size:14px;text-decoration:none;">打开邮箱</a>'+
           '</div>';
         pop.style.display='block';
         return;

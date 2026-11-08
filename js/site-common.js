@@ -309,7 +309,7 @@ function bjdMeta(b) {
 }
 function bjdRow(label, val) {
   if (val == null || String(val).trim() === '') return '';
-  return '<div style="display:flex;gap:12px;padding:3px 0;font-size:17px;"><span style="color:var(--muted);flex-shrink:0;width:96px;">' + label + '</span><span class="f-data">' + escDb(val) + '</span></div>';
+  return '<div style="display:flex;gap:12px;padding:3px 0;font-size:16px;"><span style="color:var(--muted);flex-shrink:0;width:96px;">' + label + '</span><span class="f-data">' + escDb(val) + '</span></div>';
 }
 function bjdHasPart(b, part) {
   // 部件由后台勾选决定：没勾选 = 没有这个部件
@@ -1190,7 +1190,7 @@ function ykGatePage(mode) {
   return check.then(function (res) {
     if (res.ok === 'pending') {
       var bar = document.createElement('div');
-      bar.style.cssText = 'position:sticky;top:0;z-index:99;background:var(--card,#FFFFFF);color:var(--text,#65515D);text-align:center;font-size:17px;padding:7px 12px;border-bottom:1px solid var(--accent-soft,#FCECF2);';
+      bar.style.cssText = 'position:sticky;top:0;z-index:99;background:var(--card,#FFFFFF);color:var(--text,#65515D);text-align:center;font-size:14px;padding:7px 12px;border-bottom:1px solid var(--accent-soft,#FCECF2);';
       bar.textContent = (window.LANG === 'en' ? 'Permission layer not active yet (waiting for SQL).' : '专属权限层尚未启用（等待 SQL），当前仅前端临时放行。');
       document.body.insertBefore(bar, document.body.firstChild);
       return true;
@@ -1202,8 +1202,8 @@ function ykGatePage(mode) {
       wrapR.innerHTML = '<div style="background:var(--card,#FFFFFF);border-radius:22px;padding:44px 34px;max-width:480px;width:100%;text-align:center;">' +
         '<div style="font-size:34px;color:var(--text,#65515D);line-height:1;">♥</div>' +
         '<h2 style="font-size:20px;color:var(--text,#65515D);margin:14px 0 8px;">' + (en ? 'Checking your identity…' : '身份确认没成功') + '</h2>' +
-        '<p style="font-size:17px;color:var(--muted,#897783);margin:0 0 22px;">' + (en ? 'Network hiccup — your login is safe. Tap to retry.' : '刚才网络抖了一下，你的登录还在，点下面重试就好。') + '</p>' +
-        '<button id="yk-retry" style="background:var(--accent,#F9E5ED);color:var(--text,#65515D);border:0;border-radius:999px;padding:11px 26px;font-size:17px;cursor:pointer;">' + (en ? 'Retry' : '重试') + '</button>' +
+        '<p style="font-size:15px;color:var(--muted,#897783);margin:0 0 22px;">' + (en ? 'Network hiccup — your login is safe. Tap to retry.' : '刚才网络抖了一下，你的登录还在，点下面重试就好。') + '</p>' +
+        '<button id="yk-retry" style="background:var(--accent,#F9E5ED);color:var(--text,#65515D);border:0;border-radius:999px;padding:11px 26px;font-size:16px;cursor:pointer;">' + (en ? 'Retry' : '重试') + '</button>' +
         '</div>';
       document.body.insertBefore(wrapR, document.body.firstChild);
       var othersR = document.querySelectorAll('body > *:not(:first-child)');
@@ -1220,15 +1220,15 @@ function ykGatePage(mode) {
     var title = (mode === 'photos') ? (en ? 'Photos are for logged-in visitors' : '照片展示要登录后才能看哦') : (en ? 'Yuki Members Only' : '此内容仅限柚子专属账号查看');
     var btns = '';
     if (!logged) {
-      btns = '<a href="' + (window.ykLink ? window.ykLink('/account/?next=' + encodeURIComponent(location.pathname + location.search)) : '/account/?next=' + encodeURIComponent(location.pathname + location.search)) + '" style="display:inline-block;background:var(--accent,#F9E5ED);color:var(--text,#65515D);border-radius:999px;padding:11px 26px;font-size:17px;text-decoration:none;">' + (en ? 'Go to Login' : '去登录') + '</a>';
+      btns = '<a href="' + (window.ykLink ? window.ykLink('/account/?next=' + encodeURIComponent(location.pathname + location.search)) : '/account/?next=' + encodeURIComponent(location.pathname + location.search)) + '" style="display:inline-block;background:var(--accent,#F9E5ED);color:var(--text,#65515D);border-radius:999px;padding:11px 26px;font-size:16px;text-decoration:none;">' + (en ? 'Go to Login' : '去登录') + '</a>';
     } else {
-      btns = '<button id="yk-logout" style="background:var(--accent,#F9E5ED);color:var(--text,#65515D);border:0;border-radius:999px;padding:11px 26px;font-size:17px;cursor:pointer;">' + (en ? 'Log Out' : '退出登录') + '</button>' +
+      btns = '<button id="yk-logout" style="background:var(--accent,#F9E5ED);color:var(--text,#65515D);border:0;border-radius:999px;padding:11px 26px;font-size:16px;cursor:pointer;">' + (en ? 'Log Out' : '退出登录') + '</button>' +
              ' <a href="' + (window.ykLink ? window.ykLink('/') : '/') + '" style="display:inline-block;margin-left:10px;color:var(--muted,#897783);text-decoration:none;">' + (en ? 'Back to Home' : '返回主页') + '</a>';
     }
     wrap.innerHTML = '<div style="background:var(--card,#FFFFFF);border-radius:22px;padding:44px 34px;max-width:480px;width:100%;text-align:center;">' +
       '<div style="font-size:34px;color:var(--text,#65515D);line-height:1;">♥</div>' +
       '<h2 style="font-size:20px;color:var(--text,#65515D);margin:14px 0 8px;">' + title + '</h2>' +
-      '<p style="font-size:17px;color:var(--muted,#897783);margin:0 0 22px;">' +
+      '<p style="font-size:15px;color:var(--muted,#897783);margin:0 0 22px;">' +
         (logged
           ? (mode === 'photos'
               ? (en ? 'You are logged in — enjoying the photos~' : '你已登录，慢慢看照片～')

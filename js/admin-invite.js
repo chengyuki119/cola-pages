@@ -160,7 +160,7 @@
     if (!box) return;
     fnCall({ action: 'status' }).then(function (r) {
       if (!r.ok) {
-        box.innerHTML = '<p style="color:#C4636E;font-size:17px;margin:0;">' + esc(r.error || '读不到邀请记录') +
+        box.innerHTML = '<p style="color:#C4636E;font-size:14px;margin:0;">' + esc(r.error || '读不到邀请记录') +
           '。这不是「没发过」，是「看不到」。</p>';
         return;
       }
@@ -178,7 +178,7 @@
     mails.forEach(function (m) { if (m.ref_id && !mailByCode[m.ref_id]) mailByCode[m.ref_id] = m; });
 
     if (!invites.length) {
-      box.innerHTML = '<p style="color:#897783;font-size:17px;margin:0;">还没有发出过邀请。<b>注意</b>：如果之前在别处点过「发送邀请」并看到成功，那封邀请不是从这里发的 —— 站内当时没有这个功能，这本身就是收不到的原因之一。</p>';
+      box.innerHTML = '<p style="color:#897783;font-size:14px;margin:0;">还没有发出过邀请。<b>注意</b>：如果之前在别处点过「发送邀请」并看到成功，那封邀请不是从这里发的 —— 站内当时没有这个功能，这本身就是收不到的原因之一。</p>';
       return;
     }
 
@@ -198,20 +198,20 @@
       return '<div style="padding:11px 0;border-bottom:1px dashed #FFE3EC;">' +
         '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">' +
           '<b style="flex:1;min-width:200px;color:#65515D;">' + esc(v.email) +
-            (v.name ? ' <span style="font-size:16px;color:#897783;">' + esc(v.name) + '</span>' : '') + '</b>' +
-          '<span style="font-size:16px;color:#fff;background:' + st[1] + ';border-radius:999px;padding:2px 10px;white-space:nowrap;">' + esc(st[0]) + '</span>' +
-          '<span style="font-size:16px;color:#897783;min-width:104px;text-align:right;">' + esc(stamp(m && (m.sent_at || m.created_at) || v.created_at)) + '</span>' +
+            (v.name ? ' <span style="font-size:13px;color:#897783;">' + esc(v.name) + '</span>' : '') + '</b>' +
+          '<span style="font-size:12px;color:#fff;background:' + st[1] + ';border-radius:999px;padding:2px 10px;white-space:nowrap;">' + esc(st[0]) + '</span>' +
+          '<span style="font-size:13px;color:#897783;min-width:104px;text-align:right;">' + esc(stamp(m && (m.sent_at || m.created_at) || v.created_at)) + '</span>' +
         '</div>' +
-        '<div style="margin-top:5px;font-size:16px;color:#897783;line-height:1.9;">' +
+        '<div style="margin-top:5px;font-size:13px;color:#897783;line-height:1.9;">' +
           '邀请码 <b style="color:#65515D;">' + esc(v.code) + '</b>' +
           ' · 有效至 ' + esc(v.until || '—') + (expired ? ' <span style="color:#C4636E;">（已过期）</span>' : '') +
           ' · 账号 ' + accTxt +
           (v.note ? ' · 备注 ' + esc(v.note) : '') +
         '</div>' +
-        (v.link ? '<div style="margin-top:3px;font-size:16px;color:#897783;line-height:1.9;word-break:break-all;">设置密码链接：' +
+        (v.link ? '<div style="margin-top:3px;font-size:13px;color:#897783;line-height:1.9;word-break:break-all;">设置密码链接：' +
           '<a href="' + esc(v.link) + '" target="_blank" rel="noopener" style="color:#897783;">' + esc(v.link) + '</a> ' + linkState +
-          ' <button type="button" class="btn-mini" data-act="copylink" data-link="' + esc(v.link) + '" style="font-size:16px;padding:3px 10px;">复制链接</button></div>' : ''),
-        (m && m.last_error ? '<div style="margin-top:4px;font-size:16px;color:#C4636E;">上次错误：' + esc(m.last_error) + '</div>' : '') +
+          ' <button type="button" class="btn-mini" data-act="copylink" data-link="' + esc(v.link) + '" style="font-size:12px;padding:3px 10px;">复制链接</button></div>' : ''),
+        (m && m.last_error ? '<div style="margin-top:4px;font-size:13px;color:#C4636E;">上次错误：' + esc(m.last_error) + '</div>' : '') +
         '<div style="margin-top:7px;display:flex;gap:8px;flex-wrap:wrap;">' +
           (v.revoked ? '' :
             '<button type="button" class="btn-mini" data-act="resend" data-code="' + esc(v.code) + '">重新发送</button>' +
@@ -222,7 +222,7 @@
     }).join('');
 
     box.innerHTML = rows +
-      '<p style="color:#897783;font-size:16px;line-height:1.8;margin:10px 0 0;">' +
+      '<p style="color:#897783;font-size:13px;line-height:1.8;margin:10px 0 0;">' +
       '状态含义：待发送 / 发送中 = 还在队列里，定时任务每分钟取一次；<b>服务商已接受</b> = Gmail SMTP 收下了这封信（没有投递回执，不能当「已送达」）；' +
       '发送失败 = 会被自动重试；已停止重试 / 已退信 = 看上面的错误原因，修好再点「重新发送」。</p>';
 
@@ -249,7 +249,7 @@
     var btn = document.getElementById('mail-diag-run');
     if (!box) return;
     if (btn) { btn.disabled = true; btn.textContent = '自检中…'; }
-    box.innerHTML = '<p style="color:#897783;font-size:17px;margin:0;">正在检查…</p>';
+    box.innerHTML = '<p style="color:#897783;font-size:14px;margin:0;">正在检查…</p>';
     fnCall({ action: 'status' }).then(function (r) {
       var out = [];
       function line(ok, txt) { out.push('<div>' + (ok === true ? '✅ ' : ok === false ? '❌ ' : '• ') + txt + '</div>'); }
@@ -269,7 +269,7 @@
           admins.filter(function (a) { return a.role !== 'owner'; }).length + ' 个只读');
         line(null, '<b>只有你本人能确认的一项</b>：收件箱里到底有没有收到那封信（含垃圾邮件箱）。「服务商已接受」不等于「已送达」，这一点我不会替它打包票。');
       }
-      box.innerHTML = '<div style="border:1.5px solid #FFE3EC;border-radius:12px;padding:12px 14px;background:#FFF8FA;font-size:17px;line-height:1.9;color:#65515D;">' +
+      box.innerHTML = '<div style="border:1.5px solid #FFE3EC;border-radius:12px;padding:12px 14px;background:#FFF8FA;font-size:14px;line-height:1.9;color:#65515D;">' +
         out.join('') + '</div>';
       if (btn) { btn.disabled = false; btn.textContent = '邮件链路自检'; }
     });

@@ -20,7 +20,7 @@
     <link rel="preload" href="/fonts/Millo-RiceSoyMilk80.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/fonts/Millo-RiceSoyMilk90.woff2" as="font" type="font/woff2" crossorigin>
 <meta charset="UTF-8">
-  <script src="/js/lang-path.js?v=20261107I"></script>
+  <script src="/js/lang-path.js?v=20261105C"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>小柚的小世界</title>
 <link rel="manifest" href="/manifest.json">
@@ -36,10 +36,10 @@
 <meta name="twitter:title" content="小柚的小世界">
 <meta name="twitter:description" content="欢迎来到小柚的小世界">
 <meta name="twitter:image" content="https://yukicheng.com/og-image.jpg">
-<link rel="stylesheet" href="/css/site.css?v=20261107I">
-  <link rel="stylesheet" href="/site-menu.css?v=20261107I">
+<link rel="stylesheet" href="/css/site.css?v=20261107H">
+  <link rel="stylesheet" href="/site-menu.css?v=20261105C">
     <script src="/site-menu.js" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261107I">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261107H">
   <!-- 她 20261104：英文版手机端「重要日子明细」固定两行（分类 / 重复+周年），中文版不动 -->
   <style id="en-cal-sub-2lines">
     html[lang="en"] .cal-dayview-item .dv-sub .dv-b::before { content: '· '; }
@@ -55,10 +55,10 @@
     @media (max-width: 760px) {
       html[lang="en"] .hero-name { display: contents; }
       html[lang="en"] .avatar-row { flex-wrap: wrap; row-gap: 2px; }
-      html[lang="en"] .hero-name p { flex: 1 1 100%; width: 100%; font-size:17px; }
+      html[lang="en"] .hero-name p { flex: 1 1 100%; width: 100%; font-size: 15px; }
     }
     @media (max-width: 380px) { html[lang="en"] .hero-name p { font-size: 13.5px; } }
-    @media (max-width: 345px) { html[lang="en"] .hero-name p { font-size:16px; letter-spacing: -0.2px; } }
+    @media (max-width: 345px) { html[lang="en"] .hero-name p { font-size: 13px; letter-spacing: -0.2px; } }
   </style>
 </head>
 <body class="home">
@@ -177,7 +177,7 @@
 <div id="share-pop"></div>
 
 
-<script src="/js/site-common.js?v=20261107I"></script>
+<script src="/js/site-common.js?v=20261107H"></script>
 
 <!-- ═══════════ 小柚助手（AI 入口 · 第一阶段测试：模拟回复 + 后台知识库匹配，未接真 AI）═══════════ -->
 <style>
@@ -196,8 +196,8 @@
     transition: transform .28s ease, box-shadow .18s ease, opacity .2s ease;
     font-family: inherit;
   }
-  .ai-fab .l1 { font-size:17px; font-weight: 600; line-height: 1.25; color: var(--muted,#897783); }
-  .ai-fab .l2 { font-size:17px; font-weight: 600; line-height: 1.25; color: var(--muted,#897783); }
+  .ai-fab .l1 { font-size:15px; font-weight: 600; line-height: 1.25; color: var(--muted,#897783); }
+  .ai-fab .l2 { font-size:14px; font-weight: 600; line-height: 1.25; color: var(--muted,#897783); }
   .ai-fab:not(.docked):hover { background: var(--card, #FFFFFF); transform: translateY(-2px); box-shadow: inset 0 2px 3px rgba(255,255,255,.9), inset 0 -2px 4px rgba(220,170,190,.28), 0 7px 14px rgba(180,120,150,.20); }
   .ai-fab:not(.docked):active { transform: scale(.95); }
   /* 「今天」避让（20261029）：日历的今天按钮滚到右下角与小助手重叠时，小助手临时滑出，错开即回；不再给内容加高层级 */
@@ -231,7 +231,7 @@
   .ai-head .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .ai-head .who { flex: 1; min-width: 0; }
   .ai-head .who b { display: block; font-size:17px; color: var(--text); line-height: 1.3; }
-  .ai-head .who .st { display: flex; align-items: center; gap: 5px; font-size:17px; color: #7cc49a; }
+  .ai-head .who .st { display: flex; align-items: center; gap: 5px; font-size:14px; color: #7cc49a; }
   .ai-head .who .st i { width: 7px; height: 7px; border-radius: 50%; background: #7cc49a; display: inline-block; }
   .ai-close {
     width: 30px; height: 30px; flex-shrink: 0;
@@ -249,10 +249,10 @@
   .ai-msgs .msg.me { align-self: flex-end; flex-direction: row-reverse; }
   .ai-msgs .m-avatar { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; overflow: hidden; background: var(--accent-soft); margin-top: 2px; }
   .ai-msgs .m-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .ai-msgs .bubble { background: var(--card); color: var(--text); border-radius: 14px; padding: 8px 12px; font-size:17px; line-height: 1.55; word-break: break-word; }
+  .ai-msgs .bubble { background: var(--card); color: var(--text); border-radius: 14px; padding: 8px 12px; font-size:16px; line-height: 1.55; word-break: break-word; }
   .ai-msgs .msg.me .bubble { background: var(--accent-soft); color: #fff; border-bottom-right-radius: 4px; }
   .ai-msgs .msg.ai .bubble { border-bottom-left-radius: 4px; }
-  .ai-msgs .time { display: block; font-size:16px; color: var(--muted); margin-top: 3px; }
+  .ai-msgs .time { display: block; font-size:13px; color: var(--muted); margin-top: 3px; }
   .ai-msgs .msg.me .time { text-align: right; }
   .ai-msgs .typing { display: inline-flex; gap: 4px; padding: 4px 2px; }
   .ai-msgs .typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-soft); animation: aiTp 1s infinite; }
@@ -261,11 +261,11 @@
   @keyframes aiTp { 0%, 100% { opacity: .35; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-3px); } }
 
   .ai-quick { display: flex; gap: 6px; flex-wrap: wrap; padding: 8px 12px; border-top: 1px solid var(--card-hover); background: #fff; flex-shrink: 0; }
-  .ai-quick button { border: none; border-radius: 999px; background: var(--card); color: var(--text); font-size:17px; padding: 5px 12px; transition: background .15s; cursor: pointer; font-family: inherit; }
+  .ai-quick button { border: none; border-radius: 999px; background: var(--card); color: var(--text); font-size:15px; padding: 5px 12px; transition: background .15s; cursor: pointer; font-family: inherit; }
   .ai-quick button:hover { background: var(--card-hover); }
 
   .ai-input { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: #fff; border-top: 1px solid var(--card-hover); flex-shrink: 0; padding-bottom: max(10px, env(safe-area-inset-bottom)); }
-  .ai-input input { flex: 1; border: 1px solid var(--card-hover); border-radius: 999px; background: var(--bg); padding: 9px 14px; font-size:17px; font-family: inherit; color: var(--text); outline: none; min-width: 0; }
+  .ai-input input { flex: 1; border: 1px solid var(--card-hover); border-radius: 999px; background: var(--bg); padding: 9px 14px; font-size:16px; font-family: inherit; color: var(--text); outline: none; min-width: 0; }
   .ai-input input:focus { border-color: var(--accent-soft); }
   .ai-input .send { width: 36px; height: 36px; flex-shrink: 0; border: none; border-radius: 50%; background:#F6C5D7; color: #897783; display: flex; align-items: center; justify-content: center; transition: transform .12s; cursor: pointer; }
   .ai-input .send:active { transform: scale(.92); }
@@ -571,14 +571,14 @@
       var pv = tv > 0 ? fmtMoney(tv) : (pvRaw !== '' ? fmtPriceText(pvRaw) : '');
       return '<div class="card bjd-card" data-i="' + x.i + '" style="margin-bottom:0;padding:0;overflow:hidden;cursor:pointer;position:relative;display:flex;flex-direction:column;">' +
         (img ? '<div style="width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--card);"><img src="' + escAttrDb(normImg(img)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="BJD" loading="lazy"></div>'
-             : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--accent-soft,#FCECF2);color:var(--muted);font-size:17px;">' + (LANG === 'en' ? 'No photo' : '暂无图片') + '</div>') +
+             : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--accent-soft,#FCECF2);color:var(--muted);font-size:15px;">' + (LANG === 'en' ? 'No photo' : '暂无图片') + '</div>') +
         '<div style="padding:10px 12px;display:flex;flex-direction:column;flex:1;">' +
         '<div style="display:flex;align-items:center;gap:8px;">' +
         '<b style="flex:1;font-size:17px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(b.name || (LANG === 'en' ? 'Unnamed doll' : '未命名娃娃')) + '</b>' +
         shareBtnHtml(x.i, 'bjd', true) +
         bjdEditBtn(x.i) + // 登录后台后才出现
         '</div>' +
-        (b.head.size ? '<div style="font-size:17px;color:var(--muted);margin-top:4px;">' + escDb(LANG === 'en' && window.sizeEnKeep ? sizeEnKeep(b.head.size) : b.head.size) + '</div>' : '') +
+        (b.head.size ? '<div style="font-size:15px;color:var(--muted);margin-top:4px;">' + escDb(LANG === 'en' && window.sizeEnKeep ? sizeEnKeep(b.head.size) : b.head.size) + '</div>' : '') +
         '<div style="display:flex;align-items:center;gap:8px;margin-top:auto;padding-top:6px;"><span style="flex:1;font-size:17px;color:var(--text,#65515D);font-weight:600;">' + (LANG === 'en' ? 'Total ' : '总价 ') + '</span><span style="color:var(--price,#F48FB1);font-weight:600;">' + (pv ? '¥' + pv : '—') + '</span></div>' +
         '</div></div>';
     }).join('');
@@ -744,13 +744,13 @@
           var c = x.c, i = x.i;
           return '<div class="card sc-product" data-i="' + i + '" style="margin-bottom:0;padding:0;overflow:hidden;cursor:pointer;position:relative;">' +
             (c.image ? '<div style="width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--card);"><img src="' + escAttrDb(normImg(c.image)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + (LANG === 'en' ? 'Color Card' : '色卡') + '" loading="lazy"></div>'
-                     : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--accent-soft,#FCECF2);color:var(--muted);font-size:17px;">' + (LANG === 'en' ? 'No photo' : '暂无图片') + '</div>') +
+                     : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--accent-soft,#FCECF2);color:var(--muted);font-size:15px;">' + (LANG === 'en' ? 'No photo' : '暂无图片') + '</div>') +
             '<div style="padding:12px 14px;">' +
             '<div style="display:flex;align-items:center;gap:8px;">' +
             '<b style="flex:1;font-size:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(c.name || (LANG === 'en' ? 'Untitled Card' : '未命名色卡')) + '</b>' +
             shareBtnHtml(i, null, true) +
             '</div>' +
-            '<div style="font-size:17px;color:var(--muted);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (c.shop ? escDb(c.shop) : '&nbsp;') + '</div>' +
+            '<div style="font-size:15px;color:var(--muted);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (c.shop ? escDb(c.shop) : '&nbsp;') + '</div>' +
             '<div style="display:flex;align-items:center;gap:8px;margin-top:4px;">' +
             '<span style="flex:1;font-size:17px;color:var(--text,#65515D);font-weight:600;">' + (LANG === 'en' ? 'Total ' : '色卡总价 ') + '</span><span style="color:var(--price,#F48FB1);font-weight:600;">¥' + fmtMoney(cardFinalV(c)) + '</span>' +
             cardEditBtn(i) +
@@ -788,14 +788,14 @@
           var w = x.w, i = x.i; // 用原始序号：详情/分享/编辑都与 /works/ 一致
           return '<div class="card work-card" data-i="' + i + '" style="margin-bottom:0;padding:0;overflow:hidden;cursor:pointer;position:relative;">' +
             (w.image ? '<div style="width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--card);"><img src="' + escAttrDb(normImg(w.image)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + (LANG === 'en' ? 'Artwork' : '稿件') + '" loading="lazy"></div>'
-                     : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--accent-soft,#FCECF2);color:var(--muted);font-size:17px;">' + (LANG === 'en' ? 'No photo' : '暂无图片') + '</div>') +
+                     : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--accent-soft,#FCECF2);color:var(--muted);font-size:15px;">' + (LANG === 'en' ? 'No photo' : '暂无图片') + '</div>') +
             '<div style="padding:12px 14px;">' +
             '<div style="display:flex;align-items:center;gap:8px;">' +
             '<b style="flex:1;font-size:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(w.name || (LANG === 'en' ? 'Untitled Work' : '未命名稿件')) + '</b>' +
             shareBtnHtml(i, 'work', true) +
             workEditBtn(i, worksRaw) +
             '</div>' +
-            (w.date ? '<div style="font-size:17px;color:var(--muted);margin-top:3px;">' + escDb(String(w.date).replace(/-/g, '/')) + '</div>' : '') +
+            (w.date ? '<div style="font-size:15px;color:var(--muted);margin-top:3px;">' + escDb(String(w.date).replace(/-/g, '/')) + '</div>' : '') +
             (parseFloat(w.price) ? '<div style="font-size:17px;color:var(--price,#F48FB1);font-weight:600;margin-top:4px;">¥' + fmtMoney(w.price) + '</div>' : '') +
             '</div></div>';
         }).join('');
@@ -1491,14 +1491,14 @@
       (one
         ? '<div style="width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--accent-soft,#FCECF2);position:relative;"><img class="pg-img" src="' + escAttrDb(one) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + escAttrDb(hsName(p)) + '" loading="lazy">' +
           '<span class="st st-' + st + '">' + stText + '</span></div>'
-        : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--accent-soft,#FCECF2);color:var(--muted);font-size:17px;position:relative;">' + (HS_LANG === 'en' ? 'No photo' : '暂无图片') + '<span class="st st-' + st + '">' + stText + '</span></div>') +
+        : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--accent-soft,#FCECF2);color:var(--muted);font-size:15px;position:relative;">' + (HS_LANG === 'en' ? 'No photo' : '暂无图片') + '<span class="st st-' + st + '">' + stText + '</span></div>') +
       '<div style="padding:12px 14px;display:flex;flex-direction:column;flex:1;min-width:0;">' +
         '<div style="display:flex;align-items:center;gap:8px;">' +
           '<b class="hs-name" style="flex:1;min-width:0;">' + escDb(hsName(p)) + '</b>' +
           shareBtnHtml(pid, 'product', true) +
           adminEditBtn('product', i, list) +
         '</div>' +
-        '<div style="font-size:17px;color:var(--muted,#897783);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(hsTag(p) || (HS_LANG === 'en' ? 'No tag' : '没有标签')) + '</div>' +
+        '<div style="font-size:15px;color:var(--muted,#897783);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(hsTag(p) || (HS_LANG === 'en' ? 'No tag' : '没有标签')) + '</div>' +
         '<div style="display:flex;align-items:center;gap:8px;margin-top:4px;"><span class="hs-price">' + (p.price ? hsPrice(p) : '') + '</span></div>' +
       '</div></div>';
   }
@@ -1519,7 +1519,7 @@
   });
 })();
 </script>
-<script src="/js/site-footer.js?v=20261107I"></script>
+<script src="/js/site-footer.js?v=20261105C"></script>
 <script>
   // 统一 Footer（已有 <footer> 则替换其内容，不新建第二个）
   function initSiteFooter() { renderSiteFooter(); }

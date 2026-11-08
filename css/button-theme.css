@@ -815,7 +815,7 @@ textarea {
   border-width: 1.6px !important;
   border-style: solid !important;
   border-radius: 999px !important;
-  font-size:17px !important;
+  font-size: 16px !important;
   font-weight: 600 !important;
   line-height: 1 !important;
   white-space: nowrap !important;
@@ -843,7 +843,7 @@ textarea {
   border-radius: 12px !important;
   background: #FFFFFF !important;
   color: #65515D !important;
-  font-size:16px !important;
+  font-size: 15px !important;
   font-weight: 400 !important;
 }
 .sel-btn:hover {
