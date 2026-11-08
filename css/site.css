@@ -350,7 +350,7 @@
   #bjd-home-grid .bjd-card, #cards-home-grid .sc-product, #works-home-grid .work-card,
   #bjd-grid .bjd-card, #cards-grid .sc-product, #works-grid .work-card {
     background: #FFFFFF;
-    border: 1px solid #F3DDE5;
+    border: 1.5px solid #F9E5ED;
     box-shadow: 0 2px 10px rgba(255,143,171,.10);
     transition: transform .2s, box-shadow .2s;
   }
@@ -378,13 +378,13 @@
     outline: 2px solid var(--accent-strong, #897783); outline-offset: 2px;
   }
   /* 小铺商品卡（shop/account 共用 .product）：补同款描边（r 轮全站统一） */
-  .product { border: 1px solid #F3DDE5; }
+  .product { border: 1.5px solid #F9E5ED; }
   /* 首页小铺卡：补同款描边，圆角统一 var(--radius)（双写类名提权，压过下方 18px 原规则） */
-  .home-shop-grid .hs-card.hs-card { border: 1px solid #F3DDE5; border-radius: var(--radius); }
+  .home-shop-grid .hs-card.hs-card { border: 1.5px solid #F9E5ED; border-radius: var(--radius); }
   /* 首页精选照片：同款描边 + 阴影，圆角统一 */
-  .preview-grid .photo { border: 1px solid #F3DDE5; box-shadow: 0 2px 10px rgba(255,143,171,.10); border-radius: var(--radius); }
+  .preview-grid .photo { border: 1.5px solid #F9E5ED; box-shadow: 0 2px 10px rgba(255,143,171,.10); border-radius: var(--radius); }
   /* 找到我卡片 + 日历卡：同款描边统一 */
-  #links .link-card, .cal-main, .cal-side { border: 1px solid #F3DDE5; }
+  #links .link-card, .cal-main, .cal-side { border: 1.5px solid #F9E5ED; }
   .share-btn.share-inline { position: static; width: 30px; height: 30px; flex-shrink: 0; }
   @media (max-width: 640px) { #bjd-home-grid, #cards-home-grid, #works-home-grid { grid-template-columns: repeat(2, 1fr); } } /* 手机上保持两张一行，好认 */
   .card-edit-btn { border: none; background: var(--card-hover); color:var(--text,#65515D); font-size:14px; cursor: pointer; padding: 3px 10px; border-radius: 999px; flex-shrink: 0; transition: background .2s, color .2s; white-space: nowrap; }
@@ -676,37 +676,28 @@
   margin-top: 18px;
 }
 .home-shop-grid .pg-img { object-fit: cover !important; } /* 卡片图统一正方形填满（内联 contain 需 !important 压过） */
-.home-shop-grid .hs-imgbox { aspect-ratio: 1 / 1; overflow: hidden; } /* 图框锁正方形：两张卡高低不齐的根因（她 2026-10-26） */
 .home-shop-grid .hs-card {
   display: block; text-decoration: none;
-  background: #fff; border-radius: 18px; overflow: hidden;
+  background: #fff; border-radius: var(--radius,16px); overflow: hidden;
   box-shadow: 0 2px 12px rgba(255,143,171,.12);
   transition: transform .18s, box-shadow .18s;
 }
 .home-shop-grid .hs-card:hover { transform: translateY(-3px); box-shadow: 0 8px 22px rgba(255,143,171,.2); }
 .home-shop-grid .hs-card.off { opacity: .62; }
-.hs-info { padding: 12px 14px 14px; }
-.hs-tag {
-  display: inline-block; font-size: 13px; color: var(--muted);
-  background: var(--card); border-radius: 999px; padding: 2px 10px;
-}
 .hs-name {
-  display: block; margin-top: 6px; font-size: 18px; color: var(--text);
+  display: block; font-size: 18px; color: var(--text);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-.hs-row { display: flex; align-items: center; gap: 8px; margin-top: 5px; }
 .hs-price { flex: 1; font-size: 17px; font-weight: 600; color:var(--price,#F48FB1); }
 .hs-price small { font-size: 13px; margin-right: 1px; }
-.hs-st { font-size: 13px; color: var(--muted); }
-/* 首页商品卡状态角标：与小铺页同款，图片右下角 */
-.home-shop-grid .hs-imgbox { position: relative; }
-.home-shop-grid .hs-imgbox .st {
+/* 首页商品卡状态角标：与小铺页同款，图片右下角（20261107 晚：图容器改内联结构，选择器直接挂在 .st 上） */
+.home-shop-grid .st {
   position: absolute; bottom: 10px; right: 10px; z-index: 2;
   font-size: 15px; padding: 3px 12px; border-radius: 999px; color: #fff;
 }
-.home-shop-grid .hs-imgbox .st-on { background: #DCE8DA; color: var(--text,#65515D); font-weight: 600; } /* 她 20261102：合格绿（有货），小铺同款 */
-.home-shop-grid .hs-imgbox .st-display { background: #E7DFEC; color: var(--text,#65515D); font-weight: 600; } /* 她 20261102：仅展示淡紫，小铺同款 */
-.home-shop-grid .hs-imgbox .st-out { background: #F2DADB; color: var(--text,#65515D); font-weight: 600; } /* 她 20261102：缺货淡红，小铺同款 */
+.home-shop-grid .st-on { background: #DCE8DA; color: var(--text,#65515D); font-weight: 600; } /* 她 20261102：合格绿（有货），小铺同款 */
+.home-shop-grid .st-display { background: #E7DFEC; color: var(--text,#65515D); font-weight: 600; } /* 她 20261102：仅展示淡紫，小铺同款 */
+.home-shop-grid .st-out { background: #F2DADB; color: var(--text,#65515D); font-weight: 600; } /* 她 20261102：缺货淡红，小铺同款 */
 .home-shop-more {
   display: inline-block; margin-top: 16px;
   font-size: 16px; color:var(--text,#65515D); text-decoration: none;

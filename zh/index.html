@@ -36,7 +36,7 @@
 <meta name="twitter:title" content="小柚的小世界">
 <meta name="twitter:description" content="欢迎来到小柚的小世界">
 <meta name="twitter:image" content="https://yukicheng.com/zh/">
-<link rel="stylesheet" href="/css/site.css?v=20261107F">
+<link rel="stylesheet" href="/css/site.css?v=20261107G">
   <link rel="stylesheet" href="/site-menu.css?v=20261105C">
     <script src="/site-menu.js" defer></script>
   <link rel="stylesheet" href="/css/button-theme.css?v=20261107F">
@@ -157,7 +157,7 @@
 <div id="share-pop"></div>
 
 
-<script src="/js/site-common.js?v=20261107E"></script>
+<script src="/js/site-common.js?v=20261107G"></script>
 
 <!-- ═══════════ 小柚助手（AI 入口 · 第一阶段测试：模拟回复 + 后台知识库匹配，未接真 AI）═══════════ -->
 <style>
@@ -551,7 +551,7 @@
       var pv = tv > 0 ? fmtMoney(tv) : (pvRaw !== '' ? fmtPriceText(pvRaw) : '');
       return '<div class="card bjd-card" data-i="' + x.i + '" style="margin-bottom:0;padding:0;overflow:hidden;cursor:pointer;position:relative;display:flex;flex-direction:column;">' +
         (img ? '<div style="width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--card);"><img src="' + escAttrDb(normImg(img)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="BJD" loading="lazy"></div>'
-             : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--card);color:var(--muted);font-size:15px;">' + (LANG === 'en' ? 'No photo' : '暂无图片') + '</div>') +
+             : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--accent-soft,#FCECF2);color:var(--muted);font-size:15px;">' + (LANG === 'en' ? 'No photo' : '暂无图片') + '</div>') +
         '<div style="padding:10px 12px;display:flex;flex-direction:column;flex:1;">' +
         '<div style="display:flex;align-items:center;gap:8px;">' +
         '<b style="flex:1;font-size:17px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(b.name || (LANG === 'en' ? 'Unnamed doll' : '未命名娃娃')) + '</b>' +
@@ -724,7 +724,7 @@
           var c = x.c, i = x.i;
           return '<div class="card sc-product" data-i="' + i + '" style="margin-bottom:0;padding:0;overflow:hidden;cursor:pointer;position:relative;">' +
             (c.image ? '<div style="width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--card);"><img src="' + escAttrDb(normImg(c.image)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="色卡" loading="lazy"></div>'
-                     : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--card);color:var(--muted);font-size:15px;">' + (LANG === 'en' ? 'No photo' : '暂无图片') + '</div>') +
+                     : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--accent-soft,#FCECF2);color:var(--muted);font-size:15px;">' + (LANG === 'en' ? 'No photo' : '暂无图片') + '</div>') +
             '<div style="padding:12px 14px;">' +
             '<div style="display:flex;align-items:center;gap:8px;">' +
             '<b style="flex:1;font-size:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(c.name || '未命名色卡') + '</b>' +
@@ -768,7 +768,7 @@
           var w = x.w, i = x.i; // 用原始序号：详情/分享/编辑都与 /works/ 一致
           return '<div class="card work-card" data-i="' + i + '" style="margin-bottom:0;padding:0;overflow:hidden;cursor:pointer;position:relative;">' +
             (w.image ? '<div style="width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--card);"><img src="' + escAttrDb(normImg(w.image)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="稿件" loading="lazy"></div>'
-                     : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--card);color:var(--muted);font-size:15px;">' + (LANG === 'en' ? 'No photo' : '暂无图片') + '</div>') +
+                     : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--accent-soft,#FCECF2);color:var(--muted);font-size:15px;">' + (LANG === 'en' ? 'No photo' : '暂无图片') + '</div>') +
             '<div style="padding:12px 14px;">' +
             '<div style="display:flex;align-items:center;gap:8px;">' +
             '<b style="flex:1;font-size:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(w.name || '未命名稿件') + '</b>' +
@@ -1451,25 +1451,30 @@
     var TAGS = { '手作': 'Handmade', '黏土': 'Clay', '毛线': 'Yarn', '贴纸': 'Sticker', '键帽': 'Keycap', '现货': 'In Stock', '定制款': 'Made to Order', '瑕疵款': 'Imperfect' };
     return TAGS[tag] || tag;
   }
-  function cardHtml(p) {
+  function cardHtml(p, i, list) {
     var zh = normImg(p.cover_zh || ''), en = normImg(p.cover_en || '');
     var imgs = pagerImgsOf({ images: p.images, image_url: p.image_url }).filter(function (u) { return !((zh && u === zh) || (en && u === en)); });
     var cov = hsCover(p);
     if (cov) imgs = [cov].concat(imgs.filter(function (u) { return u !== cov; }));
     // 她 20261103：主页商品卡去掉左右切换（多图翻页只在商品详情页），主页只静显第一张（当前语言封面优先）
+    // 她 20261107 晚：卡片结构与色卡首页卡同一套（封面顶图 1:1 + 白信息区 + 标题左 / 分享右上 + Edit 登录后显示）
     var one = imgs.length ? imgs[0] : '';
     var st = statusOf(p);
     var stText = st === 'on' ? t('在售', 'On sale') : st === 'display' ? t('仅展示', 'Display only') : t('售尽', 'Sold out');
-    return '<div class="hs-card' + (st === 'on' ? '' : ' off') + '" data-href="' + ykLink('/shop/?id=' + encodeURIComponent(p.id)) + '">' +
-      '<div class="hs-imgbox">' + (one
-        ? '<img class="pg-img" src="' + escAttrDb(one) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + escAttrDb(hsName(p)) + '" loading="lazy">'
-        : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--card);color:var(--muted);font-size:15px;">' + (HS_LANG === 'en' ? 'No photo' : '暂无图片') + '</div>') +
-        '<span class="st st-' + st + '">' + stText + '</span></div>' +
-      '<div class="hs-info">' +
-        '<span class="hs-tag">' + escDb(hsTag(p) || '没有标签') + '</span>' +
-        '<b class="hs-name">' + escDb(hsName(p)) + '</b>' +
-        '<div class="hs-row"><span class="hs-price">' + (p.price ? hsPrice(p) : '') + '</span>' +
+    var pid = String(p.id);
+    return '<div class="card hs-card' + (st === 'on' ? '' : ' off') + '" data-href="' + ykLink('/shop/?id=' + encodeURIComponent(pid)) + '" style="margin-bottom:0;padding:0;overflow:hidden;cursor:pointer;position:relative;display:flex;flex-direction:column;">' +
+      (one
+        ? '<div style="width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--accent-soft,#FCECF2);position:relative;"><img class="pg-img" src="' + escAttrDb(one) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + escAttrDb(hsName(p)) + '" loading="lazy">' +
+          '<span class="st st-' + st + '">' + stText + '</span></div>'
+        : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--accent-soft,#FCECF2);color:var(--muted);font-size:15px;position:relative;">' + (HS_LANG === 'en' ? 'No photo' : '暂无图片') + '<span class="st st-' + st + '">' + stText + '</span></div>') +
+      '<div style="padding:12px 14px;display:flex;flex-direction:column;flex:1;min-width:0;">' +
+        '<div style="display:flex;align-items:center;gap:8px;">' +
+          '<b class="hs-name" style="flex:1;min-width:0;">' + escDb(hsName(p)) + '</b>' +
+          shareBtnHtml(pid, 'product', true) +
+          adminEditBtn('product', i, list) +
         '</div>' +
+        '<div style="font-size:15px;color:var(--muted,#897783);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(hsTag(p) || '没有标签') + '</div>' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-top:4px;"><span class="hs-price">' + (p.price ? hsPrice(p) : '') + '</span></div>' +
       '</div></div>';
   }
   var grid = document.getElementById('home-shop-grid');
@@ -1485,7 +1490,7 @@
       return HIDE.indexOf(pid) === -1 && HOME_OFF.indexOf(pid) === -1;
     });
     if (!list.length) return; // 没有可展示的商品：只保留原入口卡，不放假数据
-    grid.innerHTML = list.map(cardHtml).join('');
+    grid.innerHTML = list.map(function (p, i) { return cardHtml(p, i, list); }).join('');
   });
 })();
 </script>

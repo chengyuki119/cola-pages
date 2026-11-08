@@ -469,6 +469,12 @@ function shareBtnHtml(i, type, inline) {
 }
 function shareLink(i, type) {
   // 分享链接跟随当前页面语言：中文页分享出去就是 /zh/... 的中文页面
+  // 她 20261107 晚：小铺商品卡分享 → 直接用卡片上的详情页链接（data-href），不经序号拼 URL
+  if (type === 'product') {
+    var pc = shareBtnEl && shareBtnEl.closest ? shareBtnEl.closest('[data-href]') : null;
+    var href = pc ? pc.getAttribute('data-href') : (window.ykLink ? window.ykLink('/shop/') : '/shop/');
+    return location.origin + href;
+  }
   var p = type === 'bjd' ? '/bjd/?id=' : type === 'work' ? '/works/?id=' : '/color-card/?card=';
   return location.origin + (window.ykLink ? window.ykLink(p) : p) + i;
 }
@@ -522,10 +528,18 @@ function doShare(opt, i, type) {
   var kind = type || 'card';
   var isBjd = kind === 'bjd';
   var isWork = kind === 'work';
-  var c = isBjd ? BJDS_CACHE[i] : isWork ? WORKS_CACHE[i] : CARDS_CACHE[i];
+  var isProd = kind === 'product';
+  var c = isProd ? null : isBjd ? BJDS_CACHE[i] : isWork ? WORKS_CACHE[i] : CARDS_CACHE[i];
   var link = shareLink(i, kind);
-  var title = (isBjd ? t('来看看这个娃娃：', 'Check out this doll: ') : isWork ? t('来看看这篇稿件：', 'Check out this work: ') : t('来看看这张色卡：', 'Check out this color card: ')) +
+  var title;
+  if (isProd) { // 小铺商品：标题从卡片上的名称取（商品不在 CACHE 序号体系里）
+    var pcard = shareBtnEl && shareBtnEl.closest ? shareBtnEl.closest('[data-href]') : null;
+    var pnm = pcard && pcard.querySelector('.hs-name');
+    title = t('来看看这件小物：', 'Check out this item: ') + (pnm ? pnm.textContent : t('小铺商品', 'Shop item'));
+  } else {
+  title = (isBjd ? t('来看看这个娃娃：', 'Check out this doll: ') : isWork ? t('来看看这篇稿件：', 'Check out this work: ') : t('来看看这张色卡：', 'Check out this color card: ')) +
     ((c && c.name) || (isBjd ? t('未命名娃娃', 'Unnamed doll') : isWork ? t('未命名稿件', 'Untitled work') : t('未命名色卡', 'Unnamed card')));
+  }
   var enc = encodeURIComponent;
   if (opt === 'copy') { copyText(link); return; }
   if (opt === 'wx') { copyText(link, t('链接已复制，去微信粘贴发送', 'Link copied, paste it in WeChat')); return; }
@@ -544,7 +558,8 @@ if (document.getElementById('share-pop')) {
     var btn = e.target.closest('.share-btn');
     if (btn) {
       if (shareBtnEl === btn) { sharePopClose(); return; } // 再点同一个图标 → 关闭
-      sharePopOpen(btn, parseInt(btn.getAttribute('data-share'), 10), btn.getAttribute('data-share-type'));
+      var rawI = btn.getAttribute('data-share'), rawT = btn.getAttribute('data-share-type');
+      sharePopOpen(btn, rawT === 'product' ? rawI : parseInt(rawI, 10), rawT); // 商品用真实 id（uuid 非数字）
       return;
     }
     var pop = document.getElementById('share-pop');
