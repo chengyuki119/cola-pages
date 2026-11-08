@@ -1504,7 +1504,7 @@
         '<span class="sm-vc-more" style="position:relative;">' +
           '<button type="button" class="sm-more-btn" data-more="row" title="更多">⋯</button>' +
           '<div class="sm-more-menu">' +
-            '<button type="button" class="sm-var-freeze' + (v.frozen ? ' off' : '') + '">' + (v.frozen ? '启用' : '停售') + '</button>' +
+            '<button type="button" class="sm-var-freeze' + (v.frozen ? ' off' : '') + '" data-i="' + i + '">' + (v.frozen ? '启用' : '停售') + '</button>' +
             '<button type="button" class="sm-var-up" data-i="' + i + '"' + (i === 0 ? ' disabled' : '') + '>上移</button>' +
             '<button type="button" class="sm-var-down" data-i="' + i + '"' + (i === total - 1 ? ' disabled' : '') + '>下移</button>' +
             '<button type="button" class="sm-var-del" data-i="' + i + '">删除这个规格</button>' +
