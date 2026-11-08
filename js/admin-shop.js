@@ -1319,6 +1319,7 @@
     if (!grid || grid.querySelector('.e-weight')) return;
     var pid = card.getAttribute('data-id');
     var local = byId(SM.products, pid);
+    if (card.__ui) card.__ui._autoFold = false; // 她 20261108 §7：每次打开编辑都重新按规格数决定默认收起
     var build = function (p) {
       // 重查 DOM：卡片可能已被主流程重绘，别把块插到已脱禹的节点上
       var g2 = card.querySelector('.edit-grid');
@@ -1523,7 +1524,7 @@
     var vs = arr(card.__variants);
     var mode = smModeOf(card);
     var dims = smDimsOf(card);
-    if (vs.length > 12 && ui.combos && ui._autoFold !== true) { // 她 20261108 §7：价格表这类多规格商品默认收起，用户手动展开后不再自动收
+    if (vs.length > 12 && ui.combos && ui._autoFold === false) { // 她 20261108 §7：多规格商品打开编辑时默认收起一次，用户手动展开/收起后以用户操作为准
       ui.combos = false; ui._autoFold = true;
     }
     var out = '<div class="sm-spec">';
@@ -2518,7 +2519,10 @@
         try { sessionStorage.setItem('biz-bc-target', pidBc); } catch (err) {}
         if (window.switchTab) window.switchTab('units');
         else { var sbU = document.querySelector('.adm-subtab[data-sub="units"]'); if (sbU) sbU.click(); }
-        if (window.BIZ && window.BIZ.renderProductBarcodes) window.BIZ.renderProductBarcodes(); // 条码页已 boot 过时 switchTab 早退，主动渲染读定位目标
+        if (window.BIZ && window.BIZ.renderProductBarcodes && !window.__bizBcRenderGuard) { // 条码页已 boot 过时 switchTab 早退，主动渲染读定位目标；双委托冒泡会触发两次，节流去重
+          window.__bizBcRenderGuard = true; setTimeout(function () { window.__bizBcRenderGuard = false; }, 120);
+          window.BIZ.renderProductBarcodes();
+        }
         return;
       }
       var imgdel = e.target.closest('.sm-var-imgdel');
@@ -3351,7 +3355,10 @@
         try { sessionStorage.setItem('biz-bc-target', pidBc); } catch (err) {}
         if (window.switchTab) window.switchTab('units');
         else { var sbU = document.querySelector('.adm-subtab[data-sub="units"]'); if (sbU) sbU.click(); }
-        if (window.BIZ && window.BIZ.renderProductBarcodes) window.BIZ.renderProductBarcodes(); // 条码页已 boot 过时 switchTab 早退，主动渲染读定位目标
+        if (window.BIZ && window.BIZ.renderProductBarcodes && !window.__bizBcRenderGuard) { // 条码页已 boot 过时 switchTab 早退，主动渲染读定位目标；双委托冒泡会触发两次，节流去重
+          window.__bizBcRenderGuard = true; setTimeout(function () { window.__bizBcRenderGuard = false; }, 120);
+          window.BIZ.renderProductBarcodes();
+        }
         return;
       }
       var imgdel = e.target.closest('.sm-var-imgdel');
