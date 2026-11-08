@@ -190,7 +190,7 @@
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-gen-btn:active { background:#E9A8BE; }',
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-gen-btn:disabled { background:#FFF8FA; border-color:#F9E5ED; color:#897783; cursor:not-allowed; }',
       /* 组合表：她 20261107 最终执行版 §3.4 六列（选择/规格组合/SKU/价格/库存/图片） */
-      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-head { display:grid; grid-template-columns:26px minmax(0,1.5fr) minmax(0,0.9fr) 108px 96px 110px; gap:8px; padding:0 9px 6px; font-size:13px; color:#897783; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-head { display:grid; grid-template-columns:26px minmax(0,1.5fr) minmax(0,0.9fr) 108px 96px 96px 34px; gap:8px; padding:0 9px 6px; font-size:13px; color:#897783; }',
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-row { display:grid; grid-template-columns:26px minmax(0,1.5fr) minmax(0,0.9fr) 108px 96px 110px; gap:8px; align-items:center; background:#fff; border:1.5px solid #F8E6EE; border-radius:10px; padding:7px 9px; margin:0 0 6px; box-shadow:none; position:relative; }',
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-row:hover { border-color:#F2D3DF; }',
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-row.is-off { background:#FFF8FA; }',
@@ -1367,13 +1367,12 @@
      ══════════════════════════════════════════════════════════════════ */
   var SM_ICON_BTN = 'border:0;background:transparent;color:#897783;font-size:15px;line-height:1;padding:0 3px;cursor:pointer;font-family:inherit;';
   function smUi(card) {
-    if (!card.__ui) card.__ui = { dims: true, combos: true, batch: false, openDim: -1, focusOpt: false, openRow: -1 };
+    if (!card.__ui) card.__ui = { dims: true, combos: true, batch: false, openDim: -1, focusOpt: false };
     var u = card.__ui;
     if (u.dims == null) u.dims = true;
     if (u.combos == null) u.combos = true;
     if (u.batch == null) u.batch = false;
     if (u.openDim == null) u.openDim = -1;
-    if (u.openRow == null) u.openRow = -1;
     return u;
   }
   function smDimsOf(card) {
@@ -1491,35 +1490,27 @@
             '<button type="button" class="sm-var-imgdel" data-i="' + i + '" data-k="' + k + '" title="删除这张图">✕</button></span>';
         }).join('') + (imgs.length > 2 ? '<span class="sm-thumb-more">+' + (imgs.length - 2) + '</span>' : '')
       : '<span class="sm-thumb-empty">无图</span>';
-    var ui = smUi(card);
-    var open = ui.openRow === i;
-    var dimTxt = v.dims ? Object.keys(v.dims).map(function (k) { return v.dims[k]; }).join(' / ') : '';
-    var detail = '';
-    if (open) {
-      detail = '<div class="sm-row-detail" data-i="' + i + '">' +
-        (dimTxt && dimTxt !== String(v.name || '') ? '<span class="sm-vc-dims">维度：' + esc(dimTxt) + '</span>' : '') +
-        '<span class="sm-row-detail-act">' +
-          '<button type="button" class="sm-var-freeze' + (v.frozen ? ' off' : '') + '">' + (v.frozen ? '启用' : '停售') + '</button>' +
-          (v.sku ? '<button type="button" class="yk-barcode-btn" data-code="' + escAttr(v.sku) + '" data-title="' + escAttr(v.name || v.sku) + '">看条码</button>' : '') +
-          '<button type="button" class="sm-var-up" data-i="' + i + '"' + (i === 0 ? ' disabled' : '') + '>上移</button>' +
-          '<button type="button" class="sm-var-down" data-i="' + i + '"' + (i === total - 1 ? ' disabled' : '') + '>下移</button>' +
-          '<button type="button" class="sm-var-del" data-i="' + i + '">删除这个规格</button>' +
-        '</span>' +
-      '</div>';
-    }
+    // 她 20261108 任务书：规格行只留 名称/SKU/价格/库存/图片；排序/停售/删除收进行尾「⋯」菜单；
+    // 条码统一到「商品编码」子页签，规格行不再放看条码；维度路径文字删除
     return '<div class="sm-var-row' + (v.frozen ? ' is-off' : '') + '" data-i="' + i + '">' +
       '<div class="sm-vc sm-vc-chk"><button type="button" class="sm-row-chk' + (card.__sel && card.__sel[i] ? ' on' : '') + '" data-i="' + i + '" aria-pressed="' + (!!(card.__sel && card.__sel[i])) + '" title="勾选这条组合（批量操作只作用于勾选的行）"></button></div>' +
       '<div class="sm-vc sm-vc-name">' +
         '<input class="sv-name" value="' + escAttr(v.name || '') + '" placeholder="规格名" title="直接改，保存时生效">' +
-        '<button type="button" class="sm-row-name sm-row-more" data-i="' + i + '" title="更多操作（停售/条码/上移/下移/删除）"><i class="sm-row-caret">' + (open ? '▾' : '▸') + '</i></button>' +
       '</div>' +
       '<div class="sm-vc sm-vc-sku"><input class="sv-sku" value="' + escAttr(v.sku || '') + '" placeholder="SKU"></div>' +
       '<div class="sm-vc sm-vc-price"><input class="sv-price" type="number" min="0" step="0.01" value="' + escAttr(v.price == null ? '' : v.price) + '" placeholder="商品价" title="留空就用商品本身的价格"></div>' +
       '<div class="sm-vc sm-vc-stock"><input class="sv-stock" type="number" min="0" value="' + escAttr(v.stock == null ? '' : v.stock) + '" placeholder="库存" title="留空就用商品本身的库存"></div>' +
       '<div class="sm-vc sm-vc-img">' + imgCell +
-        '<label class="sm-thumb-add" title="上传这个规格的图">＋<input type="file" class="sm-var-file" data-i="' + i + '" accept="image/*" multiple hidden></label>' +
+        '<span class="sm-vc-more" style="position:relative;">' +
+          '<button type="button" class="sm-more-btn" data-more="row" title="更多">⋯</button>' +
+          '<div class="sm-more-menu">' +
+            '<button type="button" class="sm-var-freeze' + (v.frozen ? ' off' : '') + '">' + (v.frozen ? '启用' : '停售') + '</button>' +
+            '<button type="button" class="sm-var-up" data-i="' + i + '"' + (i === 0 ? ' disabled' : '') + '>上移</button>' +
+            '<button type="button" class="sm-var-down" data-i="' + i + '"' + (i === total - 1 ? ' disabled' : '') + '>下移</button>' +
+            '<button type="button" class="sm-var-del" data-i="' + i + '">删除这个规格</button>' +
+          '</div>' +
+        '</span>' +
       '</div>' +
-      detail +
     '</div>';
   }
   function smVarRenderRows(card) {
@@ -1820,16 +1811,6 @@
         arr(ca2.__variants).forEach(function (v, k) { ca2.__sel[k] = on; });
       }
       smVarRenderRows(ca2);
-      return;
-    }
-    /* 她 20261107 最终执行版 §3.4.11：点「规格组合」名称展开/收起这条的详细编辑 */
-    var rowName = t2.closest('.sm-row-name');
-    if (rowName) {
-      var cr = varCardOf(rowName); if (!cr) return;
-      var ri = parseInt(rowName.getAttribute('data-i'), 10);
-      var ru = smUi(cr);
-      ru.openRow = (ru.openRow === ri) ? -1 : ri;
-      smVarRenderRows(cr);
       return;
     }
     var batchBtn = t2.closest('.sm-set-price') || t2.closest('.sm-copy-price') || t2.closest('.sm-set-stock') || t2.closest('.sm-copy-stock');
