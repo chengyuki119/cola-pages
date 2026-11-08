@@ -289,22 +289,21 @@
     }
     return null;
   }
-  function dimChipOut(vs, dim, val, sel) { // 选了这一项后，还有没有有货且未禁用的组合
-    var probe = {};
-    Object.keys(sel).forEach(function (k) { probe[k] = sel[k]; });
-    probe[dim] = val;
-    var names = Object.keys(probe);
-    var any = false;
+  function dimChipOut(vs, dim, val, sel) { // 她 20261108 改为「类型锚定」：非类型维度只要与已选类型相容且存在未冻结 SKU 即可选；
+    // 跨类型的冲突已选项由点击时的清理逻辑处理（不再把其他类型灰死）
+    var base = {};
+    base[dim] = val;
+    if (dim !== '类型' && sel && sel['类型']) base['类型'] = sel['类型'];
     for (var i = 0; i < vs.length; i++) {
       var v = vs[i];
       if (v.frozen) continue;
       if (parseInt(v.stock, 10) <= 0) continue;
       var d = v.dims || {};
       var ok = true;
-      for (var j = 0; j < names.length; j++) { if (d[names[j]] !== probe[names[j]]) { ok = false; break; } }
-      if (ok) { any = true; break; }
+      for (var k in base) { if (d[k] !== base[k]) { ok = false; break; } }
+      if (ok) return false;
     }
-    return !any;
+    return true;
   }
   function variantsHtml(p, vs, curSku, selIn) {
     var order = dimsOrder(p);
