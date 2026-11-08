@@ -201,6 +201,18 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
      sticky 会被全局 overflow-x clip 祖先破坏（实测失效），改用 fixed 钉死视口。 */
   #adm-content { min-width: 0; }
   @media (max-width:899px) { #tab-pos .pos-grid { grid-template-columns:1fr !important; } } /* POS 手机单列（她 20261103：铺满自适应） */
+  @media (max-width: 899px) { /* 商品条码页手机适配（她 20261108 §6：手机后台与电脑一致） */
+    .biz-bc-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 6px !important; }
+    .biz-bc-card { padding: 6px 6px 6px !important; }
+    .biz-bc-img { width: 56px; height: 56px; }
+    .biz-bc-ghead { gap: 8px; }
+    .biz-bc-ghead img { width: 34px; height: 34px; }
+    .biz-bc-tool { padding: 6px 12px; font-size: 12px; }
+    #biz-p-bc + .card .biz-u-bar { flex-wrap: wrap; }
+  }
+  @media (max-width: 899px) { /* 扫码浮层手机全宽 */
+    .biz-scan-box { width: min(420px, 96vw); padding: 12px; }
+  }
   @media (min-width: 900px) {
     #admin-body { display: block; }
     #pp-wrap {
@@ -7441,12 +7453,13 @@ function loadEmailLog() {
 </script>
 
 
-<script src="js/admin-shop.js?v=20261108E"></script>
+<script src="js/admin-shop.js?v=20261108F"></script>
 <script src="js/admin-import.js?v=20261105C"></script>
-<script src="js/admin-crm.js?v=20261108A"></script>
+<script src="js/admin-crm.js?v=20261108F"></script>
 <script src="js/admin-vip.js?v=20261105C" data-legacy="1"></script>
 <script src="js/admin-customer.js?v=20261105C"></script>
 <script src="js/admin-invite.js?v=20261105C"></script>
+<script src="js/vendor/html5-qrcode.min.js?v=20261108A"></script>
 <script src="js/vendor/jsQR.js?v=20261105C"></script>
 <script src="js/vendor/qrcode-generator.js?v=20261105C"></script>
 <script src="js/vendor/JsBarcode.all.min.js?v=20261105C"></script>

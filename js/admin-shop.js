@@ -1523,6 +1523,9 @@
     var vs = arr(card.__variants);
     var mode = smModeOf(card);
     var dims = smDimsOf(card);
+    if (vs.length > 12 && ui.combos && ui._autoFold !== true) { // 她 20261108 §7：价格表这类多规格商品默认收起，用户手动展开后不再自动收
+      ui.combos = false; ui._autoFold = true;
+    }
     var out = '<div class="sm-spec">';
     out += '<div class="sm-spec-top">' +
       '<span class="sm-mode-seg">' +
