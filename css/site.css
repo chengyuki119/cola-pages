@@ -12,6 +12,7 @@
     --accent: #F9E5ED;
     --accent-soft: #FCECF2;
     --accent-strong: #897783;
+    --card-border: #F9E5ED;
     --price: #F48FB1;
     --success: #5FA777;
     --warning: #E0A458;
@@ -500,27 +501,6 @@
   #cal-form .ev-save { /* 主粉统一（她 20261029 §4） */ border: none; border-radius: 999px; background: #F6C5D7; color: #897783; font-weight: 600; font-size:16px; padding: 7px 18px; cursor: pointer; }
   #cal-form .ev-cancel { border: 1.5px solid #F9E5ED; border-radius: 999px; background: #fff; color: var(--muted); font-weight: 600; font-size:16px; padding: 7px 18px; cursor: pointer; transition: background .2s, color .2s; }
   #cal-form .ev-cancel:hover { background: var(--card-hover); color: var(--text); }
-
-  .entry-card {
-    display: flex; align-items: center; gap: 18px;
-    background: var(--card-hover); /* 常态即原悬停粉（她 20261028 总任务书 6.1） */
-    border-radius: var(--radius);
-    padding: 22px;
-    transition: background .2s, transform .2s;
-    cursor: pointer;
-  }
-  .entry-card:hover { background: var(--accent); transform: translateY(-2px); } /* 正常态改为原悬停粉（她 20261028 总任务书 6.1），悬停再深一档品牌粉 */
-  .entry-emoji {
-    width: 64px; height: 64px;
-    border-radius: 14px;
-    background: var(--accent-soft,#FCECF2);
-    display: flex; align-items: center; justify-content: center;
-    font-size:35px;
-    flex-shrink: 0;
-  }
-  .entry-info h3 { font-size:19px; }
-  .entry-info p { color: var(--muted); font-size:16px; }
-  .entry-arrow { margin-left: auto; color: var(--muted); font-size:25px; }
 
   /* ===== 子页面（她 20261027 02:24：全部页面统一成小铺同款粉横幅 header）===== */
   .subpage-header {

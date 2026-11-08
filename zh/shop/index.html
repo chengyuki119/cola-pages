@@ -161,15 +161,18 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
 
   /* 收藏心心 */
   .fav-btn {
-    border: none; background: rgba(255,251,252,.92);
+    border: 1.6px solid var(--btn-bd,#F8DDE8); background: rgba(255,251,252,.92);
     color:var(--text,#65515D); cursor: pointer;
     font-size: 18px; line-height: 1;
     width: 34px; height: 34px; border-radius: 50%;
     display: inline-flex; align-items: center; justify-content: center;
-    transition: transform .15s, background .2s;
+    transition: transform .15s, background .2s, border-color .2s;
     font-family: inherit;
   }
   .fav-btn:hover { transform: scale(1.12); background: var(--accent-soft,#FCECF2); }
+  .fav-btn:active { background: #F6C5D7; border-color: #F6C5D7; }
+  .fav-btn.on { background: #F6C5D7 !important; border-color: #F6C5D7 !important; }
+  .fav-btn.on:hover { transform: scale(1.12); }
   .product-img .fav-btn { position: absolute; top: 10px; right: 10px; z-index: 2; }
   .product-img { position: relative; }
   .fav-btn.detail-fav { width: 40px; height: 40px; font-size: 22px; vertical-align: middle; margin-left: 8px; }
@@ -352,7 +355,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
   <script src="/js/site-common.js?v=20261107E"></script>
   <script src="/js/policy-content.js?v=20261105C"></script>
   <script src="/site-menu.js?v=20261105C" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261107E">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261107F">
     <link rel="stylesheet" href="/css/input-unify.css?v=20261107E">
   </head>
 <body>
@@ -864,7 +867,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     }, 300);
   }
 </script>
-<script src="/js/shop-app.js?v=20261107E"></script>
+<script src="/js/shop-app.js?v=20261107F"></script>
 <script src="/js/site-footer.js?v=20261105C"></script>
 <script>
   // 统一 Footer（已有 <footer> 则替换其内容，不新建第二个）

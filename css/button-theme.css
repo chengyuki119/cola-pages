@@ -102,6 +102,10 @@
   background-color: var(--btn-pri-bg) !important;
   border-color: var(--btn-pri-bd) !important;
   color: var(--btn-pri-fg) !important;
+  /* 20261107 收尾任务书 §三：同类按钮描边粗细统一 1.6px（配合 box-sizing 不改总尺寸） */
+  border-width: 1.6px !important;
+  border-style: solid !important;
+  box-sizing: border-box !important;
 }
 .btn-save:hover, .btn-save-tb:hover, .btn-ok:hover,
 .back-link:hover, .home-long-btn:hover, .er-btn-main:hover, .gate button:hover,
@@ -142,6 +146,9 @@
   background-color: var(--btn-bg) !important;
   border-color: var(--btn-bd) !important;
   color: var(--btn-fg) !important;
+  border-width: 1.6px !important;
+  border-style: solid !important;
+  box-sizing: border-box !important;
 }
 .btn-mini:hover, .chip:hover, .paytab:hover, .cur-chip:hover, .pr-opt:hover,
 .pf-chip:hover, .pp-btn:hover, .er-btn-soft:hover, .idx-btn:hover, .sel-btn:hover,
@@ -184,6 +191,9 @@
   background-color: var(--btn-pri-bg) !important;
   border-color: var(--btn-pri-bd) !important;
   color: var(--btn-pri-fg) !important;
+  border-width: 1.6px !important;
+  border-style: solid !important;
+  box-sizing: border-box !important;
 }
 .btn-cancel:hover, .btn-cancel-hm:hover, .fx-cancel:hover, .wm-cancel:hover,
 .ke-edit:hover, .wm-edit:hover, .card-edit-btn:hover, .cal-btn.wide:hover,
@@ -219,6 +229,9 @@
   background-color: var(--btn-dg-bg) !important;
   border-color: var(--btn-dg-bd) !important;
   color: var(--btn-dg-fg) !important;
+  border-width: 1.6px !important;
+  border-style: solid !important;
+  box-sizing: border-box !important;
 }
 .btn-del:hover, .btn-del-tb:hover, .ke-del:hover, .wm-del:hover,
 .sc-opt-del:hover, .rv-menu-del:hover, #rv-menu .rv-menu-del:hover,
@@ -426,6 +439,9 @@
   background-color: var(--btn-bg) !important;
   border-color: var(--btn-bd) !important;
   color: var(--btn-fg) !important;
+  border-width: 1.6px !important;
+  border-style: solid !important;
+  box-sizing: border-box !important;
 }
 .share-btn:hover,
 .fav-btn:hover,
@@ -687,7 +703,7 @@ button:focus-visible,
 .opt:focus-visible,
 a:focus-visible,
 [tabindex]:focus-visible {
-  outline: 2px solid #E9B3C6 !important;
+  outline: 2px solid #F6C5D7 !important;
   outline-offset: 2px;
 }
 

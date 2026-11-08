@@ -36,10 +36,10 @@
 <meta name="twitter:title" content="小柚的小世界">
 <meta name="twitter:description" content="欢迎来到小柚的小世界">
 <meta name="twitter:image" content="https://yukicheng.com/og-image.jpg">
-<link rel="stylesheet" href="/css/site.css?v=20261107E">
+<link rel="stylesheet" href="/css/site.css?v=20261107F">
   <link rel="stylesheet" href="/site-menu.css?v=20261105C">
     <script src="/site-menu.js" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261107E">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261107F">
   <!-- 她 20261104：英文版手机端「重要日子明细」固定两行（分类 / 重复+周年），中文版不动 -->
   <style id="en-cal-sub-2lines">
     html[lang="en"] .cal-dayview-item .dv-sub .dv-b::before { content: '· '; }
@@ -133,14 +133,7 @@
     <section id="shop">
       <h2>我的小铺</h2>
       <div id="home-shop-grid" class="home-shop-grid"></div>
-      <a class="entry-card" href="/shop/" style="margin-top:16px;">
-        
-        <div class="entry-info">
-          <h3>小柚的小铺</h3>
-          <p>自制小物上架中 · 点进去逛逛</p>
-        </div>
-        <div class="entry-arrow">›</div>
-      </a>
+      <a class="home-long-btn" href="/shop/" style="margin-top:16px;"><span data-zh="进入小铺" data-en="Enter the Shop">进入小铺</span></a>
     </section>
 
     <section id="sec-gallery">
@@ -725,10 +718,8 @@
     // 入口卡片文案
     var en = parseSetting('entries', {});
     if (en.shop_h) {
-      var sh = document.querySelector('#shop .entry-card h3');
-      var sp = document.querySelector('#shop .entry-card p');
-      if (sh) sh.textContent = en.shop_h;
-      if (sp && en.shop_p) sp.textContent = en.shop_p;
+      var sh = document.querySelector('#shop .home-long-btn span');
+      if (sh && en.shop_h) sh.textContent = en.shop_h;
     }
     // 色卡 / BJD 数据（与后台同一份）
     var cardsRaw = parseSetting('cards', null);
