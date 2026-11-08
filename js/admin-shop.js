@@ -2515,6 +2515,7 @@
         try { sessionStorage.setItem('biz-bc-target', pidBc); } catch (err) {}
         if (window.switchTab) window.switchTab('units');
         else { var sbU = document.querySelector('.adm-subtab[data-sub="units"]'); if (sbU) sbU.click(); }
+        if (window.BIZ && window.BIZ.renderProductBarcodes) window.BIZ.renderProductBarcodes(); // 条码页已 boot 过时 switchTab 早退，主动渲染读定位目标
         return;
       }
       var imgdel = e.target.closest('.sm-var-imgdel');
@@ -3347,6 +3348,7 @@
         try { sessionStorage.setItem('biz-bc-target', pidBc); } catch (err) {}
         if (window.switchTab) window.switchTab('units');
         else { var sbU = document.querySelector('.adm-subtab[data-sub="units"]'); if (sbU) sbU.click(); }
+        if (window.BIZ && window.BIZ.renderProductBarcodes) window.BIZ.renderProductBarcodes(); // 条码页已 boot 过时 switchTab 早退，主动渲染读定位目标
         return;
       }
       var imgdel = e.target.closest('.sm-var-imgdel');

@@ -1802,5 +1802,5 @@
   }
 
   /* ═══════════ 注册（admin.html 切页处调用：BIZ.bootCost() / BIZ.bootUnits() / BIZ.bootQcscan()） ═══════════ */
-  window.BIZ = { bootCost: bootCost, bootUnits: bootUnits, bootQcscan: bootQcscan, selfTest: selfTest };
+  window.BIZ = { bootCost: bootCost, bootUnits: bootUnits, bootQcscan: bootQcscan, selfTest: selfTest, renderProductBarcodes: renderProductBarcodes };
 })();
