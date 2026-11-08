@@ -1507,6 +1507,7 @@
             '<button type="button" class="sm-var-freeze' + (v.frozen ? ' off' : '') + '" data-i="' + i + '">' + (v.frozen ? '启用' : '停售') + '</button>' +
             '<button type="button" class="sm-var-up" data-i="' + i + '"' + (i === 0 ? ' disabled' : '') + '>上移</button>' +
             '<button type="button" class="sm-var-down" data-i="' + i + '"' + (i === total - 1 ? ' disabled' : '') + '>下移</button>' +
+            '<button type="button" class="sm-var-bc" data-pid="' + escAttr(card.getAttribute('data-id') || '') + '">商品条码</button>' +
             '<button type="button" class="sm-var-del" data-i="' + i + '">删除这个规格</button>' +
           '</div>' +
         '</span>' +
@@ -2509,6 +2510,13 @@
         toast(isPrice ? '已把 ' + ADDVAR.list.length + ' 个规格的价格改成 ' + val : '已把 ' + ADDVAR.list.length + ' 个规格的库存改成 ' + val);
         return;
       }
+      if (e.target.classList.contains('sm-var-bc')) { // 她 20261108：规格 ⋯ 菜单「商品条码」→ 跳商品条码页并定位本商品
+        var pidBc = e.target.getAttribute('data-pid') || '';
+        try { sessionStorage.setItem('biz-bc-target', pidBc); } catch (err) {}
+        if (window.switchTab) window.switchTab('units');
+        else { var sbU = document.querySelector('.adm-subtab[data-sub="units"]'); if (sbU) sbU.click(); }
+        return;
+      }
       var imgdel = e.target.closest('.sm-var-imgdel');
       if (imgdel) { var v = ADDVAR.list[parseInt(imgdel.getAttribute('data-i'), 10)]; if (v && arr(v.images)) { v.images.splice(parseInt(imgdel.getAttribute('data-k'), 10), 1); smVarRenderRows(form); } }
       var imgmv = e.target.closest('.sm-var-imgmv');
@@ -3332,6 +3340,13 @@
         var fi2 = parseInt(e.target.getAttribute('data-i'), 10);
         var fv2 = arr(card.__variants)[fi2];
         if (fv2) { fv2.frozen = !fv2.frozen; smVarRenderRows(card); toast(fv2.frozen ? '已冻结：前台不能再买这个规格' : '已解冻'); }
+        return;
+      }
+      if (e.target.classList.contains('sm-var-bc')) { // 她 20261108：规格 ⋯ 菜单「商品条码」→ 跳商品条码页并定位本商品
+        var pidBc = e.target.getAttribute('data-pid') || '';
+        try { sessionStorage.setItem('biz-bc-target', pidBc); } catch (err) {}
+        if (window.switchTab) window.switchTab('units');
+        else { var sbU = document.querySelector('.adm-subtab[data-sub="units"]'); if (sbU) sbU.click(); }
         return;
       }
       var imgdel = e.target.closest('.sm-var-imgdel');

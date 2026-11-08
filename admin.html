@@ -1137,7 +1137,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     <!-- 子页签条：整合后的「小铺上架」与「订单管理」内部页签（她 20261026t 任务书 §三；子页签条放在面板外，宿主页签显隐时同步显隐） -->
     <div class="adm-subtabs" id="shop-subtabs" style="display:none;">
       <button class="adm-subtab" data-sub="shop">商品上架</button>
-      <button class="adm-subtab" data-sub="units">商品编码</button>
+      <button class="adm-subtab" data-sub="units">商品条码</button>
       <button class="adm-subtab" data-sub="qcscan">扫码验货</button>
       <button class="adm-subtab" data-sub="cost">成本计算</button>
     </div>
@@ -1187,7 +1187,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
             <div class="cur-row" style="grid-column:1/-1;"><div class="cur-line"><span style="font-size:15px;color:var(--muted);">货币</span><button type="button" class="cur-chip" data-cur="CNY">¥ 人民币</button><button type="button" class="cur-chip on" data-cur="USD">$ 美元</button></div><p class="cur-hint">每件商品各自选，金额不会自动换算</p></div>
             <input id="p-unit" placeholder="商品单位，如 个 / 件 / 套（选填）">
             <input id="p-cost" type="number" min="0" step="0.01" placeholder="商品成本（只有你自己看得到）">
-            <input id="p-sku" placeholder="商品编码（选填，唯一编号）">
+            <input id="p-sku" placeholder="商品条码（选填，唯一编号）">
             <input id="p-cat" placeholder="商品分类（点一下可选已有分类）">
             <input id="p-tag" placeholder="商品标签，如 手作 / 毛线 / 黏土">
           </div>
@@ -1253,7 +1253,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     <div id="tab-print" style="display:none;"></div>
     <!-- 成本计算（js/admin-biz.js） -->
     <div id="tab-cost" style="display:none;"></div>
-    <!-- 商品编码（js/admin-biz.js） -->
+    <!-- 商品条码（js/admin-biz.js） -->
     <div id="tab-units" style="display:none;"></div>
     <!-- 扫码验货（js/admin-biz.js） -->
     <div id="tab-qcscan" style="display:none;"></div>
@@ -7441,7 +7441,7 @@ function loadEmailLog() {
 </script>
 
 
-<script src="js/admin-shop.js?v=20261108C"></script>
+<script src="js/admin-shop.js?v=20261108D"></script>
 <script src="js/admin-import.js?v=20261105C"></script>
 <script src="js/admin-crm.js?v=20261108A"></script>
 <script src="js/admin-vip.js?v=20261105C" data-legacy="1"></script>
@@ -7451,7 +7451,7 @@ function loadEmailLog() {
 <script src="js/vendor/qrcode-generator.js?v=20261105C"></script>
 <script src="js/vendor/JsBarcode.all.min.js?v=20261105C"></script>
 <script src="js/admin-workbench.js?v=20261105C"></script>
-<script src="js/admin-biz.js?v=20261108B"></script>
+<script src="js/admin-biz.js?v=20261108C"></script>
 <script src="js/admin-export.js?v=20261105C"></script>
 <footer style="padding:18px 0 0; text-align:center;">© 2026 Yuki · Made with Cola</footer>
 <script id="np-mobile-js">
