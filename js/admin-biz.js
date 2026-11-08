@@ -819,6 +819,39 @@
 
   /* ── 商品条码：见下方 renderProductBarcodes（20261108 下午版，每规格独立条码）── */
   function isPriceListProd(p) { return /price\s*list|价格表/i.test(String(p && p.name || '')); }
+  function loadUnits() {
+    /* limit=1000 一次拉全量（搜索/排序/分页都在本地对全量做，不搜当前页）；
+       用 Prefer: count=exact 拿真实总数，超过 1000 条时在分页条上明确标出来，不假装全部加载了。 */
+    api('shop_product_units?select=*&order=unit_code.desc&limit=1000', { headers: { 'Prefer': 'count=exact' } }).then(function (r) {
+      try {
+        var cr = r.headers && r.headers.get ? (r.headers.get('content-range') || '') : '';
+        var m = /\/(\d+)\s*$/.exec(cr);
+        UNITS.totalAll = m ? parseInt(m[1], 10) : 0;
+      } catch (e) { UNITS.totalAll = 0; }
+      return r.json();
+    }).then(function (rows) {
+      UNITS.list = Array.isArray(rows) ? rows : [];
+      UNITS.loadedAll = !UNITS.totalAll || UNITS.list.length >= UNITS.totalAll;
+      renderUnitRows();
+    }).catch(function () {
+      var box = $('biz-u-list');
+      if (box) box.innerHTML = '<p style="color:var(--muted,#897783);text-align:center;padding:24px 0;">条码列表加载失败，请刷新重试</p>';
+    });
+    api('products?select=id,name,sku,variants,price,image_url,tag&order=created_at.desc&limit=300').then(function (r) { return r.json(); }).then(function (rows) {
+      UNITS.products = Array.isArray(rows) ? rows : [];
+      UNITS.pmap = {};
+      UNITS.products.forEach(function (p) { UNITS.pmap[p.id] = p; });
+      renderUnitRows();
+      renderProductBarcodes(); // 商品数据到了再渲染一次条码卡（首次 boot 时数据未回）
+    }).catch(function () {});
+    api('shop_orders?select=id,order_no,status&status=neq.deleted&order=created_at.desc&limit=200').then(function (r) { return r.json(); }).then(function (rows) { return window.YkOrderDel ? window.YkOrderDel.filter(rows) : rows; }).then(function (rows) {
+      UNITS.orders = Array.isArray(rows) ? rows : [];
+      UNITS.omap = {};
+      UNITS.orders.forEach(function (o) { UNITS.omap[o.id] = o; });
+      renderUnitRows();
+    }).catch(function () {});
+  }
+
   /* ── 商品条码（她 20261108 下午任务书）：每个规格一个独立条码，码值=规格 sku（唯一数据源，不建新表）；
      无规格的商品用商品编码做码值；已有条码永不覆盖——这里只渲染库里已有的 sku，不生成不改写。 ── */
   function renderProductBarcodes() {
