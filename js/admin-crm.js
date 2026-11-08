@@ -223,7 +223,7 @@
     if (panel.dataset.booted) return;
     panel.dataset.booted = '1';
     renderPos();
-    api('products?select=id,name,name_en,sku,cover_zh,cover_en,price,stock,sold,image_url,images&order=created_at.desc&limit=200').then(function (r) { return r.json(); }).then(function (rows) { POS.prods = rows || []; renderPosPicks(); });
+    api('products?select=id,name,name_en,sku,variants,cover_zh,cover_en,price,stock,sold,image_url,images&order=created_at.desc&limit=200').then(function (r) { return r.json(); }).then(function (rows) { POS.prods = rows || []; renderPosPicks(); });
     api('shop_customers?select=id,c_no,name,email&order=created_at.desc&limit=200').then(function (r) { return r.json(); }).then(function (rows) { POS.custs = rows || []; });
   };
 
