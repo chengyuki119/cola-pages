@@ -104,6 +104,20 @@
       '.biz-bc-grp.biz-bc-folded .biz-bc-gcnt, .biz-bc-grp.biz-bc-folded .biz-bc-printall{display:none;}',
       '.biz-bc-grp .biz-bc-ghead{cursor:pointer;}',
       '.biz-bc-card.biz-bc-hit{outline:2.5px solid #F6C5D7;outline-offset:1px;}',
+      '.biz-bc-grp{border:1.5px solid var(--accent-soft,#FCECF2);border-radius:14px;background:#fff;padding:10px 12px;margin-bottom:10px;}',
+      '.biz-bc-grp.biz-bc-hl{outline:2.5px solid #F6C5D7;outline-offset:2px;}',
+      '.biz-bc-ghead{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}',
+      '.biz-bc-ghead img{width:40px;height:40px;border-radius:10px;object-fit:cover;flex:none;}',
+      '.biz-bc-ghead .btn-mini{margin-left:auto;}',
+      '.biz-bc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:8px;margin-top:10px;}',
+      '.biz-bc-card{border:1.5px solid var(--accent-soft,#FCECF2);border-radius:12px;background:#fff;padding:8px 8px 7px;display:flex;flex-direction:column;align-items:center;gap:4px;}',
+      '.biz-bc-img{width:60px;height:60px;border-radius:10px;object-fit:cover;background:#FFF8FA;}',
+      '.biz-bc-nm{font-size:12px;color:var(--text,#65515D);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
+      '.biz-bc-code{width:76%;}',
+      '.biz-bc-code svg{width:100%;height:auto;display:block;}',
+      '.biz-bc-sku{font-size:11px;font-weight:700;color:#B98598;letter-spacing:.3px;}',
+      '.biz-bc-print{border:1.5px solid #F8DDE8;background:#FFF8FA;color:#897783;border-radius:999px;padding:4px 12px;font-size:12px;font-family:inherit;cursor:pointer;}',
+      '.biz-bc-print:hover{background:#FCECF2;border-color:#F6C5D7;}',
       '.biz-pbc-row{display:flex;gap:12px;align-items:center;padding:10px 12px;border:1.5px solid var(--accent-soft,#FCECF2);border-radius:14px;background:#fff;}',
       '.biz-u-tools .btn-mini{padding:6px 14px;font-size:13px;}',
       '@media (max-width:600px){.biz-u-side{width:100%;flex-direction:row;align-items:center;justify-content:space-between;}}',
@@ -871,7 +885,7 @@
     });
     box.innerHTML = html;
     Array.prototype.forEach.call(box.querySelectorAll('.biz-bc-code'), function (el) {
-      el.innerHTML = barcodeSvg(el.getAttribute('data-code'), { width: 1.4, height: 34 });
+      el.innerHTML = barcodeSvg(el.getAttribute('data-code'), { width: 1.1, height: 20, margin: 2, displayValue: false }); // 她 20261108：小展示，码值与打印不动
     });
     Array.prototype.forEach.call(box.querySelectorAll('.biz-bc-print'), function (btn) {
       btn.addEventListener('click', function () {
@@ -1463,7 +1477,7 @@
         width: o.width || 2,
         height: o.height || 56,
         margin: o.margin != null ? o.margin : 6,
-        displayValue: true, // 条形码下方直接印可读编码
+        displayValue: o.displayValue == null ? true : o.displayValue, // 条形码下方直接印可读编码（卡片小条码可关，编号另排）
         font: 'monospace',
         fontSize: 13,
         textMargin: 2,
