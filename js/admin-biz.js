@@ -946,21 +946,23 @@
         }
       });
     });
-    /* 规格 ⋯ 菜单「商品条码」跳转过来：定位+高亮该商品组 */
+    /* 规格 ⋯ 菜单「商品条码」跳转过来：定位+高亮该商品组。
+       双委托（编辑卡+上架表单冒泡）会连渲两次——定位延迟 150ms 等渲染稳定后执行，以最终 DOM 为准。 */
     var tgt = '';
     try { tgt = sessionStorage.getItem('biz-bc-target') || ''; } catch (e) {}
     if (tgt) {
-      try { sessionStorage.removeItem('biz-bc-target'); } catch (e) {}
-      var grp = box.querySelector('.biz-bc-grp[data-pid="' + tgt + '"]');
-      if (grp) {
+      setTimeout(function () {
+        var grp = box.querySelector('.biz-bc-grp[data-pid="' + tgt + '"]');
+        if (!grp) return;
         if (grp.classList.contains('biz-bc-folded')) toggleBcGroup(tgt, box);
         var grp2 = box.querySelector('.biz-bc-grp[data-pid="' + tgt + '"]');
         if (grp2) {
           grp2.classList.add('biz-bc-hl');
           setTimeout(function () { grp2.classList.remove('biz-bc-hl'); }, 2600);
           grp2.scrollIntoView({ block: 'start', behavior: 'smooth' });
+          try { sessionStorage.removeItem('biz-bc-target'); } catch (e) {}
         }
-      }
+      }, 150);
     }
   }
   function toggleBcGroup(pid, box) {

@@ -1368,7 +1368,7 @@
      ══════════════════════════════════════════════════════════════════ */
   var SM_ICON_BTN = 'border:0;background:transparent;color:#897783;font-size:15px;line-height:1;padding:0 3px;cursor:pointer;font-family:inherit;';
   function smUi(card) {
-    if (!card.__ui) card.__ui = { dims: true, combos: true, batch: false, openDim: -1, focusOpt: false };
+    if (!card.__ui) card.__ui = { dims: true, combos: true, batch: false, openDim: -1, focusOpt: false, _autoFold: false };
     var u = card.__ui;
     if (u.dims == null) u.dims = true;
     if (u.combos == null) u.combos = true;
