@@ -670,23 +670,23 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   input[type="radio"] { border-radius: 50%; }
   input[type="checkbox"]:hover, input[type="radio"]:hover { border-color: #F6C5D7; }
   input[type="checkbox"]:checked, input[type="radio"]:checked {
-    background: var(--accent-soft,#FCECF2); border-color: #F6C5D7;
+    background: #F6C5D7; border-color: #F6C5D7;
   }
   input[type="checkbox"]:checked::after {
     content: ''; position: absolute; left: 5px; top: 1.5px; width: 6px; height: 11px;
-    border: solid var(--accent-strong,#897783); border-width: 0 2px 2px 0; transform: rotate(45deg);
+    border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg);
   }
   input[type="radio"]:checked::after {
     content: ''; position: absolute; left: 4.5px; top: 4.5px; width: 8px; height: 8px;
-    border-radius: 50%; background: var(--accent-strong,#897783);
+    border-radius: 50%; background: #fff;
   }
   input[type="checkbox"]:disabled, input[type="radio"]:disabled { opacity: .45; cursor: default; }
   input[type="checkbox"]:focus-visible, input[type="radio"]:focus-visible { outline: 2px solid #F6C5D7; outline-offset: 2px; }
 
   .tgl { position: relative; width: 38px; height: 22px; border-radius: 11px; border: 1px solid var(--accent,#F9E5ED); background: var(--card); cursor: pointer; padding: 0; flex-shrink: 0; transition: background .2s, border-color .2s; }
   .tgl .tgl-knob { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; border: 1px solid var(--accent,#F9E5ED); box-sizing: border-box; transition: left .2s, background .2s; }
-  .tgl.on { background: var(--accent-soft); border-color:var(--accent-soft); }
-  .tgl.on .tgl-knob { left: 18px; background:var(--accent,#F9E5ED); border-color:var(--text,#65515D); }
+  .tgl.on { background: var(--cb-on,#F6C5D7); border-color:var(--cb-on,#F6C5D7); }
+  .tgl.on .tgl-knob { left: 18px; background:#fff; border-color:#fff; }
   .tgl-label { display: inline-flex; align-items: center; gap: 7px; cursor: pointer; font-size:16px; flex-shrink: 0; color: var(--text); }
   /* 上传新照片：字段行内小标签 + 统一间距 */
   .fld-inline { display: flex; align-items: center; gap: 8px; min-width: 0; }
