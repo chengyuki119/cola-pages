@@ -19,7 +19,7 @@
   function curOf(p, v) { var c = (v && v.currency) || (p && p.currency) || 'USD'; return CURS[c] ? c : 'USD'; }
   function priceHtml(c, v) { // 空价格不能显示成 $0.00（她 20261104 20:34 §六）
     var n = parseFloat(v);
-    if (v == null || v === '' || isNaN(n)) return '<span style="font-size:15px;color:var(--muted);">' + t('面议', 'Ask for price') + '</span>';
+    if (v == null || v === '' || isNaN(n)) return '<span style="font-size:17px;color:var(--muted);">' + t('面议', 'Ask for price') + '</span>';
     return '<small>' + sym(c) + '</small>' + money(v);
   }
   function priceText(p, v, rng) {
@@ -151,7 +151,7 @@
     (root || document).querySelectorAll('input, textarea').forEach(function (i) {
       if (i.dataset.styled) return;
       i.dataset.styled = '1';
-      i.style.cssText = 'width:100%;padding:11px 14px;font-size:16px;border:1.5px solid var(--accent-soft,#FCECF2);border-radius:12px;background:#fff;outline:none;color:var(--text,#65515D);font-family:inherit;box-sizing:border-box;transition:border-color .15s;box-shadow:0 2px 10px rgba(255,143,171,.06);';
+      i.style.cssText = 'width:100%;padding:11px 14px;font-size:17px;border:1.5px solid var(--accent-soft,#FCECF2);border-radius:12px;background:#fff;outline:none;color:var(--text,#65515D);font-family:inherit;box-sizing:border-box;transition:border-color .15s;box-shadow:0 2px 10px rgba(255,143,171,.06);';
       i.addEventListener('focus', function () { i.style.borderColor = 'var(--accent-strong,#897783)'; });
       i.addEventListener('blur', function () { i.style.borderColor = 'var(--accent-soft,#FCECF2)'; });
     });
@@ -205,10 +205,10 @@
         try { localStorage.setItem('yuki-notify-new', '0'); } catch (e) {}
         // 持久提示条（toast 会消失，退订结果要留在页面上）
         var bar = document.createElement('div');
-        bar.style.cssText = 'max-width:680px;margin:14px auto 0;padding:14px 18px;border-radius:16px;font-size:15px;line-height:1.7;'
+        bar.style.cssText = 'max-width:680px;margin:14px auto 0;padding:14px 18px;border-radius:16px;font-size:17px;line-height:1.7;'
           + 'background:var(--accent-soft,#FCECF2);border:1.5px solid var(--accent,#F9E5ED);color:var(--text,#65515D);text-align:center;';
         bar.innerHTML = ok
-          ? '✔ 已退订上新通知，以后不会再收到啦<br><span style="font-size:13px;color:var(--muted,#897783);">订单、发货相关的邮件不受影响，仍会正常发送</span>'
+          ? '✔ 已退订上新通知，以后不会再收到啦<br><span style="font-size:16px;color:var(--muted,#897783);">订单、发货相关的邮件不受影响，仍会正常发送</span>'
           : '退订链接无效或已过期';
         var anchor = document.querySelector('#view-shop, main, body');
         (anchor || document.body).insertBefore(bar, (anchor || document.body).firstChild);
@@ -307,7 +307,7 @@
   function variantsHtml(p, vs, curSku, selIn) {
     var order = dimsOrder(p);
     if (!order) {
-      return '<div class="d-variants" style="margin:10px 0;"><div style="font-size:16px;margin-bottom:6px;">' + t('规格', 'Option') + '</div><div id="d-variants" style="display:flex;gap:8px;flex-wrap:wrap;">' +
+      return '<div class="d-variants" style="margin:10px 0;"><div style="font-size:17px;margin-bottom:6px;">' + t('规格', 'Option') + '</div><div id="d-variants" style="display:flex;gap:8px;flex-wrap:wrap;">' +
         vs.map(function (x) {
           var out = variantStock(x) <= 0 || x.frozen === true;
           return '<button type="button" class="sku-chip' + (varKey(x) === curSku ? ' on' : '') + (out ? ' dis' : '') + '" data-sku="' + escAttr(varKey(x)) + '">' + esc(x.name || x.sku) + (out ? ' · ' + t('缺货', 'Out') : '') + '</button>';
@@ -323,7 +323,7 @@
       var vals = [];
       vs.forEach(function (v) { var x = (v.dims || {})[n]; if (x && vals.indexOf(x) === -1) vals.push(x); });
       return '<div class="d-dim" data-dim="' + escAttr(n) + '" style="margin-bottom:10px;">' +
-        '<div class="d-dim-name" style="font-size:15px;color:var(--text,#65515D);margin-bottom:5px;">' + esc(n) + '</div>' +
+        '<div class="d-dim-name" style="font-size:17px;color:var(--text,#65515D);margin-bottom:5px;">' + esc(n) + '</div>' +
         '<div class="d-dim-opts" style="display:flex;gap:8px;flex-wrap:wrap;">' +
         vals.map(function (val) {
           var on = sel[n] === val;
@@ -331,7 +331,7 @@
           return '<button type="button" class="sku-chip dim-chip' + (on ? ' on' : '') + (out ? ' dis' : '') + '" data-dim="' + escAttr(n) + '" data-val="' + escAttr(val) + '">' + esc(val) + (out ? ' · ' + t('缺货', 'Out') : '') + '</button>';
         }).join('') + '</div></div>';
     }).join('');
-    return '<div class="d-variants" id="d-dims" style="margin:10px 0;"><div style="font-size:16px;margin-bottom:6px;">' + t('规格', 'Option') + '</div>' + blocks + '</div>';
+    return '<div class="d-variants" id="d-dims" style="margin:10px 0;"><div style="font-size:17px;margin-bottom:6px;">' + t('规格', 'Option') + '</div>' + blocks + '</div>';
   }
   function variantStock(v) { return v ? (parseInt(v.stock, 10) || 0) : 0; }
   function openDetail(id, sku, retry) {
@@ -378,14 +378,14 @@
           '<b id="stock-notice-title" style="font-size:19px;color:#65515D;font-weight:700;">' + t('关于现货 ♡', 'About Stock ♡') + '</b>' +
           '<button type="button" id="stock-notice-x" aria-label="' + t('关闭', 'Close') + '" style="margin-left:auto;border:0;background:transparent;font-size:22px;line-height:1;color:#897783;cursor:pointer;padding:0 2px;">×</button>' +
         '</div>' +
-        '<p style="font-size:15px;line-height:1.85;color:#65515D;margin:0 0 10px;">' + t('除「定制款」以外，其他款式都是现货，可以直接发货：', 'Everything except “Customize Style” is in stock and ready to ship:') + '</p>' +
-        '<ul style="font-size:15px;line-height:1.9;color:#65515D;margin:0 0 14px;padding-left:20px;">' +
+        '<p style="font-size:17px;line-height:1.85;color:#65515D;margin:0 0 10px;">' + t('除「定制款」以外，其他款式都是现货，可以直接发货：', 'Everything except “Customize Style” is in stock and ready to ship:') + '</p>' +
+        '<ul style="font-size:17px;line-height:1.9;color:#65515D;margin:0 0 14px;padding-left:20px;">' +
           '<li>' + t('<b>现货 / Available Now</b>：已经做好、可以马上发出，<b>没有瑕疵</b>', '<b>Available Now</b>: finished and ready to ship, <b>no flaws</b>') + '</li>' +
           '<li>' + t('<b>瑕疵贴纸款、瑕疵磨具款</b>：同样是现货、可以马上发出，但带轻微瑕疵（轻微气泡、贴纸痕迹等）', '<b>Imperfect Stickers / Imperfect Mold</b>: also in stock and ready to ship, with minor imperfections (slight bubbles, sticker marks, etc.)') + '</li>' +
           '<li>' + t('<b>整套款、补价专拍</b>：现货，可以马上发出', '<b>Full Set / Custom Payment</b>: in stock, ready to ship') + '</li>' +
           '<li>' + t('<b>定制款</b>：定做款，需要等待制作时间，不是现货', '<b>Customize Style</b>: made to order — needs making time, not in stock') + '</li>' +
         '</ul>' +
-        '<button type="button" id="stock-notice-ok" style="display:block;width:100%;border:1.6px solid #F8DDE8;background:#F6C5D7;color:#65515D;font-family:inherit;font-size:16px;font-weight:600;padding:11px 0;border-radius:999px;cursor:pointer;transition:background .2s;">' + t('知道啦 ♡', 'Got it ♡') + '</button>' +
+        '<button type="button" id="stock-notice-ok" style="display:block;width:100%;border:1.6px solid #F8DDE8;background:#F6C5D7;color:#65515D;font-family:inherit;font-size:17px;font-weight:600;padding:11px 0;border-radius:999px;cursor:pointer;transition:background .2s;">' + t('知道啦 ♡', 'Got it ♡') + '</button>' +
       '</div>';
     document.body.appendChild(wrap);
     function close() { try { sessionStorage.setItem('yk-stock-notice-done', '1'); } catch (e) {} if (wrap.parentNode) wrap.parentNode.removeChild(wrap); }
@@ -470,28 +470,28 @@
         '</div>' +
         '<div class="d-price">' +
           '<div id="d-price-num" style="font-size:26px;color:var(--price,#F48FB1);font-weight:700;margin:10px 0;">' + (isRefPrice(p) ? t('参考价 ', 'Ref. ') : '') + priceText(p, v, rng) + '</div>' +
-          '<div id="d-sku-line" style="font-size:15px;color:var(--muted);margin-bottom:6px;' + (skuText ? '' : 'display:none;') + '">' + (skuText ? t('规格', 'Option') + ': ' + esc(v && v.name ? v.name : skuText) : '') + '</div>' +
+          '<div id="d-sku-line" style="font-size:17px;color:var(--muted);margin-bottom:6px;' + (skuText ? '' : 'display:none;') + '">' + (skuText ? t('规格', 'Option') + ': ' + esc(v && v.name ? v.name : skuText) : '') + '</div>' +
         '</div>' +
         (needContactType(p) ? '<div class="d-contact card" style="padding:12px 14px;margin:12px 0 0;background:var(--card,#FFFFFF);border:1.5px solid var(--card-border,#F9E5ED);border-radius:16px;">' +
-          '<p style="font-size:15px;line-height:1.7;color:var(--text,#65515D);margin:0;">' + t('请联系小柚沟通具体需求和价格。', 'Please contact Yuki to discuss your custom requirements and pricing.') + '</p></div>' : '') +
-        (function () { var k = typeKey(p); if (!k || !TYPE_NOTE[k]) return ''; return '<div class="d-type card" style="padding:12px 14px;margin:12px 0 0;background:var(--card,#FFFFFF);border:1.5px solid var(--card-border,#F9E5ED);border-radius:16px;"><b style="font-size:15px;">' + t('商品类型 ♡', 'Product Type ♡') + '</b><p style="font-size:15px;line-height:1.7;color:var(--text,#65515D);margin:6px 0 0;">' + t(TYPE_NOTE[k][0], TYPE_NOTE[k][1]) + '</p></div>'; })() +
+          '<p style="font-size:17px;line-height:1.7;color:var(--text,#65515D);margin:0;">' + t('请联系小柚沟通具体需求和价格。', 'Please contact Yuki to discuss your custom requirements and pricing.') + '</p></div>' : '') +
+        (function () { var k = typeKey(p); if (!k || !TYPE_NOTE[k]) return ''; return '<div class="d-type card" style="padding:12px 14px;margin:12px 0 0;background:var(--card,#FFFFFF);border:1.5px solid var(--card-border,#F9E5ED);border-radius:16px;"><b style="font-size:17px;">' + t('商品类型 ♡', 'Product Type ♡') + '</b><p style="font-size:17px;line-height:1.7;color:var(--text,#65515D);margin:6px 0 0;">' + t(TYPE_NOTE[k][0], TYPE_NOTE[k][1]) + '</p></div>'; })() +
         '<div class="d-desc card" style="padding:12px 14px;margin:12px 0 0;background:var(--card,#FFFFFF);border:1.5px solid var(--card-border,#F9E5ED);border-radius:16px;">' +
-          '<b style="font-size:15px;">' + t('商品详情 ♡', 'Product Description ♡') + '</b>' +
-          '<p style="color:var(--muted);font-size:16px;line-height:1.8;margin:6px 0 0;white-space:pre-line;">' + escBr((window.LANG === 'en' && p.description_en) ? p.description_en : (p.description || '')) + '</p></div>' +
+          '<b style="font-size:17px;">' + t('商品详情 ♡', 'Product Description ♡') + '</b>' +
+          '<p style="color:var(--muted);font-size:17px;line-height:1.8;margin:6px 0 0;white-space:pre-line;">' + escBr((window.LANG === 'en' && p.description_en) ? p.description_en : (p.description || '')) + '</p></div>' +
         (vs ? variantsHtml(p, vs, d.sku, d.selDims) : '') +
         (st === 'on' ?
           '<div class="d-notice card" style="padding:12px 14px;margin:12px 0 0;background:var(--card,#FFFFFF);border:1.5px solid var(--card-border,#F9E5ED);border-radius:16px;">' +
-            '<b style="font-size:15px;">' + t('购买须知 ♡', 'Before You Order ♡') + '</b>' +
-            '<p style="font-size:14px;color:var(--muted);margin:6px 0 0;line-height:1.7;">' +
+            '<b style="font-size:17px;">' + t('购买须知 ♡', 'Before You Order ♡') + '</b>' +
+            '<p style="font-size:17px;color:var(--muted);margin:6px 0 0;line-height:1.7;">' +
               t('下单前请仔细阅读商品描述与图片。手工制品与键帽可能存在轻微瑕疵或正常工艺差异，与描述一致的轻微差异不构成退款理由。详细规则见', 'Please review the description and photos carefully. Handmade items and keycaps may have minor imperfections or variations; minor variations consistent with the description are not grounds for refund. See our ') +
               '<a href="' + ykLink('/return-policy/') + '" style="color:var(--price,#F48FB1);text-decoration:underline;">' + t('《退货与退款政策》', 'Return & Refund Policy') + '</a>' + t('。', '.') + '</p>' +
           '</div>' : '') +
         (st === 'on' ?
             '<div class="d-actions" style="margin:12px 0;">' +
               '<div style="display:flex;align-items:center;gap:12px;margin:0 0 12px;">' +
-                '<span style="font-size:16px;">' + t('数量', 'Qty') + '</span>' +
+                '<span style="font-size:17px;">' + t('数量', 'Qty') + '</span>' +
                 '<button type="button" class="qty-btn" data-d="-1">−</button><b id="d-qty">1</b><button type="button" class="qty-btn" data-d="1">＋</button>' +
-                '<span id="d-stock" style="font-size:15px;color:var(--muted);">' + t('库存', 'Stock') + ' ' + (v ? variantStock(v) : (totalStock(p) != null ? totalStock(p) : (p.stock || 0))) + '</span>' +
+                '<span id="d-stock" style="font-size:17px;color:var(--muted);">' + t('库存', 'Stock') + ' ' + (v ? variantStock(v) : (totalStock(p) != null ? totalStock(p) : (p.stock || 0))) + '</span>' +
               '</div>' +
               '<div style="display:flex;gap:10px;flex-wrap:wrap;margin:0;">' +
                 '<button class="buy-btn" id="d-add" style="padding:10px 22px;">' + t('加入购物车', 'Add to cart') + '</button>' +
@@ -559,7 +559,7 @@
     if (!wrap || wrap.querySelector('.d-sku-badge')) return;
     var b = document.createElement('span');
     b.className = 'd-sku-badge';
-    b.style.cssText = 'position:absolute;top:10px;left:10px;z-index:3;background:rgba(255,255,255,.92);border:1px solid var(--accent-soft,#FCECF2);border-radius:999px;padding:2px 10px;font-size:12px;color:#897783;pointer-events:none;';
+    b.style.cssText = 'position:absolute;top:10px;left:10px;z-index:3;background:rgba(255,255,255,.92);border:1px solid var(--accent-soft,#FCECF2);border-radius:999px;padding:2px 10px;font-size:16px;color:#897783;pointer-events:none;';
     wrap.appendChild(b);
   }
   function updateSkuBadge(wrap) {
@@ -693,10 +693,10 @@
     box.style.display = '';
     box.innerHTML =
       '<h3 style="font-size:19px;margin-bottom:10px;">' + t('发起拼团', 'Start a group buy') + '</h3>' +
-      '<p style="font-size:15px;color:var(--muted);margin-bottom:10px;">' + t('拼团价 <span style="color:var(--price,#F48FB1);">' + sym(p.currency) + money(price) + '</span>' + ' · 你是团长，把链接分享给小伙伴，人满即成团', 'Group price <span style="color:var(--price,#F48FB1);">' + sym(p.currency) + money(price) + '</span>' + ' · You are the leader. Share the link — group closes when full.') + '</p>' +
+      '<p style="font-size:17px;color:var(--muted);margin-bottom:10px;">' + t('拼团价 <span style="color:var(--price,#F48FB1);">' + sym(p.currency) + money(price) + '</span>' + ' · 你是团长，把链接分享给小伙伴，人满即成团', 'Group price <span style="color:var(--price,#F48FB1);">' + sym(p.currency) + money(price) + '</span>' + ' · You are the leader. Share the link — group closes when full.') + '</p>' +
       '<div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;">' +
-        '<label style="font-size:16px;">' + t('目标人数', 'Target') + ' <input id="g-target" type="number" min="2" max="50" value="2" style="width:70px;padding:8px;border:none;border-radius:10px;background:#fff;font-family:inherit;font-size:17px;"></label>' +
-        '<label style="font-size:16px;">' + t('有效小时数', 'Hours open') + ' <input id="g-hours" type="number" min="1" max="720" value="48" style="width:70px;padding:8px;border:none;border-radius:10px;background:#fff;font-family:inherit;font-size:17px;"></label>' +
+        '<label style="font-size:17px;">' + t('目标人数', 'Target') + ' <input id="g-target" type="number" min="2" max="50" value="2" style="width:70px;padding:8px;border:none;border-radius:10px;background:#fff;font-family:inherit;font-size:17px;"></label>' +
+        '<label style="font-size:17px;">' + t('有效小时数', 'Hours open') + ' <input id="g-hours" type="number" min="1" max="720" value="48" style="width:70px;padding:8px;border:none;border-radius:10px;background:#fff;font-family:inherit;font-size:17px;"></label>' +
         '<button class="buy-btn" id="g-go" style="padding:9px 20px;">' + t('创建拼团', 'Create group') + '</button>' +
       '</div>';
     document.getElementById('g-go').addEventListener('click', function () {
@@ -742,7 +742,7 @@
               '<div class="product-info"><span class="product-tag">' + t('拼团价', 'Group price') + '</span>' +
                 '<h3>' + esc(g.name || g.product_name) + '</h3>' +
                 '<div style="font-size:22px;color:var(--price,#F48FB1);font-weight:700;">' + sym(g.currency) + money(g.price) + '</div>' +
-                '<div style="font-size:15px;color:var(--muted);margin-top:4px;">' + g.joined + '/' + g.target + ' ' + t('人', 'joined') +
+                '<div style="font-size:17px;color:var(--muted);margin-top:4px;">' + g.joined + '/' + g.target + ' ' + t('人', 'joined') +
                 (g.status === 'open' ? ' · ' + t('截止', 'Ends') + ' ' + new Date(g.deadline).toLocaleString() : '') + '</div>' +
                 (g.status === 'open' && !full ? '<div class="product-row"><button class="buy-btn">' + t('去参团', 'Join') + '</button></div>' : '') +
               '</div></div>';
@@ -772,18 +772,18 @@
                 (g.product_image ? '<img src="' + escAttr(normImg(g.product_image)) + '" style="width:180px;height:180px;object-fit:cover;border-radius:14px;">' : '') +
                 '<div><h2 style="font-size:22px;">' + esc(g.name || g.product_name) + '</h2>' +
                   '<div style="font-size:26px;color:var(--price,#F48FB1);font-weight:700;margin:6px 0;">' + sym(g.currency) + money(g.price) + '</div>' +
-                  '<div style="font-size:16px;">' + t('已参团', 'Joined') + ' <b>' + g.joined + '</b> / ' + g.target + ' ' + t('人', 'people') + '</div>' +
-                  '<div style="font-size:16px;color:var(--muted);margin-top:4px;">' + (g.status === 'open' ? t('截止', 'Ends') + ' <b id="g-countdown"></b>' : stText) + '</div>' +
+                  '<div style="font-size:17px;">' + t('已参团', 'Joined') + ' <b>' + g.joined + '</b> / ' + g.target + ' ' + t('人', 'people') + '</div>' +
+                  '<div style="font-size:17px;color:var(--muted);margin-top:4px;">' + (g.status === 'open' ? t('截止', 'Ends') + ' <b id="g-countdown"></b>' : stText) + '</div>' +
                 '</div>' +
               '</div>' +
               (g.status === 'open' ?
                 '<div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">' +
                   (g.joined < g.target ? '<button class="buy-btn" id="g-join" style="padding:10px 24px;background:#F6C5D7;color:#897783;">' + t('加入拼团', 'Join group') + '</button>' : '<span class="no-buy">' + t('人数已满，等待成员付款中', 'Full — waiting for payments') + '</span>') +
                 '</div>' : '') +
-              '<div style="margin-top:14px;font-size:15px;color:var(--muted);">' + t('成员', 'Members') + '：' +
+              '<div style="margin-top:14px;font-size:17px;color:var(--muted);">' + t('成员', 'Members') + '：' +
                 (members.length ? members.map(function (m) { return esc(m.nickname || t('小伙伴', 'member')); }).join('、') : t('虚位以待…', 'Waiting…')) +
               '</div>' +
-              '<p style="font-size:14px;color:var(--muted);margin-top:10px;">' + t('满员后所有成员付款验证通过才算成团；超时未满员自动失败，订单可取消。', 'A group closes only when full AND every member\'s payment is confirmed. If time runs out, it fails and orders can be cancelled.') + '</p>' +
+              '<p style="font-size:17px;color:var(--muted);margin-top:10px;">' + t('满员后所有成员付款验证通过才算成团；超时未满员自动失败，订单可取消。', 'A group closes only when full AND every member\'s payment is confirmed. If time runs out, it fails and orders can be cancelled.') + '</p>' +
             '</div>';
           var join = document.getElementById('g-join');
           if (join) join.addEventListener('click', function () { joinGroup(g); });
@@ -823,11 +823,11 @@
     wrap.innerHTML =
       '<div role="dialog" aria-modal="true" aria-labelledby="order-thanks-title" style="width:100%;max-width:460px;max-height:82vh;overflow:auto;background:#FFF8FA;border:1.6px solid #F8DDE8;border-radius:18px;padding:20px 22px 18px;box-shadow:0 12px 40px rgba(169,141,150,.22);">' +
         '<b id="order-thanks-title" style="display:block;font-size:19px;color:#65515D;font-weight:700;margin-bottom:10px;">' + t('下单成功 ♡', 'Order placed ♡') + '</b>' +
-        '<p style="font-size:15px;line-height:1.85;color:#65515D;margin:0 0 16px;">' +
+        '<p style="font-size:17px;line-height:1.85;color:#65515D;margin:0 0 16px;">' +
           t('感谢您的下单！目前网站还未开放在线付款功能。您可以选择到指定地点自取，或通过 Zelle / Venmo 直接转账。订单确认后，我会根据实际情况为您安排发货。运费将按照实际邮寄费用计算，确认订单后会告知您最终金额。感谢您的理解与支持！',
             'Thank you for your order! Online payments are not available yet. You can choose local pickup or pay directly via Zelle / Venmo. Once your order is confirmed, I will arrange shipping for you. Shipping fees will be calculated based on the actual postage cost and confirmed with you before shipping. Thank you for your support!') +
         '</p>' +
-        '<button type="button" id="order-thanks-ok" style="display:block;width:100%;border:1.6px solid #F8DDE8;background:#F6C5D7;color:#65515D;font-family:inherit;font-size:16px;font-weight:600;padding:11px 0;border-radius:999px;cursor:pointer;">' + t('知道啦 ♡', 'Got it ♡') + '</button>' +
+        '<button type="button" id="order-thanks-ok" style="display:block;width:100%;border:1.6px solid #F8DDE8;background:#F6C5D7;color:#65515D;font-family:inherit;font-size:17px;font-weight:600;padding:11px 0;border-radius:999px;cursor:pointer;">' + t('知道啦 ♡', 'Got it ♡') + '</button>' +
       '</div>';
     document.body.appendChild(wrap);
     function close() {
@@ -925,7 +925,7 @@
       box.innerHTML =
         '<h2 style="font-size:24px;margin-bottom:14px;">' + t('确认订单', 'Checkout') + '</h2>' +
         '<div class="card" style="padding:18px;margin-bottom:14px;"><b style="font-size:17px;">' + t('商品', 'Items') + '</b>' +
-          sel.map(function (x) { return '<div style="display:flex;justify-content:space-between;font-size:16px;margin-top:6px;"><span>' + esc(cartLive(x).name) + ' × ' + x.qty + '</span><span style="color:var(--price,#F48FB1);">' + sym(cur) + money(x.price * x.qty) + '</span></div>'; }).join('') +
+          sel.map(function (x) { return '<div style="display:flex;justify-content:space-between;font-size:17px;margin-top:6px;"><span>' + esc(cartLive(x).name) + ' × ' + x.qty + '</span><span style="color:var(--price,#F48FB1);">' + sym(cur) + money(x.price * x.qty) + '</span></div>'; }).join('') +
           '<div style="display:flex;justify-content:space-between;font-size:17px;margin-top:10px;border-top:1px dashed var(--accent-soft);padding-top:8px;"><span>' + t('商品小计', 'Subtotal') + '</span><b style="color:var(--price,#F48FB1);">' + sym(cur) + money(sub) + '</b></div>' +
         '</div>' +
         '<div class="card" style="padding:18px;margin-bottom:14px;"><b style="font-size:17px;">' + t('收货地址', 'Shipping address') + '</b><div id="ck-addr" style="margin-top:8px;"></div>' +
@@ -934,14 +934,14 @@
         '</div>' +
         '<div class="card" style="padding:18px;margin-bottom:14px;"><b style="font-size:17px;">' + t('运费', 'Shipping') + '</b>' +
           '<div style="display:flex;justify-content:space-between;font-size:17px;margin-top:8px;"><span>' + t('运费（含打包服务费）', 'Shipping (incl. handling)') + '</span><b id="ck-ship-line" style="color:var(--price,#F48FB1);">' + sym(cur) + money(est + fee) + '</b></div>' +
-          '<p style="font-size:14px;color:var(--muted);margin-top:4px;">' + t('按重量和收货地估算，发货前以 Pirate Ship 实际运费为准，多退少补。', 'Estimated by weight & destination; final Pirate Ship rate confirmed before shipping.') + '</p>' +
+          '<p style="font-size:17px;color:var(--muted);margin-top:4px;">' + t('按重量和收货地估算，发货前以 Pirate Ship 实际运费为准，多退少补。', 'Estimated by weight & destination; final Pirate Ship rate confirmed before shipping.') + '</p>' +
         '</div>' +
         '<div class="card" style="padding:18px;margin-bottom:14px;"><b style="font-size:17px;">' + t('优惠码', 'Coupon') + '</b>' +
           '<div style="display:flex;gap:8px;margin-top:8px;"><input id="ck-coupon" placeholder="' + t('有优惠码就填这里', 'Coupon code') + '" style="flex:1;padding:10px 14px;font-size:17px;border:1.5px solid var(--accent-soft,#FCECF2);border-radius:12px;background:#fff;outline:none;color:var(--text);font-family:inherit;"></div>' +
-          '<label style="display:block;margin-top:10px;font-size:16px;">' + t('订单备注', 'Order note') + '<textarea id="ck-note" style="width:100%;min-height:60px;border:1.5px solid var(--accent-soft,#FCECF2);border-radius:12px;background:#fff;padding:10px 14px;font-family:inherit;font-size:17px;color:var(--text);resize:none;outline:none;margin-top:4px;box-sizing:border-box;"></textarea></label>' +
+          '<label style="display:block;margin-top:10px;font-size:17px;">' + t('订单备注', 'Order note') + '<textarea id="ck-note" style="width:100%;min-height:60px;border:1.5px solid var(--accent-soft,#FCECF2);border-radius:12px;background:#fff;padding:10px 14px;font-family:inherit;font-size:17px;color:var(--text);resize:none;outline:none;margin-top:4px;box-sizing:border-box;"></textarea></label>' +
         '</div>' +
         '<div class="card" style="padding:18px;"><div style="display:flex;justify-content:space-between;font-size:19px;"><b>' + t('预估合计', 'Estimated total') + '</b><b id="ck-total" style="color:var(--price,#F48FB1);">' + sym(cur) + money(sub + est + fee) + '</b></div>' +
-          '<p style="font-size:14px;color:var(--muted);margin-top:4px;">' + t('以服务端验证后的金额为准；实际运费由后台确认后更新。', 'Final amount is validated server-side; shipping updates once confirmed.') + '</p>' +
+          '<p style="font-size:17px;color:var(--muted);margin-top:4px;">' + t('以服务端验证后的金额为准；实际运费由后台确认后更新。', 'Final amount is validated server-side; shipping updates once confirmed.') + '</p>' +
           '<button class="buy-btn" id="ck-submit" style="width:100%;margin-top:12px;padding:12px;background:#F6C5D7;border:1.6px solid #F8DDE8;color:#65515D;font-size:18px;font-weight:600;">' + t('提交订单', 'Place order') + '</button>' +
         '</div>';
       paintAddrPicker();
@@ -961,7 +961,7 @@
   var ckAddrId = null;
   function paintAddrPicker() {
     var box = document.getElementById('ck-addr');
-    if (!ADDR.length) { box.innerHTML = '<p style="color:var(--muted);font-size:15px;">' + t('还没有地址，点下面添加', 'No addresses yet — add one below') + '</p>'; return; }
+    if (!ADDR.length) { box.innerHTML = '<p style="color:var(--muted);font-size:17px;">' + t('还没有地址，点下面添加', 'No addresses yet — add one below') + '</p>'; return; }
     if (!ckAddrId || !ADDR.filter(function (x) { return x.id === ckAddrId; }).length) {
       var def = ADDR.filter(function (x) { return x.is_default; })[0] || ADDR[0];
       ckAddrId = def.id;
@@ -971,7 +971,7 @@
     var html = '<div>' + list.map(function (a) {
       return '<label style="display:flex;gap:8px;align-items:flex-start;padding:10px;border-radius:12px;background:' + (a.id === ckAddrId ? 'var(--opt-sel-bg,#F6C5D7)' : '#fff') + ';margin-bottom:6px;cursor:pointer;" data-aid="' + escAttr(a.id) + '">' +
         '<span class="addr-dot" style="width:16px;height:16px;border-radius:50%;border:2px solid ' + (a.id === ckAddrId ? 'var(--cb-on,#F6C5D7)' : 'var(--cb-bd,#F8DDE8)') + ';margin-top:4px;flex-shrink:0;background:' + (a.id === ckAddrId ? 'var(--cb-on,#F6C5D7)' : 'transparent') + ';"></span>' +
-        '<span style="font-size:16px;">' + esc(a.name) + ' · ' + esc(a.phone) + '<br><span style="color:var(--muted);">' + esc(a.street + ', ' + a.city + ', ' + a.state + ' ' + a.zip + ', ' + a.country) + '</span></span></label>';
+        '<span style="font-size:17px;">' + esc(a.name) + ' · ' + esc(a.phone) + '<br><span style="color:var(--muted);">' + esc(a.street + ', ' + a.city + ', ' + a.state + ' ' + a.zip + ', ' + a.country) + '</span></span></label>';
     }).join('') + '</div>';
     box.innerHTML = html;
     box.querySelectorAll('[data-aid]').forEach(function (lab) {
@@ -995,7 +995,7 @@
       '<div style="display:flex;gap:8px;margin-top:8px;"><button class="buy-btn" id="af-save" style="padding:8px 18px;">' + t('保存', 'Save') + '</button>' +
       '<button class="buy-btn" id="af-cancel" style="padding:8px 18px;background:#fff;color:var(--muted);border:1.5px solid #F9E5ED;">' + t('取消', 'Cancel') + '</button></div>';
     box.querySelectorAll('input').forEach(function (i) {
-      i.style.cssText = 'width:100%;padding:10px 12px;font-size:16px;border:1.5px solid var(--accent-soft,#FCECF2);border-radius:12px;background:#fff;outline:none;color:var(--text,#65515D);font-family:inherit;box-sizing:border-box;transition:border-color .15s;';
+      i.style.cssText = 'width:100%;padding:10px 12px;font-size:17px;border:1.5px solid var(--accent-soft,#FCECF2);border-radius:12px;background:#fff;outline:none;color:var(--text,#65515D);font-family:inherit;box-sizing:border-box;transition:border-color .15s;';
       i.addEventListener('focus', function () { i.style.borderColor = 'var(--card-hover,#FCECF2)'; });
       i.addEventListener('blur', function () { i.style.borderColor = 'var(--accent-soft,#FCECF2)'; });
     });
@@ -1050,9 +1050,9 @@
       '<div role="dialog" aria-modal="true" aria-labelledby="paid-notice-title" style="width:100%;max-width:400px;background:#FFF8FA;border:1.6px solid #F8DDE8;border-radius:18px;padding:22px 22px 18px;box-shadow:0 12px 40px rgba(169,141,150,.22);text-align:center;">' +
         '<div aria-hidden="true" style="font-size:26px;line-height:1;color:#F6C5D7;margin-bottom:10px;">♡</div>' +
         '<b id="paid-notice-title" style="display:block;font-size:19px;color:#65515D;font-weight:700;margin-bottom:8px;">' + t('付款成功！谢谢你的购买 ♡', 'Payment received! Thank you ♡') + '</b>' +
-        '<p style="font-size:14px;line-height:1.9;color:#65515D;margin:0 0 16px;">' + esc(o.order_no || '') + ' · ' + sym(o.currency) + money(o.total) +
+        '<p style="font-size:17px;line-height:1.9;color:#65515D;margin:0 0 16px;">' + esc(o.order_no || '') + ' · ' + sym(o.currency) + money(o.total) +
           '<br>' + t('我会尽快安排发货，有进展会在「我的订单」里更新～', 'I will ship it soon — updates appear in My Orders~') + '</p>' +
-        '<button type="button" id="paid-notice-ok" style="display:block;width:100%;border:1.6px solid #F8DDE8;background:#F6C5D7;color:#65515D;font-family:inherit;font-size:16px;font-weight:600;padding:11px 0;border-radius:999px;cursor:pointer;">' + t('知道啦 ♡', 'Got it ♡') + '</button>' +
+        '<button type="button" id="paid-notice-ok" style="display:block;width:100%;border:1.6px solid #F8DDE8;background:#F6C5D7;color:#65515D;font-family:inherit;font-size:17px;font-weight:600;padding:11px 0;border-radius:999px;cursor:pointer;">' + t('知道啦 ♡', 'Got it ♡') + '</button>' +
       '</div>';
     document.body.appendChild(wrap);
     function close() { if (wrap.parentNode) wrap.parentNode.removeChild(wrap); }
@@ -1124,18 +1124,18 @@
     return '<div class="card" id="oc-' + o.id + '" style="padding:16px;margin-bottom:12px;">' +
       '<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;align-items:center;">' +
         '<b style="font-size:17px;">' + esc(o.order_no) + '</b>' +
-        '<span style="font-size:14px;color:#fff;background:' + st[2] + ';border-radius:999px;padding:3px 12px;">' + esc(st[0]) + '</span>' +
+        '<span style="font-size:17px;color:#fff;background:' + st[2] + ';border-radius:999px;padding:3px 12px;">' + esc(st[0]) + '</span>' +
       '</div>' +
-      '<div style="font-size:15px;color:var(--muted);margin-top:2px;">' + new Date(o.created_at).toLocaleString() + '</div>' +
+      '<div style="font-size:17px;color:var(--muted);margin-top:2px;">' + new Date(o.created_at).toLocaleString() + '</div>' +
       (o.items || []).map(function (it) {
         return '<div style="display:flex;gap:12px;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--accent-soft,#FCECF2);">' +
           (it.image ? '<a href="' + ykLink('/shop/?id=' + escAttr(it.id)) + '" target="_blank" style="text-decoration:none;"><img src="' + escAttr(normImg(it.image)) + '" style="width:56px;height:56px;border-radius:12px;object-fit:cover;flex-shrink:0;"></a>' : '<div style="width:56px;height:56px;border-radius:12px;background:var(--accent-soft,#FCECF2);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--muted,#897783);font-size:20px;">♡</div>') +
           '<div style="flex:1;min-width:0;">' +
-            '<div style="font-size:16px;color:var(--text,#65515D);font-weight:600;">' + esc(it.name) + '</div>' +
-            (it.sku ? '<div style="font-size:13px;color:var(--muted,#897783);margin-top:2px;">' + t('规格', 'Option') + '：' + esc(it.sku) + '</div>' : '') +
-            '<div style="font-size:14px;color:var(--price,#F48FB1);font-weight:600;margin-top:2px;">' + sym(o.currency) + money(it.price) + ' × ' + it.qty + '</div>' +
+            '<div style="font-size:17px;color:var(--text,#65515D);font-weight:600;">' + esc(it.name) + '</div>' +
+            (it.sku ? '<div style="font-size:16px;color:var(--muted,#897783);margin-top:2px;">' + t('规格', 'Option') + '：' + esc(it.sku) + '</div>' : '') +
+            '<div style="font-size:17px;color:var(--price,#F48FB1);font-weight:600;margin-top:2px;">' + sym(o.currency) + money(it.price) + ' × ' + it.qty + '</div>' +
           '</div>' +
-          '<div style="font-size:16px;color:var(--price,#F48FB1);font-weight:700;flex-shrink:0;">' + sym(o.currency) + money(it.price * it.qty) + '</div></div>';
+          '<div style="font-size:17px;color:var(--price,#F48FB1);font-weight:700;flex-shrink:0;">' + sym(o.currency) + money(it.price * it.qty) + '</div></div>';
       }).join('') +
       '<div style="display:flex;justify-content:space-between;font-size:17px;margin-top:10px;border-top:1.5px dashed var(--accent-soft);padding-top:10px;">' +
         '<span>' + t('应付', 'Total') + '</span><b style="color:var(--price,#F48FB1);">' + sym(o.currency) + money(o.total) + '</b></div>' +
@@ -1159,19 +1159,19 @@
     var st = ST_LABEL[o.status] || ['', '', ''];
     var addr = o.address || {};
     var html =
-      '<div style="font-size:15px;color:var(--muted);line-height:1.7;">' +
+      '<div style="font-size:17px;color:var(--muted);line-height:1.7;">' +
         t('收货', 'Ship to') + '：' + esc(addr.name || '') + ' · ' + esc(addr.phone || '') + '<br>' +
         esc([addr.street, addr.city, addr.state, addr.zip, addr.country].filter(Boolean).join(', ')) +
       '</div>' +
-      (o.reject_reason ? '<p style="font-size:15px;color:var(--danger,#D96570);margin-top:6px;">' + t('凭证有误：', 'Proof rejected: ') + esc(o.reject_reason) + '</p>' : '') +
-      ((o.note || o.coupon) ? '<div style="font-size:15px;color:var(--muted);margin-top:6px;">' +
+      (o.reject_reason ? '<p style="font-size:17px;color:var(--danger,#D96570);margin-top:6px;">' + t('凭证有误：', 'Proof rejected: ') + esc(o.reject_reason) + '</p>' : '') +
+      ((o.note || o.coupon) ? '<div style="font-size:17px;color:var(--muted);margin-top:6px;">' +
         (o.note ? t('订单备注', 'Note') + '：' + esc(o.note) : '') +
         (o.note && o.coupon ? '　·　' : '') +
         (o.coupon ? t('优惠码', 'Coupon') + '：' + esc(o.coupon) : '') + '</div>' : '') +
-      (o.discount ? '<div style="font-size:15px;color:#9ecfae;margin-top:4px;">' + t('优惠码已减', 'Coupon saved') + ' ' + sym(o.currency) + money(o.discount) + '</div>' : '') +
-      (o.carrier ? '<p style="font-size:15px;margin-top:6px;">' + t('物流', 'Shipping') + '：' + esc(o.carrier) + ' <a href="' + escAttr(trackUrlOf(o.carrier, o.tracking)) + '" target="_blank" style="color:var(--text,#65515D);">' + esc(o.tracking) + ' ↗</a>' +
+      (o.discount ? '<div style="font-size:17px;color:#9ecfae;margin-top:4px;">' + t('优惠码已减', 'Coupon saved') + ' ' + sym(o.currency) + money(o.discount) + '</div>' : '') +
+      (o.carrier ? '<p style="font-size:17px;margin-top:6px;">' + t('物流', 'Shipping') + '：' + esc(o.carrier) + ' <a href="' + escAttr(trackUrlOf(o.carrier, o.tracking)) + '" target="_blank" style="color:var(--text,#65515D);">' + esc(o.tracking) + ' ↗</a>' +
         (o.shipped_at ? ' · ' + new Date(o.shipped_at).toLocaleDateString() : '') + '</p>' : '') +
-      '<div style="font-size:15px;color:var(--muted);margin-top:6px;">' + t('明细', 'Breakdown') + '：<span style="color:var(--price,#F48FB1);">' + sym(o.currency) + money(o.subtotal) + '</span>' + (o.discount > 0 ? ' − 优惠 <span style="color:var(--price,#F48FB1);">' + sym(o.currency) + money(o.discount) + '</span>' : '') + ' + 运费 <span style="color:var(--price,#F48FB1);">' + sym(o.currency) + money(o.shipping_actual != null ? o.shipping_actual : o.shipping_est) + '</span>' + ' + 服务费 <span style="color:var(--price,#F48FB1);">' + sym(o.currency) + money(o.service_fee) + '</span>' + '</div>' +
+      '<div style="font-size:17px;color:var(--muted);margin-top:6px;">' + t('明细', 'Breakdown') + '：<span style="color:var(--price,#F48FB1);">' + sym(o.currency) + money(o.subtotal) + '</span>' + (o.discount > 0 ? ' − 优惠 <span style="color:var(--price,#F48FB1);">' + sym(o.currency) + money(o.discount) + '</span>' : '') + ' + 运费 <span style="color:var(--price,#F48FB1);">' + sym(o.currency) + money(o.shipping_actual != null ? o.shipping_actual : o.shipping_est) + '</span>' + ' + 服务费 <span style="color:var(--price,#F48FB1);">' + sym(o.currency) + money(o.service_fee) + '</span>' + '</div>' +
       '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">';
     if (o.status === 'pending' || o.status === 'rejected') {
       html += '<button class="buy-btn oc-stripe" style="padding:8px 18px;background:#F6C5D7;color:#897783;">' + t('在线支付（Stripe 测试）', 'Pay online (Stripe test)') + '</button>';
@@ -1239,8 +1239,8 @@
       var list = pks.length ? pks.map(function (p) { return { carrier: p.carrier, tracking: p.tracking, track_url: p.track_url, shipped_at: p.shipped_at, note: p.note }; })
         : (o.tracking ? [{ carrier: o.carrier, tracking: o.tracking, track_url: o.track_url, shipped_at: o.shipped_at, note: o.ship_note }] : []);
       if (!list.length) return;
-      pkBox.innerHTML = '<div style="font-size:16px;font-weight:700;margin-top:10px;">' + t('包裹物流', 'Packages') + '</div>' + list.map(function (p, i) {
-        return '<div style="font-size:15px;color:var(--text);margin-top:6px;">' + t('包裹', 'Package') + ' ' + (i + 1) + '：' + esc(p.carrier || '') + ' ' + esc(p.tracking || '') +
+      pkBox.innerHTML = '<div style="font-size:17px;font-weight:700;margin-top:10px;">' + t('包裹物流', 'Packages') + '</div>' + list.map(function (p, i) {
+        return '<div style="font-size:17px;color:var(--text);margin-top:6px;">' + t('包裹', 'Package') + ' ' + (i + 1) + '：' + esc(p.carrier || '') + ' ' + esc(p.tracking || '') +
           (p.track_url ? ' <a href="' + escAttr(p.track_url) + '" target="_blank" rel="noopener" style="color:var(--text,#65515D);">' + t('查询', 'Track') + '</a>' : '') +
           (p.shipped_at ? ' · ' + esc(String(p.shipped_at).slice(0, 10)) : '') +
           (p.note ? ' · ' + esc(p.note) : '') + '</div>';
@@ -1264,12 +1264,12 @@
       if (out <= 0.005) {
         line = '<span class="no-buy">' + t('已付清 ✓', 'Fully paid ✓') + '</span>';
       } else if (paid > 0.005) {
-        line = '<span style="font-size:14px;color:var(--muted);">' + t('已收', 'Paid') + ' ' + symC + money(paid) + ' · ' + t('还剩', 'Remaining') + ' ' + symC + money(out) + '</span> ' +
+        line = '<span style="font-size:17px;color:var(--muted);">' + t('已收', 'Paid') + ' ' + symC + money(paid) + ' · ' + t('还剩', 'Remaining') + ' ' + symC + money(out) + '</span> ' +
                '<button class="buy-btn oc-plan-pill" data-amt="' + out.toFixed(2) + '" style="padding:7px 16px;background:#F6C5D7;color:#897783;">' + t('支付尾款 ' + symC + money(out), 'Pay balance ' + symC + money(out)) + '</button>';
       } else if (hasDep) {
         var dep = rows.filter(function (x) { return x.kind === 'deposit'; })[0];
         var depAmt = parseFloat(dep && dep.amount) || 0;
-        line = '<span style="font-size:14px;color:var(--muted);">' + t('订单为定金＋尾款：先付定金，发货前付清尾款', 'Deposit + balance: pay the deposit first, the rest before shipping') + '</span> ' +
+        line = '<span style="font-size:17px;color:var(--muted);">' + t('订单为定金＋尾款：先付定金，发货前付清尾款', 'Deposit + balance: pay the deposit first, the rest before shipping') + '</span> ' +
                '<button class="buy-btn oc-plan-pill" data-amt="' + depAmt.toFixed(2) + '" style="padding:7px 16px;background:#F6C5D7;color:#897783;">' + t('支付定金 ' + symC + money(depAmt), 'Pay deposit ' + symC + money(depAmt)) + '</button>';
       }
       if (line) box.innerHTML = '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">' + line + '</div>';
@@ -1279,7 +1279,7 @@
     box.style.display = '';
     box.innerHTML =
       '<div class="card" style="padding:14px;background:var(--card);">' +
-        '<p style="font-size:15px;color:var(--muted);">' + t('微信/支付宝付款后，把截图传上来，柚子确认后就发货～', 'Pay via WeChat/Alipay, then upload your screenshot here.') + '</p>' +
+        '<p style="font-size:17px;color:var(--muted);">' + t('微信/支付宝付款后，把截图传上来，柚子确认后就发货～', 'Pay via WeChat/Alipay, then upload your screenshot here.') + '</p>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">' +
           '<input id="pu-amount" placeholder="' + t('付款金额', 'Amount paid') + '" value="' + escAttr(prefill ? parseFloat(prefill).toFixed(2) : '') + '">' +
           '<input id="pu-channel" placeholder="' + t('付款渠道（微信/支付宝…）', 'Channel (WeChat/Alipay…)') + '">' +
@@ -1287,11 +1287,11 @@
         '</div>' +
         '<div style="margin-top:8px;display:flex;gap:8px;align-items:center;">' +
           '<label class="buy-btn" style="padding:7px 16px;cursor:pointer;">' + t('选择截图', 'Choose screenshot') + '<input id="pu-file" type="file" accept="image/*" hidden></label>' +
-          '<span id="pu-name" style="font-size:15px;color:var(--muted);">' + t('未选择', 'None') + '</span>' +
+          '<span id="pu-name" style="font-size:17px;color:var(--muted);">' + t('未选择', 'None') + '</span>' +
           '<button class="buy-btn" id="pu-go" style="padding:8px 18px;background:#F6C5D7;color:#897783;margin-left:auto;">' + t('提交凭证', 'Submit proof') + '</button>' +
         '</div>' +
       '</div>';
-    box.querySelectorAll('input:not([type=file])').forEach(function (i) { i.style.cssText = 'width:100%;padding:10px 12px;font-size:16px;border:none;border-radius:12px;background:#fff;outline:none;color:var(--text);font-family:inherit;'; });
+    box.querySelectorAll('input:not([type=file])').forEach(function (i) { i.style.cssText = 'width:100%;padding:10px 12px;font-size:17px;border:none;border-radius:12px;background:#fff;outline:none;color:var(--text);font-family:inherit;'; });
     var file = null;
     box.querySelector('#pu-file').addEventListener('change', function () {
       file = this.files[0] || null;
@@ -1323,10 +1323,10 @@
       rows = rows || [];
       box.innerHTML = '<div class="card" style="padding:14px;background:var(--card);">' +
         (rows.length ? rows.map(function (m) {
-          return '<div style="font-size:15px;margin-bottom:6px;"><b>' + (m.is_admin ? '柚子' : t('我', 'Me')) + '：</b>' + esc(m.text) +
-            ' <span style="color:var(--muted);font-size:13px;">' + new Date(m.created_at).toLocaleString() + '</span></div>';
-        }).join('') : '<p style="font-size:15px;color:var(--muted);">' + t('有什么想问的写在这里～', 'Ask anything about this order~') + '</p>') +
-        '<div style="display:flex;gap:8px;margin-top:8px;"><input id="om-text" placeholder="' + t('订单咨询 / 售后说明', 'Question / after-sales note') + '" style="flex:1;padding:10px 12px;font-size:16px;border:none;border-radius:12px;background:#fff;outline:none;color:var(--text);font-family:inherit;">' +
+          return '<div style="font-size:17px;margin-bottom:6px;"><b>' + (m.is_admin ? '柚子' : t('我', 'Me')) + '：</b>' + esc(m.text) +
+            ' <span style="color:var(--muted);font-size:16px;">' + new Date(m.created_at).toLocaleString() + '</span></div>';
+        }).join('') : '<p style="font-size:17px;color:var(--muted);">' + t('有什么想问的写在这里～', 'Ask anything about this order~') + '</p>') +
+        '<div style="display:flex;gap:8px;margin-top:8px;"><input id="om-text" placeholder="' + t('订单咨询 / 售后说明', 'Question / after-sales note') + '" style="flex:1;padding:10px 12px;font-size:17px;border:none;border-radius:12px;background:#fff;outline:none;color:var(--text);font-family:inherit;">' +
         '<button class="buy-btn" id="om-go" style="padding:8px 16px;">' + t('发送', 'Send') + '</button></div></div>';
       box.querySelector('#om-go').addEventListener('click', function () {
         var text = box.querySelector('#om-text').value.trim();
@@ -1357,11 +1357,11 @@
           '<div id="ac-login">' +
             '<input id="li-email" placeholder="Email" style="width:100%;margin-bottom:14px;">' +
             '<input id="li-pw" type="password" placeholder="' + t('密码', 'Password') + '" style="width:100%;margin-bottom:16px;">' +
-            '<button class="buy-btn" id="li-go" style="width:100%;padding:11px;background:#F6C5D7;color:#897783;font-size:16px;">' + t('登录', 'Log in') + '</button>' +
-            '<button id="li-forgot" style="background:none;border:none;color:var(--muted);font-family:inherit;font-size:15px;margin-top:14px;cursor:pointer;">' + t('忘记密码？发重置邮件', 'Forgot password? Send reset email') + '</button>' +
+            '<button class="buy-btn" id="li-go" style="width:100%;padding:11px;background:#F6C5D7;color:#897783;font-size:17px;">' + t('登录', 'Log in') + '</button>' +
+            '<button id="li-forgot" style="background:none;border:none;color:var(--muted);font-family:inherit;font-size:17px;margin-top:14px;cursor:pointer;">' + t('忘记密码？发重置邮件', 'Forgot password? Send reset email') + '</button>' +
           '</div>' +
           '<div id="ac-reg" style="display:none;">' +
-            '<p style="font-size:14px;color:var(--muted);margin-bottom:8px;">' + t('注册即创建买家账号（邮箱可能需要点击验证邮件）。', 'Sign up creates your buyer account (email verification may be required).') + '</p>' +
+            '<p style="font-size:17px;color:var(--muted);margin-bottom:8px;">' + t('注册即创建买家账号（邮箱可能需要点击验证邮件）。', 'Sign up creates your buyer account (email verification may be required).') + '</p>' +
             '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">' +
               '<input id="rg-name" placeholder="' + t('姓名 *', 'Full name *') + '">' +
               '<input id="rg-nick" placeholder="' + t('昵称（选填）', 'Nickname (optional)') + '">' +
@@ -1369,13 +1369,13 @@
               '<input id="rg-phone" placeholder="' + t('电话 *', 'Phone *') + '" style="grid-column:1/-1;">' +
               '<input id="rg-pw" type="password" placeholder="' + t('密码 *（至少 6 位）', 'Password * (6+ chars)') + '" style="grid-column:1/-1;">' +
             '</div>' +
-            '<p style="font-size:16px;margin:10px 0 4px;">' + t('收货地址', 'Shipping address') + '</p>' +
+            '<p style="font-size:17px;margin:10px 0 4px;">' + t('收货地址', 'Shipping address') + '</p>' +
             '<div id="rg-addr"></div>' +
             '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;padding:10px 12px;border:1.5px solid var(--accent-soft,#FCECF2);border-radius:12px;background:#fff;">' +
-              '<span style="font-size:16px;color:var(--text,#65515D);">' + t('接收新品上架通知', 'Notify me about new items') + '<br><span style="font-size:13px;color:var(--muted,#897783);">' + t('默认关闭 · 邮件通知服务尚未配置，启用前不会发送邮件', 'Off by default · email delivery not configured yet') + '</span></span>' +
+              '<span style="font-size:17px;color:var(--text,#65515D);">' + t('接收新品上架通知', 'Notify me about new items') + '<br><span style="font-size:16px;color:var(--muted,#897783);">' + t('默认关闭 · 邮件通知服务尚未配置，启用前不会发送邮件', 'Off by default · email delivery not configured yet') + '</span></span>' +
               subToggleHtml('rg-notify', false) +
             '</div>' +
-            '<button class="buy-btn" id="rg-go" style="width:100%;padding:11px;background:#F6C5D7;color:#897783;font-size:16px;margin-top:14px;">' + t('注册', 'Create account') + '</button>' +
+            '<button class="buy-btn" id="rg-go" style="width:100%;padding:11px;background:#F6C5D7;color:#897783;font-size:17px;margin-top:14px;">' + t('注册', 'Create account') + '</button>' +
           '</div>' +
         '</div>';
       styleInputs(box);
@@ -1422,7 +1422,7 @@
         function profileDisplay(p) {
           var row = function (label, val) {
             var v = (val && String(val).trim()) ? esc(val) : '<span style="color:var(--muted,#897783);">' + t('尚未填写', 'Not set') + '</span>';
-            return '<span style="color:var(--muted,#897783);font-size:15px;">' + label + '</span><span style="font-size:16px;word-break:break-all;">' + v + '</span>';
+            return '<span style="color:var(--muted,#897783);font-size:17px;">' + label + '</span><span style="font-size:17px;word-break:break-all;">' + v + '</span>';
           };
           return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;">' +
               '<b style="font-size:17px;">' + t('基本资料', 'Basic info') + '</b>' +
@@ -1444,7 +1444,7 @@
               '<input id="pf-nick" placeholder="' + t('昵称', 'Nickname') + '" value="' + escAttr(p.nickname || '') + '">' +
               '<input id="pf-phone" placeholder="' + t('电话', 'Phone') + '" value="' + escAttr(p.phone || '') + '" style="grid-column:1/-1;">' +
             '</div>' +
-            (errMsg ? '<p id="pf-err" style="color:var(--danger,#D96570);font-size:14px;margin:10px 0 0;">' + esc(errMsg) + '</p>' : '') +
+            (errMsg ? '<p id="pf-err" style="color:var(--danger,#D96570);font-size:17px;margin:10px 0 0;">' + esc(errMsg) + '</p>' : '') +
             '<div style="display:flex;gap:10px;margin-top:14px;">' +
               '<button class="buy-btn" id="pf-save" style="padding:9px 22px;background:#F6C5D7;color:#897783;">' + t('保存', 'Save') + '</button>' +
               '<button class="buy-btn" id="pf-cancel" style="padding:9px 22px;background:#fff;color:var(--muted);border:1.5px solid #F9E5ED;">' + t('取消', 'Cancel') + '</button>' +
@@ -1479,7 +1479,7 @@
           '<div class="card" id="pf-card" style="padding:18px;margin-bottom:14px;"></div>' +
           '<div class="card" style="padding:18px;margin-bottom:14px;">' +
             '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">' +
-              '<span style="font-size:16px;color:var(--text,#65515D);">' + t('接收新品上架通知', 'Notify me about new items') + '<br><span style="font-size:13px;color:var(--muted,#897783);">' + t('邮件通知服务尚未配置，启用前不会发送邮件', 'Email delivery not configured yet — no emails will be sent until enabled') + '</span></span>' +
+              '<span style="font-size:17px;color:var(--text,#65515D);">' + t('接收新品上架通知', 'Notify me about new items') + '<br><span style="font-size:16px;color:var(--muted,#897783);">' + t('邮件通知服务尚未配置，启用前不会发送邮件', 'Email delivery not configured yet — no emails will be sent until enabled') + '</span></span>' +
               subToggleHtml('pf-notify', !!(prof0 && prof0.notify_new) || subRead()) +
             '</div>' +
           '</div>' +
@@ -1500,15 +1500,15 @@
   }
   function paintMyAddr() {
     var box = document.getElementById('pf-addr');
-    if (!ADDR.length) { box.innerHTML = '<p style="color:var(--muted);font-size:15px;">' + t('还没有地址', 'No addresses yet') + '</p>'; return; }
+    if (!ADDR.length) { box.innerHTML = '<p style="color:var(--muted);font-size:17px;">' + t('还没有地址', 'No addresses yet') + '</p>'; return; }
     // 按收件人名字排（不用 A-Z 字母导航，她 2026-10-25 要求删掉）
     var list = ADDR.slice().sort(function (a, b) { return String(a.name || '').localeCompare(String(b.name || ''), 'zh-u-co-pinyin'); });
     var html = '<div>' + list.map(function (a) {
       return '<div style="display:flex;gap:8px;align-items:center;padding:10px;border-radius:12px;background:#fff;margin-bottom:6px;">' +
-        '<div style="flex:1;font-size:15px;min-width:0;">' + esc(a.name) + ' · ' + esc(a.phone) + (a.is_default ? ' <span style="color:var(--text,#65515D);font-size:13px;">' + t('默认', 'Default') + '</span>' : '') + '<br><span style="color:var(--muted);">' + esc(a.street + ', ' + a.city + ', ' + a.state + ' ' + a.zip + ', ' + a.country) + '</span></div>' +
-        '<button class="buy-btn ad-def" data-id="' + escAttr(a.id) + '" style="padding:5px 10px;font-size:14px;">' + t('设默认', 'Default') + '</button>' +
-        '<button class="buy-btn ad-edit" data-id="' + escAttr(a.id) + '" style="padding:5px 10px;font-size:14px;">' + t('编辑', 'Edit') + '</button>' +
-        '<button class="buy-btn ad-del" data-id="' + escAttr(a.id) + '" style="padding:5px 10px;font-size:14px;background:#fff;color:var(--danger,#D96570);">' + t('删除', 'Del') + '</button>' +
+        '<div style="flex:1;font-size:17px;min-width:0;">' + esc(a.name) + ' · ' + esc(a.phone) + (a.is_default ? ' <span style="color:var(--text,#65515D);font-size:16px;">' + t('默认', 'Default') + '</span>' : '') + '<br><span style="color:var(--muted);">' + esc(a.street + ', ' + a.city + ', ' + a.state + ' ' + a.zip + ', ' + a.country) + '</span></div>' +
+        '<button class="buy-btn ad-def" data-id="' + escAttr(a.id) + '" style="padding:5px 10px;font-size:17px;">' + t('设默认', 'Default') + '</button>' +
+        '<button class="buy-btn ad-edit" data-id="' + escAttr(a.id) + '" style="padding:5px 10px;font-size:17px;">' + t('编辑', 'Edit') + '</button>' +
+        '<button class="buy-btn ad-del" data-id="' + escAttr(a.id) + '" style="padding:5px 10px;font-size:17px;background:#fff;color:var(--danger,#D96570);">' + t('删除', 'Del') + '</button>' +
       '</div>';
     }).join('') + '</div>';
     box.innerHTML = html;
@@ -1570,12 +1570,12 @@
         '<div style="font-size:34px;line-height:1;margin-bottom:10px;">ฅ՞•ﻌ•՞ฅ</div>' +
         '<p style="margin:0 0 8px;font-weight:700;font-size:18px;color:#65515D;">' + (isP ? '首次登录，请先设置密码' : '仅观看模式') + '</p>' +
         (isP
-          ? '<p style="margin:0 0 16px;font-size:14px;color:#897783;line-height:1.7;">你的后台管理员账号还没有设置专属密码。<br>请先到后台用初始密码登录，页面会引导你设置新的六位数字密码。</p>'
-          : '<p style="margin:0 0 6px;font-size:14px;color:#897783;line-height:1.7;">你已登录小柚小世界的后台管理员账号（只读权限）。<br>可以浏览后台的授权内容，但不能新增、修改或删除数据。</p>' +
-            '<p style="margin:0 0 16px;font-size:14px;color:#897783;">如需修改内容，请联系小柚 ♡</p>') +
+          ? '<p style="margin:0 0 16px;font-size:17px;color:#897783;line-height:1.7;">你的后台管理员账号还没有设置专属密码。<br>请先到后台用初始密码登录，页面会引导你设置新的六位数字密码。</p>'
+          : '<p style="margin:0 0 6px;font-size:17px;color:#897783;line-height:1.7;">你已登录小柚小世界的后台管理员账号（只读权限）。<br>可以浏览后台的授权内容，但不能新增、修改或删除数据。</p>' +
+            '<p style="margin:0 0 16px;font-size:17px;color:#897783;">如需修改内容，请联系小柚 ♡</p>') +
         '<div style="display:flex;gap:8px;justify-content:center;">' +
-          '<button id="ro-go" type="button" style="border:none;background:#FCECF2;color:#897783;border-radius:999px;padding:9px 24px;font-size:15px;cursor:pointer;font-family:inherit;">前往后台</button>' +
-          '<button id="ro-stay" type="button" style="border:none;background:none;color:#897783;font-size:14px;cursor:pointer;font-family:inherit;padding:9px 12px;">' + (isP ? '取消' : '知道了') + '</button>' +
+          '<button id="ro-go" type="button" style="border:none;background:#FCECF2;color:#897783;border-radius:999px;padding:9px 24px;font-size:17px;cursor:pointer;font-family:inherit;">前往后台</button>' +
+          '<button id="ro-stay" type="button" style="border:none;background:none;color:#897783;font-size:17px;cursor:pointer;font-family:inherit;padding:9px 12px;">' + (isP ? '取消' : '知道了') + '</button>' +
         '</div>' +
       '</div>';
     document.body.appendChild(mask);
@@ -1724,7 +1724,7 @@
     var items = FAVS.map(function (id) { return PRODUCTS.filter(function (p) { return String(p.id) === String(id); })[0]; }).filter(Boolean);
     sec.innerHTML = '<b style="font-size:17px;">' + t('我的收藏', 'Favorites') + '</b>' +
       (items.length ? '<div class="grid" style="margin-top:10px;">' + items.map(productCardShop).join('') + '</div>'
-                    : '<p style="font-size:15px;color:var(--muted);margin:8px 0 0;">' + t('还没有收藏，去逛逛点 ♡ 收起来', 'Nothing saved yet — tap ♡ on any item') + '</p>');
+                    : '<p style="font-size:17px;color:var(--muted);margin:8px 0 0;">' + t('还没有收藏，去逛逛点 ♡ 收起来', 'Nothing saved yet — tap ♡ on any item') + '</p>');
     box.appendChild(sec);
     var g2 = sec.querySelector('.grid'); if (g2) bindCards(g2);
     paintFavs();
@@ -1757,19 +1757,19 @@
       CART.map(function (x, i) {
         var live = cartLive(x);
         return '<div class="card" style="padding:14px 16px;margin-bottom:10px;display:flex;gap:12px;align-items:center;">' +
-          '<span class="ck-box" data-i="' + i + '" style="width:20px;height:20px;border-radius:6px;border:2px solid var(--cb-bd,#F8DDE8);flex-shrink:0;cursor:pointer;background:' + (x.checked !== false ? 'var(--cb-on,#F6C5D7)' : 'var(--cb-bg,#FFF8FA)') + ';display:inline-flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;line-height:1;color:' + (x.checked !== false ? 'var(--cb-mark,#fff)' : 'var(--text,#65515D)') + ';">' + (x.checked !== false ? '<svg viewBox=\"0 0 16 16\" width=\"12\" height=\"12\" style=\"display:block;\"><path d=\"M3.2 8.6 L6.6 11.8 L12.8 4.6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>' : '') + '</span>' +
+          '<span class="ck-box" data-i="' + i + '" style="width:20px;height:20px;border-radius:6px;border:2px solid var(--cb-bd,#F8DDE8);flex-shrink:0;cursor:pointer;background:' + (x.checked !== false ? 'var(--cb-on,#F6C5D7)' : 'var(--cb-bg,#FFF8FA)') + ';display:inline-flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;line-height:1;color:' + (x.checked !== false ? 'var(--cb-mark,#fff)' : 'var(--text,#65515D)') + ';">' + (x.checked !== false ? '<svg viewBox=\"0 0 16 16\" width=\"12\" height=\"12\" style=\"display:block;\"><path d=\"M3.2 8.6 L6.6 11.8 L12.8 4.6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>' : '') + '</span>' +
           (live.image ? '<img src="' + escAttr(normImg(live.image)) + '" style="width:64px;height:64px;border-radius:14px;object-fit:cover;flex-shrink:0;">' : '<div style="width:64px;height:64px;border-radius:14px;background:var(--accent-soft,#FCECF2);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--muted,#897783);font-size:22px;">♡</div>') +
           '<div style="flex:1;min-width:0;">' +
-            '<div style="font-size:16px;color:var(--text,#65515D);font-weight:600;">' + esc(live.name) + '</div>' +
-            (x.sku ? '<div style="font-size:13px;color:var(--muted,#897783);margin-top:2px;">' + t('规格', 'Option') + '：' + esc(x.sku) + '</div>' : '') +
-            '<div style="font-size:15px;color:var(--price,#F48FB1);font-weight:700;margin-top:4px;">' + sym(curOf(null, x)) + money(x.price) + '</div>' +
+            '<div style="font-size:17px;color:var(--text,#65515D);font-weight:600;">' + esc(live.name) + '</div>' +
+            (x.sku ? '<div style="font-size:16px;color:var(--muted,#897783);margin-top:2px;">' + t('规格', 'Option') + '：' + esc(x.sku) + '</div>' : '') +
+            '<div style="font-size:17px;color:var(--price,#F48FB1);font-weight:700;margin-top:4px;">' + sym(curOf(null, x)) + money(x.price) + '</div>' +
             '<div style="display:flex;align-items:center;gap:10px;margin-top:8px;">' +
               '<button class="qty-btn cart-q" data-i="' + i + '" data-d="-1">−</button><b style="color:var(--text,#65515D);">' + x.qty + '</b><button class="qty-btn cart-q" data-i="' + i + '" data-d="1">＋</button>' +
-              '<button class="cart-rm" data-i="' + i + '" style="border:1.5px solid #F2C7CC;background:#FBE3E6;color:#C4636E;font-size:13px;cursor:pointer;padding:5px 12px;border-radius:999px;font-family:inherit;font-weight:600;line-height:1;">' + t('删除', 'Remove') + '</button>' +
+              '<button class="cart-rm" data-i="' + i + '" style="border:1.5px solid #F2C7CC;background:#FBE3E6;color:#C4636E;font-size:16px;cursor:pointer;padding:5px 12px;border-radius:999px;font-family:inherit;font-weight:600;line-height:1;">' + t('删除', 'Remove') + '</button>' +
             '</div>' +
           '</div>' +
           '<div style="text-align:right;flex-shrink:0;">' +
-            '<div style="font-size:12px;color:var(--muted,#897783);">' + t('小计', 'Subtotal') + '</div>' +
+            '<div style="font-size:16px;color:var(--muted,#897783);">' + t('小计', 'Subtotal') + '</div>' +
             '<div style="font-size:17px;color:var(--price,#F48FB1);font-weight:700;margin-top:2px;">' + sym(curOf(null, x)) + money(x.price * x.qty) + '</div>' +
           '</div>' +
         '</div>';
@@ -1981,14 +1981,14 @@
       box.innerHTML = '<h2 style="font-size:24px;margin-bottom:14px;">' + t('评价', 'Reviews') + '</h2>' +
         (rows.length ? rows.map(function (rv) {
           return '<div class="card" style="padding:16px;margin-bottom:12px;">' +
-            '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;"><b style="font-size:16px;">' + esc(rv.name || t('匿名', 'Anonymous')) + '</b>' +
-            '<span style="font-size:14px;color:var(--muted);">' + new Date(rv.created_at).toLocaleDateString() + '</span></div>' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;"><b style="font-size:17px;">' + esc(rv.name || t('匿名', 'Anonymous')) + '</b>' +
+            '<span style="font-size:17px;color:var(--muted);">' + new Date(rv.created_at).toLocaleDateString() + '</span></div>' +
             '<div style="font-size:17px;color:#e2b100;letter-spacing:2px;margin-top:4px;">' + '★★★★★'.slice(0, rv.rating || 0) + '☆☆☆☆☆'.slice(0, 5 - (rv.rating || 0)) + '</div>' +
-            (rv.content ? '<p style="font-size:16px;line-height:1.7;margin-top:6px;">' + esc(rv.content) + '</p>' : '') +
+            (rv.content ? '<p style="font-size:17px;line-height:1.7;margin-top:6px;">' + esc(rv.content) + '</p>' : '') +
             (rv.image_url ? '<img src="' + escAttr(normImg(rv.image_url)) + '" style="max-width:180px;border-radius:12px;margin-top:8px;display:block;">' : '') +
-            (rv.reply ? '<div style="margin-top:10px;padding:10px 12px;background:var(--card,#FFFFFF);border-radius:12px;font-size:15px;"><b>' + t('柚子 回复：', 'Yuki replied:') + '</b> ' + esc(rv.reply) + '</div>' : '') +
+            (rv.reply ? '<div style="margin-top:10px;padding:10px 12px;background:var(--card,#FFFFFF);border-radius:12px;font-size:17px;"><b>' + t('柚子 回复：', 'Yuki replied:') + '</b> ' + esc(rv.reply) + '</div>' : '') +
             '</div>';
-        }).join('') : '<p style="color:var(--muted);text-align:center;padding:20px 0;font-size:16px;">' + t('评价可能在后台审核中被隐藏了', 'Your reviews may be hidden for moderation') + '</p>');
+        }).join('') : '<p style="color:var(--muted);text-align:center;padding:20px 0;font-size:17px;">' + t('评价可能在后台审核中被隐藏了', 'Your reviews may be hidden for moderation') + '</p>');
     }).catch(function () {
       box.innerHTML = '<h2 style="font-size:22px;">' + t('评价', 'Reviews') + '</h2><p style="color:var(--muted);text-align:center;">' + t('加载失败，稍后再试', 'Failed to load') + '</p>';
     });
@@ -2009,13 +2009,13 @@
       box.innerHTML = '<h2 style="font-size:24px;margin-bottom:14px;">' + t('留言', 'Messages') + '</h2>' +
         (rows.length ? rows.map(function (q) {
           return '<div class="card" style="padding:16px;margin-bottom:12px;">' +
-            '<p style="font-size:16px;line-height:1.7;">' + esc(q.content) + '</p>' +
-            '<div style="font-size:13px;color:var(--muted);margin-top:6px;">' + new Date(q.created_at).toLocaleString() + '</div>' +
+            '<p style="font-size:17px;line-height:1.7;">' + esc(q.content) + '</p>' +
+            '<div style="font-size:16px;color:var(--muted);margin-top:6px;">' + new Date(q.created_at).toLocaleString() + '</div>' +
             (q.reply
-              ? '<div style="margin-top:10px;padding:10px 12px;background:var(--card,#FFFFFF);border-radius:12px;font-size:15px;"><b>' + t('柚子 回复：', 'Yuki replied:') + '</b> ' + esc(q.reply) + '</div>'
-              : '<div style="margin-top:10px;font-size:15px;color:var(--muted);">' + t('已收到，等柚子回复哦～', 'Received! Yuki will reply soon~') + '</div>') +
+              ? '<div style="margin-top:10px;padding:10px 12px;background:var(--card,#FFFFFF);border-radius:12px;font-size:17px;"><b>' + t('柚子 回复：', 'Yuki replied:') + '</b> ' + esc(q.reply) + '</div>'
+              : '<div style="margin-top:10px;font-size:17px;color:var(--muted);">' + t('已收到，等柚子回复哦～', 'Received! Yuki will reply soon~') + '</div>') +
             '</div>';
-        }).join('') : '<p style="color:var(--muted);text-align:center;padding:20px 0;font-size:16px;">' + t('留言可能已被删除', 'Messages may have been removed') + '</p>');
+        }).join('') : '<p style="color:var(--muted);text-align:center;padding:20px 0;font-size:17px;">' + t('留言可能已被删除', 'Messages may have been removed') + '</p>');
     }).catch(function () {
       box.innerHTML = '<h2 style="font-size:22px;">' + t('留言', 'Messages') + '</h2><p style="color:var(--muted);text-align:center;">' + t('加载失败，稍后再试', 'Failed to load') + '</p>';
     });

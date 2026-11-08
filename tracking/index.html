@@ -2,28 +2,28 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-  <script src="/js/lang-path.js?v=20261105C"></script>
+  <script src="/js/lang-path.js?v=20261107I"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>物流查询 · Snow Yuzu</title>
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" sizes="180x180" href="/icon-yuki2-180.png">
 <link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki2-180.png">
 <meta name="apple-mobile-web-app-title" content="小柚的小世界">
-<link rel="stylesheet" href="/css/site.css?v=20261107H">
-<link rel="stylesheet" href="/site-menu.css?v=20261105C">
-<script src="/site-menu.js?v=20261105C" defer></script>
+<link rel="stylesheet" href="/css/site.css?v=20261107I">
+<link rel="stylesheet" href="/site-menu.css?v=20261107I">
+<script src="/site-menu.js?v=20261107I" defer></script>
 <style>
   .track-wrap { max-width: 760px; margin: 0 auto; padding: 40px 24px 64px; }
-  .track-sub { color: var(--muted,#897783); font-size: 15px; margin: 0 0 20px; }
+  .track-sub { color: var(--muted,#897783); font-size:17px; margin: 0 0 20px; }
   .track-search { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px; }
-  .track-search input { flex: 1; min-width: 220px; padding: 12px 18px; font-size: 16px; border: 1.5px solid #F9E5ED; border-radius: 14px; outline: none; font-family: inherit; color: #65515D; background: #fff; }
+  .track-search input { flex: 1; min-width: 220px; padding: 12px 18px; font-size:17px; border: 1.5px solid #F9E5ED; border-radius: 14px; outline: none; font-family: inherit; color: #65515D; background: #fff; }
   .track-search input:focus { border-color: #f3a8c5; }
-  .track-search button { padding: 12px 30px; font-size: 16px; font-weight: 600; border: none; border-radius: 999px; background: #F9E5ED; color: #65515D; cursor: pointer; font-family: inherit; }
+  .track-search button { padding: 12px 30px; font-size:17px; font-weight: 600; border: none; border-radius: 999px; background: #F9E5ED; color: #65515D; cursor: pointer; font-family: inherit; }
   .track-search button:hover { background: #FCECF2; }
   .track-meta { background: #fff; border: 1.5px solid #F9E5ED; border-radius: 16px; box-shadow: 0 2px 10px rgba(180,120,150,.12); padding: 18px 22px; margin-bottom: 22px; }
-  .track-meta .tm-row { display: flex; justify-content: space-between; gap: 12px; padding: 5px 0; font-size: 15px; color: #65515D; }
+  .track-meta .tm-row { display: flex; justify-content: space-between; gap: 12px; padding: 5px 0; font-size:17px; color: #65515D; }
   .track-meta .tm-row b { font-weight: 700; text-align: right; }
-  .track-status { display: inline-block; background: #FCECF2; color: #65515D; font-size: 13px; font-weight: 600; padding: 3px 14px; border-radius: 999px; }
+  .track-status { display: inline-block; background: #FCECF2; color: #65515D; font-size:16px; font-weight: 600; padding: 3px 14px; border-radius: 999px; }
   .tl { list-style: none; margin: 0; padding: 0 0 0 6px; }
   .tl li { position: relative; padding: 0 0 22px 26px; }
   .tl li::before { content: ''; position: absolute; left: 5px; top: 8px; bottom: -4px; width: 2px; background: #F9E5ED; }
@@ -31,16 +31,16 @@
   .tl li::after { content: ''; position: absolute; left: 0; top: 6px; width: 12px; height: 12px; border-radius: 50%; background: #fff; border: 3px solid #f3a8c5; box-sizing: border-box; }
   .tl li.latest::after { background: #F48FB1; border-color: #F48FB1; }
   .tl .tl-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-  .tl .tl-status { font-size: 16px; font-weight: 700; color: #65515D; }
-  .tl .tl-time { font-size: 13px; color: #897783; }
-  .tl .tl-place { font-size: 13px; color: #897783; }
-  .tl .tl-note { font-size: 15px; line-height: 1.7; color: #65515D; margin: 4px 0 0; word-break: break-word; overflow-wrap: anywhere; }
-  .track-sim { background: #FFF0C2; border: 1.5px solid #E8C96A; color: #7A5B00; border-radius: 12px; padding: 10px 14px; font-size: 13px; font-weight: 700; letter-spacing: .5px; line-height: 1.6; margin-bottom: 16px; text-align: center; word-break: break-word; }
-  .track-empty { text-align: center; padding: 34px 18px; color: var(--muted,#897783); font-size: 16px; }
+  .tl .tl-status { font-size:17px; font-weight: 700; color: #65515D; }
+  .tl .tl-time { font-size:16px; color: #897783; }
+  .tl .tl-place { font-size:16px; color: #897783; }
+  .tl .tl-note { font-size:17px; line-height: 1.7; color: #65515D; margin: 4px 0 0; word-break: break-word; overflow-wrap: anywhere; }
+  .track-sim { background: #FFF0C2; border: 1.5px solid #E8C96A; color: #7A5B00; border-radius: 12px; padding: 10px 14px; font-size:16px; font-weight: 700; letter-spacing: .5px; line-height: 1.6; margin-bottom: 16px; text-align: center; word-break: break-word; }
+  .track-empty { text-align: center; padding: 34px 18px; color: var(--muted,#897783); font-size:17px; }
   .track-empty .big { font-size: 34px; margin-bottom: 10px; }
   @media (max-width: 520px) { .track-wrap { padding: 30px 16px 56px; } .track-meta { padding: 15px 16px; } }
 </style>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261107H">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261107I">
 </head>
 <body>
 <header class="topbar">
@@ -79,9 +79,9 @@
 
 <footer></footer>
 
-<script src="/js/site-common.js?v=20261107H"></script>
-<script src="/js/social-cards.js?v=20261105C"></script>
-<script src="/js/site-footer.js?v=20261105C"></script>
+<script src="/js/site-common.js?v=20261107I"></script>
+<script src="/js/social-cards.js?v=20261107I"></script>
+<script src="/js/site-footer.js?v=20261107I"></script>
 <script>if (window.renderSiteFooter) renderSiteFooter();</script>
 <script>
 (function () {
@@ -128,7 +128,7 @@
           + '</li>';
       }).join('');
       box.innerHTML = meta + '<ul class="tl">' + steps + '</ul>'
-        + '<p style="font-size:13px;color:var(--muted,#897783);margin:14px 0 0;">' + t('测试数据仅供参考 · 真实包裹请以承运商官方信息为准', 'Simulated data for testing only · real shipments follow the carrier\'s official info') + '</p>';
+        + '<p style="font-size:16px;color:var(--muted,#897783);margin:14px 0 0;">' + t('测试数据仅供参考 · 真实包裹请以承运商官方信息为准', 'Simulated data for testing only · real shipments follow the carrier\'s official info') + '</p>';
     }).catch(function () {
       box.innerHTML = '<div class="track-empty">' + t('查询失败，稍后再试试呀～', 'Search failed — please try again later~') + '</div>';
     });
