@@ -219,9 +219,16 @@
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-thumb-empty { font-size:12px; color:#C9B2BC; }',
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-thumb-add { width:32px; height:32px; border:1.5px dashed #F8DDE8; border-radius:7px; color:#C9B2BC; font-size:15px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }',
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-thumb-add:hover { border-color:#F6C5D7; color:#897783; background:#FFF8FA; }',
-      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-freeze { border:1.5px solid #F8DDE8; background:#FFF8FA; color:#897783; border-radius:999px; padding:5px 10px; font-size:13px; font-family:inherit; cursor:pointer; white-space:nowrap; }',
-      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-freeze:hover { background:#F6C5D7; border-color:#F6C5D7; }',
-      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-freeze.off { background:#FFF8FA; border-color:#F9E5ED; color:#897783; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-freeze, :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-up, :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-down, :is(#tab-shop,#tab-shopmgr) .sm-spec .yk-barcode-btn { border:1.5px solid #F8DDE8; background:#FFF8FA; color:#897783; border-radius:999px; padding:6px 12px; font-size:14px; font-family:inherit; cursor:pointer; white-space:nowrap; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-freeze:hover, :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-up:hover, :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-down:hover, :is(#tab-shop,#tab-shopmgr) .sm-spec .yk-barcode-btn:hover { background:#FCECF2; border-color:#F6C5D7; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-freeze.off { background:#F6C5D7; border-color:#F6C5D7; color:#65515D; font-weight:600; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-del { border:1.5px solid #F2C7CC; background:#FBE3E6; color:#C4636E; border-radius:999px; padding:6px 12px; font-size:14px; font-family:inherit; cursor:pointer; white-space:nowrap; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-del:hover { background:#F8D5DA; border-color:#EBA9B2; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-up[disabled], :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-down[disabled] { background:#FFF8FA; border-color:#F9E5ED; color:#C9B2BC; cursor:default; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-vc-name { display:flex; align-items:center; gap:6px; min-width:0; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-vc-name .sv-name { flex:1 1 auto; min-width:0; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-row-more { border:0; background:none; color:#C9B2BC; font-size:13px; padding:2px 4px; cursor:pointer; flex:0 0 auto; font-family:inherit; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-row-more:hover { color:#897783; }',
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-vc-dims { font-size:12px; color:#897783; }',
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-combo-empty { margin:0; padding:16px 10px; text-align:center; font-size:14px; color:#897783; background:#FFF8FA; border:1.5px dashed #F9E5ED; border-radius:10px; }',
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-batch { margin-top:10px; display:flex; flex-direction:column; align-items:flex-start; gap:8px; }',
@@ -1490,7 +1497,6 @@
     var detail = '';
     if (open) {
       detail = '<div class="sm-row-detail" data-i="' + i + '">' +
-        '<label class="sm-row-detail-lab">规格名称<input class="sv-name" value="' + escAttr(v.name || '') + '" placeholder="规格名"></label>' +
         (dimTxt && dimTxt !== String(v.name || '') ? '<span class="sm-vc-dims">维度：' + esc(dimTxt) + '</span>' : '') +
         '<span class="sm-row-detail-act">' +
           '<button type="button" class="sm-var-freeze' + (v.frozen ? ' off' : '') + '">' + (v.frozen ? '启用' : '停售') + '</button>' +
@@ -1504,7 +1510,8 @@
     return '<div class="sm-var-row' + (v.frozen ? ' is-off' : '') + '" data-i="' + i + '">' +
       '<div class="sm-vc sm-vc-chk"><button type="button" class="sm-row-chk' + (card.__sel && card.__sel[i] ? ' on' : '') + '" data-i="' + i + '" aria-pressed="' + (!!(card.__sel && card.__sel[i])) + '" title="勾选这条组合（批量操作只作用于勾选的行）"></button></div>' +
       '<div class="sm-vc sm-vc-name">' +
-        '<button type="button" class="sm-row-name" data-i="' + i + '" title="点开这条组合的详细编辑"><i class="sm-row-caret">' + (open ? '▾' : '▸') + '</i>' + esc(v.name || '（未命名规格）') + '</button>' +
+        '<input class="sv-name" value="' + escAttr(v.name || '') + '" placeholder="规格名" title="直接改，保存时生效">' +
+        '<button type="button" class="sm-row-name sm-row-more" data-i="' + i + '" title="更多操作（停售/条码/上移/下移/删除）"><i class="sm-row-caret">' + (open ? '▾' : '▸') + '</i></button>' +
       '</div>' +
       '<div class="sm-vc sm-vc-sku"><input class="sv-sku" value="' + escAttr(v.sku || '') + '" placeholder="SKU"></div>' +
       '<div class="sm-vc sm-vc-price"><input class="sv-price" type="number" min="0" step="0.01" value="' + escAttr(v.price == null ? '' : v.price) + '" placeholder="商品价" title="留空就用商品本身的价格"></div>' +
