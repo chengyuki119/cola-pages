@@ -352,15 +352,39 @@
     });
   }
 
-  function posScanSubmit(v) { // 扫码/手动输入统一入口：商品条码→加购；SYU- 单件条码→反查关联商品（她 20261108 §4）
+  function posScanSubmit(v) { // 扫码/手动输入统一入口：规格条码/商品条码→加购；SYU- 单件条码→反查关联商品（她 20261108 §4；13:26 补规格级）
     v = String(v || '').trim();
     if (!v) return;
+    var vUp = v.toUpperCase();
+    // ① 规格条码优先（每个规格独立 SKU，扫哪个规格开哪个规格）
+    var hitV = null, hitP = null;
+    POS.prods.forEach(function (p) {
+      if (hitV) return;
+      (p.variants || []).forEach(function (vv) {
+        if (!hitV && String(vv.sku || '').toUpperCase() === vUp) { hitV = vv; hitP = p; }
+      });
+    });
+    if (hitV && hitP) {
+      if (hitP.sold) { toast(t('这个商品已售出，不能开单', 'Item already sold')); return; }
+      var nm = ((window.LANG === 'en' && hitP.name_en) ? hitP.name_en : hitP.name) + ' · ' + (hitV.name || '');
+      var ex = POS.items.filter(function (x) { return x.variantSku === (hitV.sku || ''); })[0];
+      if (ex) { ex.qty++; }
+      else {
+        POS.items.push({ id: hitP.id, variantSku: hitV.sku || '', name: nm, price: (hitV.price != null && hitV.price !== '') ? Number(hitV.price) : (Number(hitP.price) || 0), qty: 1, image: (hitV.images && hitV.images[0]) || posImg(hitP), sku: hitV.sku || '' });
+      }
+      var q1 = document.getElementById('pos-q'); if (q1) q1.value = '';
+      renderPosPicks(); renderPosCart();
+      toast(t('已扫入规格：', 'Scanned variant: ') + nm);
+      return;
+    }
+    // ② 商品条码
     var hit = POS.prods.filter(function (p) { return (p.sku || '').toLowerCase() === v.toLowerCase(); })[0];
     if (hit) {
       if (hit.sold) { toast(t('这个商品已售出，不能开单', 'Item already sold')); return; }
       posScanAdd(hit, t('已扫入：', 'Scanned: ') + ((window.LANG === 'en' && hit.name_en) ? hit.name_en : hit.name));
       return;
     }
+    // ③ 单件条码（SYU-）
     if (/^SYU-/i.test(v)) {
       api('shop_product_units?unit_code=eq.' + encodeURIComponent(v) + '&select=unit_code,product_id').then(function (r) { return r.json(); }).then(function (rows) {
         var u = (rows || [])[0];

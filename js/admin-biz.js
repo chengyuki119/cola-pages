@@ -1078,15 +1078,19 @@
     mask.querySelector('.biz-scan-close').addEventListener('click', function () { closeScanOverlay(); });
     mask.querySelector('.biz-scan-go').addEventListener('click', function () { finish(mask.querySelector('.biz-scan-manual').value); });
     mask.querySelector('.biz-scan-manual').addEventListener('keydown', function (e) { if (e.key === 'Enter') finish(this.value); });
-    h5.start({ facingMode: 'environment' }, { fps: 10, qrbox: function (vw, vh) { var m2 = Math.min(vw, vh); return { width: Math.floor(m2 * 0.85), height: Math.floor(m2 * 0.52) }; } },
-      function (decodedText) { finish(decodedText); },
-      function () {}
-    ).then(function () {
+    // iOS Safari / Android Chrome：先显式要一次权限（授权弹窗更稳定），成功即停，交给 html5-qrcode 接管
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then(function (probe) {
+      try { probe.getTracks().forEach(function (t) { t.stop(); }); } catch (e) {}
+      return h5.start({ facingMode: 'environment' }, { fps: 10, qrbox: function (vw, vh) { var m2 = Math.min(vw, vh); return { width: Math.floor(m2 * 0.85), height: Math.floor(m2 * 0.52) }; } },
+        function (decodedText) { finish(decodedText); },
+        function () {});
+    }).then(function () {
       var tip = mask.querySelector('.biz-scan-tip');
       if (tip) tip.textContent = '对准条码，识别到会自动关闭并查询';
     }).catch(function (err) {
+      var msg = (err && err.message) ? String(err.message) : '';
       var tip = mask.querySelector('.biz-scan-tip');
-      if (tip) tip.textContent = '摄像头启动失败（' + ((err && err.message) ? String(err.message).slice(0, 60) : '请检查权限') + '），可用下方手动输入。';
+      if (tip) tip.textContent = '摄像头启动失败：' + (msg.indexOf('Permission') >= 0 || msg.indexOf('NotAllowed') >= 0 ? '没有摄像头权限——iPhone：设置 › Safari › 摄像头 允许后刷新页面；Android：刷新页面重新授权' : msg.slice(0, 60)) + '。也可以用下方手动输入。';
     });
   }
   function closeScanOverlay() {
