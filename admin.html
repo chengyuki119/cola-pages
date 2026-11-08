@@ -2823,11 +2823,11 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       });
   }
   var EDIT_OPEN_ID = null; // 她 20261104 §二.4：同时只允许一个商品处于编辑态
-  function prodMenuHtml(off, displayOnly, noVar, homeOff, sku) {
+  function prodMenuHtml(off, displayOnly, noVar, homeOff, sku, pid) {
     // 20261104 21:44：⋮ 菜单只列当前状态下有效且不冲突的动作（她 21:44 任务书 §二）
     // 20261107 晚：编码/条码从列表卡收进菜单（她：列表卡不展示编码和描述）
     var h = '';
-    if (sku) h += '<button type="button" class="mi yk-barcode-mi" data-pid="' + String(p && p.id || '').replace(/"/g, '&quot;') + '">商品条码</button>'; // 条码统一在商品条码页，这里不再弹条码
+    if (sku) h += '<button type="button" class="mi yk-barcode-mi" data-pid="' + String(pid || '').replace(/"/g, '&quot;') + '">商品条码</button>'; // 条码统一在商品条码页，这里不再弹条码
     if (off) {
       h += '<button type="button" class="mi btn-off" data-act="show">上架商品</button>';
     } else {
@@ -2924,7 +2924,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
             '<button type="button" class="btn-edit-prod">编辑</button>' +
             '</div></div>' +
             '<button type="button" class="kebab" title="更多操作" aria-haspopup="true">⋮</button>' +
-            '<div class="card-menu" hidden>' + prodMenuHtml(off, !!p.display_only, vsum == null, isHomeOff(p.id), p.sku) + '</div>' +
+            '<div class="card-menu" hidden>' + prodMenuHtml(off, !!p.display_only, vsum == null, isHomeOff(p.id), p.sku, p.id) + '</div>' +
             '</div>';
         }).join('');
         // 前台「编辑商品」直达：按商品 id 展开对应商品的编辑状态
