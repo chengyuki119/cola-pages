@@ -2827,7 +2827,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     // 20261104 21:44：⋮ 菜单只列当前状态下有效且不冲突的动作（她 21:44 任务书 §二）
     // 20261107 晚：编码/条码从列表卡收进菜单（她：列表卡不展示编码和描述）
     var h = '';
-    if (sku) h += '<button type="button" class="mi yk-barcode-mi" data-code="' + String(sku).replace(/"/g, '&quot;') + '">看条码</button>';
+    if (sku) h += '<button type="button" class="mi yk-barcode-mi" data-pid="' + String(p && p.id || '').replace(/"/g, '&quot;') + '">商品条码</button>'; // 条码统一在商品条码页，这里不再弹条码
     if (off) {
       h += '<button type="button" class="mi btn-off" data-act="show">上架商品</button>';
     } else {
@@ -2993,8 +2993,14 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     var card = e.target.closest('.shop-item');
     if (!card) return;
     var id = card.getAttribute('data-id');
-    var bcmi = e.target.closest('.yk-barcode-mi'); // 20261107 晚：条码入口从列表卡收进 ⋮ 菜单
-    if (bcmi) { prodMenuClose(); window.ykShowBarcode(bcmi.getAttribute('data-code'), (PRODUCT_CACHE[id] || {}).name || ''); return; }
+    var bcmi = e.target.closest('.yk-barcode-mi'); // 20261107 晚：条码入口收进 ⋮ 菜单；20261108 §二.4 改为跳转商品条码页定位，不再重复弹条码
+    if (bcmi) {
+      prodMenuClose();
+      try { sessionStorage.setItem('biz-bc-target', bcmi.getAttribute('data-pid') || id); } catch (err) {}
+      switchTab('units');
+      if (window.BIZ && window.BIZ.renderProductBarcodes && !window.__bizBcRenderGuard) { window.BIZ.renderProductBarcodes(); }
+      return;
+    }
     if (e.target.classList.contains('kebab')) { prodMenuToggle(card); return; }
     if (e.target.classList.contains('mi') || e.target.closest('.mi-row')) setTimeout(prodMenuClose, 0); // 点操作 → 菜单自动关
     if (e.target.classList.contains('btn-display')) {
