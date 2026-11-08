@@ -577,8 +577,9 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   #sc-pop .sc-opt-del { background: none; color: var(--text); }
   #sc-pop .sc-opt-del:hover { background: var(--accent,#F9E5ED); }
   /* 色卡 / BJD 列表：同一个卡片尺寸规范（同一网格、同一间距、同一卡片结构）*/
-  #sc-artist-list, #bjd-list, #works-list { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; } /* §2.2 桌面每行 5 个（她 20261026 总任务书） */
-  @media (max-width: 900px) { #sc-artist-list, #bjd-list, #works-list { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); } }
+  #sc-artist-list, #bjd-list, #works-list, #product-list { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; } /* §2.2 桌面每行 5 个（她 20261026 总任务书）；20261107 晚四列表统一 */
+  @media (max-width: 900px) { #sc-artist-list, #bjd-list, #works-list, #product-list { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); } }
+  @media (max-width: 640px) { #sc-artist-list, #bjd-list, #works-list, #product-list { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; } }
   #sc-artist-list .sc-artist, #bjd-list .bjd-item { margin-bottom: 0; }
   #sc-artist-list .sc-artist.editing, #bjd-list .bjd-item.editing, #works-list .work-item.editing { grid-column: 1 / -1; }
   /* 评价返图管理：跟色卡同一套卡片尺寸规范（方图卡 + 卡内 ⋮） */
@@ -606,6 +607,18 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .sc-info .sc-name:hover { color:var(--text,#65515D); }
   .sc-info .sc-shop { font-size:15px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-height: 19px; }
   .sc-info .sc-meta { font-size:15px; color: var(--muted); margin-top: 3px; }
+  /* 20261107 晚后台卡统一（她指定以稿件管理为标准）：价格行 + 通栏编辑按钮，四类列表卡同一套 */
+  .adm-price-line { min-height: 19px; }
+  .adm-price-line span { font-size: 16px; }
+  .adm-edit-btn {
+    display: block; width: 100%; height: 38px; margin-top: 10px; padding: 0;
+    border: 1.6px solid #F8DDE8; background: #FFF8FA; color: #897783;
+    border-radius: 11px; font-family: inherit; font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: background .18s, border-color .18s;
+  }
+  .adm-edit-btn:hover { background: #F6C5D7; border-color: #F6C5D7; }
+  .adm-edit-btn:active { background: #FCECF2; border-color: #F8DDE8; }
+  .adm-edit-btn:focus-visible { outline: 2px solid #F6C5D7; outline-offset: 2px; }
   .sc-info .sc-price { font-size:17px; color:var(--text,#65515D); font-weight: 600; margin-top: 4px; }
   /* 编辑态内所有 ⋮（卡片级/画师级/行级）都在同一条垂直线上 */
   .sc-artist.editing > .sc-kebab { right: 16px; }
@@ -679,8 +692,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .fld-label { font-size:15px; color: var(--muted); flex-shrink: 0; }
   /* 小铺商品：缩略图更矮、保持原始比例不裁切 */
   .shop-item .thumb {
-    width: 60px; height: 60px; border-radius: 12px; overflow: hidden;
-    background: var(--card); flex-shrink: 0; position: relative;
+    width: 100%; aspect-ratio: 1 / 1; overflow: hidden;
+    background: var(--accent-soft,#FCECF2); position: relative;
     display: flex; align-items: center; justify-content: center; font-size:25px;
   }
   .shop-item .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -819,11 +832,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   </style>
   <style id="adm-prod-grid">
     /* 她 20261104 §二.1：后台商品列表改成和前台小铺一致的卡片网格（不再一条一条横着排） */
-    /* 20261104 21:43：一排五个，与前台小铺（.grid）同断点、同列数 */
-    #product-list { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 14px; align-items: stretch; }
-    @media (max-width: 1200px) { #product-list { grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; } }
-    @media (max-width: 1100px) { #product-list { grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; } }
-    @media (max-width: 640px)  { #product-list { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; } }
+    /* 20261107 晚：列数/断点/间距统一由上方 580 行的统一网格规则管（四列表同一套），这里只保留 stretch 对齐 */
+    #product-list { align-items: stretch; }
     #product-list > .empty { grid-column: 1 / -1; }
     #product-list .shop-item {
       display: flex; flex-direction: column; gap: 8px;
@@ -833,8 +843,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     }
     #product-list .shop-item:hover { box-shadow: 0 6px 20px rgba(255,143,171,.20); }
     #product-list .shop-item .thumb {
-      width: 100%; height: auto; aspect-ratio: 1 / 1; border-radius: 12px;
-      background: var(--card-hover); font-size: 28px;
+      width: 100%; height: auto; aspect-ratio: 1 / 1; border-radius: 0;
+      background: var(--accent-soft,#FCECF2); font-size: 28px;
     }
     #product-list .shop-item .info { width: 100%; flex: 1 1 auto; min-width: 0; }
     /* 标题：名字占两行、超出省略，标签永远露在外面不被裁掉 */
@@ -910,7 +920,6 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       #product-list .shop-item .info h3 { padding-right: 24px; }
       #product-list .shop-item .private-line { overflow-wrap: anywhere; }
       #product-list .shop-item .actions { gap: 5px; row-gap: 6px; padding-top: 8px; }
-      #product-list .shop-item .thumb { border-radius: 11px; }
     }
     /* 编辑中的卡片占满整行：表单不再被左侧缩略图挤窄 */
     #product-list .shop-item.editing { grid-column: 1 / -1; }
@@ -2882,14 +2891,17 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           var stockInfo = vsum != null ? '库存 ' + vsum + '（按规格自动汇总）' : '库存 ' + (p.stock == null ? '-' : p.stock);
           var costInfo = p.cost == null ? '未填成本' : '成本 ¥' + p.cost;
           return '<div class="card shop-item" data-id="' + p.id + '" data-stock="' + (p.stock == null ? 0 : p.stock) + '">' +
-            '<div class="thumb">' + thumb + '</div>' +
+            '<div class="thumb">' + thumb + (p.image_url ? '' : '<div class="sc-img-empty">暂无图片</div>') + '</div>' +
             '<div class="info">' +
             '<h3><span class="nm">' + esc(p.name) + '</span><span class="sold-badge ' + st[1] + '">' + st[0] + '</span></h3>' +
-            '<p>' + esc(p.price ? (p.currency === 'USD' ? '$' : '¥') + p.price + ' · ' : '') + esc(p.description || '') + '</p>' +
+            '<div class="sc-shop">' + esc(p.tag || '&nbsp;') + '</div>' +
+            '<div class="sc-shop adm-price-line">' + (p.price ? '<span style="color:var(--price,#F48FB1);font-weight:600;">' + (p.currency === 'USD' ? '$' : '¥') + esc(String(p.price)) + '</span>' : '<span style="color:var(--muted);">—</span>') + '</div>' +
+            '<p>' + esc(p.description || '') + '</p>' +
             '<div class="private-line">' + stockInfo + ' · ' + costInfo + '（成本只有你自己能看到）</div>' +
             '<div class="prod-code" style="font-size:13px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">编码 ' + (p.sku ? esc(p.sku) : '未分配（保存时自动生成）') +
               (p.sku ? '<button class="btn-mini yk-barcode-btn" data-code="' + String(p.sku).replace(/"/g, '&quot;') + '" data-title="' + String(p.name || '').replace(/"/g, '&quot;') + '">条码</button>' : '') +
               '</div>' +
+            '<span class="tgl-label" style="margin-top:7px;"><button type="button" class="tgl p-home-toggle' + (isHomeOff(p.id) ? '' : ' on') + '" aria-pressed="' + !isHomeOff(p.id) + '" data-id="' + esc(p.id) + '" aria-label="主页展示"><span class="tgl-knob"></span></button>主页展示</span>' +
             '<div class="actions">' +
             '<button type="button" class="btn-edit-prod">编辑</button>' +
             '</div></div>' +
@@ -2978,6 +2990,15 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       setHomeOff(id, !toShow)
         .then(function () { toast(toShow ? '已设为在首页展示' : '已取消首页展示'); loadProducts(); })
         .catch(function () { toast('操作失败：没有真的保存首页展示状态，请重新登录后再试'); });
+      return;
+    }
+    if (e.target.closest('.p-home-toggle')) { // 20261107 晚：卡上主页展示开关（与 ⋮ 菜单同一状态源 shop_home_off，点击即保存）
+      var tglEl = e.target.closest('.p-home-toggle');
+      var pid2 = tglEl.getAttribute('data-id') || id;
+      var willShow = !tglEl.classList.contains('on');
+      setHomeOff(pid2, !willShow)
+        .then(function () { toast(willShow ? '已设为在首页展示' : '已取消首页展示'); loadProducts(); })
+        .catch(function () { toast('操作失败：没有真的保存主页展示状态，请重新登录后再试'); });
       return;
     }
     if (e.target.classList.contains('btn-minus') || e.target.classList.contains('btn-plus')) {
@@ -4804,7 +4825,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       var c = x.c, i = x.i;
       c = normCard(c);
       if (i !== CARDS_EDIT) {
-        // 她 20261107 §6.1：列表卡只留 封面/名称/主页展示开关/小编辑按钮——收卡价格、画师明细、总价只在编辑态显示（数据与编辑功能不动）
+        // 她 20261107 §6.1：列表卡只留 封面/名称/主页展示开关/小编辑按钮；20261107 晚：补作者行/总价行/通栏编辑（后台卡统一标准）
         return '<div class="card sc-artist" data-i="' + i + '" style="position:relative;padding:0;overflow:hidden;">' +
           '<button class="kebab sc-kebab" title="菜单">⋮</button>' +
           '<div class="sc-card-img">' +
@@ -4812,10 +4833,12 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           '</div>' +
           '<div class="sc-info">' +
           '<b class="sc-name">' + esc(c.name || '未命名色卡') + '</b>' +
+          '<div class="sc-shop">' + (c.shop ? esc(c.shop) : '&nbsp;') + '</div>' +
+          '<div class="sc-shop adm-price-line">' + (cardFinal(c) > 0 ? '<span style="color:var(--price,#F48FB1);font-weight:600;">¥' + fmtMoney(cardFinal(c)) + '</span>' : '<span style="color:var(--muted);">—</span>') + '</div>' +
           '<div style="display:flex;align-items:center;gap:10px;margin-top:7px;flex-wrap:wrap;">' +
           '<div class="tgl-label" style="margin-top:0;"><button type="button" class="tgl c-home-toggle' + (c.homeShow !== false ? ' on' : '') + '" aria-pressed="' + (c.homeShow !== false) + '" aria-label="主页展示"><span class="tgl-knob"></span></button>主页展示</div>' +
-          '<button type="button" class="btn-mini sc-list-edit" data-i="' + i + '">编辑</button>' +
           '</div>' +
+          '<button type="button" class="sc-list-edit adm-edit-btn" data-i="' + i + '">编辑</button>' +
           '</div>' +
           '</div>';
       }
@@ -5847,6 +5870,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       var b = x.b, i = x.i;
       b = normBjd(b);
       if (i !== BJDS_EDIT) {
+        // 20261107 晚后台卡统一标准：封面→名称→部件详情→价格→主页展示→编辑
         return '<div class="card bjd-item" data-i="' + i + '" style="position:relative;padding:0;overflow:hidden;">' +
           '<button class="kebab bjd-kebab" title="菜单">⋮</button>' +
           '<div class="sc-card-img">' +
@@ -5857,7 +5881,9 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           '<div style="font-size:15px;color:var(--muted);margin-top:3px;line-height:1.65;white-space:normal;">' +
           bjdInfoLines(b).map(function (r) { return '<span style="color:var(--muted);">' + esc(r[0]) + '：</span>' + esc(r[1]); }).join('<br>') +
           '</div>' +
+          '<div class="sc-shop adm-price-line">' + (function () { var tv = bjdSumV(b); return tv > 0 ? '<span style="color:var(--price,#F48FB1);font-weight:600;">¥' + fmtMoney(tv) + '</span>' : (b.price && b.price.total ? '<span style="color:var(--price,#F48FB1);font-weight:600;">¥' + esc(String(b.price.total)) + '</span>' : '<span style="color:var(--muted);">—</span>'); })() + '</div>' +
           '<span class="tgl-label" style="margin-top:7px;"><button type="button" class="tgl b-home-toggle' + (b.homeShow !== false ? ' on' : '') + '" aria-pressed="' + (b.homeShow !== false) + '" aria-label="主页展示"><span class="tgl-knob"></span></button>主页展示</span>' +
+          '<button type="button" class="bjd-list-edit adm-edit-btn" data-i="' + i + '">编辑</button>' +
           '</div>' +
           '</div>';
       }
@@ -6245,6 +6271,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     if (!list) return;
     list.innerHTML = WORKS.map(function (w, i) {
       if (i !== WORKS_EDIT) {
+        // 20261107 晚后台卡统一标准（她指定）：封面→标题→作者/分类→价格→主页展示→编辑按钮
         return '<div class="card work-item" data-i="' + i + '" style="position:relative;padding:0;overflow:hidden;">' +
           '<button class="kebab work-kebab" title="菜单">⋮</button>' +
           '<div class="sc-card-img">' +
@@ -6252,9 +6279,10 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           '</div>' +
           '<div class="sc-info">' +
           '<b class="sc-name">' + esc(w.name || '未命名稿件') + '</b>' +
-          '<div class="sc-shop">' + [w.cat, w.artist].filter(Boolean).map(esc).join(' · ') + '</div>' +
-          '<div class="sc-shop">' + esc(w.date || '') + (parseFloat(w.price) ? ' · <span style="color:var(--price,#F48FB1);">¥' + fmtMoney(w.price) + '</span>' : '') + '</div>' +
+          '<div class="sc-shop">' + ([w.cat, w.artist, w.date].filter(Boolean).map(esc).join(' · ') || '&nbsp;') + '</div>' +
+          '<div class="sc-shop adm-price-line">' + (parseFloat(w.price) ? '<span style="color:var(--price,#F48FB1);font-weight:600;">¥' + fmtMoney(w.price) + '</span>' : '<span style="color:var(--muted);">—</span>') + '</div>' +
           '<span class="tgl-label" style="margin-top:7px;"><button type="button" class="tgl w-vis-toggle' + (w.visible !== false ? ' on' : '') + '" aria-pressed="' + (w.visible !== false) + '" aria-label="主页展示"><span class="tgl-knob"></span></button>主页展示</span>' +
+          '<button type="button" class="w-list-edit adm-edit-btn" data-i="' + i + '">编辑</button>' +
           '</div>' +
           '</div>';
       }
@@ -6316,6 +6344,10 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     var card = e.target.closest('.work-item');
     if (!card) return;
     var i = parseInt(card.getAttribute('data-i'), 10);
+    var wledit = e.target.closest('.w-list-edit');
+    if (wledit) { // 20261107 晚：卡上通栏编辑按钮 → 进入原完整编辑界面
+      WORKS_EDIT = i; EDIT_TYPE = 'work'; renderWorks(); goEditTop(); return;
+    }
     if (e.target.classList.contains('btn-work-save')) { // 方框内的保存：存这个稿件并退出编辑
       saveWorksQuiet(function () {
         WORKS_EDIT = -1; EDIT_TYPE = null;
@@ -6391,6 +6423,10 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     var card = e.target.closest('.bjd-item');
     if (!card) return;
     var i = parseInt(card.getAttribute('data-i'), 10);
+    var bledit = e.target.closest('.bjd-list-edit');
+    if (bledit) { // 20261107 晚：卡上通栏编辑按钮 → 进入原完整编辑界面
+      BJDS_EDIT = i; EDIT_TYPE = 'bjd'; renderBjds(); goEditTop(); return;
+    }
     if (e.target.closest('.btn-bjd-save-tb')) { toolbarSave(); return; } // 编辑区里的保存
     if (e.target.closest('.btn-bjd-cancel-tb')) { // 取消：从最近保存的快照还原并退出编辑
       BJDS = JSON.parse(JSON.stringify(BJDS_SAVED));
