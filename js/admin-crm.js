@@ -223,7 +223,7 @@
     if (panel.dataset.booted) return;
     panel.dataset.booted = '1';
     renderPos();
-    api('products?select=id,name,name_en,cover_zh,cover_en,price,stock,sold,image_url,images&order=created_at.desc&limit=200').then(function (r) { return r.json(); }).then(function (rows) { POS.prods = rows || []; renderPosPicks(); });
+    api('products?select=id,name,name_en,sku,cover_zh,cover_en,price,stock,sold,image_url,images&order=created_at.desc&limit=200').then(function (r) { return r.json(); }).then(function (rows) { POS.prods = rows || []; renderPosPicks(); });
     api('shop_customers?select=id,c_no,name,email&order=created_at.desc&limit=200').then(function (r) { return r.json(); }).then(function (rows) { POS.custs = rows || []; });
   };
 
@@ -304,6 +304,30 @@
       sel2.addEventListener('change', function () { POS.customerId = sel2.value || null; });
     });
     panel.querySelector('#pos-q').addEventListener('input', renderPosPicks);
+    // 她 20261108：线下开单扫码——输入框回车即「扫入」：商品编码（条码码值）直接加购；单件编码（SYU-）反查关联商品后加购
+    panel.querySelector('#pos-q').addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter') return;
+      var v = (this.value || '').trim();
+      if (!v) return;
+      e.preventDefault();
+      var hit = POS.prods.filter(function (p) { return (p.sku || '').toLowerCase() === v.toLowerCase(); })[0];
+      if (hit) {
+        if (hit.sold) { toast(t('这个商品已售出，不能开单', 'Item already sold')); return; }
+        posScanAdd(hit, t('已扫入：', 'Scanned: ') + ((window.LANG === 'en' && hit.name_en) ? hit.name_en : hit.name));
+        return;
+      }
+      if (/^SYU-/i.test(v)) {
+        api('shop_product_units?unit_code=eq.' + encodeURIComponent(v) + '&select=unit_code,product_id').then(function (r) { return r.json(); }).then(function (rows) {
+          var u = (rows || [])[0];
+          var p = u && POS.prods.filter(function (x) { return x.id === u.product_id; })[0];
+          if (!p) { toast(t('这个单件编码没有关联到在售商品', 'No linked product')); return; }
+          if (p.sold) { toast(t('关联的商品已售出', 'Linked product sold')); return; }
+          posScanAdd(p, t('已扫入单件 ' + u.unit_code + '：', 'Scanned unit: ') + ((window.LANG === 'en' && p.name_en) ? p.name_en : p.name));
+        }).catch(function () { toast(t('单件编码查询失败，请重试', 'Lookup failed')); });
+        return;
+      }
+      toast(t('没扫到对应商品（' + v + '）', 'No product matches'));
+    });
     panel.querySelector('#pos-save').addEventListener('click', posSave);
     renderPosPicks(); renderPosCart();
   }
@@ -338,6 +362,14 @@
       POS.items.push({ id: '', name: name, price: price, qty: 1, image: '', sku: '' });
       renderPosCart();
     });
+  }
+
+  function posScanAdd(p, msg) {
+    var ex = POS.items.filter(function (x) { return x.id === p.id; })[0];
+    if (ex) { ex.qty++; } else { POS.items.push({ id: p.id, name: (window.LANG === 'en' && p.name_en) ? p.name_en : p.name, price: Number(p.price) || 0, qty: 1, image: posImg(p), sku: p.sku || '' }); }
+    var q = document.getElementById('pos-q'); if (q) q.value = '';
+    renderPosPicks(); renderPosCart();
+    toast(msg);
   }
 
   function renderPosCart() {
