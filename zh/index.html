@@ -617,43 +617,19 @@
   }).catch(function () {});
 
   // ===== 主页设置（后台「主页管理」同步：文案/头像/背景图）=====
-  // 柚子专属门禁：未授权剥离 BJD/色卡/稿件数据并隐藏区块；授权改用 RPC 数据；pending（SQL 未跑）按旧源放行
-  // 契约见 js/site-common.js ykExclusiveCheck() / ykExclusiveData(kind)
+  // 她 20261108：色卡/BJD/稿件改为公开浏览——不再经「柚子专属门禁」，匿名直接读公开键；
+  // 照片区块维持原登录逻辑（未登录隐藏）；私密日历另有 ykCalGate 门禁，不受本次影响
   function ykGateApply(S) {
-    var strip = function () {
-      delete S.bjds; delete S.cards; delete S.works;
-      var logged = false;
-      try {
-        var ss = JSON.parse(localStorage.getItem('yuki-user-session') || 'null') || JSON.parse(localStorage.getItem('yuki-admin-session') || 'null');
-        logged = !!(ss && (ss.a || ss.r));
-      } catch (e) {}
-      ['sec-bjd', 'sec-cards', 'sec-works'].forEach(function (id) {
-        var el = document.getElementById(id);
-        if (el) { el.style.display = 'none'; el.setAttribute('data-yk-hidden', '1'); }
-      });
-      if (!logged) { // 照片展示也需登录：未登录隐藏照片区块
-        var g = document.getElementById('sec-gallery');
-        if (g) { g.style.display = 'none'; g.setAttribute('data-yk-hidden', '1'); }
-      }
-      return S;
-    };
-    if (!window.ykExclusiveCheck) return Promise.resolve(S); // 旧缓存 site-common 无新模块时按 pending 放行
-    return window.ykExclusiveCheck().then(function (res) {
-      if (res && res.ok === false) return strip();
-      if (res && res.ok === true && window.ykExclusiveData) {
-        return Promise.all(['bjds', 'cards', 'works'].map(function (k) {
-          return window.ykExclusiveData(k).catch(function () { return undefined; });
-        })).then(function (r) {
-          ['bjds', 'cards', 'works'].forEach(function (k, i) {
-            var v = r[i];
-            if (v === undefined || v === null) { delete S[k]; return; }
-            S[k] = (typeof v === 'string') ? v : JSON.stringify(v);
-          });
-          return S;
-        });
-      }
-      return S;
-    }).catch(function () { return S; });
+    var logged = false;
+    try {
+      var ss = JSON.parse(localStorage.getItem('yuki-user-session') || 'null') || JSON.parse(localStorage.getItem('yuki-admin-session') || 'null');
+      logged = !!(ss && (ss.a || ss.r));
+    } catch (e) {}
+    if (!logged) { // 照片展示也需登录：未登录隐藏照片区块
+      var g = document.getElementById('sec-gallery');
+      if (g) { g.style.display = 'none'; g.setAttribute('data-yk-hidden', '1'); }
+    }
+    return S;
   }
   dbFetch('site_settings?select=key,value&limit=100').then(function (rows) {
     var S = {};

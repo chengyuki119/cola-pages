@@ -230,16 +230,9 @@
 
   // 数据：柚子专属门禁（契约见 js/site-common.js ykGatePage / ykExclusiveData）
   function ykStartLoad(kind, fn) {
-    if (!window.ykGatePage) { fn(); return; } // 旧缓存 site-common 无门禁模块时按 pending 放行
-    ykGatePage().then(function (ok) {
-      if (!ok) return;
-      if (window.ykExclusiveCheck && window.ykExclusiveData) {
-        ykExclusiveCheck().then(function (res) {
-          if (res.ok !== true) { fn(); return; }
-          ykExclusiveData(kind).then(function (v) { window.YK_RPC_DATA = v; fn(); }, function () { fn(); });
-        }).catch(function () { fn(); });
-      } else fn();
-    }).catch(function () {});
+    // 她 20261108：三类内容（色卡/BJD/稿件）改为公开浏览——不再走登录门禁与专属 RPC，
+    // 直接加载数据（匿名读公开键，管理员登录态读同一份数据）；本函数保留壳避免调用点失效
+    fn();
   }
   function ykLoadData() {
   ykAuthFetch('site_settings?select=key,value&limit=100') /* 私有键走登录态（SQL5 后 anon 拿不到 bjds）*/.then(function (rows) {
