@@ -271,9 +271,11 @@
       if (!d || typeof d !== 'object') return null;
       var ks = Object.keys(d);
       if (!ks.length) return null;
-      if (!order) order = ks;
-      else if (ks.length !== order.length) return null;
+      if (!order) order = ks.slice();
+      else ks.forEach(function (k) { if (order.indexOf(k) === -1) order.push(k); }); // 她 20261108：不同类型 SKU 维度键可不同，取并集
     }
+    var ti = order.indexOf('类型'); // 类型作第一行（她 20261108：先选商品类型）
+    if (ti > 0) { order.splice(ti, 1); order.unshift('类型'); }
     return order;
   }
   function variantByDims(vs, sel) {
@@ -322,14 +324,18 @@
     var blocks = order.map(function (n) {
       var vals = [];
       vs.forEach(function (v) { var x = (v.dims || {})[n]; if (x && vals.indexOf(x) === -1) vals.push(x); });
+      if (!vals.length) return '';
+      var chips = vals.map(function (val) {
+        var on = sel[n] === val;
+        var out = dimChipOut(vs, n, val, sel);
+        return '<button type="button" class="sku-chip dim-chip' + (on ? ' on' : '') + (out ? ' dis' : '') + '" data-dim="' + escAttr(n) + '" data-val="' + escAttr(val) + '">' + esc(val) + (out ? ' · ' + t('缺货', 'Out') : '') + '</button>';
+      }).join('');
+      // 她 20261108：当前已选下整行无可用选项则整行隐藏（切类型后不出现无关规格行）
+      var anyLive = vals.some(function (val) { return sel[n] === val || !dimChipOut(vs, n, val, sel); });
+      if (!anyLive && !sel[n]) return '';
       return '<div class="d-dim" data-dim="' + escAttr(n) + '" style="margin-bottom:10px;">' +
         '<div class="d-dim-name" style="font-size:15px;color:var(--text,#65515D);margin-bottom:5px;">' + esc(n) + '</div>' +
-        '<div class="d-dim-opts" style="display:flex;gap:8px;flex-wrap:wrap;">' +
-        vals.map(function (val) {
-          var on = sel[n] === val;
-          var out = dimChipOut(vs, n, val, sel);
-          return '<button type="button" class="sku-chip dim-chip' + (on ? ' on' : '') + (out ? ' dis' : '') + '" data-dim="' + escAttr(n) + '" data-val="' + escAttr(val) + '">' + esc(val) + (out ? ' · ' + t('缺货', 'Out') : '') + '</button>';
-        }).join('') + '</div></div>';
+        '<div class="d-dim-opts" style="display:flex;gap:8px;flex-wrap:wrap;">' + chips + '</div></div>';
     }).join('');
     return '<div class="d-variants" id="d-dims" style="margin:10px 0;"><div style="font-size:16px;margin-bottom:6px;">' + t('规格', 'Option') + '</div>' + blocks + '</div>';
   }
@@ -613,7 +619,8 @@
         try { history.replaceState(null, '', '?id=' + encodeURIComponent(p.id) + '&sku=' + encodeURIComponent(d.sku)); } catch (e) {}
       });
     });
-    // 多维度：逐维度点选，全部维度选完才确定规格（缺货组合直接拦）
+    // 多维度：逐维度点选；选中后自动清掉与新值不兼容的已选维度（她 20261108：跨类型切换不再被灰死）；
+    // 已选组合能唯一确定一个规格时立即确定，不必选满全部维度
     document.querySelectorAll('#d-dims .dim-chip').forEach(function (chip) {
       chip.addEventListener('click', function () {
         var dim = chip.getAttribute('data-dim'), val = chip.getAttribute('data-val');
@@ -622,14 +629,40 @@
         var prevSel = {};
         Object.keys(d.selDims).forEach(function (k) { prevSel[k] = d.selDims[k]; });
         d.selDims[dim] = val;
-        var need = dimsOrder(p) || [];
-        var allPicked = need.every(function (n) { return !!d.selDims[n]; });
-        var match = allPicked ? variantByDims(vs, d.selDims) : null;
-        if (allPicked && !match) { // 不存在的组合：退回上一次选择
+        // 她 20261108：清掉与新值不兼容的已选维度（只保留与「存在含新值的 SKU」相容的已选项）
+        var compat = {};
+        compat[dim] = val;
+        var partMatch = function (probe) { // 存在满足 probe 全部键的未冻结 SKU 即真
+          for (var i = 0; i < vs.length; i++) {
+            var v = vs[i];
+            if (v.frozen) continue;
+            var dd = v.dims || {}; var ok = true;
+            for (var kk in probe) { if (dd[kk] !== probe[kk]) { ok = false; break; } }
+            if (ok) return true;
+          }
+          return false;
+        };
+        (dimsOrder(p) || []).forEach(function (n) {
+          if (n === dim || d.selDims[n] === undefined) return;
+          var probe = {}; probe[dim] = val; probe[n] = d.selDims[n];
+          if (partMatch(probe)) compat[n] = d.selDims[n];
+        });
+        d.selDims = compat;
+        var match = null, matchCount = 0;
+        for (var i = 0; i < vs.length; i++) {
+          var v = vs[i];
+          if (v.frozen) continue;
+          var dd = v.dims || {}; var ok = true;
+          for (var kk in d.selDims) { if (dd[kk] !== d.selDims[kk]) { ok = false; break; } }
+          if (ok) { matchCount += 1; if (!match) match = v; }
+        }
+        if (matchCount === 0) { // 不存在的组合：退回上一次选择
           d.selDims = prevSel;
           toast(t('这个组合不存在，换一个吧', 'This combination does not exist'));
           return;
         }
+        if (matchCount > 1 || !d.sku) { /* 多个匹配或尚未定：继续选 */ }
+        if (match && matchCount > 1) match = null; // 唯一匹配才确定规格
         if (match && (parseInt(match.stock, 10) <= 0 || match.frozen === true)) { // 缺货 / 已禁用的组合不能选
           d.selDims = prevSel;
           toast(t('这个组合缺货了，换一个吧', 'This combination is out of stock'));
