@@ -1733,7 +1733,7 @@
   function skuSeqOf(rows) {
     var m = 0;
     arr(rows).forEach(function (r) {
-      var g = String((r && r.sku) || '').match(/^SY-P(\d{3,})/);
+      var g = String((r && r.sku) || '').match(/^SY0*(\d{3,})/) || String((r && r.sku) || '').match(/^SY-P0*(\d{3,})/);
       if (g) { var n = parseInt(g[1], 10); if (n > m) m = n; }
     });
     return m;
@@ -1751,13 +1751,14 @@
       return SKU_SEQ;
     }).catch(function () { SKU_SEQ_READY = true; return SKU_SEQ; });
   }
+  // 她 20261108 15:14 §2：全站短编号 SY0001 起连续发放，商品和每个规格都从同一个序列取号（永不重复）
   window.ykNextProdCode = function () {
     SKU_SEQ = (SKU_SEQ || 0) + 1;
     var n = SKU_SEQ;
     api('site_settings?on_conflict=key', { method: 'POST', headers: { 'Prefer': 'resolution=merge-duplicates' }, body: JSON.stringify({ key: 'prod_code_seq', value: JSON.stringify({ n: n }) }) }).catch(function () {});
-    return 'SY-P' + padN(n, 5);
+    return 'SY' + padN(n, 4);
   };
-  window.ykVarSkuOf = function (code, i) { return code + '-' + padN(i + 1, 3); };
+  window.ykVarSkuOf = function () { return window.ykNextProdCode(); }; // 规格不再派生自商品码，独立取号（SY0xxx 短码）
   /* 条码弹窗：手机举着屏幕就能扫（Code128，内容就是 SKU 本身） */
   window.ykShowBarcode = function (code, title) {
     if (!code) { toast('还没有编码'); return; }

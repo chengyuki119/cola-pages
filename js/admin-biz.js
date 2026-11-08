@@ -1076,7 +1076,23 @@
       if (!hitV) prods.forEach(function (p) { if (!hitP && String(p.sku || '').toUpperCase() === vUp) { hitP = p; byProduct = true; } });
       if (hitV) return fin({ type: 'variant', p: hitP, v: hitV, code: code });
       if (hitP) return fin({ type: 'product', p: hitP, byProduct: byProduct, code: code });
-      fin(null);
+      // 旧条码兼容（她 20261108 15:14 §5）：没直接命中时查别名映射（旧码→新短码），转成新码再走一遍匹配
+      api('site_settings?select=value&key=eq.sku_alias_map').then(function (r) { return r.json(); }).then(function (rows) {
+        var m = {};
+        try { m = JSON.parse(((rows || [])[0] || {}).value || '{}') || {}; } catch (e) {}
+        var mapped = m[vUp];
+        if (!mapped) return fin(null);
+        var v2 = String(mapped).toUpperCase();
+        prods.forEach(function (p) {
+          (p.variants || []).forEach(function (v) {
+            if (!hitV && String(v.sku || '').toUpperCase() === v2) { hitV = v; hitP = p; }
+          });
+        });
+        if (!hitV) prods.forEach(function (p) { if (!hitP && String(p.sku || '').toUpperCase() === v2) { hitP = p; byProduct = true; } });
+        if (hitV) return fin({ type: 'variant', p: hitP, v: hitV, code: code, aliasOf: vUp });
+        if (hitP) return fin({ type: 'product', p: hitP, byProduct: byProduct, code: code, aliasOf: vUp });
+        fin(null);
+      }).catch(function () { fin(null); });
     }
     api('shop_product_units?unit_code=eq.' + encodeURIComponent(code) + '&select=*').then(function (r) { return r.json(); }).then(function (rows) {
       if (rows && rows.length) return fin({ type: 'unit', unit: rows[0], code: code });
