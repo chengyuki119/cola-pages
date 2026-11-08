@@ -815,7 +815,7 @@
       var img = p.image_url || '';
       var head = '<img src="' + escAttr(img) + '" onerror="this.style.display=\'none\'" style="width:46px;height:46px;border-radius:10px;object-fit:cover;flex:none;">' +
         '<div style="flex:1;min-width:0;"><div style="font-size:15px;font-weight:600;color:var(--text,#65515D);">' + esc(p.name || '') + '</div>' +
-        '<div style="font-size:12px;color:var(--muted,#897783);margin-top:2px;">' + (p.price != null ? '$' + Number(p.price).toFixed(2) : '') + '</div></div>';
+        '<div style="font-size:12px;color:var(--muted,#897783);margin-top:2px;">' + (p.price != null && p.price !== '' ? '$' + Number(p.price).toFixed(2) : t('价格面议', 'Ask for price')) + '</div></div>';
       if (isPriceListProd(p)) {
         return '<div class="biz-pbc-row">' + head + '<span style="font-size:13px;color:var(--muted,#897783);">价格表商品，不出条码</span></div>';
       }
@@ -861,7 +861,7 @@
         '<div class="bcode">' + barcodeSvg(p.sku, { width: 2.4, height: 72 }) + '</div>' +
         '<div class="txt">' +
           '<div class="pname">' + esc(p.name || '') + '</div>' +
-          (p.price != null ? '<div class="price">$' + Number(p.price).toFixed(2) + '</div>' : '') +
+          (p.price != null && p.price !== '' ? '<div class="price">$' + Number(p.price).toFixed(2) + '</div>' : '') +
           '<div class="ucode">' + esc(p.sku) + '</div>' +
           '<div class="meta">线下开单扫码 · 扫码枪直接读取</div>' +
         '</div>' +
