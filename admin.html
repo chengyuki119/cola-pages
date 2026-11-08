@@ -1003,7 +1003,6 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         <button class="tab-btn" data-tab="reviews">评价返图管理</button>
         <button class="tab-btn" data-tab="shopmgr">订单管理</button>
         <button class="tab-btn" data-tab="vip">客户与会员</button>
-        <button class="tab-btn" data-tab="pos">线下开单</button>
         <div class="pp-sub">互动管理</div>
         <button class="tab-btn" data-tab="messages">联系与留言管理</button>
         <button class="tab-btn" data-tab="ai">AI 对话</button>
@@ -1152,6 +1151,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       <button class="adm-subtab" data-sub="units">商品条码</button>
       <button class="adm-subtab" data-sub="qcscan">扫码验货</button>
       <button class="adm-subtab" data-sub="cost">成本计算</button>
+      <button class="adm-subtab" data-sub="pos">线下开单</button>
     </div>
     <div class="adm-subtabs" id="shopmgr-subtabs" style="display:none;">
       <!-- 2026-10-30 §三：订单管理不再挂「客户与会员」，VIP 只在客户管理里看，功能本身一点没删 -->
@@ -2097,8 +2097,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     s.addEventListener('click', function () { switchTab(s.dataset.sub); });
   });
   // 菜单整合映射（她 20261026t 任务书 §三）：编码/验货/成本归小铺上架，工作台/导出/打印归订单管理；子页签条随宿主显隐
-  var TAB_ALIAS = { units: 'shop', qcscan: 'shop', cost: 'shop', workbench: 'shopmgr', export: 'shopmgr', print: 'shopmgr', crm: 'shopmgr' };
-  var SUBTABS = { shop: ['shop', 'units', 'qcscan', 'cost'], shopmgr: ['shopmgr', 'crm', 'workbench', 'export', 'print'] };
+  var TAB_ALIAS = { units: 'shop', qcscan: 'shop', cost: 'shop', pos: 'shop', workbench: 'shopmgr', export: 'shopmgr', print: 'shopmgr', crm: 'shopmgr' };
+  var SUBTABS = { shop: ['shop', 'units', 'qcscan', 'cost', 'pos'], shopmgr: ['shopmgr', 'crm', 'workbench', 'export', 'print'] };
   function switchTab(name) {
     var main = TAB_ALIAS[name] || name;
     document.querySelectorAll('.tab-btn').forEach(function (x) { x.classList.remove('active'); });
@@ -7455,7 +7455,7 @@ function loadEmailLog() {
 
 <script src="js/admin-shop.js?v=20261108H"></script>
 <script src="js/admin-import.js?v=20261105C"></script>
-<script src="js/admin-crm.js?v=20261108J"></script>
+<script src="js/admin-crm.js?v=20261108K"></script>
 <script src="js/admin-vip.js?v=20261105C" data-legacy="1"></script>
 <script src="js/admin-customer.js?v=20261105C"></script>
 <script src="js/admin-invite.js?v=20261105C"></script>
@@ -7464,7 +7464,7 @@ function loadEmailLog() {
 <script src="js/vendor/qrcode-generator.js?v=20261105C"></script>
 <script src="js/vendor/JsBarcode.all.min.js?v=20261105C"></script>
 <script src="js/admin-workbench.js?v=20261105C"></script>
-<script src="js/admin-biz.js?v=20261108I"></script>
+<script src="js/admin-biz.js?v=20261108K"></script>
 <script src="js/admin-export.js?v=20261105C"></script>
 <footer style="padding:18px 0 0; text-align:center;">© 2026 Yuki · Made with Cola</footer>
 <script id="np-mobile-js">

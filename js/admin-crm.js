@@ -352,52 +352,38 @@
     });
   }
 
-  function posScanSubmit(v) { // 扫码/手动输入统一入口：规格条码/商品条码→加购；SYU- 单件条码→反查关联商品（她 20261108 §4；13:26 补规格级）
+  function posScanSubmit(v) { // 扫码/手动输入统一入口：识别走共享 resolveBarcode（她 20261108 §三.2），POS 只负责加购
     v = String(v || '').trim();
     if (!v) return;
-    var vUp = v.toUpperCase();
-    // ① 规格条码优先（每个规格独立 SKU，扫哪个规格开哪个规格）
-    var hitV = null, hitP = null;
-    POS.prods.forEach(function (p) {
-      if (hitV) return;
-      (p.variants || []).forEach(function (vv) {
-        if (!hitV && String(vv.sku || '').toUpperCase() === vUp) { hitV = vv; hitP = p; }
-      });
-    });
-    if (hitV && hitP) {
-      if (hitP.sold) { toast(t('这个商品已售出，不能开单', 'Item already sold')); return; }
-      var nm = ((window.LANG === 'en' && hitP.name_en) ? hitP.name_en : hitP.name) + ' · ' + (hitV.name || '');
-      var ex = POS.items.filter(function (x) { return x.variantSku === (hitV.sku || ''); })[0];
-      if (ex) { ex.qty++; }
-      else {
-        POS.items.push({ id: hitP.id, variantSku: hitV.sku || '', name: nm, price: (hitV.price != null && hitV.price !== '') ? Number(hitV.price) : (Number(hitP.price) || 0), qty: 1, image: (hitV.images && hitV.images[0]) || posImg(hitP), sku: hitV.sku || '' });
-      }
-      var q1 = document.getElementById('pos-q'); if (q1) q1.value = '';
-      renderPosPicks(); renderPosCart();
-      toast(t('已扫入规格：', 'Scanned variant: ') + nm);
-      return;
-    }
-    // ② 商品条码
-    var hit = POS.prods.filter(function (p) { return (p.sku || '').toLowerCase() === v.toLowerCase(); })[0];
-    if (hit) {
-      if (hit.sold) { toast(t('这个商品已售出，不能开单', 'Item already sold')); return; }
-      posScanAdd(hit, t('已扫入：', 'Scanned: ') + ((window.LANG === 'en' && hit.name_en) ? hit.name_en : hit.name));
-      return;
-    }
-    // ③ 单件条码（SYU-）
-    if (/^SYU-/i.test(v)) {
-      api('shop_product_units?unit_code=eq.' + encodeURIComponent(v) + '&select=unit_code,product_id').then(function (r) { return r.json(); }).then(function (rows) {
-        var u = (rows || [])[0];
-        var p = u && POS.prods.filter(function (x) { return x.id === u.product_id; })[0];
+    if (!window.BIZ || !window.BIZ.resolveBarcode) { toast(t('扫码识别还没加载好，请刷新重试', 'Resolver not ready')); return; }
+    window.BIZ.resolveBarcode(v, function (res) {
+      if (!res) { toast(t('没扫到对应商品（' + v + '）', 'No product matches')); return; }
+      if (res.type === 'unit') { // SYU- 单件条码：反查关联商品加购
+        var p = res.unit && POS.prods.filter(function (x) { return x.id === res.unit.product_id; })[0];
         if (!p) { toast(t('这个单件条码没有关联到在售商品', 'No linked product')); return; }
         if (p.sold) { toast(t('关联的商品已售出', 'Linked product sold')); return; }
-        posScanAdd(p, t('已扫入单件 ' + u.unit_code + '：', 'Scanned unit: ') + ((window.LANG === 'en' && p.name_en) ? p.name_en : p.name));
-      }).catch(function () { toast(t('单件条码查询失败，请重试', 'Lookup failed')); });
-      return;
-    }
-    toast(t('没扫到对应商品（' + v + '）', 'No product matches'));
+        posScanAdd(p, t('已扫入单件 ' + res.unit.unit_code + '：', 'Scanned unit: ') + ((window.LANG === 'en' && p.name_en) ? p.name_en : p.name));
+        return;
+      }
+      var p = res.p;
+      if (!p) { toast(t('没扫到对应商品（' + v + '）', 'No product matches')); return; }
+      if (p.sold) { toast(t('这个商品已售出，不能开单', 'Item already sold')); return; }
+      if (res.type === 'variant') { // 规格条码：加购对应规格（规格价优先，购物车按规格独立计数）
+        var vv = res.v;
+        var nm = ((window.LANG === 'en' && p.name_en) ? p.name_en : p.name) + ' · ' + (vv.name || '');
+        var ex = POS.items.filter(function (x) { return x.variantSku === (vv.sku || ''); })[0];
+        if (ex) { ex.qty++; }
+        else {
+          POS.items.push({ id: p.id, variantSku: vv.sku || '', name: nm, price: (vv.price != null && vv.price !== '') ? Number(vv.price) : (Number(p.price) || 0), qty: 1, image: (vv.images && vv.images[0]) || posImg(p), sku: vv.sku || '' });
+        }
+        var q1 = document.getElementById('pos-q'); if (q1) q1.value = '';
+        renderPosPicks(); renderPosCart();
+        toast(t('已扫入规格：', 'Scanned variant: ') + nm);
+        return;
+      }
+      posScanAdd(p, t('已扫入：', 'Scanned: ') + ((window.LANG === 'en' && p.name_en) ? p.name_en : p.name));
+    }, { prods: POS.prods });
   }
-
   function posScanAdd(p, msg) {
     var ex = POS.items.filter(function (x) { return x.id === p.id; })[0];
     if (ex) { ex.qty++; } else { POS.items.push({ id: p.id, name: (window.LANG === 'en' && p.name_en) ? p.name_en : p.name, price: Number(p.price) || 0, qty: 1, image: posImg(p), sku: p.sku || '' }); }

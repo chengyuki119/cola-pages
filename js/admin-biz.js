@@ -100,8 +100,9 @@
       '.biz-bc-tool:hover{background:#FCECF2;border-color:#F6C5D7;}',
       '.biz-bc-fold{border:0;background:none;color:#C9B2BC;font-size:14px;cursor:pointer;padding:2px 6px;font-family:inherit;flex:none;}',
       '.biz-bc-fold:hover{color:#897783;}',
-      '.biz-bc-grp.biz-bc-folded .biz-bc-grid{display:none;}',
+      '.biz-bc-grp.biz-bc-folded + .biz-bc-grid-wrap{display:none;}',
       '.biz-bc-grp.biz-bc-folded .biz-bc-gcnt, .biz-bc-grp.biz-bc-folded .biz-bc-printall{display:none;}',
+      '.biz-bc-grid-wrap{padding:0 2px 2px;}',
       '.biz-bc-grp .biz-bc-ghead{cursor:pointer;}',
       '.biz-bc-card.biz-bc-hit{outline:2.5px solid #F6C5D7;outline-offset:1px;}',
       '.biz-bc-grp{border:1.5px solid var(--accent-soft,#FCECF2);border-radius:14px;background:#fff;padding:10px 12px;margin-bottom:10px;}',
@@ -782,51 +783,7 @@
         '</div>' +
         '<div id="biz-p-bc" style="margin-top:12px;display:flex;flex-direction:column;gap:10px;"><p class="biz-u-empty">加载中…</p></div>' +
       '</div>' +
-      '<div class="card" style="padding:16px 20px;margin-bottom:14px;">' +
-        '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">' +
-          '<b style="font-size:17px;color:var(--text,#65515D);">单件条码</b>' +
-          '<span style="font-size:13px;color:var(--muted,#897783);">每件作品一个唯一条码，扫码可查真伪与质检记录</span>' +
-          '<button class="btn-save-tb" id="biz-u-new" style="margin-left:auto;">＋ 生成单件条码</button>' +
-        '</div>' +
-        '<div class="biz-u-bar">' +
-          '<input id="biz-u-q" class="biz-u-q" placeholder="搜索单件条码 / 型号编码 / 批次号">' +
-          '<select id="biz-u-sort" class="biz-u-sel" aria-label="排序方式">' +
-            '<option value="new">最新生成</option>' +
-            '<option value="old">最早生成</option>' +
-            '<option value="name">商品名称</option>' +
-            '<option value="batch">批次号</option>' +
-          '</select>' +
-          '<select id="biz-u-size" class="biz-u-sel" aria-label="每页条数">' +
-            '<option value="20">每页 20 条</option>' +
-            '<option value="50">每页 50 条</option>' +
-            '<option value="100">每页 100 条</option>' +
-          '</select>' +
-        '</div>' +
-        '<div class="biz-u-tools">' +
-          '<button class="biz-u-sub" id="biz-u-bulk">批量生成</button>' +
-          '<button class="biz-u-sub" id="biz-u-print">打印标签（当前列表）</button>' +
-          '<button class="biz-chip" id="biz-u-print-sel" style="display:none;">打印标签（<span id="biz-u-seln">0</span> 张勾选）</button>' +
-        '</div>' +
-      '</div>' +
-      '<div id="biz-u-list"><p class="biz-u-empty">加载中…</p></div>' +
-      '<div id="biz-u-pager" class="biz-u-pager"></div>';
-    $('biz-u-new').addEventListener('click', function () { openUnitForm(1); });
-    $('biz-u-print').addEventListener('click', function () {
-      /* 打印当前「搜索 + 排序」后的全部记录，不只是这一页 */
-      var rows = unitView();
-      if (!rows.length) { toast('当前列表没有可打印的编码'); return; }
-      printLabelsBatch(rows);
-    });
-    $('biz-u-bulk').addEventListener('click', function () { openUnitForm(null); });
-    $('biz-u-print-sel').addEventListener('click', function () {
-      var rows = UNITS.list.filter(function (u) { return UNITS.sel[u.id]; });
-      if (!rows.length) { toast('先勾选要打印的编码'); return; }
-      printLabelsBatch(rows);
-    });
-    $('biz-u-q').addEventListener('input', function () { UNITS.search = this.value.trim(); UNITS.page = 1; renderUnitRows(); });
-    $('biz-u-sort').addEventListener('change', function () { UNITS.sort = this.value; UNITS.page = 1; renderUnitRows(); });
-    $('biz-u-size').addEventListener('change', function () { UNITS.size = parseInt(this.value, 10) || 20; UNITS.page = 1; renderUnitRows(); });
-    renderProductBarcodes(); // 她 20261108：每件商品一个条码（价格表除外），线下开单扫码用
+    renderProductBarcodes(); // 她 20261108：商品条码页统一管理所有条码（规格条码+单件条码都在商品分组下）
   }
 
   /* ── 商品条码（她 20261108 下午任务书）：每个规格一个独立条码，码值=规格 sku（唯一数据源，不建新表）；
@@ -834,55 +791,17 @@
   function renderProductBarcodes() {
     var box = $('biz-p-bc'); if (!box) return;
     var prods = (UNITS.products || []).filter(function (p) { return !p.sold; });
-    if (!prods.length) { box.innerHTML = '<p class="biz-u-empty">没有在售商品</p>'; return; }
-    if (!UNITS.fold) UNITS.fold = {}; // 每商品独立折叠状态（她 20261108 §2）
+    if (!prods.length && !((UNITS.list || []).filter(function (u) { return !u.product_id || !UNITS.pmap[u.product_id]; }).length)) { box.innerHTML = '<p class="biz-u-empty">没有在售商品</p>'; return; }
+    if (!UNITS.exp) UNITS.exp = {}; // 每商品独立展开状态；默认全部收起（她 20261108 14:11）
     var html = '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px;">' +
         '<button class="biz-bc-tool" id="biz-bc-allexpand">全部展开</button>' +
         '<button class="biz-bc-tool" id="biz-bc-allfold">全部收起</button>' +
         '<button class="biz-bc-tool" id="biz-bc-printall">打印全部条码</button>' +
-        '<button class="biz-bc-tool" id="biz-bc-scan">📱 手机扫码</button>' +
-        '<span style="font-size:12px;color:var(--muted,#897783);">收起的商品只显示图片、名称和编号；点商品行展开</span>' +
+        '<span style="font-size:12px;color:var(--muted,#897783);">默认收起：点商品行展开，规格条码和单件条码都在组内</span>' +
       '</div>';
-    prods.forEach(function (p) {
-      var vs = (p.variants || []).filter(function (v) { return v && v.sku && !v.frozen; });
-      var img = p.image_url || '';
-      var folded = !!UNITS.fold[p.id];
-      var chev = '<button type="button" class="biz-bc-fold" data-pid="' + escAttr(p.id) + '" title="展开/收起">' + (folded ? '▸' : '▾') + '</button>';
-      var ghead = '<div class="biz-bc-ghead" data-pid="' + escAttr(p.id) + '">' +
-        '<img src="' + escAttr(img) + '" onerror="this.style.display=\'none\'">' +
-        '<div style="flex:1;min-width:0;"><div style="font-size:15px;font-weight:600;color:var(--text,#65515D);">' + esc(p.name || '') + '</div>' +
-        '<div style="font-size:12px;color:var(--muted,#897783);margin-top:1px;">' + (p.sku ? esc(p.sku) : '') + '</div></div>';
-      if (vs.length) {
-        html += '<div class="biz-bc-grp' + (folded ? ' biz-bc-folded' : '') + '" data-pid="' + escAttr(p.id) + '">' + ghead +
-          '<div class="biz-bc-gcnt" style="font-size:12px;color:var(--muted,#897783);">' + vs.length + ' 个规格条码</div>' +
-          '<button class="btn-mini biz-bc-printall" data-id="' + escAttr(p.id) + '">打印全部</button>' + chev +
-        '</div>' +
-        '<div class="biz-bc-grid">' +
-        vs.map(function (v) {
-          return '<div class="biz-bc-card">' +
-            '<img class="biz-bc-img" src="' + escAttr((v.images && v.images[0]) || img) + '" onerror="this.style.display=\'none\'">' +
-            '<div class="biz-bc-nm" title="' + escAttr(v.name || '') + '">' + esc(v.name || '') + '</div>' +
-            '<span class="biz-bc-code" data-code="' + escAttr(v.sku) + '"></span>' +
-            '<div class="biz-bc-sku">' + esc(v.sku) + '</div>' +
-            '<button class="biz-bc-print" data-code="' + escAttr(v.sku) + '" data-name="' + escAttr(p.name || '') + '" data-sub="' + escAttr(v.name || '') + '">打印</button>' +
-          '</div>';
-        }).join('') +
-        '</div></div>';
-      } else if (p.sku) {
-        html += '<div class="biz-bc-grp' + (folded ? ' biz-bc-folded' : '') + '" data-pid="' + escAttr(p.id) + '">' + ghead +
-          '<div class="biz-bc-gcnt" style="font-size:12px;color:var(--muted,#897783);">商品条码</div>' + chev +
-        '</div>' +
-        '<div class="biz-bc-grid"><div class="biz-bc-card">' +
-          '<img class="biz-bc-img" src="' + escAttr(img) + '" onerror="this.style.display=\'none\'">' +
-          '<span class="biz-bc-code" data-code="' + escAttr(p.sku) + '"></span>' +
-          '<div class="biz-bc-sku">' + esc(p.sku) + '</div>' +
-          '<button class="biz-bc-print" data-code="' + escAttr(p.sku) + '" data-name="' + escAttr(p.name || '') + '" data-sub="">打印</button>' +
-        '</div></div></div>';
-      } else {
-        html += '<div class="biz-bc-grp' + (folded ? ' biz-bc-folded' : '') + '" data-pid="' + escAttr(p.id) + '">' + ghead +
-          '<div style="font-size:12px;color:#C4636E;">暂无条码：商品还没有编码</div>' + chev + '</div></div>';
-      }
-    });
+    var orphans = (UNITS.list || []).filter(function (u) { return !u.product_id || !UNITS.pmap[u.product_id]; });
+    prods.forEach(function (p) { html += bcGroupHtml(p); });
+    if (orphans.length) html += bcGroupHtml(null, orphans); // 未关联商品的单件条码兜底分组，不丢数据
     box.innerHTML = html;
     Array.prototype.forEach.call(box.querySelectorAll('.biz-bc-code'), function (el) {
       el.innerHTML = barcodeSvg(el.getAttribute('data-code'), { width: 1.1, height: 20, margin: 2, displayValue: false }); // 她 20261108：小展示，码值与打印不动
@@ -902,7 +821,7 @@
         printBcLabels(items); // 数量上限交给 printBcLabels 内部分批（她 20261108 §3）
       });
     });
-    /* 折叠：组头整行点击 / chevron，每商品独立（她 20261108 §2） */
+    /* 折叠：组头整行点击 / chevron，每商品独立，默认收起 */
     Array.prototype.forEach.call(box.querySelectorAll('.biz-bc-ghead'), function (gh) {
       gh.addEventListener('click', function (ev) {
         if (ev.target.closest('.biz-bc-printall') || ev.target.closest('.biz-bc-fold')) return;
@@ -912,13 +831,13 @@
     Array.prototype.forEach.call(box.querySelectorAll('.biz-bc-fold'), function (fb) {
       fb.addEventListener('click', function () { toggleBcGroup(fb.getAttribute('data-pid'), box); });
     });
-    var ae = $('biz-bc-allexpand'), af = $('biz-bc-allfold'), pa = $('biz-bc-printall'), sc = $('biz-bc-scan');
-    if (ae) ae.addEventListener('click', function () { UNITS.fold = {}; renderProductBarcodes(); });
-    if (af) af.addEventListener('click', function () {
-      UNITS.fold = {};
-      (UNITS.products || []).forEach(function (p) { UNITS.fold[p.id] = true; });
+    var ae = $('biz-bc-allexpand'), af = $('biz-bc-allfold'), pa = $('biz-bc-printall');
+    if (ae) ae.addEventListener('click', function () {
+      UNITS.exp = {};
+      (UNITS.products || []).forEach(function (p) { UNITS.exp[p.id] = true; });
       renderProductBarcodes();
     });
+    if (af) af.addEventListener('click', function () { UNITS.exp = {}; renderProductBarcodes(); });
     if (pa) pa.addEventListener('click', function () {
       var items = [];
       (UNITS.products || []).filter(function (p) { return !p.sold; }).forEach(function (p) {
@@ -929,22 +848,42 @@
       if (!items.length) { toast('没有可打印的条码'); return; }
       printBcLabels(items);
     });
-    if (sc) sc.addEventListener('click', function () {
-      openScanOverlay(function (code) {
-        var sel = '.biz-bc-code[data-code="' + code.split('"').join('') + '"]';
-        var el = box.querySelector(sel);
-        if (!el) { toast('条码页里没有这个条码（' + code + '）'); return; }
-        var grp = el.closest('.biz-bc-grp');
-        if (grp && grp.classList.contains('biz-bc-folded')) toggleBcGroup(grp.getAttribute('data-pid'), box);
-        el = box.querySelector(sel);
-        var card = el ? el.closest('.biz-bc-card') : null;
-        if (card) {
-          card.classList.add('biz-bc-hit');
-          setTimeout(function () { card.classList.remove('biz-bc-hit'); }, 3000);
-          card.scrollIntoView({ block: 'center', behavior: 'smooth' });
-          toast('已定位：' + code);
-        }
-      });
+    /* 商品分组内的单件条码小节：勾选打印 / 查看条码 / 生成（预选本商品） */
+    Array.prototype.forEach.call(box.querySelectorAll('[data-uact]'), function (b) {
+      var act = b.getAttribute('data-uact'), pid = b.getAttribute('data-pid');
+      if (act === 'chk') {
+        b.addEventListener('click', function () {
+          var id = b.getAttribute('data-uid');
+          if (UNITS.sel[id]) delete UNITS.sel[id]; else UNITS.sel[id] = true;
+          renderProductBarcodes();
+        });
+      } else if (act === 'viewcode') {
+        b.addEventListener('click', function () {
+          var u = UNITS.list.filter(function (x) { return x.id === b.getAttribute('data-uid'); })[0];
+          if (u) openCodeModal(u);
+        });
+      } else if (act === 'unit') {
+        b.addEventListener('click', function () {
+          var u = UNITS.list.filter(function (x) { return x.id === b.getAttribute('data-uid'); })[0];
+          if (u) openUnitDetail(u);
+        });
+      } else if (act === 'newunit') {
+        b.addEventListener('click', function () { openUnitForm(1, pid || ''); });
+      } else if (act === 'bulkunit') {
+        b.addEventListener('click', function () { openUnitForm(null, pid || ''); });
+      } else if (act === 'printunit') {
+        b.addEventListener('click', function () {
+          var rows = (UNITS.list || []).filter(function (u) { return sameGroup(u, pid); });
+          if (!rows.length) { toast('这个商品还没有单件条码'); return; }
+          printLabelsBatch(rows);
+        });
+      } else if (act === 'printunitsel') {
+        b.addEventListener('click', function () {
+          var rows = (UNITS.list || []).filter(function (u) { return sameGroup(u, pid) && UNITS.sel[u.id]; });
+          if (!rows.length) { toast('先勾选要打印的编码'); return; }
+          printLabelsBatch(rows);
+        });
+      }
     });
     /* 规格 ⋯ 菜单「商品条码」跳转过来：定位+高亮该商品组。
        双委托（编辑卡+上架表单冒泡）会连渲两次——定位延迟 150ms 等渲染稳定后执行，以最终 DOM 为准。 */
@@ -954,7 +893,8 @@
       setTimeout(function () {
         var grp = box.querySelector('.biz-bc-grp[data-pid="' + tgt + '"]');
         if (!grp) return;
-        if (grp.classList.contains('biz-bc-folded')) toggleBcGroup(tgt, box);
+        UNITS.exp[tgt] = true;
+        renderProductBarcodes();
         var grp2 = box.querySelector('.biz-bc-grp[data-pid="' + tgt + '"]');
         if (grp2) {
           grp2.classList.add('biz-bc-hl');
@@ -965,15 +905,90 @@
       }, 150);
     }
   }
+  function sameGroup(u, pid) {
+    if (!pid) return !u.product_id || !UNITS.pmap[u.product_id]; // 兜底分组（未关联/商品已不存在）
+    return u.product_id === pid;
+  }
+  /* 一个商品分组：组头（图+名+编号+计数+打印全部+chevron）+ 展开内容（规格条码网格 + 单件条码小节）。
+     p 为 null 时渲染「未关联商品」兜底分组（只有单件条码）。 */
+  function bcGroupHtml(p, orphanUnits) {
+    var isOrphan = !p;
+    var pid = p ? p.id : '__none__';
+    var vs = p ? (p.variants || []).filter(function (v) { return v && v.sku && !v.frozen; }) : [];
+    var img = p ? (p.image_url || '') : '';
+    var units = orphanUnits || (UNITS.list || []).filter(function (u) { return u.product_id === pid; });
+    var folded = !UNITS.exp[pid];
+    var selN = units.filter(function (u) { return UNITS.sel[u.id]; }).length;
+    var chev = '<button type="button" class="biz-bc-fold" data-pid="' + escAttr(pid) + '" title="展开/收起">' + (folded ? '▸' : '▾') + '</button>';
+    var head = '<div class="biz-bc-ghead" data-pid="' + escAttr(pid) + '">' +
+      (img ? '<img src="' + escAttr(img) + '" onerror="this.style.display=\'none\'">' : '<span style="width:34px;height:34px;border-radius:9px;background:var(--accent-soft,#FCECF2);display:inline-flex;align-items:center;justify-content:center;color:#D9A7C7;font-size:11px;flex:none;">无图</span>') +
+      '<div style="flex:1;min-width:0;"><div style="font-size:15px;font-weight:600;color:var(--text,#65515D);">' + esc(isOrphan ? '未关联商品的单件条码' : (p.name || '')) + '</div>' +
+      '<div style="font-size:12px;color:var(--muted,#897783);margin-top:1px;">' + (isOrphan ? '' : (p.sku ? esc(p.sku) : '')) + '</div></div>';
+    var body = '';
+    if (p) {
+      if (vs.length) {
+        head += '<div class="biz-bc-gcnt" style="font-size:12px;color:var(--muted,#897783);">' + vs.length + ' 个规格条码</div>' +
+          '<button class="btn-mini biz-bc-printall" data-id="' + escAttr(pid) + '">打印全部</button>' + chev;
+        body += '<div class="biz-bc-grid">' +
+        vs.map(function (v) {
+          return '<div class="biz-bc-card">' +
+            '<img class="biz-bc-img" src="' + escAttr((v.images && v.images[0]) || img) + '" onerror="this.style.display=\'none\'">' +
+            '<div class="biz-bc-nm" title="' + escAttr(v.name || '') + '">' + esc(v.name || '') + '</div>' +
+            '<span class="biz-bc-code" data-code="' + escAttr(v.sku) + '"></span>' +
+            '<div class="biz-bc-sku">' + esc(v.sku) + '</div>' +
+            '<button class="biz-bc-print" data-code="' + escAttr(v.sku) + '" data-name="' + escAttr(p.name || '') + '" data-sub="' + escAttr(v.name || '') + '">打印</button>' +
+          '</div>';
+        }).join('') +
+        '</div>';
+      } else if (p.sku) {
+        head += '<div class="biz-bc-gcnt" style="font-size:12px;color:var(--muted,#897783);">商品条码</div>' + chev;
+        body += '<div class="biz-bc-grid"><div class="biz-bc-card">' +
+          '<img class="biz-bc-img" src="' + escAttr(img) + '" onerror="this.style.display=\'none\'">' +
+          '<span class="biz-bc-code" data-code="' + escAttr(p.sku) + '"></span>' +
+          '<div class="biz-bc-sku">' + esc(p.sku) + '</div>' +
+          '<button class="biz-bc-print" data-code="' + escAttr(p.sku) + '" data-name="' + escAttr(p.name || '') + '" data-sub="">打印</button>' +
+        '</div></div>';
+      } else {
+        head += '<div style="font-size:12px;color:#C4636E;">暂无条码：商品还没有编码</div>' + chev;
+      }
+    } else {
+      head += '<div class="biz-bc-gcnt" style="font-size:12px;color:var(--muted,#897783);">' + units.length + ' 个单件条码</div>' + chev;
+    }
+    if (units.length || !isOrphan) {
+      body += '<div style="margin-top:12px;padding-top:10px;border-top:1px dashed var(--card-hover,#F9E5ED);">' +
+        '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">' +
+          '<b style="font-size:14px;color:var(--text,#65515D);">单件条码</b>' +
+          '<span style="font-size:12px;color:var(--muted,#897783);">' + (units.length ? '共 ' + units.length + ' 个' : '还没有单件条码') + '</span>' +
+          '<span style="flex:1;"></span>' +
+          '<button class="biz-bc-tool" data-uact="newunit" data-pid="' + escAttr(pid) + '">＋ 生成单件条码</button>' +
+          (units.length ? '<button class="biz-bc-tool" data-uact="bulkunit" data-pid="' + escAttr(pid) + '">批量生成</button>' +
+            '<button class="biz-bc-tool" data-uact="printunit" data-pid="' + escAttr(pid) + '">打印全部单件</button>' +
+            (selN ? '<button class="biz-bc-tool" data-uact="printunitsel" data-pid="' + escAttr(pid) + '" style="color:#B98598;border-color:#E9C3D2;">打印勾选（' + selN + '）</button>' : '') : '') +
+        '</div>' +
+        (units.length ? units.map(function (u) {
+          var o = u.order_id ? UNITS.omap[u.order_id] : null;
+          return '<div style="display:flex;gap:10px;align-items:center;padding:7px 4px;border-bottom:1px solid var(--card-hover,#F9E5ED);flex-wrap:wrap;">' +
+            '<button type="button" class="biz-uchk'+(UNITS.sel[u.id]?' on':'')+'" data-uact="chk" data-uid="' + escAttr(u.id) + '" data-pid="' + escAttr(pid) + '" title="勾选后可批量打印标签" aria-label="勾选 '+escAttr(u.unit_code||'')+'">'+(UNITS.sel[u.id]?UCHK:'')+'</button>' +
+            '<b style="font-size:14px;color:var(--price,#F48FB1);cursor:pointer;min-width:120px;" data-uact="unit" data-uid="' + escAttr(u.id) + '" data-pid="' + escAttr(pid) + '" title="点开看这件作品的质检记录">' + esc(u.unit_code || '') + '</b>' +
+            '<span style="font-size:12px;color:var(--muted,#897783);flex:1;min-width:0;">型号 ' + esc(u.model_code || '—') + ' · 批次 ' + esc(u.batch_code || '—') + (o ? ' · 订单 ' + esc(o.order_no) : '') + '</span>' +
+            qcBadge(u.qc_status) +
+            '<button type="button" class="biz-bc-tool" data-uact="viewcode" data-uid="' + escAttr(u.id) + '" data-pid="' + escAttr(pid) + '">查看条码</button>' +
+          '</div>';
+        }).join('') : '') +
+      '</div>';
+    }
+    return '<div class="biz-bc-grp' + (folded ? ' biz-bc-folded' : '') + '" data-pid="' + escAttr(pid) + '">' + head +
+      '</div><div class="biz-bc-grid-wrap">' + body + '</div>';
+  }
   function toggleBcGroup(pid, box) {
     if (!pid) return;
-    if (!UNITS.fold) UNITS.fold = {};
-    UNITS.fold[pid] = !UNITS.fold[pid];
+    if (!UNITS.exp) UNITS.exp = {};
+    UNITS.exp[pid] = !UNITS.exp[pid];
     var grp = box.querySelector('.biz-bc-grp[data-pid="' + pid + '"]');
     if (grp) {
-      grp.classList.toggle('biz-bc-folded', !!UNITS.fold[pid]);
+      grp.classList.toggle('biz-bc-folded', !UNITS.exp[pid]);
       var fb = grp.querySelector('.biz-bc-fold');
-      if (fb) fb.textContent = UNITS.fold[pid] ? '▸' : '▾';
+      if (fb) fb.textContent = UNITS.exp[pid] ? '▾' : '▸';
     }
   }
   /* 条码标签打印（商品级+规格级通用）：88×54mm，A4 每页 8 张（2×4）；超 200 张自动分批（她 20261108 §3） */
@@ -1041,7 +1056,42 @@
     }
     w.build();
   }
-  /* ── 手机扫码浮层（她 20261108 §4）：html5-qrcode（ZXing 内核，Code128/EAN/二维码全支持）；
+  /* ── 统一条码识别（她 20261108 §三.2：验货与线下开单同一套识别逻辑）──
+     三级匹配：单件条码（SYU-，真实查库）→ 规格条码（variants.sku）→ 商品条码（products.sku）。
+     opts.prods 可传入调用方自己的商品缓存（POS 传实时列表），不传则用商品条码页缓存并按需懒加载。 */
+  function resolveBarcode(code, cb, opts) {
+    code = String(code || '').trim();
+    var vUp = code.toUpperCase();
+    var done = false;
+    function fin(res) { if (!done) { done = true; cb(res); } }
+    var prods = (opts && opts.prods && opts.prods.length) ? opts.prods : (UNITS.products || []);
+    function matchProds() {
+      var hitV = null, hitP = null, byProduct = false;
+      prods.forEach(function (p) {
+        (p.variants || []).forEach(function (v) {
+          if (!hitV && String(v.sku || '').toUpperCase() === vUp) { hitV = v; hitP = p; }
+        });
+      });
+      if (!hitV) prods.forEach(function (p) { if (!hitP && String(p.sku || '').toUpperCase() === vUp) { hitP = p; byProduct = true; } });
+      if (hitV) return fin({ type: 'variant', p: hitP, v: hitV, code: code });
+      if (hitP) return fin({ type: 'product', p: hitP, byProduct: byProduct, code: code });
+      fin(null);
+    }
+    api('shop_product_units?unit_code=eq.' + encodeURIComponent(code) + '&select=*').then(function (r) { return r.json(); }).then(function (rows) {
+      if (rows && rows.length) return fin({ type: 'unit', unit: rows[0], code: code });
+      if (prods.length || (opts && opts.prods)) return matchProds();
+      // 商品缓存还没加载（没进过商品条码页）：懒加载一次再匹配
+      return api('products?select=id,name,name_en,sku,variants,price,stock,sold,image_url,cover_zh,cover_en&order=created_at.desc&limit=300').then(function (r2) { return r2.json(); }).then(function (rows2) {
+        UNITS.products = Array.isArray(rows2) ? rows2 : [];
+        UNITS.pmap = {};
+        UNITS.products.forEach(function (p) { UNITS.pmap[p.id] = p; });
+        prods = UNITS.products;
+        matchProds();
+      });
+    }).catch(function () { fin(null); });
+  }
+
+  /* ── 手机扫码浮层（她 20261108 §4)：html5-qrcode（ZXing 内核，Code128/EAN/二维码全支持）；
      后置摄像头实时识别，识别成功自动回调；iPhone Safari / Android Chrome 通用；附手动输入兜底。 ── */
   function openScanOverlay(onResult) {
     closeScanOverlay();
@@ -1302,7 +1352,7 @@
   }
 
   /* ── 生成表单（单件 / 批量共用；连续生成版：生成完不关弹窗，可「继续生成」接着做，她 20261026t 任务书 §二）── */
-  function openUnitForm(presetN) {
+  function openUnitForm(presetN, presetPid) {
     var today = ymd();
     var isBulk = !(presetN >= 1);
     var mask = bizModal(
@@ -1328,7 +1378,12 @@
       '</div>',
       'biz-modal-lg'
     );
-    var st = { productId: '', orderId: '', orderNo: '', pending: false };
+    var st = { productId: presetPid || '', orderId: '', orderNo: '', pending: false };
+    if (presetPid) { // 分组内生成：预选本商品并带出商品名当型号（她 20261108 §二：入口收进商品分组）
+      var pp0 = UNITS.pmap[presetPid];
+      var pb0 = mask.querySelector('#biz-uf-prod');
+      if (pp0 && pb0) { pb0.textContent = pp0.name || '已选商品'; if (pp0.name) mask.querySelector('#biz-uf-model').value = pp0.name; }
+    }
     var okBtn = mask.querySelector('#biz-uf-ok');
     var resBox = mask.querySelector('#biz-uf-result');
     mask.querySelector('#biz-uf-prod').addEventListener('click', function () {
@@ -1709,39 +1764,23 @@
     QC.code = code;
     var box = $('biz-q-result');
     if (box) box.innerHTML = '<p style="color:var(--muted,#897783);text-align:center;padding:24px 0;">查询中…</p>';
-    api('shop_product_units?unit_code=eq.' + encodeURIComponent(code) + '&select=*').then(function (r) { return r.json(); }).then(function (rows) {
-      if (rows && rows.length) {
-        QC.unit = rows[0];
-        if (!QC.entryFor || QC.entryFor !== rows[0].id) { QC.entry = null; QC.entryFor = rows[0].id; }
-        loadQcDetail();
-        return null;
+    // 统一识别（她 20261108 §三.2）：单件→规格→商品 一套逻辑，验货只负责展示
+    resolveBarcode(code, function (res) {
+      if (!res) {
+        if (box) box.innerHTML =
+          '<div class="card" style="padding:28px 20px;text-align:center;">' +
+            '<p style="font-size:17px;color:var(--text,#65515D);font-weight:700;margin:0;">条码不存在</p>' +
+            '<p style="font-size:14px;color:var(--muted,#897783);margin:8px 0 0;">没查到「' + esc(code) + '」（单件条码、规格条码、商品条码都不匹配），请确认条码是否抄对。</p>' +
+          '</div>';
+        return;
       }
-      // 单件没查到 → 商品/规格条码匹配（她 20261108 §5：必须真正查库匹配商品及具体规格）
-      return api('products?select=id,name,sku,variants,price,stock,image_url,cover_zh,cover_en&order=created_at.desc&limit=300').then(function (r) { return r.json(); }).then(function (prods) {
-        var hitV = null, hitP = null, hitByProduct = false;
-        (prods || []).forEach(function (p) {
-          (p.variants || []).forEach(function (v) {
-            if (!hitV && String(v.sku || '').toUpperCase() === code) { hitV = v; hitP = p; }
-          });
-        });
-        if (!hitV) {
-          (prods || []).forEach(function (p) {
-            if (!hitP && String(p.sku || '').toUpperCase() === code) { hitP = p; hitByProduct = true; }
-          });
-        }
-        if (!hitP) {
-          if (box) box.innerHTML =
-            '<div class="card" style="padding:28px 20px;text-align:center;">' +
-              '<p style="font-size:17px;color:var(--text,#65515D);font-weight:700;margin:0;">条码不存在</p>' +
-              '<p style="font-size:14px;color:var(--muted,#897783);margin:8px 0 0;">没查到「' + esc(code) + '」（单件条码、规格条码、商品条码都不匹配），请确认条码是否抄对。</p>' +
-            '</div>';
-          return null;
-        }
-        renderQcProdResult(box, code, hitP, hitV, hitByProduct);
-        return null;
-      });
-    }).catch(function () {
-      if (box) box.innerHTML = '<p style="color:var(--muted,#897783);text-align:center;padding:24px 0;">查询失败，请重试</p>';
+      if (res.type === 'unit') {
+        QC.unit = res.unit;
+        if (!QC.entryFor || QC.entryFor !== res.unit.id) { QC.entry = null; QC.entryFor = res.unit.id; }
+        loadQcDetail();
+        return;
+      }
+      renderQcProdResult(box, res.code, res.p, res.type === 'variant' ? res.v : null, !!res.byProduct);
     });
   }
 
@@ -1998,5 +2037,5 @@
   }
 
   /* ═══════════ 注册（admin.html 切页处调用：BIZ.bootCost() / BIZ.bootUnits() / BIZ.bootQcscan()） ═══════════ */
-  window.BIZ = { bootCost: bootCost, bootUnits: bootUnits, bootQcscan: bootQcscan, selfTest: selfTest, renderProductBarcodes: renderProductBarcodes, openScanOverlay: openScanOverlay, closeScanOverlay: closeScanOverlay };
+  window.BIZ = { bootCost: bootCost, bootUnits: bootUnits, bootQcscan: bootQcscan, selfTest: selfTest, renderProductBarcodes: renderProductBarcodes, openScanOverlay: openScanOverlay, closeScanOverlay: closeScanOverlay, resolveBarcode: resolveBarcode };
 })();
