@@ -28,6 +28,7 @@
     '/policies/',
     '/faq/',
     '/brand/',
+    '/how-to-order/',
     '/service/',
     '/tracking/',
     '/privacy-policy/',

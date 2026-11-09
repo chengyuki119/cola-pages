@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <script src="/js/lang-path.js?v=20261109A"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>如何下单 · Snow Yuzu</title>
+  <meta name="description" content="How to order from Snow Yuzu: browse the shop, add to cart, checkout, and pay — four simple steps, with help from Yuki whenever you need it.">
+  <link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki2-180.png">
+  <link rel="stylesheet" href="/css/site.css?v=20261107H">
+  <link rel="stylesheet" href="/site-menu.css?v=20261105C">
+  <script src="/js/site-common.js?v=20261107H"></script>
+  <script src="/site-menu.js?v=20261105C" defer></script>
+  <style>
+    .sy-hub { max-width: 640px; }
+    .ho-steps { list-style: none; counter-reset: ho; margin: 0; padding: 0; }
+    .ho-steps li { counter-increment: ho; position: relative; padding: 0 0 18px 46px; font-size:17px; line-height:1.9; color: var(--text,#65515D); }
+    .ho-steps li::before {
+      content: counter(ho);
+      position: absolute; left: 0; top: 3px;
+      width: 30px; height: 30px; border-radius: 999px;
+      background: var(--accent-soft,#FCECF2); border: 1.5px solid var(--card-border,#F9E5ED);
+      color: var(--price,#F48FB1); font-weight: 700; font-size: 15px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .ho-help { margin-top: 10px; padding: 20px 22px; background: var(--card,#FFFFFF); border: 1.5px solid var(--card-border,#F9E5ED); border-radius: 16px; }
+    .ho-help b { font-size: 17px; color: var(--text,#65515D); }
+    .ho-help p { font-size: 16px; line-height: 1.85; color: var(--muted,#897783); margin: 8px 0 0; }
+    .ho-thanks { margin-top: 18px; font-size: 17px; line-height: 1.9; color: var(--text,#65515D); }
+    .ho-mail { color: var(--price,#F48FB1); text-decoration: underline; word-break: break-all; }
+  </style>
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261107H">
+</head>
+<body>
+
+<!-- 顶部白色长条：左边切换语言，中间 logo 点击回主页，右边菜单（与全站子页面同一套） -->
+<header class="topbar">
+  <div class="lang-switch">
+    <button class="lang-btn" data-lang="zh">简体中文</button>
+    <button class="lang-btn" data-lang="en">English</button>
+  </div>
+  <a class="site-logo" href="/zh/" aria-label="Back to home"><img src="/logo.png" alt="logo"></a>
+  <div class="topbar-right">
+    <a class="topbar-cart" id="topbar-cart" href="/zh/shop/?sec=cart" aria-label="Cart">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3.5h2.2l2.3 11.2a1.8 1.8 0 0 0 1.8 1.4h8.5a1.8 1.8 0 0 0 1.8-1.4l1.5-8.2H6"/></svg>
+      <span class="topbar-cart-badge" id="topbar-cart-badge" style="display:none;">0</span>
+    </a>
+    <button class="burger" id="burger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+<div class="menu-mask" id="menu-mask"></div>
+<nav class="menu" id="menu"></nav>
+
+<div class="subpage-header">
+    <h1 class="subpage-title" data-zh="如何下单 ♡" data-en="How to Order ♡">How to Order ♡</h1>
+    <p class="subpage-sub" data-zh="Snow Yuzu · 四步完成下单" data-en="Snow Yuzu · order in four simple steps">Snow Yuzu · order in four simple steps</p>
+  </div>
+  <a class="back-link page-back" href="/zh/" style="margin:8px 0 24px 2px;"><span data-zh="← 返回主页" data-en="← Back to Home">← Back to Home</span></a>
+
+  <div class="page-body" style="padding-top:6px;">
+    <div class="sy-hub">
+      <ol class="ho-steps">
+        <li data-zh="浏览小铺，挑选喜欢的键帽。" data-en="Browse our shop and choose your favorite keycaps.">Browse our shop and choose your favorite keycaps.</li>
+        <li data-zh="选择喜欢的款式和规格，加入购物车。" data-en="Select your preferred styles and options, then add them to your cart.">Select your preferred styles and options, then add them to your cart.</li>
+        <li data-zh="前往结账页面，确认并提交订单。" data-en="Proceed to checkout and place your order.">Proceed to checkout and place your order.</li>
+        <li data-zh="上传付款截图，由柚子确认收款；也可以直接通过 Stripe 在线支付。" data-en="Upload a screenshot of your payment for Yuki to verify, or pay securely online via Stripe.">Upload a screenshot of your payment for Yuki to verify, or pay securely online via Stripe.</li>
+      </ol>
+
+      <div class="ho-help">
+        <b data-zh="需要帮助？" data-en="Need Help?">Need Help?</b>
+        <p data-zh="如果对商品或订单有任何疑问，欢迎联系柚子！" data-en="Have questions about your order or products? Feel free to contact Yuki!">Have questions about your order or products? Feel free to contact Yuki!</p>
+        <p><span data-zh="邮箱：" data-en="Email: ">Email: </span><a class="ho-mail" href="mailto:snowyuzustudio@gmail.com">snowyuzustudio@gmail.com</a></p>
+      </div>
+
+      <p class="ho-thanks" data-zh="感谢你对 Snow Yuzu 的支持！♡" data-en="Thank you for supporting Snow Yuzu! ♡">Thank you for supporting Snow Yuzu! ♡</p>
+    </div>
+  </div>
+
+<footer></footer>
+  <script src="/js/site-footer.js?v=20261105C"></script>
+  <script>
+    if (window.renderSiteFooter) renderSiteFooter();
+    if (typeof applyLang === 'function') applyLang((function(){try{return localStorage.getItem('yuki-lang')||'zh';}catch(e){return 'zh';}})());
+</script>
+</body>
+</html>
