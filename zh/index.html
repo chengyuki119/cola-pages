@@ -358,7 +358,8 @@
     order: { zh: '桓桓目前无法直接查看实时订单状态哦～如果想确认订单进度，可以通过邮箱联系柚子，并提供订单编号。', en: "Huanhuan can't currently access real-time order statuses~ To check your order progress, please email Yuki with your order number." },
     ship: { zh: '具体发货时间会根据商品制作情况和订单安排而有所不同哦～如果想了解自己的订单进度，可以联系柚子确认。', en: 'Shipping times may vary depending on production and order arrangements~ Please contact Yuki for an update on your specific order.' },
     tracking: { zh: '桓桓目前不能直接查询快递物流信息哦～可以查看你的物流追踪信息，或者通过邮箱联系柚子寻求帮助。', en: "Huanhuan can't directly track packages at the moment~ Please check your tracking information or email Yuki for assistance." },
-    contact: { zh: '可以通过邮箱联系柚子哦：\nsnowyuzustudio@gmail.com\n\n也可以在网站的 Find Me 页面找到其他联系方式 ♡', en: 'You can contact Yuki by email:\nsnowyuzustudio@gmail.com\n\nYou can also find other contact details on our Find Me page ♡' },
+    contact: { zh: '当然可以呀！💕 你可以去网站的 Find Me（找到我）页面联系柚子，也可以直接把你的联系方式留给我，我会帮你转达给柚子～', en: "Of course! 💕 You can reach Yuki through the Find Me page — or just leave your contact info with me and I'll pass it along to her~" },
+    contact2: { zh: '好呀好呀！💕 想找柚子的话，去 Find Me（找到我）页面就可以；或者把你的联系方式留在这里，我来帮你转达给柚子～', en: "Sure thing! 💕 The Find Me page is the way to reach Yuki — or leave your contact info here and I'll pass it on to her~" },
     sitebug: { zh: '如果页面无法打开、按钮不能使用或者商品显示异常，可以先刷新页面再试一次。如果问题还在，请联系柚子并附上截图哦～', en: "If a page won't load, a button doesn't work, or a product appears incorrectly, try refreshing the page first. If the issue continues, contact Yuki with a screenshot~" },
     fallback: { zh: '唔……这个问题我暂时还不太确定呢 > <\n你可以试试问我关于 BJD、色卡、小铺、购物流程或者网站功能的问题。如果还是解决不了，可以联系柚子哦 ♡', en: "Hmm... I'm not quite sure about that yet > <\nYou can ask me about BJD, Color Cards, My Shop, ordering, or website features. If you still need help, feel free to contact Yuki ♡" },
     keepasking: { zh: '当然可以继续问我呀～还有什么想了解的呢？♡', en: 'Of course! Feel free to keep asking~ What else would you like to know? ♡' },
@@ -446,7 +447,7 @@
     { id: 'askbox',    pri: 15, res: [/提问箱/, /匿名提问/, /留言/, /ask ?box/i, /anonymous/i] },
     { id: 'shop',      pri: 16, res: [/小铺/, /商品/, /价格/, /\bshop\b/i, /products?\b/i, /\bprice\b/i] },
     { id: 'intro',     pri: 17, res: [/网站功能/, /怎么使用/, /怎么用/, /使用方法/, /网站/, /功能/, /有什么/, /都有什么/, /what can/i, /how to use/i, /website/i, /feature/i] },
-    { id: 'contact',   pri: 18, res: [/联系/, /邮箱/, /找柚子/, /contact/i, /email/i] },
+    { id: 'contact',   pri: 18, res: [/联系/, /邮箱/, /找柚子/, /店主/, /老板/, /contact/i, /email/i, /find yuki/i] },
     { id: 'chat',      pri: 19, res: [/你好/, /您好/, /嗨/, /哈喽/, /\b(hi|hello|hey|thanks?|thank you|bye|goodbye)\b/i, /谢谢/, /感谢/, /再见/, /拜拜/] },
     { id: 'who',       pri: 20, res: [/桓桓/, /你是/, /你叫什么/, /自我介绍/, /介绍一下/, /who is huanhuan/i, /who are you/i, /what are you/i, /are you (a )?(real|human|bot|ai)/i] },
     { id: 'keepasking', pri: 21, res: [/还能问/, /继续问/, /可以问吗/, /还有问题/, /can i (keep |still )?ask/i, /more questions/i] },
@@ -507,14 +508,136 @@
     return (best && score >= 0.4) ? best : null;
   }
 
+  /* ── 联系柚子 · 转达（她 20261109 12:00 任务书）──
+     识别访客主动提供的联系方式 → 询问转达留言 → 确认 → 提交：
+     复用提问箱 questions/contacts（rpc/askbox_submit，后台「联系与留言管理」直接查看/标记/删除），
+     通知邮件塞进现有 email_log 队列由 email-worker 发送；队列不可用时如实说「已记录、后台可见」，不谎称已发信。 */
+  var CF_KEY = 'yuki-ai-cf';
+  function cfGet() { try { return JSON.parse(sessionStorage.getItem(CF_KEY) || 'null'); } catch (e) { return null; } }
+  function cfSet(v) { try { v ? sessionStorage.setItem(CF_KEY, JSON.stringify(v)) : sessionStorage.removeItem(CF_KEY); } catch (e) {} }
+  var CF_DETECT = [
+    { k: 'wechat', zh: '微信', en: 'WeChat', re: /(?:微信号?|weixin|wechat)\s*(?:is|are|是为叫)?\s*[:：]?\s*([a-zA-Z][\w-]{5,19})/i },
+    { k: 'qq', zh: 'QQ', en: 'QQ', re: /qq\s*(?:is|are|是为叫)?\s*[:：]?\s*(\d{5,12})/i },
+    { k: 'ins', zh: 'Instagram', en: 'Instagram', re: /(?:instagram\s*(?:is|are|是为叫)?\s*[:：]?\s*|(?:ins|ig)\s*(?:is|are|是为叫)?\s*[:：]\s*)@?([a-zA-Z0-9._]{2,30})/i },
+    { k: 'discord', zh: 'Discord', en: 'Discord', re: /discord\s*(?:is|are|是为叫)?\s*[:：]?\s*([a-zA-Z0-9_.#]{2,40})/i },
+    { k: 'phone', zh: '电话', en: 'Phone', re: /(?:电话|手机号?|phone|tel)\s*(?:is|are|是为叫)?\s*[:：]?\s*(\+?\d[\d\s\-()]{6,17}\d)/i },
+    { k: 'bare', zh: '电话', en: 'Phone', re: /(?:^|[\s，。,])(\+?\d{8,15})(?=$|[\s，。.])/m },
+    { k: 'other', zh: '其他平台', en: 'Other', re: /(?:twitter|推特|微博|小红书|xhs|tiktok|抖音|账号|帐号|account)\s*(?:is|are|是为叫)?\s*[:：]?\s*@?([^\s，。；;、]{2,30})/i }
+  ];
+  function cfDetect(q) {
+    var s = String(q || ''), out = [], seen = {};
+    var emails = s.match(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/ig) || [];
+    if (emails.length) {
+      out.push({ k: 'email', zh: '邮箱', en: 'Email', v: emails[0].slice(0, 80) });
+      s = s.replace(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/ig, ' '); // 邮箱先剥掉，避免 @handle 误判
+    }
+    CF_DETECT.forEach(function (d) {
+      if (seen[d.k]) return;
+      var m = s.match(d.re);
+      if (m && m[1]) {
+        var v = String(m[1]).trim().replace(/^[：:\s]+|[：:\s]+$/g, '');
+        if (v && v.length > 1) { seen[d.k] = 1; out.push({ k: d.k, zh: d.zh, en: d.en, v: v.slice(0, 60) }); }
+      }
+    });
+    return out;
+  }
+  function cfList(cs) { return cs.map(function (c) { return T(c.zh, c.en) + ' ' + c.v; }).join(' · '); }
+  function cfConfirmText(st) {
+    return T(
+      '好嘞！提交前跟你确认一下：\n📩 联系方式：' + cfList(st.contacts) + '\n💬 想转达的话：' + (st.msg || '（没有留言）') + '\n提交后这些信息会转交给柚子本人哦。没问题的话回复「确认」，我就帮你转达啦；想修改就直接说～',
+      'One quick check before I send:\n📩 Contact: ' + cfList(st.contacts) + '\n💬 Message: ' + (st.msg || '(no message)') + '\nThese will be passed to Yuki herself. Reply "confirm" and I\'ll pass it along — or just tell me what to change~'
+    );
+  }
+  function cfSubmit(st) {
+    var email = null, others = [];
+    st.contacts.forEach(function (c) {
+      if (c.k === 'email' && !email) email = c.v;
+      others.push(T(c.zh, c.en) + '：' + c.v);
+    });
+    var when = new Date().toLocaleString();
+    var msgTxt = st.msg || '（访客没有留言，只留下了联系方式）';
+    var H = { 'Content-Type': 'application/json', 'apikey': DB_HEADERS.apikey, 'Authorization': DB_HEADERS.Authorization };
+    return fetch(DB_BASE + 'rpc/askbox_submit', { method: 'POST', headers: H,
+      body: JSON.stringify({ p_content: '【AI 小助手 · 桓桓转达】\n' + msgTxt, p_topic: 'other', p_nickname: null, p_email: email, p_other_contact: others.join('；') })
+    }).then(function (r) { if (!r.ok) throw new Error('rpc'); return r.json(); }).then(function () {
+      cfSet(null);
+      try { localStorage.setItem('yuki-last-contact', String(Date.now())); } catch (e) {}
+      return fetch(DB_BASE + 'email_log', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal', 'apikey': DB_HEADERS.apikey, 'Authorization': DB_HEADERS.Authorization },
+        body: JSON.stringify({ kind: 'ai_contact', ref_id: 'ai-' + Date.now(), to_email: 'snowyuzustudio@gmail.com',
+          subject: '桓桓帮你转达：有访客留下联系方式 ♡',
+          body: '来源：网站 AI 小助手（桓桓）\n时间：' + when + '\n联系方式：' + others.join('；') + '\n留言：' + msgTxt })
+      }).then(function (r) {
+        return r.ok
+          ? { text: T('已经帮你转达给柚子啦！💕 她看到后会尽快回复你的～', "Passed along to Yuki! 💕 She'll get back to you soon~"), intent: 'contact', more: null }
+          : { text: T('你的联系方式和留言我已经好好记下来啦，柚子会在管理后台看到的 ♡', "I've safely noted your contact and message — Yuki will see it in her dashboard ♡"), intent: 'contact', more: null };
+      }).catch(function () {
+        return { text: T('你的联系方式和留言我已经好好记下来啦，柚子会在管理后台看到的 ♡', "I've safely noted your contact and message — Yuki will see it in her dashboard ♡"), intent: 'contact', more: null };
+      });
+    }).catch(function () {
+      return { text: T('哎呀，刚刚没转达成功…再试一次好吗？或者去 Find Me 页面直接联系柚子也可以哦', "Oh no, it didn't go through… could you try again? Or reach Yuki directly on the Find Me page"), intent: 'contact', more: null };
+    });
+  }
+  function contactFlowStep(q) {
+    var st = cfGet();
+    var hit = cfDetect(q);
+    var nq = (q || '').toLowerCase();
+    if (!st && !hit.length) return null;
+    if (!st) { // 防刷：30 秒内只转达一次
+      try { if (Date.now() - parseInt(localStorage.getItem('yuki-last-contact') || '0', 10) < 30000) return { text: T('刚刚已经帮你提交过啦，稍等一下哦 ♡', 'Just sent one for you — please wait a moment ♡'), intent: 'contact', more: null }; } catch (e) {}
+    }
+    if (st && (st.step === 'msg' || st.step === 'confirm')) {
+      if (PIGGY_RE.test(nq)) return { text: Lt('piggy'), intent: 'piggy', more: null }; // 身份问答不吞进留言
+      if (/取消|算了|不用了?|不想留|不转达|cancel|never ?mind|stop/i.test(nq)) {
+        cfSet(null);
+        return { text: T('好的，那我不转达啦。以后想找柚子随时告诉我哦 ♡', "Okay, I won't pass it along. Come find me anytime if you want to reach Yuki ♡"), intent: 'contact', more: null };
+      }
+    }
+    if (!st) st = { step: '', contacts: [], msg: '' };
+    if (hit.length) {
+      hit.forEach(function (c) {
+        if (!st.contacts.some(function (x) { return x.k === c.k && x.v === c.v; })) st.contacts.push(c);
+      });
+    }
+    if (st.step === 'confirm') {
+      if (/^(确认提交|确认|确定|提交|可以|好的?|嗯+|对的?|没错|yes|ok|okay|confirm|sure|submit|再试一次?|retry)\.?\s*$/i.test(nq)) return cfSubmit(st);
+      st.msg = q.trim().slice(0, 500);
+      cfSet(st);
+      return { text: cfConfirmText(st), intent: 'contact', more: null };
+    }
+    if (st.step === 'msg') {
+      var mi = matchIntent(q);
+      var relay = /帮我问|帮忙问|转达|转告|告诉柚子|问问柚子|麻烦柚子|请她|请柚子|pass (this|it) to|tell yuki|ask yuki/i.test(q);
+      if (!relay && !hit.length && mi && ({ order: 1, pay: 1, ship: 1, refund: 1, stock: 1, sitebug: 1, shop: 1, intro: 1, keepasking: 1 })[mi.best.id]) {
+        cfSet(null); // 访客中途问了别的事，退出转达流程，正常回答
+        return null;
+      }
+      st.msg = q.trim().slice(0, 500);
+      st.step = 'confirm';
+      cfSet(st);
+      return { text: cfConfirmText(st), intent: 'contact', more: null };
+    }
+    st.step = 'msg';
+    cfSet(st);
+    return { text: T(
+      '收到啦！💕 我已经记下你的联系方式：' + cfList(st.contacts) + '。有没有什么想一并转达给柚子的吗？直接打字告诉我就好～（不想留了就说「不用了」；记错了就重新发一次）',
+      'Got it! 💕 I\'ve noted your contact: ' + cfList(st.contacts) + '. Anything you\'d like me to pass along to Yuki? Just type it here~ (say "never mind" to stop; resend to correct me)'
+    ), intent: 'contact', more: null };
+  }
   /* ── 回复决策（20261109 升级）：版权优先 → 身份问答 → 知识库 → 意图识别（同分按任务书优先级）→ 兜底 ── */
   function replyFor(q) {
     var nq = (q || '').toLowerCase();
     var i;
+    var cfActive = cfGet(); // 转达流程进行中：先走流程（留言/确认阶段的输入不该被词库和意图抢走）
+    if (cfActive && (cfActive.step === 'msg' || cfActive.step === 'confirm')) {
+      var cf0 = contactFlowStep(q);
+      if (cf0) return cf0;
+    }
     for (i = 0; i < COPYRIGHT_RE.length; i++) {
       if (COPYRIGHT_RE[i].test(nq)) return { text: Lt('copyright'), intent: 'copyright', more: REL.copyright };
     }
     if (PIGGY_RE.test(nq)) return { text: Lt('piggy'), intent: 'piggy', more: REL.piggy };
+    var cfHit = contactFlowStep(q); // 平时：访客消息里带了联系方式才进入转达流程
+    if (cfHit) return cfHit;
     var k = kbMatch(q);
     if (k) { kbSaveUse(k); return { text: k.a, kbId: k.dbId || k.id, kbObj: k, more: ['features', 'contact'] }; }
     var m = matchIntent(q);
@@ -534,7 +657,7 @@
         if (qk && more.indexOf(qk) === -1 && more.length < 3) more.push(qk);
       });
     }
-    return { text: Lt(sub), intent: sub, more: more };
+    return { text: (sub === 'contact' ? Lt(Math.random() < 0.5 ? 'contact' : 'contact2') : Lt(sub)), intent: sub, more: more };
   }
 
   function nowTime() {
@@ -629,9 +752,10 @@
     typing(true);
     setTimeout(function () {
       typing(false);
-      var r = replyFor(q);
-      addMsg('ai', r.text, null, r.more);
-      logSession('ai', r.text, r);
+      Promise.resolve(replyFor(q)).then(function (r) { // 转达提交是异步的，回复可能晚一点到
+        addMsg('ai', r.text, null, r.more);
+        logSession('ai', r.text, r);
+      });
     }, 700 + Math.random() * 500);
   }
 
