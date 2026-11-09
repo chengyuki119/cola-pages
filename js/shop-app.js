@@ -478,13 +478,6 @@
           '<p style="font-size:15px;line-height:1.7;color:var(--text,#65515D);margin:0;">' + t('请联系小柚沟通具体需求和价格。', 'Please contact Yuki to discuss your custom requirements and pricing.') + '</p></div>' : '') +
         (vs ? variantsHtml(p, vs, d.sku, d.selDims) : '') +
         (st === 'on' ?
-          '<div class="d-notice card" style="padding:12px 14px;margin:12px 0 0;background:var(--card,#FFFFFF);border:1.5px solid var(--card-border,#F9E5ED);border-radius:16px;">' +
-            '<b style="font-size:15px;">' + t('购买须知 ♡', 'Before You Order ♡') + '</b>' +
-            '<p style="font-size:14px;color:var(--muted);margin:6px 0 0;line-height:1.7;">' +
-              t('下单前请仔细阅读商品描述与图片。手工制品与键帽可能存在轻微瑕疵或正常工艺差异，与描述一致的轻微差异不构成退款理由。详细规则见', 'Please review the description and photos carefully. Handmade items and keycaps may have minor imperfections or variations; minor variations consistent with the description are not grounds for refund. See our ') +
-              '<a href="' + ykLink('/return-policy/') + '" style="color:var(--price,#F48FB1);text-decoration:underline;">' + t('《退货与退款政策》', 'Return & Refund Policy') + '</a>' + t('。', '.') + '</p>' +
-          '</div>' : '') +
-        (st === 'on' ?
             '<div class="d-actions" style="margin:12px 0;">' +
               '<div style="display:flex;align-items:center;gap:12px;margin:0 0 12px;">' +
                 '<span style="font-size:16px;">' + t('数量', 'Qty') + '</span>' +
@@ -497,14 +490,23 @@
               '</div>' +
             '</div>'
           : '<div class="d-actions"><p class="no-buy" style="margin:14px 0;">' + (st === 'out' ? t('已售罄，看看别的吧～', 'Sold out — take a look at other items~') : t('仅展示，不能下单', 'Not for sale')) + '</p></div>') +
-        '</div>' +
-      '</div>' +
+        // 她 20261109：购买须知挪到库存/加购按钮区下面（原在商品选项与按钮之间，她反馈「不要在商品选项那边」）
+        (st === 'on' ?
+          '<div class="d-notice card" style="padding:12px 14px;margin:12px 0 0;background:var(--card,#FFFFFF);border:1.5px solid var(--card-border,#F9E5ED);border-radius:16px;">' +
+            '<b style="font-size:15px;">' + t('购买须知 ♡', 'Before You Order ♡') + '</b>' +
+            '<p style="font-size:14px;color:var(--muted);margin:6px 0 0;line-height:1.7;">' +
+              t('下单前请仔细阅读商品描述与图片。手工制品与键帽可能存在轻微瑕疵或正常工艺差异，与描述一致的轻微差异不构成退款理由。详细规则见', 'Please review the description and photos carefully. Handmade items and keycaps may have minor imperfections or variations; minor variations consistent with the description are not grounds for refund. See our ') +
+              '<a href="' + ykLink('/return-policy/') + '" style="color:var(--price,#F48FB1);text-decoration:underline;">' + t('《退货与退款政策》', 'Return & Refund Policy') + '</a>' + t('。', '.') + '</p>' +
+          '</div>' : '') +
       // 她 20261108：商品类型卡 + 商品详情卡移到购买按钮之后（原键帽购买须知位置）；键帽须知整体挪到关于页
+      // 她 20261109：购买须知/商品类型/商品详情全部收进 d-info，紧接库存/加购按钮区下面（她「不要在商品选项那边」）
       (function () { var k = typeKey(p); if (!k || !TYPE_NOTE[k]) return ''; return '<div class="d-type card" style="padding:12px 14px;margin:12px 0 0;background:var(--card,#FFFFFF);border:1.5px solid var(--card-border,#F9E5ED);border-radius:16px;"><b style="font-size:15px;">' + t('商品类型 ♡', 'Product Type ♡') + '</b><p style="font-size:15px;line-height:1.7;color:var(--text,#65515D);margin:6px 0 0;">' + t(TYPE_NOTE[k][0], TYPE_NOTE[k][1]) + '</p></div>'; })() +
       '<div class="d-desc card" style="padding:12px 14px;margin:12px 0 0;background:var(--card,#FFFFFF);border:1.5px solid var(--card-border,#F9E5ED);border-radius:16px;">' +
         '<b style="font-size:15px;">' + t('商品详情 ♡', 'Product Description ♡') + '</b>' +
         '<p style="color:var(--muted);font-size:16px;line-height:1.8;margin:6px 0 0;white-space:pre-line;">' + escBr((window.LANG === 'en' && p.description_en) ? p.description_en : (p.description || '')) + '</p></div>' +
-      '<div id="d-group-form" style="display:none;margin-top:16px;" class="card"></div>';
+      '<div id="d-group-form" style="display:none;margin-top:16px;" class="card"></div>' +
+        '</div>' +
+      '</div>';
     return el;
   }
   function escAttr(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
