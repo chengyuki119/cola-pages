@@ -516,13 +516,13 @@
   function cfGet() { try { return JSON.parse(sessionStorage.getItem(CF_KEY) || 'null'); } catch (e) { return null; } }
   function cfSet(v) { try { v ? sessionStorage.setItem(CF_KEY, JSON.stringify(v)) : sessionStorage.removeItem(CF_KEY); } catch (e) {} }
   var CF_DETECT = [
-    { k: 'wechat', zh: '微信', en: 'WeChat', re: /(?:微信号?|weixin|wechat)\s*(?:is|are|是为叫)?\s*[:：]?\s*([a-zA-Z][\w-]{5,19})/i },
-    { k: 'qq', zh: 'QQ', en: 'QQ', re: /qq\s*(?:is|are|是为叫)?\s*[:：]?\s*(\d{5,12})/i },
-    { k: 'ins', zh: 'Instagram', en: 'Instagram', re: /(?:instagram\s*(?:is|are|是为叫)?\s*[:：]?\s*|(?:ins|ig)\s*(?:is|are|是为叫)?\s*[:：]\s*)@?([a-zA-Z0-9._]{2,30})/i },
-    { k: 'discord', zh: 'Discord', en: 'Discord', re: /discord\s*(?:is|are|是为叫)?\s*[:：]?\s*([a-zA-Z0-9_.#]{2,40})/i },
-    { k: 'phone', zh: '电话', en: 'Phone', re: /(?:电话|手机号?|phone|tel)\s*(?:is|are|是为叫)?\s*[:：]?\s*(\+?\d[\d\s\-()]{6,17}\d)/i },
+    { k: 'wechat', zh: '微信', en: 'WeChat', re: /(?:微信号?|weixin|wechat)\s*(?:is|are|[是为叫])?\s*[:：]?\s*([a-zA-Z][\w-]{5,19})/i },
+    { k: 'qq', zh: 'QQ', en: 'QQ', re: /qq\s*(?:is|are|[是为叫])?\s*[:：]?\s*(\d{5,12})/i },
+    { k: 'ins', zh: 'Instagram', en: 'Instagram', re: /(?:instagram\s*(?:is|are|[是为叫])?\s*[:：]?\s*|(?:ins|ig)\s*(?:is|are|[是为叫])?\s*[:：]\s*)@?([a-zA-Z0-9._]{2,30})/i },
+    { k: 'discord', zh: 'Discord', en: 'Discord', re: /discord\s*(?:is|are|[是为叫])?\s*[:：]?\s*([a-zA-Z0-9_.#]{2,40})/i },
+    { k: 'phone', zh: '电话', en: 'Phone', re: /(?:电话|手机号?|phone|tel)\s*(?:is|are|[是为叫])?\s*[:：]?\s*(\+?\d[\d\s\-()]{6,17}\d)/i },
     { k: 'bare', zh: '电话', en: 'Phone', re: /(?:^|[\s，。,])(\+?\d{8,15})(?=$|[\s，。.])/m },
-    { k: 'other', zh: '其他平台', en: 'Other', re: /(?:twitter|推特|微博|小红书|xhs|tiktok|抖音|账号|帐号|account)\s*(?:is|are|是为叫)?\s*[:：]?\s*@?([^\s，。；;、]{2,30})/i }
+    { k: 'other', zh: '其他平台', en: 'Other', re: /(?:twitter|推特|微博|小红书|xhs|tiktok|抖音|账号|帐号|account)\s*(?:is|are|[是为叫])?\s*[:：]?\s*@?([^\s，。；;、]{2,30})/i }
   ];
   function cfDetect(q) {
     var s = String(q || ''), out = [], seen = {};
@@ -536,7 +536,7 @@
       var m = s.match(d.re);
       if (m && m[1]) {
         var v = String(m[1]).trim().replace(/^[：:\s]+|[：:\s]+$/g, '');
-        if (v && v.length > 1) { seen[d.k] = 1; out.push({ k: d.k, zh: d.zh, en: d.en, v: v.slice(0, 60) }); }
+        if (v && v.length > 1 && !out.some(function (x) { return x.v === v; })) { seen[d.k] = 1; out.push({ k: d.k, zh: d.zh, en: d.en, v: v.slice(0, 60) }); } // 同值只留一条（带标签电话/裸号重复）
       }
     });
     return out;
