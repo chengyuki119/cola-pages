@@ -1388,7 +1388,7 @@
       }).catch(function () { HIDE = []; });
   }
   function fetchProducts() {
-    var sel = 'id,name,name_en,price,currency,tag,image_url,cover_zh,cover_en,images,sold,stock,display_only';
+    var sel = 'id,name,name_en,price,currency,tag,image_url,cover_zh,cover_en,images,sold,stock,display_only,variants';
     var toRows = function (rows) { if (!Array.isArray(rows)) throw new Error('bad'); return rows; };
     return fetch(DB_BASE + 'products?select=' + sel + '&order=created_at.desc&limit=100', { headers: DB_HEADERS })
       .then(function (r) { return r.json(); }).then(toRows)
