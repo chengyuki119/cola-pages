@@ -632,6 +632,9 @@
   // ── 开关（× 关闭不刷新，重开保留记录）──
   function openWin() {
     win.classList.add('open');
+    // 恢复的历史是在窗口 display:none 时 append 的（当时 scrollHeight=0，scrollTop 设了也无效），
+    // 打开后补一次定位：默认直接显示最新聊天记录（她 20261109 02:20）
+    requestAnimationFrame(function () { msgs.scrollTop = msgs.scrollHeight; });
     setTimeout(function () { text.focus(); }, 260);
   }
   function closeWin() {
