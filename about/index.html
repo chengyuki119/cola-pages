@@ -18,6 +18,29 @@
     #links .sy-linkline:hover { color: var(--price,#F48FB1); padding-left: 10px; }
     #links .sy-linkline:first-child { border-top: 1px solid var(--accent,#F9E5ED); }
   </style>
+  <style>
+    /* ═══ 她 20261108 21:58 任务书：About 页重设计 ═══
+       ① 社交卡：每个联系方式独立白卡（覆盖 social-cards.js 共享的 #FFF8FA 底）
+       ② Keycap Shopping Notes：每板块独立白卡（about 页此前无 pol-card 样式，板块是裸文字）
+       配色：页面 #FFF8FA · 卡 #FFFFFF · 边 #F9E5ED · 主字 #65515D · 次字 #897783 */
+    /* —— 社交卡（白底 + 浅粉细边框；仅本页覆盖，不影响其他页） —— */
+    #links { max-width: 1200px; margin: 0 auto; padding: 0 24px; box-sizing: border-box; }
+    #links .sy-rowlist { gap: 14px 16px; }
+    #links .sy-rowcard { background: #FFFFFF !important; border: 1.5px solid #F9E5ED !important; border-radius: 16px; padding: 16px 18px; }
+    #links a.sy-rowcard:hover { background: #FCECF2 !important; border-color: #F6C5D7 !important; }
+    /* —— Keycap Shopping Notes 卡片化 —— */
+    #keycap-notes { display: flex; flex-direction: column; gap: 16px; }
+    .keycap-notes-title { font-size: 24px; color: #65515D; margin: 6px 0 18px; letter-spacing: .5px; font-weight: 700; }
+    .pol-sec { background: #FFFFFF; border: 1.5px solid #F9E5ED; border-radius: 16px; padding: 20px 22px; }
+    .keycap-h3 { font-size: 19px; font-weight: 700; color: #65515D; margin: 0 0 10px; letter-spacing: .3px; }
+    .pol-sec p { font-size: 17px; line-height: 1.75; color: #65515D; margin: 0 0 10px; }
+    .pol-sec p:last-child { margin-bottom: 0; }
+    @media (max-width: 640px) {
+      #links { padding: 0 14px; }
+      .pol-sec { padding: 16px 15px; border-radius: 14px; }
+      .keycap-notes-title { font-size: 21px; }
+    }
+  </style>
   <link rel="stylesheet" href="/css/button-theme.css?v=20261107H">
   <script src="/js/policy-content.js?v=20261108A"></script>
 </head>

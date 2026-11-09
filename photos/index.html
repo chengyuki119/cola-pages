@@ -189,8 +189,8 @@
 <div class="toast" id="toast"></div>
 <script src="/js/site-common.js?v=20261107H"></script>
 <script>
-  // 照片展示门禁：登录后可见（任意登录账号；未登录显示粉色提示卡并停载所有数据）
-  window.YK_PHOTOS_GATE = (window.ykGatePage ? ykGatePage('photos') : Promise.resolve(true));
+  // 照片展示：她 20261108 21:58 任务书——照片墙对未登录访客公开（数据层 photos 表 anon 已可读，此处去掉前端登录墙；bjdselfie 页仍保留登录门禁）
+  window.YK_PHOTOS_GATE = Promise.resolve(true);
   window.YK_PHOTOS_GATE.then(function (ok) { if (ok) document.body.classList.add('yk-photos-on'); });
 </script>
 <script>
