@@ -638,7 +638,7 @@
 
   // ===== 主页设置（后台「主页管理」同步：文案/头像/背景图）=====
   // 她 20261108：色卡/BJD/稿件改为公开浏览——不再经「柚子专属门禁」，匿名直接读公开键；
-  // 照片区块维持原登录逻辑（未登录隐藏）；私密日历另有 ykCalGate 门禁，不受本次影响
+  // 照片区块维持原登录逻辑（未登录隐藏）；她 20261109：日历 ykCalGate 改为公开浏览
   function ykGateApply(S) {
     var logged = false;
     try {
@@ -1051,34 +1051,23 @@
     return out;
   }
   function ykCalGate(S) {
-    // 日历是柚子专属内容：未登录/普通买家隐藏，仅专属账号显示
+    // 她 20261109：日历公开——未登录访客也可浏览（21:58 权限模型：日历属公开内容）；
+    // 专属账号仍走专属通道取更全的数据，普通访客用匿名 site_settings 键
     var cal = document.getElementById('home-cal');
-    var logged = false;
-    try {
-      var ss = JSON.parse(localStorage.getItem('yuki-user-session') || 'null') || JSON.parse(localStorage.getItem('yuki-admin-session') || 'null');
-      logged = !!(ss && (ss.a || ss.r));
-    } catch (e) {}
-    if (cal && !logged) cal.style.display = 'none'; // 未登录同步隐藏，避免闪现
+    if (cal) cal.style.display = '';
     if (!window.ykExclusiveCheck) return Promise.resolve(S);
     return window.ykExclusiveCheck().then(function (res) {
-      if (res && res.ok === true) {
-        if (cal) cal.style.display = '';
-        if (window.ykExclusiveData) {
-          return Promise.all(['bjds', 'cards'].map(function (k) {
-            return window.ykExclusiveData(k).catch(function () { return []; });
-          })).then(function (r) { S.bjds = r[0] || []; S.cards = r[1] || []; return S; });
-        }
-        return S;
+      if (res && res.ok === true && window.ykExclusiveData) {
+        return Promise.all(['bjds', 'cards'].map(function (k) {
+          return window.ykExclusiveData(k).catch(function () { return []; });
+        })).then(function (r) { S.bjds = r[0] || []; S.cards = r[1] || []; return S; });
       }
-      // 未确认 / 无权限 / pending：一律隐藏（宁可少显示，不可泄露）
-      if (cal) cal.style.display = 'none';
-      if (res && res.ok === false) { S.bjds = []; S.cards = []; }
       return S;
-    }).catch(function () { if (cal) cal.style.display = 'none'; return S; });
+    }).catch(function () { return S; });
   }
   function loadEvents() {
     Promise.all([
-      ykAuthFetch('important_days?select=*&order=day.asc&limit=200') /* 日历数据走登录态（SQL6 后匿名拒绝，只有专属可读） */,
+      ykAuthFetch('important_days?select=*&order=day.asc&limit=200') /* 日历数据：未登录走 anon key（important_days 匿名可读） */,
       ykAuthFetch('site_settings?select=key,value&key=in.(bjds,cards,cal_hide)') /* 私有键走登录态 */
     ]).then(function (res) {
       var rows = res[0];

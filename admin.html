@@ -187,20 +187,14 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .pp-menu.open { display: block; }
   .pp-menu .tab-btn {
     display: block; width: 100%; text-align: left; box-sizing: border-box;
-    border: none; background: #FCECF2 !important; color: var(--text);
+    border: none; background: transparent !important; color: var(--text);
     font-size:16px; padding: 9px 12px;
     border-radius: 8px; cursor: pointer;
-    margin-bottom: 3px; /* 手机端浮层：浅粉条块+白间隙（她手机版 mockup） */
+    margin-bottom: 3px;
   }
-  .pp-menu .tab-btn:hover { background: #F6C5D7 !important; }
+  /* 她 20261109：手机菜单项「字后面粉色底」——与电脑端同一套：透明无框、hover 淡粉、选中填 #F6C5D7；单一样式全端共用 */
+  .pp-menu .tab-btn:hover { background: #FCECF2 !important; }
   .pp-menu button.tab-btn.active { background: #F6C5D7 !important; color: var(--accent-strong); font-weight: 600; }
-  /* 她 20261107 15:45：电脑端菜单项不要框框——透明无框，hover 淡粉，选中填 #F6C5D7。
-     侧栏样式从这里收敛管理；!important 压过 button-theme 选择类层的 .tab-btn 全站规则。 */
-  @media (min-width: 900px) {
-    .pp-menu .tab-btn { background: transparent !important; box-shadow: none; }
-    .pp-menu .tab-btn:hover { background: #FCECF2 !important; box-shadow: none; }
-    .pp-menu button.tab-btn.active { background: #F6C5D7 !important; box-shadow: none; }
-  }
   @keyframes ppIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
   /* ── 后台导航五组分组标签 ── */
   .pp-menu .pp-group {
