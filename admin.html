@@ -118,13 +118,15 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   body:not(.adm-in) .adm-head-title { display: block; max-width: 1200px; margin: 0 auto; padding: 0 24px; box-sizing: border-box; }
   body:not(.adm-in) .adm-head h1 { font-size: 31px; margin: 0; white-space: normal; overflow: visible; text-overflow: clip; }
   body:not(.adm-in) .adm-head .adm-home-btn { display: none; } /* 登录态返回按钮走横幅下方 .gate-back（与前台 page-back 同轴） */
-  .gate-back { max-width: 1200px; margin: 0 auto; padding: 8px 24px 0; box-sizing: border-box; }
+  /* 返回行：wrap 是 flex column，子项不能用 margin:auto（会被收缩成 fit-content 居中），
+     用 width:100% + padding 公式，与前台 page-back 同轴（标题左缘 +10px，她 20261028 01:06 同款公式；窄屏 14px 不贴边） */
+  .gate-back { width: 100%; box-sizing: border-box; padding: 8px 14px 0 max(14px, calc((100% - 1200px) / 2 + 10px)); }
   body.adm-in .gate-back { display: none; }
   @media (max-width: 899px) {
     body:not(.adm-in) .adm-head { padding: 32px 0 26px; } /* 与前台 subpage-header 手机端同款（她 20261028 01:06） */
-    body:not(.adm-in) .adm-head-title { padding: 0 20px; }
+    body:not(.adm-in) .adm-head-title { padding: 0 14px; }
     body:not(.adm-in) .adm-head h1 { font-size: 24px; }
-    .gate-back { padding: 8px 14px 0; }
+    .gate-back { padding: 8px 14px 0 14px; }
   }
   .gate input {
     border: 1.5px solid var(--accent-soft); border-radius: 12px;
