@@ -781,13 +781,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     @media (max-width: 899px) {
       .menu { width: min(250px, 80vw); }
     }
-    /* 登录门视图：标题行在 40px 边距内居中（仅登录前；登录后 body.adm-in 使其失效） */
-    body:not(.adm-in) .wrap .adm-head { margin: 0 var(--adm-edge, 40px) 22px; justify-content: center; }
-    /* 她 20261108：登录视图宽度对齐网站体系——页头与登录卡同一条居中列，不再贴边铺满 */
-    @media (min-width: 900px) {
-      body:not(.adm-in) .wrap .adm-head { width: min(460px, calc(100vw - 56px)); margin: 0 auto 22px; padding: 48px 0 0; }
-      body:not(.adm-in) .wrap .adm-head .adm-head-title { flex: 0 1 auto; }
-    }
+    /* 登录视图旧规则（460 窄列居中）已删——她 20261108 16:58 改按前台子页面 1200 版式，见上方 body:not(.adm-in) 区块 */
   </style>
   <script src="site-menu.js" defer></script>
   <link rel="stylesheet" href="/css/button-theme.css?v=20261107H">
