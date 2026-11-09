@@ -159,7 +159,7 @@
 
 <script src="/js/site-common.js?v=20261107H"></script>
 
-<!-- ═══════════ 小柚助手（AI 入口 · 第一阶段测试：模拟回复 + 后台知识库匹配，未接真 AI）═══════════ -->
+<!-- ═══════════ 桓桓 · AI 助手（AI 入口 · 第一阶段测试：模拟回复 + 后台知识库匹配，未接真 AI）═══════════ -->
 <style>
   .ai-fab {
     position: fixed;
@@ -243,6 +243,10 @@
   .ai-quick { display: flex; gap: 6px; flex-wrap: wrap; padding: 8px 12px; border-top: 1px solid var(--card-hover); background: #fff; flex-shrink: 0; }
   .ai-quick button { border: none; border-radius: 999px; background: var(--card); color: var(--text); font-size:15px; padding: 5px 12px; transition: background .15s; cursor: pointer; font-family: inherit; }
   .ai-quick button:hover { background: var(--card-hover); }
+  .ai-msgs .bubble .ai-link { color: var(--price,#F48FB1); text-decoration: underline; }
+  .ai-more { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 0 2px 34px; }
+  .ai-more button { border: 1.5px solid var(--card-border,#F9E5ED); border-radius: 999px; background: #fff; color: var(--text,#65515D); font-size: 14px; padding: 5px 12px; cursor: pointer; font-family: inherit; transition: background .15s; }
+  .ai-more button:hover { background: var(--accent-soft,#FCECF2); }
 
   .ai-input { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: #fff; border-top: 1px solid var(--card-hover); flex-shrink: 0; padding-bottom: max(10px, env(safe-area-inset-bottom)); }
   .ai-input input { flex: 1; border: 1px solid var(--card-hover); border-radius: 999px; background: var(--bg); padding: 9px 14px; font-size:16px; font-family: inherit; color: var(--text); outline: none; min-width: 0; }
@@ -263,13 +267,13 @@
   }
 </style>
 
-<button class="ai-fab" id="aiFab" aria-label="打开小助手ovo"><span class="l1" data-zh="小助手" data-en="Assistant">小助手</span><span class="l2">ovo</span></button>
+<button class="ai-fab" id="aiFab" aria-label="打开小助手桓桓"><span class="l1" data-zh="小助手" data-en="Assistant">小助手</span><span class="l2" data-zh="桓桓" data-en="Huanhuan">桓桓</span></button>
 
-<div class="ai-win" id="aiWin" role="dialog" aria-label="小柚助手">
+<div class="ai-win" id="aiWin" role="dialog" aria-label="桓桓">
   <div class="ai-head">
-    <div class="avatar"><img src="/avatar.jpg" alt="小柚助手头像"></div>
+    <div class="avatar"><img src="/avatar.jpg" alt="桓桓"></div>
     <div class="who">
-      <b data-zh="小柚助手" data-en="Yuki's Assistant">小柚助手</b>
+      <b data-zh="桓桓" data-en="Huanhuan">桓桓</b>
       <span class="st"><i></i><span data-zh="在线" data-en="Online">在线</span></span>
     </div>
     <button class="ai-close" id="aiClose" aria-label="关闭聊天">×</button>
@@ -298,17 +302,169 @@
   })();
   function T(zh, en) { return AI_LANG === 'en' ? en : zh; }
 
-  fab.setAttribute('aria-label', T('打开小助手ovo', 'Open Assistant ovo'));
-  win.setAttribute('aria-label', T('小柚助手', "Yuki's Assistant"));
+  fab.setAttribute('aria-label', T('打开小助手桓桓', 'Open Huanhuan'));
+  win.setAttribute('aria-label', T('桓桓', 'Huanhuan'));
   document.getElementById('aiClose').setAttribute('aria-label', T('关闭聊天', 'Close chat'));
   document.getElementById('aiSend').setAttribute('aria-label', T('发送', 'Send'));
   text.placeholder = T('输入问题，回车发送', 'Type a question and press Enter');
 
+  /* ═══ 桓桓 · Snow Yuzu's Little Assistant（她 20261109 01:20 升级 + 01:26 改名/身份问答）═══
+     台词全部来自任务书原文，未删改；名称 ovo/小柚助手 → 桓桓/Huanhuan；版权提醒为必需内容。 */
   var QUICK = T(
-    ['网站怎么用', '色卡', '小铺', '网站功能'],
-    ['How to use the site', 'Color Cards', 'My Shop', 'Site features']
+    ['网站有什么功能？', '怎么购买键帽？', 'BJD 和色卡在哪里？', '稿件展示在哪里？', '如何联系柚子？'],
+    ['What can I explore on this website?', 'How do I buy keycaps?', 'Where can I find BJD and Color Cards?', 'Where is the Artwork Gallery?', 'How can I contact Yuki?']
   );
-  var FALLBACK = T('我现在还是测试版本，暂时只回答少量网站相关问题。', "I'm still a test version, so I can only answer a few questions about the site for now.");
+
+  var L = {
+    welcome: {
+      zh: '你好呀！欢迎来到 Snow Yuzu ♡ 我是桓桓！这里有很多可爱的手作键帽、BJD 展示和色卡收藏。有什么想了解的，可以直接问我哦～',
+      en: "Hi there! Welcome to Snow Yuzu ♡ I'm Huanhuan! We have handmade keycaps, BJD collections, and color cards waiting for you to explore. Feel free to ask me anything~"
+    },
+    greet: { zh: '你好呀～今天想在 Snow Yuzu 逛些什么呢？♡', en: 'Hello there~ What would you like to explore at Snow Yuzu today? ♡' },
+    thanks: { zh: '不客气呀！能帮到你就好～希望你在 Snow Yuzu 玩得开心 ♡', en: "You're very welcome! I'm happy I could help~ Hope you enjoy your time at Snow Yuzu ♡" },
+    bye: { zh: '拜拜～欢迎下次再来玩！桓桓会在这里等你 ♡', en: 'Bye bye~ Come visit us again anytime! Huanhuan will be here waiting ♡' },
+    who: { zh: '我是桓桓，Snow Yuzu 的小助手！可以帮你了解网站、寻找商品、查看 BJD 和色卡展示，还有解答购物方面的一些问题哦～', en: "I'm Huanhuan, Snow Yuzu's little assistant! I can help you explore the website, find products, browse BJD and color card collections, and answer shopping-related questions~" },
+    piggy: { zh: '我是小柚最喜欢的小宝宝猪呀！🐷♡', en: "I'm Yuki's favorite little piggy baby! 🐷♡" },
+    features: {
+      zh: 'Snow Yuzu 有很多可以逛的地方哦 ♡\n- 日历：查看重要日子和生日展示。\n- 照片墙：看看日常照片。\n- BJD：浏览娃娃档案和私人收藏。\n- 稿件展示：查看绘画和委托作品。\n- 色卡：浏览色卡私人收藏及相关信息。\n- 小铺：挑选喜欢的手作键帽。\n- 提问箱：可以匿名留下问题。\n欢迎慢慢探索每一个页面～',
+      en: "There's lots to explore at Snow Yuzu ♡\n- Calendar: Browse important dates and birthday displays.\n- Photo Gallery: Explore everyday photos.\n- BJD: Browse doll profiles and private collections.\n- Artwork Gallery: View commissioned illustrations and artwork.\n- Color Cards: Explore private color card collections.\n- My Shop: Browse handmade keycaps.\n- Ask Box: Leave an anonymous message.\nTake your time and enjoy exploring~"
+    },
+    calendar: { zh: '日历可以在网站主页找到哦～里面有重要日子和生日展示，可以看看有哪些特别的日子 ♡', en: "You can find the calendar on the homepage~ It displays important dates and birthdays. Come see what's coming up! ♡" },
+    photos: { zh: '去「照片」页面就可以看到啦！也可以在主页往下滑，看看照片展示～', en: 'Visit the Photos page to see the gallery! You can also scroll down the homepage to explore the photo displays~' },
+    bjd: {
+      zh: 'BJD 页面记录了柚子的娃娃收藏和展示内容，可以进去看看每个娃娃的资料哦～\n\n这些都是柚子的私人收藏 ♡ 未经柚子允许，请不要截图、保存、转载或二次传播，也不要擅自将图片用于其他用途。感谢理解和尊重！',
+      en: "The BJD page features Yuki's personal doll collection and profiles. Feel free to explore each doll's details~\n\nThese are part of Yuki's private collection ♡ Please do not screenshot, save, repost, redistribute, or use any of the images without Yuki's permission. Thank you for respecting her collection!"
+    },
+    works: {
+      zh: '可以去稿件展示页面看看哦！那里展示了柚子收藏的绘画作品和约稿成果 ♡\n\n这些稿件属于柚子的私人收藏，未经柚子允许，请不要截图、保存、转载或二次传播，也不要擅自将作品用于其他用途。',
+      en: "You can visit the Artwork Gallery to explore Yuki's collected illustrations and commissioned artwork ♡\n\nThese artworks are part of Yuki's private collection. Please do not screenshot, save, repost, redistribute, or use any artwork without Yuki's permission."
+    },
+    colorcard: {
+      zh: '色卡页面可以查看柚子收藏的色卡图片、画师、张数、收卡价格和色卡总价。点击卡片还能查看详细信息哦～\n\n这些都是柚子的私人收藏 ♡ 未经柚子允许，请不要截图、保存、转载或二次传播，也不要擅自将图片用于其他用途。感谢你的理解！',
+      en: "The Color Cards page features Yuki's personal collection, including card images, artists, quantities, purchase prices, and collection totals. Tap a card to see more details~\n\nThese are part of Yuki's private collection ♡ Please do not screenshot, save, repost, redistribute, or use any of the images without Yuki's permission. Thank you for understanding!"
+    },
+    copyright: { zh: '这些是柚子的私人收藏哦 ♡ 未经柚子明确允许，请不要截图、保存、转载、搬运或二次传播。如果有使用需求，可以先联系柚子咨询。', en: "These are part of Yuki's private collection ♡ Please do not screenshot, save, repost, redistribute, or reuse them without Yuki's explicit permission. If you'd like to use something, please contact Yuki first." },
+    shop: { zh: '小铺就在网站导航里哦～里面有不同分类的手作键帽，可以点击商品卡片查看图片、介绍和价格 ♡', en: "You'll find My Shop in the navigation menu~ Browse handmade keycaps by category and tap a product to see its photos, description, and price ♡" },
+    howtobuy: {
+      zh: '购买很简单哦！\n1. 进入小铺，选择喜欢的商品。\n2. 选择对应款式和规格，加入购物车。\n3. 前往结账页面提交订单。\n4. 上传付款截图等待柚子确认，或者直接使用 Stripe 在线支付。\n详细步骤也可以查看 How to Order 页面 ♡',
+      en: "Shopping is easy!\n1. Visit My Shop and choose your favorite items.\n2. Select your preferred options and add them to your cart.\n3. Proceed to checkout and place your order.\n4. Upload your payment screenshot for Yuki to verify, or pay online through Stripe.\nYou can also visit our How to Order page for detailed instructions ♡"
+    },
+    payment: { zh: '目前可以上传付款截图，由柚子确认收款，也可以通过 Stripe 在线支付哦～具体付款选项以结账页面显示为准。', en: 'You can upload a payment screenshot for Yuki to verify, or pay online through Stripe~ Available payment options are shown at checkout.' },
+    paywait: { zh: '别着急哦～如果已经上传付款截图，可以给柚子一些时间核对。如果长时间没有收到确认，可以发送邮件并附上订单编号和付款凭证。', en: "Don't worry~ If you've uploaded your payment screenshot, please allow Yuki some time to verify it. If you haven't received confirmation after a while, email Yuki with your order number and payment proof." },
+    custom: { zh: '有些键帽可能支持图案、颜色、文字或立体装饰方面的定制哦～具体能不能定制，需要根据商品和制作要求确认。可以先联系柚子咨询 ♡', en: 'Some keycaps may offer customization, such as patterns, colors, text, or 3D decorations~ Options depend on the product and production requirements. Please contact Yuki to discuss your ideas ♡' },
+    stock: { zh: '每件商品的库存和可购买数量请以小铺商品页面显示为准哦～如果不确定，也可以联系柚子确认。', en: "Please check the product page for current stock and available quantities~ If you're unsure, feel free to contact Yuki." },
+    keyfit: { zh: '购买前记得确认键帽的 MX 十字轴心、尺寸和高度是否适合你的键盘哦～不是所有键帽都适用于每一款键盘。如果不确定，可以先联系柚子。', en: "Before ordering, please check whether the keycap's MX-style cross stem, size, and profile are compatible with your keyboard~ Not every keycap fits every keyboard. Contact Yuki if you need help." },
+    refund: { zh: '不同商品和订单情况可能适用不同的售后条件哦～建议先查看网站的退换货政策。如果遇到商品问题，请联系柚子并提供清晰的照片或视频，我们会进一步确认。', en: "After-sales options may vary depending on the product and order. Please review our return policy first. If there's an issue with your item, contact Yuki with clear photos or videos so we can review it." },
+    order: { zh: '桓桓目前无法直接查看实时订单状态哦～如果想确认订单进度，可以通过邮箱联系柚子，并提供订单编号。', en: "Huanhuan can't currently access real-time order statuses~ To check your order progress, please email Yuki with your order number." },
+    ship: { zh: '具体发货时间会根据商品制作情况和订单安排而有所不同哦～如果想了解自己的订单进度，可以联系柚子确认。', en: 'Shipping times may vary depending on production and order arrangements~ Please contact Yuki for an update on your specific order.' },
+    tracking: { zh: '桓桓目前不能直接查询快递物流信息哦～可以查看你的物流追踪信息，或者通过邮箱联系柚子寻求帮助。', en: "Huanhuan can't directly track packages at the moment~ Please check your tracking information or email Yuki for assistance." },
+    contact: { zh: '可以通过邮箱联系柚子哦：\nsnowyuzustudio@gmail.com\n\n也可以在网站的 Find Me 页面找到其他联系方式 ♡', en: 'You can contact Yuki by email:\nsnowyuzustudio@gmail.com\n\nYou can also find other contact details on our Find Me page ♡' },
+    sitebug: { zh: '如果页面无法打开、按钮不能使用或者商品显示异常，可以先刷新页面再试一次。如果问题还在，请联系柚子并附上截图哦～', en: "If a page won't load, a button doesn't work, or a product appears incorrectly, try refreshing the page first. If the issue continues, contact Yuki with a screenshot~" },
+    fallback: { zh: '唔……这个问题我暂时还不太确定呢 > <\n你可以试试问我关于 BJD、色卡、小铺、购物流程或者网站功能的问题。如果还是解决不了，可以联系柚子哦 ♡', en: "Hmm... I'm not quite sure about that yet > <\nYou can ask me about BJD, Color Cards, My Shop, ordering, or website features. If you still need help, feel free to contact Yuki ♡" },
+    keepasking: { zh: '当然可以继续问我呀～还有什么想了解的呢？♡', en: 'Of course! Feel free to keep asking~ What else would you like to know? ♡' },
+    notreal: { zh: '我是 Snow Yuzu 的 AI 小助手桓桓，不是真人哦～不过我会尽量帮你找到需要的信息！♡', en: "I'm Huanhuan, Snow Yuzu's AI assistant, not a real person~ But I'll do my best to help you find the information you need! ♡" },
+    askbox: { zh: '提问箱在导航里哦～可以匿名留下问题或留言，柚子看到后会尽快回复你 ♡', en: "You'll find the Ask Box in the navigation menu~ Leave an anonymous question or message there, and Yuki will reply as soon as she can ♡" }
+  };
+  function Lt(k) { return T(L[k].zh, L[k].en); }
+
+  /* 相关问题推荐（回答后附 1-3 个可点击追问；任务书 §五.3） */
+  var QTEXT = {
+    features: { zh: '网站有什么功能？', en: 'What can I explore on this website?' },
+    howtobuy: { zh: '怎么购买键帽？', en: 'How do I buy keycaps?' },
+    bjd: { zh: 'BJD 和色卡在哪里？', en: 'Where can I find BJD and Color Cards?' },
+    works: { zh: '稿件展示在哪里？', en: 'Where is the Artwork Gallery?' },
+    colorcard: { zh: '色卡收藏在哪里看？', en: 'Where can I see the Color Cards?' },
+    contact: { zh: '如何联系柚子？', en: 'How can I contact Yuki?' },
+    payment: { zh: '付款方式是什么？', en: 'What are the payment options?' },
+    paywait: { zh: '付款后没有确认怎么办？', en: 'My payment is not confirmed yet?' },
+    order: { zh: '订单状态怎么查？', en: 'How do I check my order status?' },
+    ship: { zh: '发货时间是什么时候？', en: 'When will my order ship?' },
+    tracking: { zh: '物流怎么查？', en: 'How do I track my package?' },
+    stock: { zh: '有现货吗？', en: 'Is anything in stock?' },
+    keyfit: { zh: '键帽适配什么键盘？', en: 'What keyboards do the keycaps fit?' },
+    photos: { zh: '照片墙在哪里？', en: 'Where is the photo gallery?' },
+    calendar: { zh: '日历在哪里？', en: 'Where is the calendar?' }
+  };
+  var REL = {
+    greet: ['features', 'howtobuy', 'contact'],
+    thanks: ['features', 'howtobuy'],
+    bye: ['features'],
+    who: ['features', 'howtobuy', 'bjd'],
+    piggy: ['features', 'howtobuy'],
+    notreal: ['features', 'howtobuy'],
+    features: ['bjd', 'works', 'howtobuy'],
+    calendar: ['photos', 'features'],
+    photos: ['features', 'contact'],
+    bjd: ['works', 'colorcard', 'howtobuy'],
+    works: ['bjd', 'colorcard', 'contact'],
+    colorcard: ['works', 'bjd', 'howtobuy'],
+    copyright: ['contact'],
+    shop: ['howtobuy', 'stock', 'keyfit'],
+    howtobuy: ['payment', 'keyfit', 'contact'],
+    payment: ['order', 'paywait', 'contact'],
+    paywait: ['contact', 'order'],
+    custom: ['howtobuy', 'contact'],
+    stock: ['howtobuy', 'keyfit'],
+    keyfit: ['howtobuy', 'stock'],
+    refund: ['contact', 'payment'],
+    order: ['ship', 'contact'],
+    ship: ['tracking', 'order', 'contact'],
+    tracking: ['ship', 'paywait', 'contact'],
+    contact: ['features', 'bjd'],
+    sitebug: ['contact'],
+    keepasking: ['features', 'howtobuy'],
+    askbox: ['features', 'contact'],
+    fallback: ['features', 'howtobuy', 'contact']
+  };
+
+  /* 版权保护（任务书 §二：必需内容，最高优先，不被知识库覆盖）。中英文关键词同时参与匹配。 */
+  var COPYRIGHT_RE = [
+    /截图/, /转载/, /二传/, /搬运/, /保存/,
+    /screensh/i, /repost/i, /redistribut/i, /\bsave\b/i,
+    /(使用|用于|用到|拿去|用在)[^。？！?!]{0,6}(别|其他|其它|社媒|社交|商业|宣传|外面|外站)/,
+    /(能|可以|可不可以|能不能)[^。？！?!]{0,6}(使用|用|拿)[^。？！?!]{0,6}(图|图片|照片|作品|卡)/,
+    /can i (save|use|screenshot|repost|share)/i, /may i (save|use|screenshot|repost|share)/i,
+    /use (the |any |your |her )?(image|photo|picture|artwork|card|doll)s?\b/i
+  ];
+  /* 身份问答（她 01:26：桓桓是谁/你是谁 → 固定回复，优先于自我介绍与兜底） */
+  var PIGGY_RE = /桓桓是谁|介绍一下桓桓|桓桓是什么|你是谁|你叫什么|自我介绍|介绍一下你自己|who is huanhuan|who are you|what are you/i;
+  /* 意图词库（任务书 §四 18 类 + 补充：退款/网站问题/继续提问/身份；数字小者优先级高） */
+  var INTENTS = [
+    { id: 'order',     pri: 2,  res: [/订单/, /\border ?(status|number)\b/i] },
+    { id: 'pay',       pri: 3,  res: [/付款/, /支付/, /\bpaid\b/i, /payment/i, /stripe/i] },
+    { id: 'ship',      pri: 4,  res: [/发货/, /快递/, /物流/, /追踪/, /tracking/i, /delivery/i, /shipping/i] },
+    { id: 'buy',       pri: 5,  res: [/购买/, /怎么买/, /下单/, /\bbuy\b/i, /purchase/i, /checkout/i] },
+    { id: 'custom',    pri: 6,  res: [/定制/, /改色/, /定做/, /custom/i] },
+    { id: 'refund',    pri: 7,  res: [/退款/, /退货/, /售后/, /refund/i, /return policy/i, /\breturn\b/i] },
+    { id: 'stock',     pri: 8,  res: [/现货/, /库存/, /缺货/, /\bstock\b/i, /in stock/i, /sold out/i] },
+    { id: 'bjd',       pri: 9,  res: [/bjd/i, /娃娃/, /娃头/, /娃体/, /\bdoll\b/i] },
+    { id: 'works',     pri: 10, res: [/稿件/, /约稿/, /画师/, /插画/, /artwork/i, /commission/i, /artist/i] },
+    { id: 'calendar',  pri: 11, res: [/日历/, /生日/, /纪念日/, /重要日子/, /calendar/i, /birthday/i, /important (days|dates)/i] },
+    { id: 'colorcard', pri: 12, res: [/色卡/, /收卡/, /color ?card/i, /collection/i] },
+    { id: 'keyfit',    pri: 13, res: [/轴心/, /键帽高度/, /键盘/, /适配/, /compatib/i, /\bstem\b/i, /profile/i, /keyboard/i] },
+    { id: 'photos',    pri: 14, res: [/照片/, /photos?\b/i, /gallery/i] },
+    { id: 'askbox',    pri: 15, res: [/提问箱/, /匿名提问/, /留言/, /ask ?box/i, /anonymous/i] },
+    { id: 'shop',      pri: 16, res: [/小铺/, /商品/, /价格/, /\bshop\b/i, /products?\b/i, /\bprice\b/i] },
+    { id: 'intro',     pri: 17, res: [/网站功能/, /怎么使用/, /怎么用/, /使用方法/, /网站/, /功能/, /有什么/, /都有什么/, /what can/i, /how to use/i, /website/i, /feature/i] },
+    { id: 'contact',   pri: 18, res: [/联系/, /邮箱/, /找柚子/, /contact/i, /email/i] },
+    { id: 'chat',      pri: 19, res: [/你好/, /您好/, /嗨/, /哈喽/, /\b(hi|hello|hey|thanks?|thank you|bye|goodbye)\b/i, /谢谢/, /感谢/, /再见/, /拜拜/] },
+    { id: 'who',       pri: 20, res: [/桓桓/, /你是/, /你叫什么/, /自我介绍/, /介绍一下/, /who is huanhuan/i, /who are you/i, /what are you/i, /are you (a )?(real|human|bot|ai)/i] },
+    { id: 'keepasking', pri: 21, res: [/还能问/, /继续问/, /可以问吗/, /还有问题/, /can i (keep |still )?ask/i, /more questions/i] },
+    { id: 'sitebug',   pri: 16.5, res: [/打不开/, /显示异常/, /出错/, /报错/, /bug/i, /not working/i, /broken/i, /doesn'?t work/i, /won'?t load/i, /error/i, /issue/i] }
+  ];
+  var INTENT2Q = { order: 'order', pay: 'payment', ship: 'ship', buy: 'howtobuy', stock: 'stock', bjd: 'bjd', works: 'works', calendar: 'calendar', colorcard: 'colorcard', keyfit: 'keyfit', photos: 'photos', askbox: 'askbox', intro: 'features', contact: 'contact' };
+  function matchIntent(q) {
+    var nq = q.toLowerCase();
+    var all = [];
+    INTENTS.forEach(function (it) {
+      var hits = 0;
+      it.res.forEach(function (re) { if (re.test(nq)) hits++; });
+      if (hits > 0) all.push({ id: it.id, pri: it.pri, hits: hits });
+    });
+    if (!all.length) return null;
+    all.sort(function (a, b) { return (b.hits - a.hits) || (a.pri - b.pri); });
+    return { best: all[0], others: all.slice(1) };
+  }
 
   // ── 知识库（数据库 ai_kb 表 · 后台添加的所有访客都能读到；断网/未建表时退回本地缓存）──
   var KB = (function () { try { return JSON.parse(localStorage.getItem('yuki-ai-kb') || '[]') || []; } catch (e) { return []; } })();
@@ -328,7 +484,7 @@
   kbLoad();
   function kbSaveUse(k) { // 使用计数：写数据库日志（失败静默，不影响回复）
     if (!k || !k.dbId || !KB_DB_OK) return;
-    fetch(DB_BASE + 'ai_kb_uses', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }, body: JSON.stringify({ kb_id: k.dbId }) }).catch(function () {});
+    fetch(DB_BASE + 'ai_kb_uses', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal', 'apikey': DB_HEADERS.apikey, 'Authorization': DB_HEADERS.Authorization }, body: JSON.stringify({ kb_id: k.dbId }) }).catch(function () {});
   }
   function normQ(s) { return String(s || '').toLowerCase().replace(/[\s，。？！?!,.'\"“”‘’、~～·：:;；]/g, ''); }
   function bigrams(s) { var r = []; for (var i = 0; i < s.length - 1; i++) r.push(s.substr(i, 2)); return r; }
@@ -351,17 +507,34 @@
     return (best && score >= 0.4) ? best : null;
   }
 
-  // ── 模拟回复（第一阶段；知识库优先 → 内置回复 → 兑底；中英文跟随网站语言）──
+  /* ── 回复决策（20261109 升级）：版权优先 → 身份问答 → 知识库 → 意图识别（同分按任务书优先级）→ 兜底 ── */
   function replyFor(q) {
-    var k = kbMatch(q);
-    if (k) { kbSaveUse(k); return { text: k.a, kbId: k.dbId || k.id, kbObj: k }; }
     var nq = (q || '').toLowerCase();
-    if (/你好|您好|hi|hello|嗨|哈喽/.test(nq)) return { text: T('你好呀～我是小柚助手（测试版）。可以点下面的快捷问题，或直接问我「网站怎么用」「色卡」「小铺」。', "Hi there~ I'm Yuki's Assistant (test version). Tap a quick question below, or ask me 'How to use the site', 'Color Cards' or 'My Shop'."), kbId: null };
-    if (/色卡|价目|价格表|color ?card|price/.test(nq)) return { text: T('色卡页面在导航的「色卡」，里面有每张色卡的主图、画师和张数，还有收卡价格和色卡总价。点任意一张卡片可以进入详情查看更多信息。', 'The Color Cards page is in the menu under "Color Cards". Each card shows its cover, artists and count, plus the base price and the card total. Tap any card to see the full details.'), kbId: null };
-    if (/小铺|商品|购买|下单|宝贝|shop|buy/.test(nq)) return { text: T('小铺在导航的「小铺」，上架的宝贝按分类展示，点进卡片可以看到介绍和价格，也可以看大家的评价。', 'My Shop is in the menu under "My Shop". Items are grouped by category — open a card for the description and price, and you can read customer reviews there too.'), kbId: null };
-    if (/网站怎么用|怎么用|使用|怎么玩|how to use|how does this work/.test(nq)) return { text: T('很简单：顶部导航可以跳转「照片」「BJD」「色卡」「小铺」「提问箱」；主页往下滑能看到色卡展示、照片墙和重要日子。右上角的菜单在手机上也能用。', "It's easy: use the menu at the top right to jump to Photos, BJD, Color Cards, My Shop and the Ask Box. Scroll down the home page to see color cards, the photo gallery and important days. The menu works on phones too."), kbId: null };
-    if (/网站|功能|有什么|都有什么|site|feature|what can/.test(nq)) return { text: T('现在网站有这些功能：主页（含日历和重要日子）、照片墙、BJD 档案、色卡展示、小铺、匿名提问箱，还有中英文切换。', 'The site currently has: a home page (with a calendar and important days), a photo gallery, BJD profiles, color cards, my little shop, an anonymous ask box, and Chinese/English switching.'), kbId: null };
-    return { text: FALLBACK, kbId: null, fb: true };
+    var i;
+    for (i = 0; i < COPYRIGHT_RE.length; i++) {
+      if (COPYRIGHT_RE[i].test(nq)) return { text: Lt('copyright'), intent: 'copyright', more: REL.copyright };
+    }
+    if (PIGGY_RE.test(nq)) return { text: Lt('piggy'), intent: 'piggy', more: REL.piggy };
+    var k = kbMatch(q);
+    if (k) { kbSaveUse(k); return { text: k.a, kbId: k.dbId || k.id, kbObj: k, more: ['features', 'contact'] }; }
+    var m = matchIntent(q);
+    if (!m) return { text: Lt('fallback'), intent: 'fallback', fb: true, more: REL.fallback };
+    var id = m.best.id, sub = id;
+    if (id === 'buy') sub = 'howtobuy';
+    if (id === 'pay') sub = /确认|没有收到|not confirmed|haven.?t received/i.test(nq) ? 'paywait' : 'payment';
+    else if (id === 'ship') sub = /追踪|物流|快递|tracking|delivery|package/i.test(nq) ? 'tracking' : 'ship';
+    else if (id === 'chat') sub = /谢谢|感谢|\bthanks?\b/i.test(nq) ? 'thanks' : (/\b(bye|goodbye)\b|再见|拜拜/i.test(nq) ? 'bye' : 'greet');
+    else if (id === 'who') sub = /真人|机器人|\bare you (a )?(real|human|bot|ai)\b/i.test(nq) ? 'notreal' : 'who';
+    else if (id === 'intro') sub = 'features';
+    /* 多问题同发：主回答 + 相关推荐覆盖其余意图（任务书 §四「尽可能同时回答」） */
+    var more = (REL[sub] || []).slice();
+    if (m.others.length && more.length < 3) {
+      m.others.forEach(function (o) {
+        var qk = INTENT2Q[o.id];
+        if (qk && more.indexOf(qk) === -1 && more.length < 3) more.push(qk);
+      });
+    }
+    return { text: Lt(sub), intent: sub, more: more };
   }
 
   function nowTime() {
@@ -370,13 +543,28 @@
     return p(d.getHours()) + ':' + p(d.getMinutes());
   }
 
-  function addMsg(role, txt, time) {
+  function addMsg(role, txt, time, chips) {
     var div = document.createElement('div');
     div.className = 'msg ' + (role === 'me' ? 'me' : 'ai');
     var avatar = role === 'me' ? '' : '<div class="m-avatar"><img src="/avatar.jpg" alt=""></div>';
+    var safe = txt.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/\n/g, '<br>')
+      .replace(/snowyuzustudio@gmail\.com/g, '<a class="ai-link" href="mailto:snowyuzustudio@gmail.com">snowyuzustudio@gmail.com</a>')
+      .replace(/How to Order 页面|How to Order page/g, '<a class="ai-link" href="' + ykLink('/how-to-order/') + '">$&</a>');
     div.innerHTML = avatar +
-      '<div class="bubble">' + txt.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '<span class="time">' + (time || nowTime()) + '</span></div>';
+      '<div class="bubble">' + safe + '<span class="time">' + (time || nowTime()) + '</span></div>';
     msgs.appendChild(div);
+    if (role === 'ai' && chips && chips.length) {
+      var row = document.createElement('div');
+      row.className = 'ai-more';
+      chips.forEach(function (k) {
+        var qt = QTEXT[k]; if (!qt) return;
+        var b = document.createElement('button');
+        b.type = 'button'; b.textContent = T(qt.zh, qt.en);
+        b.addEventListener('click', function () { send(T(qt.zh, qt.en)); });
+        row.appendChild(b);
+      });
+      if (row.children.length) msgs.appendChild(row);
+    }
     msgs.scrollTop = msgs.scrollHeight;
   }
 
@@ -421,7 +609,7 @@
     try { localStorage.setItem('yuki-ai-log', JSON.stringify([curSession].concat(logs).slice(0, 20))); } catch (e) {}
     // 数据库副本（后台可看真实提问；失败不弹窗不打扰访客，后台读不到即知）
     if (meta && meta.kbObj) {} // kb 使用已在 replyFor 里记过
-    fetch(DB_BASE + 'ai_chat_msgs', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+    fetch(DB_BASE + 'ai_chat_msgs', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal', 'apikey': DB_HEADERS.apikey, 'Authorization': DB_HEADERS.Authorization },
       body: JSON.stringify({ session_key: curSession.key, role: role === 'me' ? 'user' : 'ai', text: txt, kb_hit: !!(meta && meta.kbId && !meta.fb) })
     }).catch(function () {});
   }
@@ -436,7 +624,7 @@
     setTimeout(function () {
       typing(false);
       var r = replyFor(q);
-      addMsg('ai', r.text);
+      addMsg('ai', r.text, null, r.more);
       logSession('ai', r.text, r);
     }, 700 + Math.random() * 500);
   }
@@ -508,7 +696,7 @@
     quick.appendChild(b);
   });
 
-  if (!curSession) addMsg('ai', T('你好，我是小柚助手～现在还是测试版，可以先点下面的快捷问题试试。', "Hi, I'm Yuki's Assistant~ I'm still a test version — try a quick question below."), nowTime());
+  if (!curSession) addMsg('ai', Lt('welcome'), nowTime());
 
   // 「今天」避让：日历的今天按钮与小助手圆形重叠时小助手滑出（20261029，替代旧 z-index hack）
   var calTodayBtn = document.getElementById('cal-today');
@@ -1469,7 +1657,7 @@
   });
 })();
 </script>
-<script src="/js/site-footer.js?v=20261105C"></script>
+<script src="/js/site-footer.js?v=20261109B"></script>
 <script>
   // 统一 Footer（已有 <footer> 则替换其内容，不新建第二个）
   function initSiteFooter() { renderSiteFooter(); }

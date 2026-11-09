@@ -632,8 +632,8 @@ var YK_EN_EXTRA = {
   '下个月': 'Next month',
   '管理': 'Manage',
   '发送': 'Send',
-  '打开小助手ovo': "Open Yuki's Assistant",
-  '小柚助手': "Yuki's Assistant",
+  '打开小助手桓桓': 'Open Huanhuan',
+  '桓桓': 'Huanhuan',
   '点击快速选择年月': 'Tap to choose year & month',
   '运单号 / Tracking number': 'Tracking number',
   /* ——— 排序 / 筛选下拉（BJD、色卡） ——— */

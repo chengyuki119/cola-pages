@@ -1149,6 +1149,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       <h3 class="outside">知识库 · 我添加的标准回复</h3>
       <div class="aix-list" id="ai-kb-list"></div>
       <div class="aix-pager" id="ai-kb-pager"></div>
+      <h3 class="outside">未命中问题 · 出现次数（AI 只回了兜底回复的提问）</h3>
+      <div class="aix-list" id="ai-miss-list"></div>
       <h3 class="outside">AI 对话数据</h3>
       <div class="aix-list" id="ai-list"></div>
       <div class="aix-pager" id="ai-pager"></div>
@@ -6667,7 +6669,14 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     未跑 SQL10 或断网时退回本地旧数据并明确提示。模拟数据只作「示例」徽章展示，不冒充真实）═══ */
 (function () {
   var DAY = 86400000;
-  var FALLBACK = '我现在还是测试版本，暂时只回答少量网站相关问题。';
+  var FALLBACK = '我现在还是测试版本，暂时只回答少量网站相关问题。'; // 旧版兜底（历史数据识别用）
+  /* 兜底文案集合（旧版 + 20261109 升级版中英）：待补充判定用 */
+  var FB_SET = {};
+  [FALLBACK,
+   "I'm still a test version, so I can only answer a few questions about the site for now.",
+   '唔……这个问题我暂时还不太确定呢 > <\n你可以试试问我关于 BJD、色卡、小铺、购物流程或者网站功能的问题。如果还是解决不了，可以联系柚子哦 ♡',
+   "Hmm... I'm not quite sure about that yet > <\nYou can ask me about BJD, Color Cards, My Shop, ordering, or website features. If you still need help, feel free to contact Yuki ♡"
+  ].forEach(function (t) { FB_SET[t] = 1; });
   var PAGE_SIZE = 10, KB_PAGE_SIZE = 5;
   var ST_KEY = 'yuki-ai-admin-state';
 
@@ -6676,7 +6685,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   var MOCK = [
     { id: 'm1', time: now - 2 * 3600000, msgs: [
       { role: 'user', text: '你好', time: now - 2 * 3600000 },
-      { role: 'ai', text: '你好呀～我是小柚助手（测试版）。可以问我「网站怎么用」「色卡」「小铺」。', time: now - 2 * 3600000 + 5000 },
+      { role: 'ai', text: '你好呀～我是桓桓（测试版）。可以问我「网站怎么用」「色卡」「小铺」。', time: now - 2 * 3600000 + 5000 },
       { role: 'user', text: '色卡在哪里看？', time: now - 2 * 3600000 + 20000 },
       { role: 'ai', text: '色卡页面在导航的「色卡」，里面有每张色卡的主图、画师和张数，还有收卡价格和色卡总价。点任意一张卡片可以进入详情查看。', time: now - 2 * 3600000 + 25000 }
     ]},
@@ -6698,7 +6707,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       { role: 'user', text: 'BJD 是什么', time: now - 6 * DAY },
       { role: 'ai', text: 'BJD 是球型关节人偶。导航的「BJD」里是柚子的娃娃档案，有娃娃头、身体、眼珠这些部件信息。', time: now - 6 * DAY + 6000 },
       { role: 'user', text: '你好呀', time: now - 6 * DAY + 60000 },
-      { role: 'ai', text: '你好呀～我是小柚助手（测试版）。可以问我「网站怎么用」「色卡」「小铺」。', time: now - 6 * DAY + 64000 }
+      { role: 'ai', text: '你好呀～我是桓桓（测试版）。可以问我「网站怎么用」「色卡」「小铺」。', time: now - 6 * DAY + 64000 }
     ]},
     { id: 'm6', time: now - 12 * DAY, msgs: [
       { role: 'user', text: '有没有头像可以保存', time: now - 12 * DAY },
@@ -6710,7 +6719,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     ]},
     { id: 'm8', time: now - 45 * DAY, msgs: [
       { role: 'user', text: '你好', time: now - 45 * DAY },
-      { role: 'ai', text: '你好呀～我是小柚助手（测试版）。', time: now - 45 * DAY + 4000 }
+      { role: 'ai', text: '你好呀～我是桓桓（测试版）。', time: now - 45 * DAY + 4000 }
     ]}
   ];
 
@@ -6745,7 +6754,9 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   }
 
   MOCK.forEach(function (m) { m.demo = true; });
-  var SESSIONS = LIVE.concat(MOCK).sort(function (a, b) { return b.time - a.time; });
+  /* 20261109 修复：原写法在模块加载时就把空的 LIVE 拼死进 SESSIONS，loadSessions 成功后也进不来
+     （后台「AI 对话数据」从来看不到真实访客对话）。改为每次渲染时动态合并。 */
+  function allSessions() { return LIVE.concat(MOCK).sort(function (a, b) { return b.time - a.time; }); }
 
   // ── 知识库（数据库 ai_kb 表；uses 从 ai_kb_uses 日志聚合；未建表/失败退回本地旧数据并提示）──
   var KB = [];
@@ -6895,7 +6906,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   function pendingList(s) { // 待补充的问题（AI 只回了兜底文案，且知识库还没覆盖）
     var out = [];
     for (var i = 0; i < s.msgs.length; i++) {
-      if (s.msgs[i].role === 'user' && s.msgs[i + 1] && s.msgs[i + 1].role === 'ai' && s.msgs[i + 1].text === FALLBACK) {
+      if (s.msgs[i].role === 'user' && s.msgs[i + 1] && s.msgs[i + 1].role === 'ai' && FB_SET[s.msgs[i + 1].text]) {
         if (!kbFind(s.msgs[i].text)) out.push(s.msgs[i].text);
       }
     }
@@ -6907,7 +6918,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     var today = new Date(); today.setHours(0, 0, 0, 0);
     var t0 = today.getTime(), nowT = Date.now();
     var c = { today: 0, d7: 0, d30: 0, all: 0 };
-    SESSIONS.forEach(function (s) {
+    allSessions().forEach(function (s) {
       if (s.demo) return; // 示例数据不算进统计
       var q = s.msgs.filter(function (m) { return m.role === 'user'; }).length;
       c.all += q;
@@ -6919,7 +6930,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       '<div class="aix-stat"><b>' + c.today + '</b><span>今日提问</span></div>' +
       '<div class="aix-stat"><b>' + c.d7 + '</b><span>最近 7 天</span></div>' +
       '<div class="aix-stat"><b>' + c.d30 + '</b><span>最近 30 天</span></div>' +
-      '<div class="aix-stat"><b>' + SESSIONS.length + '</b><span>全部会话</span></div>';
+      '<div class="aix-stat"><b>' + allSessions().length + '</b><span>全部会话</span></div>';
   }
 
   // ── 分页 ──
@@ -6947,7 +6958,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   // ── 对话列表（每页 10 条，点击展开完整记录）──
   function filteredSessions() {
     var nowT = Date.now();
-    return SESSIONS.filter(function (s) {
+    return allSessions().filter(function (s) {
       if (filter === 'pending') { if (!pendingList(s).length) return false; }
       else if (filter === 'today') { var d = new Date(); d.setHours(0, 0, 0, 0); if (s.time < d.getTime()) return false; }
       else if (filter === '7d' && s.time < nowT - 7 * DAY) return false;
@@ -7016,11 +7027,11 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   function detailHtml(s, pend) {
     var html = '<div class="aix-chat">' + s.msgs.map(function (m, i) {
       var extra = '';
-      if (m.role === 'user' && s.msgs[i + 1] && s.msgs[i + 1].role === 'ai' && s.msgs[i + 1].text === FALLBACK) {
+      if (m.role === 'user' && s.msgs[i + 1] && s.msgs[i + 1].role === 'ai' && FB_SET[s.msgs[i + 1].text]) {
         extra = answerBlock(m.text);
       }
       return '<div class="aix-msg ' + (m.role === 'user' ? 'user' : 'ai') + '">' +
-        '<span class="who">' + (m.role === 'user' ? '访客' : '小柚助手') + '</span>' +
+        '<span class="who">' + (m.role === 'user' ? '访客' : '桓桓') + '</span>' +
         '<div class="bubble">' + esc(m.text) + '</div>' +
         '<span class="t">' + fmtTime(m.time) + '</span>' + extra +
         '</div>';
@@ -7072,10 +7083,25 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     renderPager('ai-kb-pager', pc, kbPage);
   }
 
+  function renderMiss() { // 未命中问题统计（她 20261109 任务书 §五.4/5）
+    var cnt = {};
+    allSessions().forEach(function (s) {
+      if (s.demo) return; // 示例数据不算
+      pendingList(s).forEach(function (q) { cnt[q] = (cnt[q] || 0) + 1; });
+    });
+    var keys = Object.keys(cnt).sort(function (a, b) { return cnt[b] - cnt[a]; }).slice(0, 20);
+    var box = document.getElementById('ai-miss-list');
+    if (!keys.length) { box.innerHTML = '<div class="aix-empty">暂无未命中问题～</div>'; return; }
+    box.innerHTML = keys.map(function (q) {
+      return '<div class="aix-session"><div class="aix-s-top"><span class="aix-badge warn">× ' + cnt[q] + '</span><span class="aix-s-q">' + esc(q) + '</span></div>' +
+        '<div class="aix-s-a">在下方对话里找到这条提问，点「添加标准回复」即可补充答案</div></div>';
+    }).join('');
+  }
   function render() {
     renderStats();
     renderList();
     renderKb();
+    renderMiss();
     var fbtn = document.getElementById('ai-filter-clear');
     if (fbtn) fbtn.classList.toggle('show', filter !== 'all');
     var cbtn = document.getElementById('ai-search-clear');

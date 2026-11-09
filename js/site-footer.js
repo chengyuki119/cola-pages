@@ -23,6 +23,7 @@
       policies: '网站政策',
       contact: '联系我们',
       faq: '常见问题',
+      howto: '怎么购买',
       'return-policy': '退货与退款政策',
       'shipping-policy': '配送政策',
       'privacy-policy': '隐私政策',
@@ -42,6 +43,7 @@
       policies: 'Policies',
       contact: 'Contact Us',
       faq: 'FAQ',
+      howto: 'How to Order',
       'return-policy': 'Return & Refund Policy',
       'shipping-policy': 'Shipping Policy',
       'privacy-policy': 'Privacy Policy',
@@ -55,7 +57,7 @@
   var LINKS = {
     /* §4.1（她 20261026 总任务书）：账户栏只保留「登录」「订单」两个直接入口，不再重复设置独立「账户中心」入口；购物车走 Header 购物车图标 */
     account: [['login', '/account/', 'login'], ['orders', '/account/?sec=orders']],
-    service: [['contact', '/askbox/'], ['faq', '/faq/'], ['return-policy', '/return-policy/'], ['shipping-policy', '/shipping-policy/']],
+    service: [['contact', '/askbox/'], ['faq', '/faq/'], ['howto', '/how-to-order/'], ['return-policy', '/return-policy/'], ['shipping-policy', '/shipping-policy/']],
     about: [['brand', '/brand/'], ['findme', '/about/']],
     policies: [['privacy-policy', '/privacy-policy/'], ['terms-of-service', '/terms-of-service/']]
   };
