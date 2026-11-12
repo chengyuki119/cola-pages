@@ -263,6 +263,11 @@
     if (window.YK18N) window.YK18N.need(_ctx).then(_after, _after); else _after();
   }).catch(function () {});
 
+  // 她 20261112 01:51：翻译是联网异步的，词条到齐后再画一遍，保证不会停在中文
+  window.addEventListener('yk18n', function () {
+    try { if (!CARDS_CACHE || !CARDS_CACHE.length) return; renderCardsList(); if (CURRENT_CARD >= 0) renderCardView(); } catch (e) {}
+  });
+
   document.getElementById('cards-grid').addEventListener('click', function (e) {
     if (e.target.closest('.share-btn')) return; // 分享按钮自己处理
     var eb = e.target.closest('.card-edit-btn');
