@@ -4,7 +4,8 @@
     <link rel="preload" href="/fonts/Millo-RiceSoyMilk80.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/fonts/Millo-RiceSoyMilk90.woff2" as="font" type="font/woff2" crossorigin>
 <meta charset="UTF-8">
-  <script src="/js/lang-path.js?v=20261109A"></script>
+  <script src="/js/lang-path.js?v=20261112A"></script>
+  <script src="/js/yk-i18n.js?v=20261112B"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>小柚的小铺 · Yuki's Shop</title>
 <link rel="manifest" href="/manifest.json">
@@ -357,7 +358,22 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
   <script src="/site-menu.js?v=20261105C" defer></script>
   <link rel="stylesheet" href="/css/button-theme.css?v=20261107H">
     <link rel="stylesheet" href="/css/input-unify.css?v=20261107H">
-  </head>
+  <style id="pdp-desktop-notes">
+/* 她 20261112 01:51 §二：商品详情页电脑端布局（只改 ≥640px；手机端一行都不改，保持现状）
+   左栏：商品图片 → 图片正下方依次是 商品消息 / 商品类型 / 商品详情
+   右栏：名称价格 → 规格选择 → 数量 → 库存 → 加入购物车 / 立即购买 → 购买须知（紧贴按钮下方） */
+@media (min-width: 640px) {
+  .pdp { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; gap: 0 22px; align-items: start; }
+  .pdp .d-pager { grid-column: 1; grid-row: 1; }
+  .pdp .d-notes { grid-column: 1; grid-row: 2; align-self: start; min-width: 0; }
+  .pdp .d-info { grid-column: 2; grid-row: 1 / span 2; align-self: start; min-width: 0; }
+  .pdp .d-notes > .d-contact, .pdp .d-notes > .d-type, .pdp .d-notes > .d-desc { margin: 12px 0 0; }
+}
+@media (max-width: 639px) {
+  .pdp .d-notes { display: contents; }
+}
+</style>
+</head>
 <body>
 <header class="topbar">
   <div class="lang-switch">
@@ -629,10 +645,10 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     if (s === '') return '';
     return /^\d+(\.\d+)?$/.test(s.replace(/[,\s]/g, '')) ? (parseFloat(s) || 0).toFixed(2) : s;
   }
-  function dispName(p) { return (LANG === 'en' && p.name_en) ? p.name_en : p.name; } // 她 20261102：商品名称双语
+  function dispName(p) { return window.YK18N ? window.YK18N.pick(p.name, p.name_en) : ((LANG === 'en' && p.name_en) ? p.name_en : p.name); } // 她 20261102 双语名称；她 20261112 01:51：缺一种语言自动生成
   function dispCover(p) { return (LANG === 'en' ? (p.cover_en || p.cover_zh) : (p.cover_zh || p.cover_en)) || ''; } // 双语封面：卡片与详情同源
   var TAG_EN = { '手作': 'Handmade', '黏土': 'Clay', '毛线': 'Yarn', '贴纸': 'Sticker', '键帽': 'Keycap', 'None': '' }; // 标签英文展示
-  function dispTag(p) { var tag = p.tag || ''; if (LANG !== 'en') return tag; return TAG_EN[tag] || tag; }
+  function dispTag(p) { var tag = p.tag || ''; if (!tag) return ''; if (LANG !== 'en') return (window.YK18N ? window.YK18N.t(tag) : tag); return TAG_EN[tag] || (window.YK18N ? window.YK18N.t(tag) : tag); }
   function productCard(p) {
     var cov = dispCover(p) || (Array.isArray(p.images) && p.images[0]) || p.image_url || ''; // 她 20261103：列表页不做任何切换照片的行为——卡片只显示一张封面静态图，看图/切图去详情页
     var img = cov ? '<img class="pg-img" src="' + escAttrDbS(normImgS(cov)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + escAttrDbS(dispName(p)) + '" loading="lazy">' : '';
@@ -679,9 +695,25 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
       }).then(function (r) { return r.json(); });
     });
   }
+  // 她 20261112 01:51 §一：把当前页面要用到的所有商品文字（名称/介绍/标签/规格维度/选项）
+  // 一次性交给 YK18N 预翻译，渲染前就已经在缓存里 → 电脑端和手机端同一套，后台只填一种语言也两种都能看
+  function ykI18nTexts(rows) {
+    var out = [];
+    (rows || []).forEach(function (p) {
+      out.push(p.name, p.name_en, p.description, p.description_en, p.tag);
+      (p.variants || []).forEach(function (v) {
+        if (!v) return;
+        out.push(v.name);
+        if (v.dims && typeof v.dims === 'object') Object.keys(v.dims).forEach(function (k) { out.push(k, v.dims[k]); });
+      });
+    });
+    return out;
+  }
   loadShopHidden().then(fetchProducts).then(function (rows) {
     PRODUCTS = (rows || []).filter(function (p) { return SHOP_HIDDEN.indexOf(String(p.id)) === -1; }); // 后台「下架」的不上店
-    renderProducts();
+    return (window.YK18N ? window.YK18N.need(ykI18nTexts(rows)) : Promise.resolve()).then(function () {
+      renderProducts();
+    }, function () { renderProducts(); });
   }).catch(function () {
     document.getElementById('product-grid').innerHTML =
       '<p style="grid-column:1/-1;text-align:center;color:var(--muted);">' + t('商品加载失败，请刷新重试','Failed to load, please refresh') + '</p>';
@@ -853,7 +885,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     }, 300);
   }
 </script>
-<script src="/js/shop-app.js?v=20261112A"></script>
+<script src="/js/shop-app.js?v=20261112B"></script>
 <script src="/js/site-footer.js?v=20261109B"></script>
 <script>
   // 统一 Footer（已有 <footer> 则替换其内容，不新建第二个）

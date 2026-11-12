@@ -20,7 +20,8 @@
     <link rel="preload" href="/fonts/Millo-RiceSoyMilk80.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/fonts/Millo-RiceSoyMilk90.woff2" as="font" type="font/woff2" crossorigin>
 <meta charset="UTF-8">
-  <script src="/js/lang-path.js?v=20261109A"></script>
+  <script src="/js/lang-path.js?v=20261112A"></script>
+  <script src="/js/yk-i18n.js?v=20261112B"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>小柚的小世界</title>
 <link rel="manifest" href="/manifest.json">
@@ -970,15 +971,16 @@
       var sp = heroSpans[it[2]];
       if (!sp) return;
       var zh = hero[it[0]] || sp.textContent.trim() || hFallback[it[2]];
-      var en2 = hero[it[1]] || zh;
-      sp.textContent = zh;
+      var en2 = hero[it[1]] || (window.YK18N ? window.YK18N.t(zh, 'en') : zh); // 她 20261112 01:51：只填中文也要有英文
+      sp.textContent = (window.LANG === 'en') ? en2 : zh;
       sp.setAttribute('data-zh', zh);
       sp.setAttribute('data-en', en2);
     });
     if (hero.name && heroName) {
-      heroName.textContent = hero.name;
+      var _hnEn = hero.name_en || (window.YK18N ? window.YK18N.t(hero.name, 'en') : hero.name);
+      heroName.textContent = (window.LANG === 'en') ? _hnEn : hero.name;
       heroName.setAttribute('data-zh', hero.name);
-      heroName.setAttribute('data-en', hero.name_en || hero.name);
+      heroName.setAttribute('data-en', _hnEn);
     }
     // 头像
     var av = parseSetting('avatar', null);
@@ -1024,10 +1026,10 @@
                      : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--accent-soft,#FCECF2);color:var(--muted);font-size:15px;">' + (LANG === 'en' ? 'No photo' : '暂无图片') + '</div>') +
             '<div style="padding:12px 14px;">' +
             '<div style="display:flex;align-items:center;gap:8px;">' +
-            '<b style="flex:1;font-size:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(c.name || '未命名色卡') + '</b>' +
+            '<b style="flex:1;font-size:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(y18(c.name) || '未命名色卡') + '</b>' +
             shareBtnHtml(i, null, true) +
             '</div>' +
-            '<div style="font-size:15px;color:var(--muted);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (c.shop ? escDb(c.shop) : '&nbsp;') + '</div>' +
+            '<div style="font-size:15px;color:var(--muted);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (c.shop ? escDb(y18(c.shop)) : '&nbsp;') + '</div>' +
             '<div style="display:flex;align-items:center;gap:8px;margin-top:4px;">' +
             '<span style="flex:1;font-size:17px;color:var(--text,#65515D);font-weight:600;">' + (LANG === 'en' ? 'Total ' : '色卡总价 ') + '</span><span style="color:var(--price,#F48FB1);font-weight:600;">¥' + fmtMoney(cardFinalV(c)) + '</span>' +
             cardEditBtn(i) +
@@ -1068,7 +1070,7 @@
                      : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--accent-soft,#FCECF2);color:var(--muted);font-size:15px;">' + (LANG === 'en' ? 'No photo' : '暂无图片') + '</div>') +
             '<div style="padding:12px 14px;">' +
             '<div style="display:flex;align-items:center;gap:8px;">' +
-            '<b style="flex:1;font-size:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(w.name || '未命名稿件') + '</b>' +
+            '<b style="flex:1;font-size:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(y18(w.name) || '未命名稿件') + '</b>' +
             shareBtnHtml(i, 'work', true) +
             workEditBtn(i, worksRaw) +
             '</div>' +
@@ -1736,16 +1738,17 @@
     return v ? ((/^\d/.test(v) ? '<small>' + ((p.currency || 'USD') === 'CNY' ? '¥' : '$') + '</small>' : '') + v) : '';
   }
   var HS_LANG = (function () { try { if (window.LANG) return window.LANG; } catch (e) {} return (location.pathname.indexOf('/zh') === 0 || document.documentElement.lang === 'zh') ? 'zh' : 'en'; })(); // 首页语言：优先 site-common 的全局 LANG
-  function hsName(p) { return (HS_LANG === 'en' && p.name_en) ? p.name_en : (p.name || ''); }
+  function y18(x) { return window.YK18N ? window.YK18N.t(x) : x; } // 她 20261112 01:51：全站自动互译（只改显示层，原文不动）
+  function hsName(p) { return window.YK18N ? window.YK18N.pick(p.name, p.name_en) : ((HS_LANG === 'en' && p.name_en) ? p.name_en : (p.name || '')); }
   function hsCover(p) { // 她 20261103：首页商品卡封面随语言（normImg 归一化后比较，见 cardHtml）
     var zh = normImg(p.cover_zh || ''), en = normImg(p.cover_en || '');
     var cov = HS_LANG === 'en' ? (en || zh) : (zh || en);
     return cov;
   }
   function hsTag(p) {
-    var tag = p.tag || ''; if (HS_LANG !== 'en') return tag;
+    var tag = p.tag || ''; if (HS_LANG !== 'en') return y18(tag);
     var TAGS = { '手作': 'Handmade', '黏土': 'Clay', '毛线': 'Yarn', '贴纸': 'Sticker', '键帽': 'Keycap', '现货': 'In Stock', '定制款': 'Made to Order', '瑕疵款': 'Imperfect' };
-    return TAGS[tag] || tag;
+    return TAGS[tag] || y18(tag);
   }
   function cardHtml(p, i, list) {
     var zh = normImg(p.cover_zh || ''), en = normImg(p.cover_en || '');
@@ -1786,7 +1789,10 @@
       return HIDE.indexOf(pid) === -1 && HOME_OFF.indexOf(pid) === -1;
     });
     if (!list.length) return; // 没有可展示的商品：只保留原入口卡，不放假数据
-    grid.innerHTML = list.map(function (p, i) { return cardHtml(p, i, list); }).join('');
+    var _hpt = [];
+    list.forEach(function (p) { _hpt.push(p.name, p.name_en, p.tag); });
+    var _hsRender = function () { grid.innerHTML = list.map(function (p, i) { return cardHtml(p, i, list); }).join(''); };
+    if (window.YK18N) { window.YK18N.need(_hpt).then(_hsRender, _hsRender); } else _hsRender();
   });
 })();
 </script>

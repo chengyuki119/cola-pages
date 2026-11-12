@@ -20,7 +20,8 @@
     <link rel="preload" href="/fonts/Millo-RiceSoyMilk80.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/fonts/Millo-RiceSoyMilk90.woff2" as="font" type="font/woff2" crossorigin>
 <meta charset="UTF-8">
-  <script src="/js/lang-path.js?v=20261109A"></script>
+  <script src="/js/lang-path.js?v=20261112A"></script>
+<script src="/js/yk-i18n.js?v=20261112B"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Color Cards · Yuki / 柚子</title>
 <link rel="manifest" href="/manifest.json">
@@ -91,8 +92,8 @@
     <h1 class="subpage-title" id="card-view-title" data-zh="色卡详情" data-en="Color Card Details">色卡详情</h1>
     <p class="subpage-sub" data-zh="原创圈我的色卡宝宝们" data-en="My color card babies">原创圈我的色卡宝宝们</p>
   </div>
-  <a class="back-link" href="/color-card/" style="margin:14px 0 24px 14px;"><span data-zh="← 返回色卡列表" data-en="← Back to Color Cards">← 返回色卡列表</span></a>
   <div class="page-body album-body" style="padding-top:0;">
+  <a class="back-link page-back" href="/color-card/" style="margin:8px 0 24px 2px;"><span data-zh="← 返回色卡主页" data-en="← Back to Color Card Gallery">← 返回色卡主页</span></a>
     <div id="card-view-body"></div>
   </div>
   </div>
@@ -103,6 +104,13 @@
 <script>
   // ===== 色卡：独立子页（列表 + 详情 /color-card/?card=N）=====
   var CURRENT_CARD = -1;
+  function y18(x) { return window.YK18N ? window.YK18N.t(x) : x; } // 她 20261112 01:51：色卡名称/店铺/画师/项目名统一走全站自动互译（原文不改）
+  function labelAggV(a) { // 她 20261112 01:51：条目汇总也跟随语言（页面级覆盖 site-common 的同名函数，原文数据不动）
+    var agg = {}, order = [];
+    (a.rows || []).forEach(function (r) { var l = r.label || '其他'; if (!(l in agg)) { agg[l] = 0; order.push(l); } agg[l] += parseInt(r.qty, 10) || 0; });
+    if (window.LANG === 'en') return order.map(function (l) { return (window.YK18N ? window.YK18N.t(l) : l) + ' ×' + agg[l]; }).join(' · ');
+    return order.map(function (l) { return l + ' ' + agg[l] + ' 张'; }).join(' · ');
+  }
   var CARD_FILTER = 'all', CARD_SORT = 'manual';
   // 子页动态下拉：数据就绪后重建 sel 增强（site-common 只在载入时增强一次）
   function refreshSubSelects() {
@@ -145,20 +153,20 @@
     cGrid.innerHTML = list.length ? list.map(function (x) {
       var c = x.c, i = x.i;
       return '<div class="card sc-product" data-i="' + i + '" style="margin-bottom:0;padding:0;overflow:hidden;cursor:pointer;position:relative;">' +
-        pagerWrapHtml(pagerImgsOf({ photos: c.photos, image: c.image }), c.name) +
+        pagerWrapHtml(pagerImgsOf({ photos: c.photos, image: c.image }), y18(c.name)) +
         '<div style="padding:12px 14px;">' +
         '<div style="display:flex;align-items:center;gap:8px;">' +
-        '<b style="flex:1;font-size:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(c.name || t('未命名色卡', 'Unnamed card')) + '</b>' +
+        '<b style="flex:1;font-size:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(y18(c.name) || t('未命名色卡', 'Unnamed card')) + '</b>' +
         shareBtnHtml(i, null, true) +
         '</div>' +
-        (c.shop ? '<div style="font-size:15px;color:var(--muted);margin-top:2px;">' + escDb(c.shop) + '</div>' : '') +
+        (c.shop ? '<div style="font-size:15px;color:var(--muted);margin-top:2px;">' + escDb(y18(c.shop)) + '</div>' : '') +
         '<div style="font-size:15px;color:var(--muted);margin-top:3px;">' + (LANG === 'en' ? cardCountV(c) + ' cards' : '共 ' + cardCountV(c) + ' 张') + '</div>' +
         '<div style="display:flex;align-items:center;gap:8px;margin-top:4px;">' +
         '<span style="flex:1;font-size:17px;color:var(--text,#65515D);font-weight:600;">' + t('色卡总价', 'Total price') + ' <span style="color:var(--price,#F48FB1);">¥' + fmtMoney(cardFinalV(c)) + '</span></span>' +
         cardEditBtn(i) +
         '</div>' +
         '</div></div>';
-    }).join('') : '<p style="color:var(--muted);text-align:center;padding:40px 0;font-size:17px;">没有符合筛选条件的色卡</p>';
+    }).join('') : '<p style="color:var(--muted);text-align:center;padding:40px 0;font-size:17px;">' + t('没有符合筛选条件的色卡', 'No color cards match this filter') + '</p>';
   }
   document.addEventListener('change', function (e) {
     if (e.target && e.target.id === 'card-filter') { CARD_FILTER = e.target.value; renderCardsList(); }
@@ -170,11 +178,11 @@
     if (!body) return;
     if (!c) { body.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px 0;">' + t('没有找到这张色卡', 'Card not found') + '</p>'; return; }
     var title = document.getElementById('card-view-title');
-    if (title) title.textContent = c.name || t('未命名色卡', 'Unnamed card');
+    if (title) title.textContent = y18(c.name) || t('未命名色卡', 'Unnamed card');
     var priceLines = c.artists.map(function (a, i) {
       var rows = a.rows.map(function (r) {
         return '<div class="sc-row">' +
-          '<span>' + escDb(r.label || t('其他', 'Other')) + '</span>' +
+          '<span>' + escDb(y18(r.label) || t('其他', 'Other')) + '</span>' +
           '<span style="text-align:right;color:var(--price,#F48FB1);">¥' + (r.price == null ? '' : escDb(r.price)) + '</span>' +
           '<span class="r-x">×</span>' +
           '<span style="text-align:right;">' + (parseInt(r.qty, 10) || 0) + '</span>' +
@@ -183,20 +191,20 @@
           '</div>';
       }).join('');
       return '<div style="margin-bottom:' + (i === c.artists.length - 1 ? '0' : '16px') + ';">' +
-        '<div style="font-size:15px;color:var(--muted);margin-bottom:4px;">画师 ' + (i + 1) + '</div>' +
-        '<b style="font-size:17px;display:block;margin-bottom:8px;">' + escDb(a.name || (t('画师 ', 'Artist ') + (i + 1))) + '</b>' +
+        '<div style="font-size:15px;color:var(--muted);margin-bottom:4px;">' + t('画师 ', 'Artist ') + (i + 1) + '</div>' +
+        '<b style="font-size:17px;display:block;margin-bottom:8px;">' + escDb(y18(a.name) || (t('画师 ', 'Artist ') + (i + 1))) + '</b>' +
         rows +
-        '<div style="border-top:1px solid var(--card-hover);margin-top:8px;padding-top:8px;font-size:16px;color:var(--muted);">' + labelAggV(a) + ' · ' + (LANG === 'en' ? 'Total ' + artistCountV(a) + ' cards · Subtotal ' : '共 ' + artistCountV(a) + ' 张 · 小计 ') + '<b style="color:var(--price,#F48FB1);">¥' + fmtMoney(artistSubV(a)) + '</b></div>' +
+        '<div style="border-top:1px solid var(--card-hover);margin-top:8px;padding-top:8px;font-size:16px;color:var(--muted);">' + y18(labelAggV(a)) + ' · ' + (LANG === 'en' ? 'Total ' + artistCountV(a) + ' cards · Subtotal ' : '共 ' + artistCountV(a) + ' 张 · 小计 ') + '<b style="color:var(--price,#F48FB1);">¥' + fmtMoney(artistSubV(a)) + '</b></div>' +
         '</div>';
     }).join('');
     body.innerHTML =
-      (c.image ? '<div style="width:100%;max-width:420px;aspect-ratio:1/1;margin:0 auto 18px;overflow:hidden;border-radius:var(--radius);background:var(--card);"><img src="' + escAttrDb(normImg(c.image)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="色卡"></div>' : '') +
+      (c.image ? '<div style="width:100%;max-width:420px;aspect-ratio:1/1;margin:0 auto 18px;overflow:hidden;border-radius:var(--radius);background:var(--card);"><img src="' + escAttrDb(normImg(c.image)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + escAttrDb(t('色卡', 'Color card')) + '"></div>' : '') +
       ((c.photos && c.photos.length) ? '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:420px;margin:0 auto 18px;">' + c.photos.map(function (u) {
         return '<div class="album-img" style="width:100%;aspect-ratio:1/1;overflow:hidden;border-radius:12px;background:var(--card);"><img src="' + escAttrDb(normImg(u)) + '" style="width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in;" alt="色卡" loading="lazy"></div>';
       }).join('') + '</div>' : '') +
       '<div style="text-align:center;margin-bottom:18px;">' +
-      '<span style="font-size:21px;font-weight:700;">' + escDb(c.name || t('未命名色卡', 'Unnamed card')) + '</span>' +
-      (c.shop ? '<span style="color:var(--muted);font-size:17px;">　|　' + escDb(c.shop) + '</span>' : '') +
+      '<span style="font-size:21px;font-weight:700;">' + escDb(y18(c.name) || t('未命名色卡', 'Unnamed card')) + '</span>' +
+      (c.shop ? '<span style="color:var(--muted);font-size:17px;">　|　' + escDb(y18(c.shop)) + '</span>' : '') +
       '</div>' +
       '<div style="text-align:center;margin-bottom:18px;"><span style="font-size:25px;font-weight:700;color:var(--text,#65515D);">' + t('色卡总价', 'Total price') + ' <span style="color:var(--price,#F48FB1);">¥' + fmtMoney(cardFinalV(c)) + '</span><span style="color:var(--muted);font-size:17px;margin-left:14px;">' + (LANG === 'en' ? 'Total ' + cardCountV(c) + ' cards' : '共 ' + cardCountV(c) + ' 张') + '</span></div>' +
       '<div class="card" style="padding:18px 20px;margin-bottom:14px;">' +
@@ -231,9 +239,16 @@
     // 筛选选项：按画师（现有数据无分类/标签字段，只做全部/按画师）
     var artistNames = [];
     CARDS_CACHE.forEach(function (c) { (c.artists || []).forEach(function (a) { if (a.name && artistNames.indexOf(a.name) === -1) artistNames.push(a.name); }); });
+    // 她 20261112 01:51：色卡里的名称/店铺/画师/项目名预先批量翻译，电脑端手机端同一套，渲染前已缓存
+    var _ctx = [];
+    CARDS_CACHE.forEach(function (c) {
+      _ctx.push(c.name, c.shop);
+      (c.artists || []).forEach(function (a) { _ctx.push(a.name); (a.rows || []).forEach(function (r) { _ctx.push(r.label); }); });
+    });
+    if (window.YK18N) window.YK18N.need(_ctx);
     var fsel = document.getElementById('card-filter');
     fsel.innerHTML = '<option value="all" data-en="All">' + t('全部', 'All') + '</option>' + artistNames.map(function (n) {
-      return '<option value="' + escAttrDb(n) + '" data-en="Artist: ' + escAttrDb(n) + '">' + t('画师：', 'Artist: ') + escDb(n) + '</option>';
+      return '<option value="' + escAttrDb(n) + '" data-en="Artist: ' + escAttrDb(y18(n)) + '">' + t('画师：', 'Artist: ') + escDb(y18(n)) + '</option>';
     }).join('');
     refreshSubSelects();
     renderCardsList();

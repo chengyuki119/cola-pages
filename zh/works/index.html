@@ -4,7 +4,8 @@
     <link rel="preload" href="/fonts/Millo-RiceSoyMilk80.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/fonts/Millo-RiceSoyMilk90.woff2" as="font" type="font/woff2" crossorigin>
 <meta charset="UTF-8">
-  <script src="/js/lang-path.js?v=20261109A"></script>
+  <script src="/js/lang-path.js?v=20261112A"></script>
+  <script src="/js/yk-i18n.js?v=20261112B"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>稿件展示 · Yuki / 柚子</title>
 <link rel="manifest" href="/manifest.json">
@@ -68,10 +69,13 @@
 
   <div id="works-view-page" style="display:none;">
     <div class="subpage-header">
-      <a class="back-link" href="/zh/works/"><span data-zh="← 返回稿件列表" data-en="← Back to Works">← 返回稿件列表</span></a>
       <h1 class="subpage-title" id="works-view-title"></h1>
+      <p class="subpage-sub" data-zh="和桓桓宝宝一起完成的稿件" data-en="Pieces made together with Huanhuan">和桓桓宝宝一起完成的稿件</p>
     </div>
-    <div class="page-body" style="padding-top:0;" id="works-view-body"></div>
+    <div class="page-body" style="padding-top:0;">
+      <a class="back-link page-back" href="/zh/works/" style="margin:8px 0 24px 2px;"><span data-zh="← 返回稿件主页" data-en="← Back to Commission Gallery">← 返回稿件主页</span></a>
+      <div id="works-view-body"></div>
+    </div>
   </div>
 </div>
 
@@ -89,7 +93,7 @@
   function normWorkView(w) {
     w = w || {};
     return {
-      id: w.id || '', name: w.name || '', desc_zh: w.desc_zh || '', desc_en: w.desc_en || '',
+      id: w.id || '', name: w.name || '', name_en: w.name_en || '', desc_zh: w.desc_zh || '', desc_en: w.desc_en || '',
       date: w.date || '', image: w.image || '',
       artist: w.artist || '', cat: w.cat || '',
       price: w.price == null ? '' : String(w.price),
@@ -97,9 +101,18 @@
       visible: w.visible !== false
     };
   }
-  function workDesc(w) {
-    var d = LANG === 'en' ? (w.desc_en || w.desc_zh) : (w.desc_zh || w.desc_en);
+  function workDesc(w) { // 她 20261112 01:51：稿件也只填一种语言，另一种由全站机制自动生成（原文不改）
+    var d = window.YK18N ? window.YK18N.pick(w.desc_zh, w.desc_en) : (LANG === 'en' ? (w.desc_en || w.desc_zh) : (w.desc_zh || w.desc_en));
     return d || '';
+  }
+  function workName(w) {
+    var n = window.YK18N ? window.YK18N.pick(w.name, w.name_en) : w.name;
+    return n || '';
+  }
+  function workMeta(s) { // 分类 / 画师：显示层翻译
+    var x = String(s == null ? '' : s);
+    if (!x) return '';
+    return window.YK18N ? window.YK18N.t(x) : x;
   }
   function pad2(n) { n = parseInt(n, 10); return (n < 10 ? '0' : '') + n; }
   function fmtWorkDate(ds) { // 2025-01-20 → 2025/01/20
@@ -154,15 +167,15 @@
       // 她 20261102：三处（后台稿件管理/主页 Works/稿件页）统一用封面图 w.image，同图同裁切（aspect-ratio:1/1 + object-fit:cover）
       var cover = w.image ? normImg(w.image) : ((Array.isArray(w.photos) && w.photos.length) ? normImg(w.photos.filter(Boolean)[0]) : '');
       return '<div class="card work-card" data-i="' + x.i + '" style="margin-bottom:0;padding:0;overflow:hidden;cursor:pointer;">' +
-        (cover ? '<div style="width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--card);"><img src="' + escAttrDb(cover) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + escAttrDb(w.name || '') + '" loading="lazy"></div>' : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--card);color:var(--muted);font-size:15px;">' + t('暂无图片', 'No photo') + '</div>') +
+        (cover ? '<div style="width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--card);"><img src="' + escAttrDb(cover) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + escAttrDb(workName(w)) + '" loading="lazy"></div>' : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--card);color:var(--muted);font-size:15px;">' + t('暂无图片', 'No photo') + '</div>') +
         '<div style="padding:12px 14px;">' +
         '<div style="display:flex;align-items:center;gap:8px;">' +
-        '<b style="flex:1;font-size:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(w.name || t('未命名稿件', 'Untitled work')) + '</b>' +
+        '<b style="flex:1;font-size:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(workName(w) || t('未命名稿件', 'Untitled work')) + '</b>' +
         shareBtnHtml(x.i, 'work', true) +
         workEditBtn(x.i, WORKS_CACHE) +
         '</div>' +
         (w.date ? '<div style="font-size:15px;color:var(--muted);margin-top:3px;">' + escDb(fmtWorkDate(w.date)) + '</div>' : '') +
-        (w.cat || w.artist ? '<div style="font-size:15px;color:var(--muted);margin-top:3px;">' + escDb([w.cat, w.artist].filter(Boolean).join(' · ')) + '</div>' : '') +
+        (w.cat || w.artist ? '<div style="font-size:15px;color:var(--muted);margin-top:3px;">' + escDb([workMeta(w.cat), workMeta(w.artist)].filter(Boolean).join(' · ')) + '</div>' : '') +
         (parseFloat(w.price) ? '<div style="font-size:17px;color:var(--price,#F48FB1);font-weight:600;margin-top:4px;">¥' + fmtMoney(w.price) + '</div>' : '') +
         (workDesc(w) ? '<div style="font-size:16px;color:var(--text);margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">' + escDb(workDesc(w)) + '</div>' : '') +
         '</div></div>';
@@ -175,19 +188,19 @@
     var w = WORKS_CACHE[CURRENT_WORK] ? normWorkView(WORKS_CACHE[CURRENT_WORK]) : null;
     if (!w) { body.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px 0;">' + t('没有找到这篇稿件', 'Work not found') + '</p>'; return; }
     var title = document.getElementById('works-view-title');
-    if (title) title.textContent = w.name || t('未命名稿件', 'Untitled work');
+    if (title) title.textContent = workName(w) || t('未命名稿件', 'Untitled work');
     body.innerHTML =
       // 详情：大图 + ‹› + 圆点 + 缩略图条（检视所有图片从第一张开始，进入详情才有）
       '<div style="max-width:420px;margin:0 auto 18px;">' +
       (function () {
         var urls = (Array.isArray(w.photos) ? w.photos : []).map(function (u) { return normImg(u); }).filter(Boolean);
         if (w.image && urls.indexOf(normImg(w.image)) === -1) urls.unshift(normImg(w.image)); // 封面不在照片里才放最前
-        return pagerWrapHtml(urls, w.name);
+        return pagerWrapHtml(urls, workName(w));
       })() + '</div>' +
       '<div style="text-align:center;margin-bottom:18px;">' +
-      '<span style="font-size:21px;font-weight:700;">' + escDb(w.name || t('未命名稿件', 'Untitled work')) + '</span>' +
+      '<span style="font-size:21px;font-weight:700;">' + escDb(workName(w) || t('未命名稿件', 'Untitled work')) + '</span>' +
       (w.date ? '<span style="color:var(--muted);font-size:17px;">　|　' + t('约稿日期', 'Commission Date') + t('：', ': ') + escDb(fmtWorkDate(w.date)) + '</span>' : '') +
-      (w.cat || w.artist ? '<span style="color:var(--muted);font-size:17px;">　|　' + t('画师', 'Artist') + t('：', ': ') + escDb([w.cat, w.artist].filter(Boolean).join(' · ')) + '</span>' : '') +
+      (w.cat || w.artist ? '<span style="color:var(--muted);font-size:17px;">　|　' + t('画师', 'Artist') + t('：', ': ') + escDb([workMeta(w.cat), workMeta(w.artist)].filter(Boolean).join(' · ')) + '</span>' : '') +
       (parseFloat(w.price) ? '<span style="color:var(--price,#F48FB1);font-size:18px;font-weight:700;">　|　¥' + fmtMoney(w.price) + '</span>' : '') +
       '</div>' +
       (workDesc(w) ? '<div style="font-size:14px;letter-spacing:.06em;color:var(--muted,#897783);margin:0 0 6px 2px;">' + t('约稿详情', 'Commission Details') + '</div>' +
@@ -213,8 +226,9 @@
     var raw = (window.YK_RPC_DATA !== undefined) ? window.YK_RPC_DATA : null;
     if (window.YK_RPC_DATA === undefined) { try { raw = rows && rows[0] ? JSON.parse(rows[0].value) : null; } catch (e) {} }
     WORKS_CACHE = (Array.isArray(raw) ? raw : []).map(normWorkView).filter(function (w) { return w.visible !== false; });
-    renderWorksWall();
-    routeWorks();
+    var _tx = [];
+    WORKS_CACHE.forEach(function (w) { _tx.push(w.name, w.name_en, w.desc_zh, w.desc_en, w.cat, w.artist); });
+    return (window.YK18N ? window.YK18N.need(_tx) : Promise.resolve()).then(function () { renderWorksWall(); routeWorks(); });
   }).catch(function () {
     renderWorksWall();
     routeWorks();
