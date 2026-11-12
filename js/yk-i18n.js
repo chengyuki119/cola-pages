@@ -17,7 +17,7 @@
 (function () {
   if (window.YK18N) return;
 
-  var LS_KEY = 'yk-i18n-cache:v1';
+  var LS_KEY = 'yk-i18n-cache:v2';
   var MAX_ENTRIES = 3000;
   var CJK_ONE = /[\u3400-\u9fff\uf900-\ufaff]/;
   var CJK_ALL = /[\u3400-\u9fff\uf900-\ufaff]/g;
@@ -51,7 +51,10 @@
     '定做': 'made to order', '需要等待制作时间': 'needs making time', '不是现货': 'not in stock',
     '可以马上发出': 'ready to ship right away', '轻微瑕疵': 'minor imperfections', '没有瑕疵': 'no flaws',
     '单人': 'Single', '双人': 'Double', '半身': 'Half body', '全身': 'Full body', '头像': 'Headshot',
-    '前任': 'Ex', '包天': 'Full Day', '加急': 'Rush', '商用': 'Commercial', '自用': 'Personal'
+    '前任': 'Ex', '包天': 'Full Day', '加急': 'Rush', '商用': 'Commercial', '自用': 'Personal',
+    /* 站内已有内容的固定译名（她自己的名称/画师名，机器直译会变味） */
+    '抱小猪': 'Hug the Piggy', '拍立得稿件包天': 'Polaroid Commission (Full Day)', '盘中餐桓桓': 'Huanhuan on the Plate',
+    '抖音 小懒': 'Douyin Xiaolan', '抖音小懒': 'Douyin Xiaolan'
   };
   var REV = {};
   (function () {
