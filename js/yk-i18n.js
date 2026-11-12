@@ -42,7 +42,7 @@
     '定制款': 'Customize Style', '整套款': 'Full Sets', '磨具瑕疵款': 'Imperfect Mold', '模具瑕疵款': 'Imperfect Mold',
     '树脂': 'Resin', '黏土': 'Clay', '水晶滴胶': 'UV Resin',
     /* 商品标签 / 类别 */
-    '手作': 'Handmade', '毛线': 'Yarn', '贴纸': 'Sticker', '键帽': 'Keycap', '瑕疵款': 'Imperfect',
+    '价格': 'Price', '库存': 'Stock', '型号': 'Model', '重量': 'Weight', '手作': 'Handmade', '毛线': 'Yarn', '贴纸': 'Sticker', '键帽': 'Keycap', '瑕疵款': 'Imperfect',
     '专拍补价': 'Price Adjustment', '新品': 'New', '限定': 'Limited', '色卡': 'Color Card', '稿件': 'Artwork',
     /* 常见描述用词 */
     '材料': 'Materials', '注意事项': 'Note', '注意': 'Note', '说明': 'Details', '尺寸说明': 'Size Guide',

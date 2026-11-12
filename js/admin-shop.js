@@ -191,7 +191,7 @@
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-gen-btn:disabled { background:#FFF8FA; border-color:#F9E5ED; color:#897783; cursor:not-allowed; }',
       /* 组合表：她 20261107 最终执行版 §3.4 六列（选择/规格组合/SKU/价格/库存/图片） */
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-head { display:grid; grid-template-columns:26px minmax(0,1.5fr) minmax(0,0.9fr) 108px 96px 96px 34px; gap:8px; padding:0 9px 6px; font-size:13px; color:#897783; }',
-      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-row { display:grid; grid-template-columns:26px minmax(0,1.5fr) minmax(0,0.9fr) 108px 96px 110px; gap:8px; align-items:center; background:#fff; border:1.5px solid #F8E6EE; border-radius:10px; padding:7px 9px; margin:0 0 6px; box-shadow:none; position:relative; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-row { display:grid; grid-template-columns:26px minmax(0,1.5fr) minmax(0,0.9fr) 108px 96px 124px; gap:8px; align-items:center; background:#fff; border:1.5px solid #F8E6EE; border-radius:10px; padding:7px 9px; margin:0 0 6px; box-shadow:none; position:relative; }',
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-row:hover { border-color:#F2D3DF; }',
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-row.is-off { background:#FFF8FA; }',
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-row.is-off .sv-name, :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-row.is-off .sv-sku { color:#897783; }',
@@ -219,6 +219,29 @@
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-thumb-empty { font-size:12px; color:#C9B2BC; }',
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-thumb-add { width:32px; height:32px; border:1.5px dashed #F8DDE8; border-radius:7px; color:#C9B2BC; font-size:15px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }',
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-thumb-add:hover { border-color:#F6C5D7; color:#897783; background:#FFF8FA; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-thumb-add-t { pointer-events:none; line-height:1; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec button.sm-thumb-more { border:1.5px solid #F8DDE8; background:#FFF8FA; border-radius:7px; cursor:pointer; padding:0 7px; height:24px; font-family:inherit; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec button.sm-thumb-more:hover { background:#FCECF2; border-color:#F6C5D7; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-imgview { position:absolute; left:50%; bottom:-7px; transform:translateX(-50%); width:22px; height:16px; border:1.5px solid #F8DDE8; border-radius:999px; background:#FFFFFF; color:#897783; font-size:11px; line-height:13px; padding:0; cursor:pointer; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-imgview:hover { background:#FCECF2; border-color:#F6C5D7; color:#65515D; }',
+      ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-thumb-n { position:absolute; left:-4px; bottom:-4px; min-width:15px; height:15px; border-radius:999px; background:#F6C5D7; color:#55464E; font-size:11px; line-height:15px; text-align:center; padding:0 3px; pointer-events:none; }',
+      /* 规格图大图预览面板（她 20261112：每条 SKU 独立上传/替换/删除） */
+      /* 手机端：规格图的热区放大到 40px（她要求触控好按），允许换行但绝不横向溢出 */
+      '@media (max-width:640px) { :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-thumb, :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-thumb img, :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-thumb-add { width:40px; height:40px; } :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-imgview { width:26px; height:20px; font-size:12px; line-height:16px; } :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-imgdel { width:20px; height:20px; line-height:20px; font-size:12px; } #sm-img-sheet .sm-sheet-btns button { padding:10px 18px; font-size:16px; } #sm-img-sheet .sm-sheet-strip img { width:56px; height:56px; } }',
+      '#sm-img-sheet { position:fixed; inset:0; z-index:9999; display:flex; align-items:center; justify-content:center; padding:16px; }',
+      '#sm-img-sheet .sm-sheet-mask { position:absolute; inset:0; background:rgba(85,70,78,.42); }',
+      '#sm-img-sheet .sm-sheet-card { position:relative; background:#FFFFFF; border-radius:18px; padding:16px; width:min(560px,94vw); max-height:88vh; overflow:auto; box-shadow:0 12px 40px rgba(85,70,78,.28); }',
+      '#sm-img-sheet .sm-sheet-head { font-size:15px; color:#55464E; margin:0 0 10px; line-height:1.5; }',
+      '#sm-img-sheet .sm-sheet-img { width:100%; max-height:48vh; object-fit:contain; border-radius:12px; background:#FFF8FA; display:block; }',
+      '#sm-img-sheet .sm-sheet-strip { display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; }',
+      '#sm-img-sheet .sm-sheet-strip img { width:46px; height:46px; object-fit:cover; border-radius:9px; border:2px solid transparent; cursor:pointer; background:#FFF8FA; }',
+      '#sm-img-sheet .sm-sheet-strip img.on { border-color:#F6C5D7; }',
+      '#sm-img-sheet .sm-sheet-btns { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }',
+      '#sm-img-sheet .sm-sheet-btns button { border:1.5px solid #F8DDE8; background:#FFF8FA; color:#897783; border-radius:999px; padding:8px 16px; font-size:15px; font-family:inherit; cursor:pointer; }',
+      '#sm-img-sheet .sm-sheet-btns button:hover { background:#FCECF2; border-color:#F6C5D7; }',
+      '#sm-img-sheet .sm-sheet-btns button[disabled] { color:#C9B2BC; cursor:default; background:#FFF8FA; }',
+      '#sm-img-sheet .sm-sheet-btns .sm-sheet-del { border-color:#F2C7CC; background:#FBE3E6; color:#C4636E; }',
+      '#sm-img-sheet .sm-sheet-btns .sm-sheet-del:hover { background:#F8D5DA; border-color:#EBA9B2; }',
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-freeze, :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-up, :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-down, :is(#tab-shop,#tab-shopmgr) .sm-spec .yk-barcode-btn { border:1.5px solid #F8DDE8; background:#FFF8FA; color:#897783; border-radius:999px; padding:6px 12px; font-size:14px; font-family:inherit; cursor:pointer; white-space:nowrap; }',
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-freeze:hover, :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-up:hover, :is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-down:hover, :is(#tab-shop,#tab-shopmgr) .sm-spec .yk-barcode-btn:hover { background:#FCECF2; border-color:#F6C5D7; }',
       ':is(#tab-shop,#tab-shopmgr) .sm-spec .sm-var-freeze.off { background:#F6C5D7; border-color:#F6C5D7; color:#65515D; font-weight:600; }',
@@ -1483,14 +1506,93 @@
   /* ── 她 20261107 最终执行版 §3.4：规格明细表格六列（选择/规格组合/SKU/价格/库存/图片）──
      默认不展开详细编辑；点「规格组合」名称进入该条的详细编辑（组合名/禁用/条码/删除）。
      状态列、操作列取消；启用/禁用、上移/下移、删除、看条码都收进展开的详情条。 */
+  /* ── 她 20261112：每条 SKU / 规格独立上传图片（通用层实现，不绑键帽、不认 1U/6.25U 之类尺寸）──
+     只在「有独立规格的商品」上生效：每条规格自己的 images 数组。
+     · ＋ = 给这条规格追加图片（可多选）
+     · 缩略图上的 ⋯ = 看大图 / 换这张 / 删这张 / 设为封面
+     删除只解除本条规格的图片关联，不删桶里的文件（其他规格或商品可能还在用）。 */
+  function smImgSheet(getList, idx, rerender) {
+    var v = arr(getList())[idx]; if (!v) return;
+    var cur = 0;
+    var old = document.getElementById('sm-img-sheet'); if (old && old.parentNode) old.parentNode.removeChild(old);
+    var box = document.createElement('div');
+    box.id = 'sm-img-sheet';
+    document.body.appendChild(box);
+    var close = function () { if (box.parentNode) box.parentNode.removeChild(box); };
+    function draw() {
+      var list = arr(v.images);
+      if (cur > list.length - 1) cur = Math.max(0, list.length - 1);
+      var head = '规格：' + (v.name || v.sku || ('#' + (idx + 1))) + '　共 ' + list.length + ' 张图' + (list.length ? '' : '（现在用商品默认图）');
+      var strip = list.map(function (u, k) { return '<img class="' + (k === cur ? 'on' : '') + '" data-k="' + k + '" src="' + escAttr(u) + '" alt="">'; }).join('');
+      box.innerHTML = '<div class="sm-sheet-mask"></div>' +
+        '<div class="sm-sheet-card">' +
+          '<p class="sm-sheet-head">' + esc(head) + '</p>' +
+          (list.length ? '<img class="sm-sheet-img" src="' + escAttr(list[cur] || list[0]) + '" alt="">' : '<div style="padding:28px 0;text-align:center;color:#897783;font-size:15px;background:#FFF8FA;border-radius:12px;">这条规格还没有单独上传图片<br>前台会继续显示商品默认图</div>') +
+          (list.length > 1 ? '<div class="sm-sheet-strip">' + strip + '</div>' : '') +
+          '<div class="sm-sheet-btns">' +
+            (list.length ? '<button type="button" class="sm-sheet-cover"' + (cur === 0 ? ' disabled' : '') + '>设为封面</button>' : '') +
+            '<button type="button" class="sm-sheet-add">' + (list.length ? '再传一张' : '上传图片') + '</button>' +
+            (list.length ? '<button type="button" class="sm-sheet-swap">换这一张</button>' : '') +
+            (list.length ? '<button type="button" class="sm-sheet-del">删除这一张</button>' : '') +
+            '<button type="button" class="sm-sheet-close">关闭</button>' +
+          '</div>' +
+        '</div>';
+      box.querySelector('.sm-sheet-mask').onclick = close;
+      box.querySelector('.sm-sheet-close').onclick = close;
+      Array.prototype.forEach.call(box.querySelectorAll('.sm-sheet-strip img'), function (im) {
+        im.onclick = function () { cur = parseInt(im.getAttribute('data-k'), 10) || 0; draw(); };
+      });
+      var cov = box.querySelector('.sm-sheet-cover');
+      if (cov) cov.onclick = function () {
+        var l = arr(v.images).slice(); var one = l.splice(cur, 1)[0]; l.unshift(one); v.images = l; cur = 0; rerender(); draw(); toast('已设成这条规格的封面，记得点保存');
+      };
+      var del = box.querySelector('.sm-sheet-del');
+      if (del) del.onclick = function () {
+        var l = arr(v.images).slice(); l.splice(cur, 1); v.images = l; rerender(); draw(); toast('已删除这张图（只影响这条规格），记得点保存');
+      };
+      var swap = box.querySelector('.sm-sheet-swap');
+      if (swap) swap.onclick = function () { pick(true); };
+      var addB = box.querySelector('.sm-sheet-add');
+      if (addB) addB.onclick = function () { pick(false); };
+    }
+    function pick(isReplace) {
+      var inp = document.createElement('input');
+      inp.type = 'file'; inp.accept = 'image/*'; inp.multiple = !isReplace;
+      inp.style.display = 'none';
+      document.body.appendChild(inp);
+      inp.onchange = function () {
+        var files = Array.prototype.slice.call(inp.files || []);
+        if (files.length) {
+          var at = cur;
+          toast('图片上传中…');
+          uploadShopFiles(files).then(function (urls) {
+            var l = arr(v.images).slice();
+            if (isReplace) { l.splice(at, 1, urls[0]); if (urls.length > 1) l = l.slice(0, at).concat(urls).concat(l.slice(at + 1)); }
+            else { l = l.concat(urls); }
+            v.images = l; rerender(); draw(); toast('图片已上传，记得点保存');
+          }).catch(function (err) {
+            try { console.warn('[SKU 图片上传失败]', err); } catch (e0) {} toast('图片上传失败，请检查网络或登录状态后重试（原有图片没有变动）');
+          });
+        }
+        if (inp.parentNode) inp.parentNode.removeChild(inp);
+      };
+      inp.click();
+    }
+    draw();
+  }
   function smComboRowHtml(card, v, i, total) {
     var imgs = arr(v.images);
-    var imgCell = imgs.length
-      ? imgs.slice(0, 2).map(function (u, k) {
-          return '<span class="sm-thumb"><img class="sm-thumb-cover" data-i="' + i + '" data-k="' + k + '" src="' + escAttr(u) + '" title="' + (k === 0 ? '这个选项的封面' : '点一下换成封面') + '">' +
-            '<button type="button" class="sm-var-imgdel" data-i="' + i + '" data-k="' + k + '" title="删除这张图">✕</button></span>';
-        }).join('') + (imgs.length > 2 ? '<span class="sm-thumb-more">+' + (imgs.length - 2) + '</span>' : '')
-      : '<span class="sm-thumb-empty">无图</span>';
+    var SHOW = 1;
+    var imgCell = imgs.slice(0, SHOW).map(function (u, k) {
+        return '<span class="sm-thumb"><img class="sm-thumb-cover" data-i="' + i + '" data-k="' + k + '" src="' + escAttr(u) + '" title="' + (k === 0 ? '这条规格的封面图（点一下换成封面）' : '点一下换成封面') + '">' +
+          '<button type="button" class="sm-var-imgview" data-i="' + i + '" data-k="' + k + '" title="看大图 / 换图 / 删这张">⋯</button>' +
+          (imgs.length > 1 ? '<span class="sm-thumb-n" title="这条规格共 ' + imgs.length + ' 张图">' + imgs.length + '</span>' : '') +
+          '<button type="button" class="sm-var-imgdel" data-i="' + i + '" data-k="' + k + '" title="删除这张图（只解除这条规格的关联）">✕</button></span>';
+      }).join('') +
+      (imgs.length ? '' : '<span class="sm-thumb-empty" title="这条规格还没单独传图，前台会显示商品默认图">默认图</span>') +
+      '<label class="sm-thumb-add" title="给这条规格单独上传图片（可多选）"><span class="sm-thumb-add-t">＋</span>' +
+        '<input type="file" class="sm-var-file" data-i="' + i + '" accept="image/*" multiple hidden>' +
+      '</label>';
     // 她 20261108 任务书：规格行只留 名称/SKU/价格/库存/图片；排序/停售/删除收进行尾「⋯」菜单；
     // 条码统一到「商品编码」子页签，规格行不再放看条码；维度路径文字删除
     return '<div class="sm-var-row' + (v.frozen ? ' is-off' : '') + '" data-i="' + i + '">' +
@@ -2527,7 +2629,9 @@
         return;
       }
       var imgdel = e.target.closest('.sm-var-imgdel');
-      if (imgdel) { var v = ADDVAR.list[parseInt(imgdel.getAttribute('data-i'), 10)]; if (v && arr(v.images)) { v.images.splice(parseInt(imgdel.getAttribute('data-k'), 10), 1); smVarRenderRows(form); } }
+      if (imgdel) { var v = ADDVAR.list[parseInt(imgdel.getAttribute('data-i'), 10)]; if (v && arr(v.images)) { v.images.splice(parseInt(imgdel.getAttribute('data-k'), 10), 1); smVarRenderRows(form); toast('已删除这张图（只影响这条规格），记得保存'); } }
+      var ivw = e.target.closest('.sm-var-imgview') || e.target.closest('.sm-thumb-more'); // 她 20261112：看大图 / 换图 / 删图
+      if (ivw) { var ivl = ADDVAR.list; smImgSheet(function () { return ivl; }, parseInt(ivw.getAttribute('data-i'), 10), function () { smVarRenderRows(form); }); }
       var imgmv = e.target.closest('.sm-var-imgmv');
       if (imgmv) {
         var vmv = ADDVAR.list[parseInt(imgmv.getAttribute('data-i'), 10)];
@@ -2551,8 +2655,16 @@
       var i = parseInt(e.target.getAttribute('data-i'), 10);
       var v = ADDVAR.list[i];
       var files = Array.prototype.slice.call(e.target.files || []);
+      var inp = e.target;
+      setTimeout(function () { try { inp.value = ''; } catch (err) {} }, 0);
       if (!v || !files.length) return;
-      uploadShopFiles(files).then(function (urls) { v.images = arr(v.images).concat(urls); smVarRenderRows(form); toast('规格图已上传，点「上架这个商品」一起保存'); }).catch(function () { toast('图片上传失败'); });
+      toast('图片上传中…');
+      uploadShopFiles(files).then(function (urls) {
+        var kk = parseInt(inp.getAttribute('data-k'), 10);
+        if (!isNaN(kk) && arr(v.images).length) { var l = arr(v.images).slice(); l.splice(kk, 1, urls[0]); v.images = (urls.length > 1 ? l.slice(0, kk).concat(urls.length - 1 ? urls.slice(1) : []).concat(l.slice(kk + 1)) : l); }
+        else v.images = arr(v.images).concat(urls);
+        smVarRenderRows(form); toast('规格图已上传，点「上架这个商品」一起保存');
+      }).catch(function (err) { try { console.warn('[SKU 图片上传失败]', err); } catch (e0) {} toast('图片上传失败，请检查网络或登录状态后重试（原有图片没有变动）'); });
     });
   })();
 
@@ -3365,7 +3477,13 @@
       var imgdel = e.target.closest('.sm-var-imgdel');
       if (imgdel) {
         var v = arr(card.__variants)[parseInt(imgdel.getAttribute('data-i'), 10)];
-        if (v && arr(v.images)) { v.images.splice(parseInt(imgdel.getAttribute('data-k'), 10), 1); smVarRenderRows(card); }
+        if (v && arr(v.images)) { v.images.splice(parseInt(imgdel.getAttribute('data-k'), 10), 1); smVarRenderRows(card); toast('已删除这张图（只影响这条规格），记得保存'); }
+      }
+      var ivw = e.target.closest('.sm-var-imgview') || e.target.closest('.sm-thumb-more'); // 她 20261112：看大图 / 换图 / 删图
+      if (ivw) {
+        var cIdx = parseInt(ivw.getAttribute('data-i'), 10);
+        smImgSheet(function () { return arr(card.__variants); }, cIdx, function () { smVarRenderRows(card); });
+        return;
       }
       var imgmv = e.target.closest('.sm-var-imgmv');
       if (imgmv) {
@@ -3383,12 +3501,15 @@
       var i = parseInt(e.target.getAttribute('data-i'), 10);
       var v = arr(card.__variants)[i];
       var files = Array.prototype.slice.call(e.target.files || []);
+      var inp = e.target;
+      setTimeout(function () { try { inp.value = ''; } catch (err) {} }, 0);
       if (!v || !files.length) return;
+      toast('图片上传中…');
       uploadShopFiles(files).then(function (urls) {
         v.images = arr(v.images).concat(urls);
         smVarRenderRows(card);
         toast('规格图已上传，点「保存修改」落库');
-      }).catch(function () { toast('图片上传失败'); });
+      }).catch(function (err) { try { console.warn('[SKU 图片上传失败]', err); } catch (e0) {} toast('图片上传失败，请检查网络或登录状态后重试（原有图片没有变动）'); });
     });
   }
 
