@@ -410,7 +410,7 @@
 
 /* 语言切换（胶囊分段控件）：胶囊底色沿用原粉色底座，选中项淡粉白填充、取消可见描边 */
 .lang-btn { color: var(--opt-fg) !important; }
-.lang-btn:hover { background-color: var(--opt-bg) !important; color: var(--opt-fg-h) !important; }
+.lang-btn:hover { background-color: var(--opt-bg-h) !important; color: var(--opt-fg-h) !important; } /* 她 20261112：hover 原本和选中态同为 #FFF8FA，看起来像已选中；改浅粉区分 */
 .lang-btn.active {
   background-color: var(--opt-bg) !important;
   border-color: var(--opt-bg) !important;

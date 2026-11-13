@@ -222,6 +222,21 @@
     });
   }
 
+  /* ── 英文标题首字母大写（她 20261112：首字母都要大写）──
+     只动拉丁词：首词及分隔符后的词大写；冠词/介词等次要词非首位置保持小写；
+     含汉字的文本原样返回（中文翻译不受影响）。 */
+  var MINOR = ['a','an','the','and','or','nor','but','of','to','in','on','at','by','for','with','from','as','per'];
+  function tcEn(s) {
+    var x = String(s == null ? '' : s);
+    if (!x || CJK_ONE.test(x)) return x;
+    return x.replace(/[A-Za-z][A-Za-z'\u2019&.-]*/g, function (w, off, str) {
+      if (!/^[a-z]/.test(w)) return w; // 已是大写开头（BJD / R1 / 本身大写）：不动
+      var first = off === 0 || /[([{"'\u2018\u201c\u00b7\uff0f\/\-.,;:!?]/.test(str.charAt(off - 1));
+      if (first || MINOR.indexOf(w.toLowerCase()) === -1) return w.charAt(0).toUpperCase() + w.slice(1);
+      return w;
+    });
+  }
+
   window.YK18N = {
     t: t,
     pick: pick,
@@ -232,6 +247,7 @@
     lang: curLang,
     hasCJK: hasCJK,
     lex: lex,
+    tc: tcEn,
     clear: function () { cache = {}; try { localStorage.removeItem(LS_KEY); } catch (e) {} },
     stats: function () { return { entries: Object.keys(cache).length, lang: curLang() }; }
   };

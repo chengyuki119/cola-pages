@@ -1589,7 +1589,6 @@
           (imgs.length > 1 ? '<span class="sm-thumb-n" title="这条规格共 ' + imgs.length + ' 张图">' + imgs.length + '</span>' : '') +
           '<button type="button" class="sm-var-imgdel" data-i="' + i + '" data-k="' + k + '" title="删除这张图（只解除这条规格的关联）">✕</button></span>';
       }).join('') +
-      (imgs.length ? '' : '<span class="sm-thumb-empty" title="这条规格还没单独传图，前台会显示商品默认图">默认图</span>') +
       '<label class="sm-thumb-add" title="给这条规格单独上传图片（可多选）"><span class="sm-thumb-add-t">＋</span>' +
         '<input type="file" class="sm-var-file" data-i="' + i + '" accept="image/*" multiple hidden>' +
       '</label>';
