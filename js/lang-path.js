@@ -36,7 +36,10 @@
     '/return-policy/',
     '/shipping-policy/',
     '/bjdselfie/',
-    '/invite/'
+    '/invite/',
+    '/foodie/',
+    '/foodie/map/',
+    '/foodie/restaurant/'
   ];
 
   var path = location.pathname || '/';

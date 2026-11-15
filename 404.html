@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
-  <script src="/js/lang-path.js?v=20261109A"></script>
+  <script src="/js/lang-path.js?v=20261114A"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>页面走丢了 · Yuki / 柚子</title>
 <link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki2-180.png">
@@ -29,6 +29,13 @@ try { var __t = JSON.parse(localStorage.getItem('yuki-theme-colors') || 'null');
   <link rel="stylesheet" href="/css/button-theme.css?v=20261112A">
 </head>
 <body>
+<script>
+/* Foodie Map slug 路由：/foodie/restaurant/<slug>（含 /zh/ 前缀）→ 详情页 ?slug=（她 20261114 Foodie 任务书） */
+(function () {
+  var m = /^\/(zh\/)?foodie\/restaurant\/([^\/?#]+)\/?$/.exec(location.pathname);
+  if (m) { location.replace('/' + (m[1] || '') + 'foodie/restaurant/?slug=' + encodeURIComponent(decodeURIComponent(m[2])) + location.search.replace(/^\?/, '&')); return; }
+})();
+</script>
 <header class="topbar">
   <div class="lang-switch">
     <button class="lang-btn" data-lang="zh">简体中文</button>
@@ -85,7 +92,7 @@ try { var __t = JSON.parse(localStorage.getItem('yuki-theme-colors') || 'null');
   apply(lang);
 })();
 </script>
-<script src="/js/site-footer.js?v=20261109B"></script>
+<script src="/js/site-footer.js?v=20261114A"></script>
 <script>
   // 统一 Footer（页面没有 <footer> 时自动在页尾新建）
   function initSiteFooter() { renderSiteFooter(); }

@@ -1012,6 +1012,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         <button class="tab-btn" data-tab="reviews">评价返图管理</button>
         <button class="tab-btn" data-tab="shopmgr">订单管理</button>
         <button class="tab-btn" data-tab="vip">客户与会员</button>
+        <div class="pp-group">Foodie 管理</div>
+        <button class="tab-btn" data-tab="foodie">Foodie 管理</button>
         <div class="pp-sub">互动管理</div>
         <button class="tab-btn" data-tab="messages">联系与留言管理</button>
         <button class="tab-btn" data-tab="ai">AI 对话</button>
@@ -2115,7 +2117,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     document.querySelectorAll('.tab-btn').forEach(function (x) { x.classList.remove('active'); });
     var btn = document.querySelector('.tab-btn[data-tab="' + main + '"]');
     if (btn) btn.classList.add('active');
-    ['messages', 'shop', 'shopmgr', 'crm', 'vip', 'pos', 'mailsync', 'mailtpl', 'theme', 'workbench', 'export', 'print', 'cost', 'units', 'qcscan', 'reviews', 'photos', 'home', 'profile', 'works', 'cards', 'bjd', 'days', 'ai', 'system'].forEach(function (n) {
+    ['messages', 'shop', 'shopmgr', 'crm', 'vip', 'pos', 'mailsync', 'mailtpl', 'theme', 'workbench', 'export', 'print', 'cost', 'units', 'qcscan', 'reviews', 'photos', 'home', 'profile', 'works', 'cards', 'bjd', 'days', 'ai', 'system', 'foodie'].forEach(function (n) {
       var panel = document.getElementById('tab-' + n);
       if (panel) panel.style.display = (n === name) ? '' : 'none';
     });
@@ -2138,6 +2140,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     if (name === 'system') { loadEmailLog(); if (window.AdminInvite) window.AdminInvite.boot(); }
     if (name === 'days') renderDays(); // 每次切到重要日子都重渲染，避免 settings 迟到导致自动列表空白
     if (name === 'crm' && window.CRM) CRM.bootCrm();
+    if (name === 'foodie' && window.AdminFoodie) AdminFoodie.boot();
     if (name === 'pos' && window.CRM) CRM.bootPos();
     if (name === 'mailsync' && window.CRM) CRM.bootMailsync();
     if (name === 'vip' && window.CustomerPage) window.CustomerPage.boot(); // 她 20261030 §2：客户管理与 VIP 已合并为一页
@@ -7196,6 +7199,11 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
 })();
 </script>
 
+<!-- Foodie 管理（她 20261114 Foodie Map 任务书：餐厅/地区/分类/柚子评级/CSV） -->
+<div id="tab-foodie" style="display:none;">
+  <div id="fdm-root" data-ready="0"></div>
+</div>
+
 <!-- 系统状态 -->
 <div id="tab-system" style="display:none;">
   <div class="card" style="max-width:none;">
@@ -7495,6 +7503,8 @@ function loadEmailLog() {
 
 
 <script src="js/admin-shop.js?v=20261112T"></script>
+<script src="js/admin-foodie.js?v=20261114A"></script>
+<script src="vendor/leaflet/leaflet.js?v=20261114A"></script>
 <script src="js/admin-import.js?v=20261105C"></script>
 <script src="js/admin-crm.js?v=20261108K"></script>
 <script src="js/admin-vip.js?v=20261105C" data-legacy="1"></script>

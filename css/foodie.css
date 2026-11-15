@@ -1,0 +1,105 @@
+/* ═══════════ Foodie Map 全球美食地图 · Phase 1 ═══════════
+   配色沿用 SnowYuzu 浅粉方案（背景 #FFF8FA 卡 #FFFFFF 主字 #65515D 次 #897783
+   强调 #F48FB1 选中 #F6C5D7 边 #F9E5ED），柚子评级为品牌单色例外。
+   本文件只服务 /foodie/ 子页，不影响其他页面样式。 */
+
+/* ── 区块骨架 ── */
+.fd-wrap { max-width: 1080px; margin: 0 auto; }
+.fd-sec { margin: 0 0 34px; }
+.fd-sec-title { font-size: 21px; font-weight: 700; color: var(--text,#65515D); margin: 0 0 14px; display: flex; align-items: center; gap: 8px; }
+.fd-sec-title .fd-more { margin-left: auto; font-size: 15px; font-weight: 500; color: var(--price,#F48FB1); text-decoration: none; }
+.fd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.fd-scroll { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: thin; }
+.fd-scroll .fd-card { min-width: 240px; max-width: 240px; }
+
+/* ── 搜索框 ── */
+.fd-search { display: flex; align-items: center; gap: 10px; background: var(--card,#FFFFFF); border: 1.5px solid var(--card-border,#F9E5ED); border-radius: 999px; padding: 12px 20px; margin: 0 0 18px; }
+.fd-search svg { flex-shrink: 0; color: var(--muted,#897783); }
+.fd-search input { flex: 1; min-width: 0; border: none; outline: none; background: none; font-family: inherit; font-size: 17px; color: var(--text,#65515D); }
+.fd-search input::placeholder { color: var(--muted,#897783); opacity: .75; }
+.fd-search button { flex-shrink: 0; }
+
+/* ── 地区选择 chips ── */
+.fd-regions { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 20px; }
+.fd-region-chip { border: 1.5px solid var(--card-border,#F9E5ED); background: var(--card,#FFFFFF); color: var(--text,#65515D); border-radius: 999px; padding: 7px 16px; font-size: 15px; font-family: inherit; cursor: pointer; line-height: 1.4; }
+.fd-region-chip:hover { background: var(--opt-bg-h,#F6C5D7); }
+.fd-region-chip.on { background: var(--accent-soft,#F6C5D7); border-color: var(--accent-soft,#F6C5D7); color: var(--accent-strong,#B98598); font-weight: 600; }
+
+/* ── 餐厅卡片 ── */
+.fd-card { background: var(--card,#FFFFFF); border: 1.5px solid var(--card-border,#F9E5ED); border-radius: 16px; overflow: hidden; cursor: pointer; transition: transform .15s ease, box-shadow .15s ease; display: block; text-decoration: none; }
+.fd-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(180,120,150,.14); }
+.fd-card-img { position: relative; width: 100%; padding-top: 66%; background: var(--accent-soft,#FCECF2); overflow: hidden; }
+.fd-card-img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.fd-card-body { padding: 12px 14px 14px; }
+.fd-card-name { font-size: 17px; font-weight: 600; color: var(--text,#65515D); line-height: 1.45; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fd-card-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 5px; font-size: 14px; color: var(--muted,#897783); }
+.fd-card-loc { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+
+/* ── 柚子评级（品牌 SVG，1~3 个柚子）── */
+.fd-yuzu { display: inline-flex; align-items: center; gap: 2px; flex-shrink: 0; }
+.fd-yuzu svg { width: 20px; height: 20px; }
+.fd-yuzu-lg svg { width: 26px; height: 26px; }
+.fd-rating-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; padding: 10px 14px; background: #FFFBF2; border: 1.5px solid #F7E8C8; border-radius: 12px; }
+.fd-rating-note { font-size: 14px; line-height: 1.6; color: #8A7440; }
+.fd-rating-badge { display: inline-flex; align-items: center; gap: 3px; background: #FFFBF2; border: 1.2px solid #F7E8C8; border-radius: 999px; padding: 3px 9px; }
+
+/* ── 价格 / 标签 ── */
+.fd-price { color: var(--price,#F48FB1); font-weight: 600; }
+.fd-tag { background: var(--accent-soft,#FCECF2); color: var(--accent-strong,#B98598); border-radius: 999px; padding: 2px 10px; font-size: 13px; }
+.fd-cur { font-size: 13px; color: var(--muted,#897783); }
+
+/* ── 地图页布局 ── */
+.fd-map-page { display: flex; gap: 18px; align-items: stretch; }
+.fd-map-side { width: 340px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+.fd-map-filters { display: flex; flex-direction: column; gap: 10px; }
+.fd-filter-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.fd-map-list { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 2px; }
+.fd-map-list .fd-card { display: flex; }
+.fd-map-list .fd-card-img { width: 96px; padding-top: 0; height: 76px; flex-shrink: 0; border-radius: 0; }
+.fd-map-list .fd-card-body { padding: 8px 10px; min-width: 0; flex: 1; }
+#fd-map { flex: 1; min-width: 0; height: 560px; border-radius: 18px; border: 1.5px solid var(--card-border,#F9E5ED); background: var(--accent-soft,#FCECF2); z-index: 1; }
+.fd-map-status { font-size: 14px; color: var(--muted,#897783); }
+
+/* Leaflet 弹出卡片品牌化 */
+.fd-leaflet-pop { font-family: inherit; }
+.fd-leaflet-pop b { font-size: 15px; color: #65515D; display: block; }
+.fd-leaflet-pop a { color: #F48FB1; font-size: 14px; text-decoration: none; }
+
+/* ── 详情页 ── */
+.fd-detail { max-width: 860px; margin: 0 auto; }
+.fd-detail-cover { position: relative; width: 100%; padding-top: 46%; border-radius: 18px; overflow: hidden; background: var(--accent-soft,#FCECF2); border: 1.5px solid var(--card-border,#F9E5ED); }
+.fd-detail-cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.fd-detail-head { margin-top: 18px; }
+.fd-detail-name { font-size: 27px; font-weight: 700; color: var(--text,#65515D); margin: 0; line-height: 1.35; }
+.fd-detail-sub { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 8px; font-size: 15px; color: var(--muted,#897783); }
+.fd-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 22px; margin-top: 16px; }
+.fd-info-item { display: flex; gap: 8px; font-size: 15px; line-height: 1.65; color: var(--text,#65515D); min-width: 0; }
+.fd-info-item svg { flex-shrink: 0; margin-top: 3px; color: var(--muted,#897783); }
+.fd-info-item a { color: var(--price,#F48FB1); text-decoration: none; word-break: break-all; }
+.fd-info-label { color: var(--muted,#897783); flex-shrink: 0; }
+.fd-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-top: 14px; }
+.fd-gallery img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 12px; border: 1.2px solid var(--card-border,#F9E5ED); cursor: pointer; }
+.fd-detail-map { width: 100%; height: 300px; border-radius: 16px; border: 1.5px solid var(--card-border,#F9E5ED); margin-top: 8px; z-index: 1; }
+.fd-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+.fd-desc { font-size: 16px; line-height: 1.9; color: var(--text,#65515D); margin: 14px 0 0; white-space: pre-wrap; }
+.fd-hours-line { display: flex; justify-content: space-between; gap: 12px; font-size: 15px; color: var(--text,#65515D); padding: 5px 0; }
+.fd-hours-line .fd-h-tz { color: var(--muted,#897783); font-size: 13px; }
+.fd-open-now { display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; padding: 3px 10px; font-size: 14px; font-weight: 600; }
+.fd-open-now.open { background: #EAF6EC; color: #4E8A5A; }
+.fd-open-now.closed { background: var(--accent-soft,#FCECF2); color: var(--accent-strong,#B98598); }
+
+/* ── 空态 ── */
+.fd-empty { text-align: center; color: var(--muted,#897783); font-size: 16px; padding: 34px 0; }
+
+/* ── 手机端 ── */
+@media (max-width: 760px) {
+  .fd-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+  .fd-info-grid { grid-template-columns: 1fr; }
+  .fd-detail-name { font-size: 22px; }
+  /* 地图页：地图在上、列表在下，餐厅卡片从底部展开 */
+  .fd-map-page { flex-direction: column-reverse; }
+  .fd-map-side { width: 100%; }
+  #fd-map { height: 54vh; min-height: 320px; }
+  .fd-map-list { max-height: 44vh; }
+  .fd-scroll .fd-card { min-width: 200px; max-width: 200px; }
+}

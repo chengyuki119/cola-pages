@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script src="/js/lang-path.js?v=20261114A"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Foodie Map · Snow Yuzu</title>
+  <meta name="description" content="Explore restaurants around the world on the Snow Yuzu Foodie Map.">
+  <link rel="canonical" href="https://yukicheng.com/foodie/map/">
+  <meta property="og:title" content="Foodie Map · Snow Yuzu">
+  <meta property="og:image" content="https://yukicheng.com/og-image.jpg">
+  <link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki2-180.png">
+  <link rel="stylesheet" href="/css/site.css?v=20261107H">
+  <link rel="stylesheet" href="/site-menu.css?v=20261105C">
+  <link rel="stylesheet" href="/css/foodie.css?v=20261114A">
+  <link rel="stylesheet" href="/vendor/leaflet/leaflet.css?v=20261114A">
+  <link rel="stylesheet" href="/vendor/leaflet/MarkerCluster.css?v=20261114A">
+  <link rel="stylesheet" href="/vendor/leaflet/MarkerCluster.Default.css?v=20261114A">
+  <script src="/js/site-common.js?v=20261107H"></script>
+  <script src="/site-menu.js?v=20261114A" defer></script>
+  <script src="/js/foodie-app.js?v=20261114A" defer></script>
+  <script src="/vendor/leaflet/leaflet.js?v=20261114A"></script>
+  <script src="/vendor/leaflet/leaflet.markercluster.js?v=20261114A"></script>
+  <script src="/js/foodie-map.js?v=20261114A" defer></script>
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261112A">
+  <style>
+    .fd-hero { margin: 4px 0 14px; }
+    .fd-hero h1 { font-size: 25px; font-weight: 700; color: var(--text,#65515D); margin: 0; }
+    .fd-lang { display: inline-flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+    .fd-lang-btn { border: 1.5px solid var(--card-border,#F9E5ED); background: var(--card,#FFFFFF); color: var(--muted,#897783); border-radius: 999px; padding: 5px 14px; font-size: 14px; font-family: inherit; cursor: pointer; line-height: 1.4; }
+    .fd-lang-btn.on { background: var(--accent-soft,#F6C5D7); border-color: var(--accent-soft,#F6C5D7); color: var(--accent-strong,#B98598); font-weight: 600; }
+    .fd-map-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+    .fd-icon-btn { width: 42px; height: 42px; border-radius: 50%; border: 1.5px solid var(--card-border,#F9E5ED); background: var(--card,#FFFFFF); color: var(--muted,#897783); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+    .fd-icon-btn:hover { background: var(--opt-bg-h,#F6C5D7); }
+    .leaflet-container { font-family: inherit; }
+    .fd-pin { background: none; border: none; }
+    .fd-pop .leaflet-popup-content-wrapper { border-radius: 14px; box-shadow: 0 8px 24px rgba(180,120,150,.2); }
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="lang-switch">
+    <button class="lang-btn" data-lang="zh">简体中文</button>
+    <button class="lang-btn" data-lang="en">English</button>
+  </div>
+  <a class="site-logo" href="/" aria-label="Back to home"><img src="/logo.png" alt="logo"></a>
+  <div class="topbar-right">
+    <a class="topbar-cart" id="topbar-cart" href="/shop/?sec=cart" aria-label="Cart">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3.5h2.2l2.3 11.2a1.8 1.8 0 0 0 1.8 1.4h8.5a1.8 1.8 0 0 0 1.8-1.4l1.5-8.2H6"/></svg>
+      <span class="topbar-cart-badge" id="topbar-cart-badge" style="display:none;">0</span>
+    </a>
+    <button class="burger" id="burger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+<div class="menu-mask" id="menu-mask"></div>
+<nav class="menu" id="menu"></nav>
+
+<div class="subpage-header">
+  <h1 class="subpage-title" data-zh="美食地图 ♡" data-en="Foodie Map ♡">Foodie Map ♡</h1>
+  <p class="subpage-sub" data-zh="拖动地图找好吃的" data-en="Drag the map, find something delicious">Drag the map, find something delicious</p>
+</div>
+<a class="back-link page-back" href="/foodie/" style="margin:8px 0 20px 2px;"><span data-zh="← 美食地图" data-en="← Foodie Map">← Foodie Map</span></a>
+
+<div class="page-body" style="padding-top:4px;">
+  <div class="fd-wrap">
+    <div id="fd-langbox" style="margin-bottom:12px;"></div>
+    <div class="fd-map-toolbar">
+      <form class="fd-search" id="fd-search-form" style="flex:1;min-width:220px;margin:0;" action="#">
+        <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input type="search" id="fd-q" autocomplete="off">
+      </form>
+      <button type="button" class="fd-icon-btn" id="fd-locate" title="My location" aria-label="My location">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/><circle cx="12" cy="12" r="8"/></svg>
+      </button>
+    </div>
+    <div class="fd-regions" id="fd-regions"></div>
+
+    <div class="fd-map-page">
+      <div class="fd-map-side">
+        <div class="fd-map-filters" id="fd-filters">
+          <div class="fd-filter-row" id="fd-f-cuisine"></div>
+          <div class="fd-filter-row" id="fd-f-food"></div>
+          <div class="fd-filter-row" id="fd-f-price"></div>
+          <div class="fd-filter-row" id="fd-f-yuzu"></div>
+          <div class="fd-filter-row">
+            <button type="button" class="fd-region-chip" id="fd-f-clear" data-fk="clear" style="display:none;"></button>
+            <span class="fd-map-status" id="fd-count"></span>
+            <span class="fd-map-status" id="fd-status"></span>
+          </div>
+        </div>
+        <div class="fd-map-list" id="fd-list"></div>
+      </div>
+      <div id="fd-map"></div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/site-footer.js?v=20261114A" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var F = window.FOODIE;
+  if (F) document.getElementById('fd-langbox').innerHTML = F.langSwitcherHtml();
+});
+</script>
+</body>
+</html>
