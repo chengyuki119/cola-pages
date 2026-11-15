@@ -203,7 +203,6 @@
       renderRegions();
       renderFilters();
       bindFilters();
-      bindLang();
       document.getElementById('fd-regions').onclick = function (e) {
         var b = e.target.closest('[data-rc]');
         if (!b) return;
@@ -233,13 +232,6 @@
     });
   }
 
-  function bindLang() {
-    F.bindLangSwitcher(function () {
-      renderRegions();
-      renderFilters();
-      refresh();
-    });
-  }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();

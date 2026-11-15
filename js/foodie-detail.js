@@ -181,8 +181,6 @@
       document.getElementById('fd-error').style.display = '';
     });
 
-    document.getElementById('fd-langbox').innerHTML = F.langSwitcherHtml();
-    F.bindLangSwitcher(function () { if (R) render(); });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

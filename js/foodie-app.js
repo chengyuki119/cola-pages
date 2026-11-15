@@ -62,11 +62,7 @@
   var WEEK_JA = { mon: '月曜', tue: '火曜', wed: '水曜', thu: '木曜', fri: '金曜', sat: '土曜', sun: '日曜' };
 
   function curLang() {
-    try {
-      var v = localStorage.getItem('yuki-foodie-lang');
-      if (v && LANGS.indexOf(v) !== -1) return v;
-    } catch (e) {}
-    return (window.YK && window.YK.isZh) ? 'zh-Hans' : 'en';
+    return (window.YK && window.YK.isZh) ? 'zh-Hans' : 'en'; // 语言只随站点路径走（/zh/ = 简中，根路径 = 英文）；她 20261114 23:12 移除页内切换器
   }
   function t(key) {
     var row = T[key];
@@ -257,23 +253,7 @@
       '</div></a>';
   }
 
-  /* ── 语言切换 UI ── */
-  function langSwitcherHtml() {
-    return '<div class="fd-lang" id="fd-lang" role="group">' + LANGS.map(function (l) {
-      return '<button type="button" class="fd-lang-btn' + (l === curLang() ? ' on' : '') + '" data-fl="' + l + '">' + LANG_LABELS[l] + '</button>';
-    }).join('') + '</div>';
-  }
-  function bindLangSwitcher(rerender) {
-    var box = document.getElementById('fd-langbox') || document.getElementById('fd-lang');
-    if (!box) return;
-    box.addEventListener('click', function (e) {
-      var b = e.target.closest('[data-fl]');
-      if (!b) return;
-      try { localStorage.setItem('yuki-foodie-lang', b.getAttribute('data-fl')); } catch (err) {}
-      box.querySelectorAll('.fd-lang-btn').forEach(function (x) { x.classList.toggle('on', x === b); });
-      if (rerender) rerender();
-    });
-  }
+  /* 语言切换 UI 已按她 20261114 23:12 要求移除，语言随站点路径走；繁体/日文词典保留 */
 
   window.FOODIE = {
     LANGS: LANGS, LANG_LABELS: LANG_LABELS,
@@ -284,7 +264,6 @@
     money: money, priceHtml: priceHtml,
     isOpenNow: isOpenNow, hoursHtml: hoursHtml, localNow: localNow,
     imgOf: imgOf, catLabel: catLabel, cuisineLabel: cuisineLabel, detailUrl: detailUrl, cardHtml: cardHtml,
-    langSwitcherHtml: langSwitcherHtml, bindLangSwitcher: bindLangSwitcher,
     slugify: function (s) {
       var base = String(s || '').toLowerCase().trim()
         .replace(/[\u3000-\u303f・、。！？「」『』（）]/g, '')
