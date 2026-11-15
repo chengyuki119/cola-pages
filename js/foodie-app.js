@@ -173,7 +173,8 @@
     if (window.FOODIE_MOCK || /[?&]fdmock=1/.test(location.search)) return Promise.resolve({ ok: true, mock: true });
     return fetch((window.DB_BASE || 'https://ukxrvcptwhlwvdanovgd.supabase.co/rest/v1/') + table, {
       method: 'POST',
-      headers: Object.assign({}, (window.DB_HEADERS || {}), { 'Content-Type': 'application/json', 'Prefer': 'return=representation' }),
+      // 不带 Prefer: return=representation —— anon 对投稿表无 SELECT policy，回读会整单 401（她 20261115 SQL 生效后实测发现）
+      headers: Object.assign({}, (window.DB_HEADERS || {}), { 'Content-Type': 'application/json' }),
       body: JSON.stringify(body)
     }).then(function (r) {
       if (r.ok) return { ok: true };

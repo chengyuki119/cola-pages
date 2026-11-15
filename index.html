@@ -55,6 +55,12 @@
   .fh-card img { transition: transform .25s; }
   @media (max-width: 640px) { #foodie-home-grid { grid-template-columns: repeat(2, 1fr); } }
 
+  #foodie-home-map { width: 100%; height: 230px; border-radius: 16px; border: 1.5px solid #F9E5ED; background: #FCECF2; margin-bottom: 14px; cursor: pointer; position: relative; z-index: 1; overflow: hidden; }
+  #foodie-home-map .leaflet-control-attribution { font-size: 10px; opacity: .6; }
+  #foodie-home-map .fh-pin { display: flex; width: 32px; height: 32px; border-radius: 50% 50% 50% 4px; transform: rotate(-45deg); background: #FFFFFF; border: 2px solid #F48FB1; box-shadow: 0 3px 8px rgba(180,120,150,.3); align-items: center; justify-content: center; }
+  #foodie-home-map .fh-pin > span { transform: rotate(45deg); display: flex; }
+  @media (max-width: 640px) { #foodie-home-map { height: 180px; } }
+
 </style>
   <!-- 她 20261104：手机端英文版头像旁的两句介绍被挤成四行（每句各折一次），改成两句各一行；桌面端与中文版不动 -->
   <style id="en-hero-bio-2lines">
@@ -66,6 +72,8 @@
     @media (max-width: 380px) { html[lang="en"] .hero-name p { font-size: 13.5px; } }
     @media (max-width: 345px) { html[lang="en"] .hero-name p { font-size: 13px; letter-spacing: -0.2px; } }
   </style>
+<link rel="stylesheet" href="/vendor/leaflet/leaflet.css?v=20261114B">
+<script src="/vendor/leaflet/leaflet.js?v=20261114B"></script>
 </head>
 <body class="home">
 
@@ -174,6 +182,7 @@
     <!-- Foodie Map：最新发现的餐厅（她 20261115 Phase 2） -->
     <section id="sec-foodie">
       <h2 data-zh="美食地图" data-en="Foodie Map">美食地图</h2>
+      <div id="foodie-home-map" title="Foodie Map"></div>
       <div id="foodie-home-grid"></div>
       <a class="home-long-btn" href="/foodie/"><span data-zh="进入美食地图" data-en="Enter the Foodie Map">进入美食地图</span></a>
     </section>
@@ -968,6 +977,11 @@
       var pick = list.filter(function (p) { return p.home; })[0] || list[0];
       if (pick) { var a = mt.querySelector('.photo'); a.setAttribute('data-img', pick.image_url); loadDbImg(a, pick.image_url); }
     });
+    // 她 20261115：主页瓦片顺序跟随 photo_sections.sort，与照片页/后台一致（静态 instax/film 瓦片也参与重排）
+    sections.forEach(function (sec) {
+      var t2 = tileGrid.querySelector('[data-sec="' + sec.key + '"]');
+      if (t2) tileGrid.appendChild(t2);
+    });
   }).catch(function () {});
 
 
@@ -981,6 +995,7 @@
         if (!rows.length) {
           grid.style.display = 'block';
           grid.innerHTML = '<p style="color:var(--muted);text-align:center;padding:30px 0;font-size:17px;">' + t('还在收集好吃的地方，敬请期待 ♡', 'Still gathering tasty finds — stay tuned ♡') + '</p>';
+          initHomeFoodieMap(rows); // 空态也要有地图的样子（她 20261115）
           return;
         }
         grid.style.display = 'grid';
@@ -1001,8 +1016,34 @@
             '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(loc) + '</span></div>' +
             '</div></a>';
         }).join('');
+        initHomeFoodieMap(rows); // 她 20261115：主页美食地图要有地图的样子
       }).catch(function () {});
+
+      // 她 20261115：主页美食地图要有地图的样子——放在 IIFE 内以使用闭包里的 YUZU
+      function initHomeFoodieMap(rows) {
+      var el = document.getElementById('foodie-home-map');
+      if (!el || typeof L === 'undefined') return;
+      el.innerHTML = '';
+      var map = L.map(el, { zoomControl: false, scrollWheelZoom: false, dragging: false, doubleClickZoom: false, boxZoom: false, keyboard: false, touchZoom: false, attributionControl: true });
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(map);
+      var pts = [];
+      rows.forEach(function (r) {
+        var la = Number(r.latitude), ln = Number(r.longitude);
+        if (!la || !ln) return;
+        var m = L.marker([la, ln], {
+          icon: L.divIcon({ className: 'fh-pin-wrap', html: '<span class="fh-pin"><span>' + YUZU + '</span></span>', iconSize: [32, 32], iconAnchor: [16, 32] })
+        }).addTo(map);
+        m.on('click', function (e) { L.DomEvent.stopPropagation(e); location.href = ykLink('/foodie/restaurant/?slug=' + encodeURIComponent(r.slug || r.id)); });
+        pts.push([la, ln]);
+      });
+      if (pts.length === 1) map.setView(pts[0], 12);
+      else if (pts.length > 1) map.fitBounds(pts, { padding: [30, 30], maxZoom: 12 });
+      else map.setView([20, 0], 2);
+      setTimeout(function () { map.invalidateSize(); }, 80);
+      el.addEventListener('click', function () { location.href = ykLink('/foodie/map/'); });
+    }
     })();
+
 
   // ===== 主页设置（后台「主页管理」同步：文案/头像/背景图）=====
   // 她 20261108：色卡/BJD/稿件改为公开浏览——不再经「柚子专属门禁」，匿名直接读公开键；
