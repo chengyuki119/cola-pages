@@ -53,7 +53,35 @@
     yuzu2:        { en: 'Worth a detour.', 'zh-Hans': '值得专门绕路去吃。', 'zh-Hant': '值得專門繞路去吃。', ja: 'わざわざ足を運ぶ価値あり。' },
     yuzu3:        { en: 'Worth a special trip — highly recommended.', 'zh-Hans': '值得专程前往，强烈推荐。', 'zh-Hant': '值得專程前往，強烈推薦。', ja: 'はるばる行く価値あり、強くおすすめ。' },
     photos:       { en: 'Photos', 'zh-Hans': '照片', 'zh-Hant': '照片', ja: 'フォト' },
-    myLocation:   { en: 'My location', 'zh-Hans': '我的位置', 'zh-Hant': '我的位置', ja: '現在地' }
+    myLocation:   { en: 'My location', 'zh-Hans': '我的位置', 'zh-Hant': '我的位置', ja: '現在地' },
+    /* Phase 2 投稿（她 20261115）*/
+    suggest:      { en: 'Recommend a Restaurant ♡', 'zh-Hans': '推荐餐厅 ♡' },
+    sTitle:       { en: 'Recommend a Restaurant', 'zh-Hans': '推荐一家餐厅' },
+    sIntro:       { en: 'Found a great place? Tell Yuki about it — approved finds go on the map with your credit.', 'zh-Hans': '吃到好吃的地方？告诉柚子，审核通过后就会出现在地图上 ♡' },
+    sName:        { en: 'Restaurant name (original language) *', 'zh-Hans': '餐厅名称（当地语言原文）*' },
+    sNameZh:      { en: 'Chinese name (optional)', 'zh-Hans': '中文名称（选填）' },
+    sRegion:      { en: 'Country / Region *', 'zh-Hans': '国家 / 地区 *' },
+    sCity:        { en: 'City *', 'zh-Hans': '城市 *' },
+    sAddr:        { en: 'Address *', 'zh-Hans': '地址 *' },
+    sCuisine:     { en: 'Cuisine (optional, multi-select)', 'zh-Hans': '菜系（选填，可多选）' },
+    sFood:        { en: 'Food type (optional, multi-select)', 'zh-Hans': '类别（选填，可多选）' },
+    sPrice:       { en: 'Price level', 'zh-Hans': '价位' },
+    sAvg:         { en: 'Average spend (optional)', 'zh-Hans': '人均消费（选填）' },
+    sPhoto:       { en: 'Photo link (optional)', 'zh-Hans': '照片链接（选填）' },
+    sWhy:         { en: 'Why do you recommend it? *', 'zh-Hans': '推荐理由 *' },
+    sEmail:       { en: 'Your email (only for follow-up, never published) *', 'zh-Hans': '联系邮箱（只用于核实，不会公开）*' },
+    sSelect:      { en: 'Select', 'zh-Hans': '选择' },
+    sSend:        { en: 'Send Recommendation', 'zh-Hans': '提交推荐' },
+    sSending:     { en: 'Sending…', 'zh-Hans': '提交中…' },
+    sDone:        { en: 'Got it — thank you ♡ Once approved, it will appear on the map.', 'zh-Hans': '已收到你的推荐，谢谢 ♡ 审核通过后就会出现在地图上。' },
+    sErrName:     { en: 'Please enter the restaurant name.', 'zh-Hans': '请填写餐厅名称。' },
+    sErrRegion:   { en: 'Please choose a country / region.', 'zh-Hans': '请选择国家 / 地区。' },
+    sErrCity:     { en: 'Please enter the city.', 'zh-Hans': '请填写城市。' },
+    sErrAddr:     { en: 'Please enter the address.', 'zh-Hans': '请填写地址。' },
+    sErrWhy:      { en: 'Please write a line about why you recommend it.', 'zh-Hans': '请写一句推荐理由。' },
+    sErrEmail:    { en: 'Please leave your email so we can confirm details with you.', 'zh-Hans': '请填写联系邮箱，方便我们与你确认细节。' },
+    sTooMany:     { en: 'This email already has 3 pending recommendations — wait for a review before sending more.', 'zh-Hans': '这个邮箱的待审投稿已经满 3 条啦，等我们处理后再投稿吧。' },
+    sNetErr:      { en: 'Something went wrong — please try again later.', 'zh-Hans': '提交没有成功，稍后再试一次吧。' }
   };
   var WEEK = { mon: 'mon', tue: 'tue', wed: 'wed', thu: 'thu', fri: 'fri', sat: 'sat', sun: 'sun' };
   var WEEK_ORDER = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
@@ -131,6 +159,27 @@
     return api('food_categories?enabled=eq.true&order=sort.asc').then(function (rows) { CACHE.cats = rows || []; return CACHE.cats; });
   }
   function restQuery(qs) { return api('food_restaurants?' + qs); }
+
+  /* 投稿提交（Phase 2）：POST food_restaurant_submissions，守卫触发器会强制 pending 并清空审核字段 */
+  function pickErrMsg(raw) {
+    try {
+      var j = JSON.parse(raw);
+      var m = (j && (j.message || j.msg)) || '';
+      if (m.indexOf('foodie: ') === 0) return m.slice(8); // 守卫触发器的中文提示直接展示
+      return '';
+    } catch (e) { return ''; }
+  }
+  function post(table, body) {
+    if (window.FOODIE_MOCK || /[?&]fdmock=1/.test(location.search)) return Promise.resolve({ ok: true, mock: true });
+    return fetch((window.DB_BASE || 'https://ukxrvcptwhlwvdanovgd.supabase.co/rest/v1/') + table, {
+      method: 'POST',
+      headers: Object.assign({}, (window.DB_HEADERS || {}), { 'Content-Type': 'application/json', 'Prefer': 'return=representation' }),
+      body: JSON.stringify(body)
+    }).then(function (r) {
+      if (r.ok) return { ok: true };
+      return r.text().then(function (txt) { return { ok: false, message: pickErrMsg(txt) }; });
+    }).catch(function () { return { ok: false, message: '' }; });
+  }
 
   /* ── 多语言名称/介绍：缺词回退（zh-Hant ↔ zh-Hans ↔ 原文）── */
   function i18nPick(obj, lang) {
@@ -259,6 +308,7 @@
     LANGS: LANGS, LANG_LABELS: LANG_LABELS,
     lang: curLang, t: t, esc: esc,
     loadRegions: loadRegions, loadCats: loadCats, restQuery: restQuery, regionOf: regionOf,
+    post: post,
     rName: rName, rDesc: rDesc, rCity: rCity, i18nPick: i18nPick,
     yuzuHtml: yuzuHtml, yuzuWord: yuzuWord, YUZU_SVG: YUZU_SVG,
     money: money, priceHtml: priceHtml,

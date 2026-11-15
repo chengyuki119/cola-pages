@@ -28,10 +28,10 @@
   }
   function db() { return fetch(REST + 'food_restaurants?select=*&order=created_at.desc', { headers: HDRS() }).then(function (r) { return r.ok ? r.json() : []; }); }
 
-  var S = { regions: [], cats: [], rests: [], sub: 'dash', editing: null, map: null, marker: null };
+  var S = { regions: [], cats: [], rests: [], subs: [], sub: 'dash', editing: null, subView: null, map: null, marker: null };
 
   var SUBS = [
-    ['dash', '总览'], ['rests', '餐厅管理'], ['regions', '地区管理'], ['cats', '分类管理'], ['data', '数据 CSV']
+    ['dash', '总览'], ['subs', '投稿审核'], ['rests', '餐厅管理'], ['regions', '地区管理'], ['cats', '分类管理'], ['data', '数据 CSV']
   ];
 
   /* ── 小件 ── */
@@ -93,9 +93,10 @@
     return Promise.all([
       api('GET', 'food_regions', 'select=*&order=sort.asc').catch(function () { return []; }),
       api('GET', 'food_categories', 'select=*&order=sort.asc').catch(function () { return []; }),
-      db().catch(function () { return []; })
+      db().catch(function () { return []; }),
+      api('GET', 'food_restaurant_submissions', 'select=*&order=created_at.desc').catch(function () { return []; })
     ]).then(function (rs) {
-      S.regions = rs[0] || []; S.cats = rs[1] || []; S.rests = rs[2] || [];
+      S.regions = rs[0] || []; S.cats = rs[1] || []; S.rests = rs[2] || []; S.subs = rs[3] || [];
     });
   }
 
@@ -104,6 +105,7 @@
     document.getElementById('fdm-root').dataset.ready = '1';
     document.getElementById('fdm-root').innerHTML = subBar() +
       '<div id="fdm-sub-dash"></div><div id="fdm-sub-rests" style="display:none;"></div>' +
+      '<div id="fdm-sub-subs" style="display:none;"></div>' +
       '<div id="fdm-sub-regions" style="display:none;"></div><div id="fdm-sub-cats" style="display:none;"></div>' +
       '<div id="fdm-sub-data" style="display:none;"></div>';
     fdmSubStyle();
@@ -131,6 +133,7 @@
 
   function render() {
     if (S.sub === 'dash') renderDash();
+    else if (S.sub === 'subs') renderSubs();
     else if (S.sub === 'rests') renderRests();
     else if (S.sub === 'regions') renderRegions();
     else if (S.sub === 'cats') renderCats();
@@ -153,6 +156,7 @@
       '<div class="card" style="max-width:none;">' +
       '<h3>Foodie 总览</h3>' +
       '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px;">' +
+      stat('待审投稿', S.subs.filter(function (s) { return s.status === 'pending'; }).length) +
       stat('餐厅总数', S.rests.length) + stat('已发布', pub) + stat('隐藏', hid) + stat('精选', feat) +
       stat('柚子 🍊', y1) + stat('柚子🍊🍊', y2) + stat('柚子🍊🍊🍊', y3) + stat('地区数', S.regions.length) +
       '</div>' +
@@ -168,7 +172,159 @@
     return '<div style="background:#FFF8FA;border:1.5px solid #F9E5ED;border-radius:14px;padding:12px 14px;"><div style="font-size:13px;color:#897783;">' + label + '</div><div style="font-size:22px;font-weight:700;color:#65515D;margin-top:2px;">' + val + '</div></div>';
   }
 
-  /* ── ② 餐厅管理 ── */
+  /* ── ② 投稿审核（Phase 2，她 20261115）── */
+  var SUB_STATUS = { pending: ['待审', '#B98598', '#FCECF2'], approved: ['已上架', '#4E8A5A', '#EAF6EC'], rejected: ['已拒绝', '#C4636E', '#FBE3E6'], hidden: ['已隐藏', '#897783', '#FFF8FA'] };
+  function subPayload(s) { var p = s.payload || {}; return (p && typeof p === 'object' && !Array.isArray(p)) ? p : {}; }
+  function subName(s) { return subPayload(s).name || '（无名称）'; }
+  function subLoc(s) {
+    var p = subPayload(s);
+    var reg = S.regions.filter(function (x) { return x.code === p.country_code; })[0];
+    return [p.city, (reg && reg.name_zh) || p.country_name].filter(Boolean).join(', ');
+  }
+  function fmtTime(t) { return t ? String(t).replace('T', ' ').slice(0, 16).replace(/-/g, '/') : '—'; }
+  function renderSubs() {
+    var box = document.getElementById('fdm-sub-subs');
+    if (S.subView) { renderSubDetail(box); return; }
+    var pend = S.subs.filter(function (s) { return s.status === 'pending'; });
+    var pendN = pend.length;
+    var other = S.subs.filter(function (s) { return s.status !== 'pending'; });
+    box.innerHTML =
+      '<div class="card" style="max-width:none;">' +
+      '<h3>投稿审核' + (pendN ? '<span style="margin-left:10px;font-size:14px;background:#FCECF2;color:#B98598;border-radius:999px;padding:3px 12px;vertical-align:2px;">待审 ' + pendN + '</span>' : '') + '</h3>' +
+      '<p class="fdm-hint" style="margin:0 0 14px;">访客在前台「推荐餐厅」提交的内容都在这里；通过后自动上架为已发布餐厅，随时可在餐厅管理里编辑。</p>' +
+      (pendN ? pend.map(function (s) { return subRow(s); }).join('') : '<p class="empty">没有待审投稿 ♡</p>') +
+      (other.length ? '<h3 style="font-size:16px;margin:20px 0 10px;">历史记录</h3>' + other.map(function (s) { return subRow(s); }).join('') : '') +
+      '</div>';
+    box.querySelectorAll('[data-sid]').forEach(function (row) {
+      row.style.cursor = 'pointer';
+      row.onclick = function () { S.subView = row.getAttribute('data-sid'); renderSubs(); };
+    });
+  }
+  function subRow(s) {
+    var st = SUB_STATUS[s.status] || SUB_STATUS.hidden;
+    var p = subPayload(s);
+    var cats = [].concat(Array.isArray(p.cuisine) ? p.cuisine : [], Array.isArray(p.food_categories) ? p.food_categories : [])
+      .map(function (k) { return catLabel('cuisine', k) !== k ? catLabel('cuisine', k) : catLabel('food_type', k); }).filter(Boolean).join(' · ');
+    return '<div class="fdm-rest" data-sid="' + esc(s.id) + '">' +
+      '<div class="fdm-rest-body"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">' +
+      '<b>' + esc(subName(s)) + '</b>' +
+      '<span style="font-size:12px;color:' + st[1] + ';border:1px solid currentColor;border-radius:999px;padding:1px 8px;">' + st[0] + '</span>' +
+      '</div>' +
+      '<div style="font-size:13px;color:#897783;margin-top:3px;">' + esc(subLoc(s) || '—') + (cats ? ' · ' + esc(cats) : '') + ' · 投稿人 ' + esc(s.user_email || '—') + ' · ' + fmtTime(s.created_at) + '</div>' +
+      (s.note ? '<div style="font-size:14px;color:#65515D;margin-top:5px;line-height:1.6;">' + esc(String(s.note).slice(0, 80)) + '</div>' : '') +
+      '</div><span style="color:#897783;">›</span></div>';
+  }
+  function renderSubDetail(box) {
+    var s = S.subs.filter(function (x) { return x.id === S.subView; })[0];
+    if (!s) { S.subView = null; renderSubs(); return; }
+    var p = subPayload(s);
+    var st = SUB_STATUS[s.status] || SUB_STATUS.hidden;
+    var line = function (k, v) { return v ? '<div style="font-size:15px;line-height:1.7;color:#65515D;"><span style="color:#897783;">' + k + '：</span>' + esc(v) + '</div>' : ''; };
+    var reg = S.regions.filter(function (x) { return x.code === p.country_code; })[0];
+    var chipsHtml = function (kind) {
+      return (Array.isArray(p[kind]) ? p[kind] : []).map(function (k) { return catLabel(kind === 'cuisine' ? 'cuisine' : 'food_type', k); }).filter(Boolean)
+        .map(function (lb) { return '<span style="display:inline-block;font-size:13px;background:#FCECF2;color:#B98598;border-radius:999px;padding:2px 10px;margin:0 6px 6px 0;">' + esc(lb) + '</span>'; }).join('');
+    };
+    var linkedId = String(s.admin_note || '').indexOf('restaurant:') === 0 ? String(s.admin_note).slice(11) : '';
+    var linked = linkedId ? S.rests.filter(function (r) { return r.id === linkedId; })[0] : null;
+    var imgs = Array.isArray(p.images) ? p.images.filter(Boolean) : [];
+    box.innerHTML =
+      '<div class="card" style="max-width:none;">' +
+      '<div class="fdm-row" style="align-items:center;"><button type="button" class="fdm-btn ghost" id="fsd-back">← 返回列表</button>' +
+      '<span style="font-size:13px;color:' + st[1] + ';border:1px solid currentColor;border-radius:999px;padding:2px 10px;">' + st[0] + '</span>' +
+      '<span class="fdm-hint">投稿时间 ' + fmtTime(s.created_at) + (s.reviewed_at ? ' · 审核时间 ' + fmtTime(s.reviewed_at) : '') + '</span></div>' +
+      '<h3>' + esc(subName(s)) + (p.name_i18n && p.name_i18n['zh-Hans'] ? '<span style="font-size:16px;color:#897783;font-weight:500;margin-left:8px;">' + esc(p.name_i18n['zh-Hans']) + '</span>' : '') + '</h3>' +
+      '<div style="margin:6px 0 12px;">' + line('国家/地区', ((reg && ((reg.name_zh || reg.name) + ' · ' + reg.code)) || p.country_name)) +
+      line('城市', p.city) + line('地址', p.address) +
+      ((p.cuisine || []).length || (p.food_categories || []).length ? '<div style="margin:4px 0;">' + chipsHtml('cuisine') + chipsHtml('food_type') + '</div>' : '') +
+      line('价位', p.price_level ? '$'.repeat(Number(p.price_level)) + (p.average_price != null && p.currency_code ? ' · 人均约 ' + p.currency_code + ' ' + p.average_price : '') : '') +
+      (imgs.length ? '<div style="margin:8px 0;">' + imgs.map(function (u) { return '<img src="' + esc(u) + '" style="width:110px;height:84px;object-fit:cover;border-radius:10px;border:1.2px solid #F9E5ED;margin:0 8px 8px 0;background:#FCECF2;">'; }).join('') + '</div>' : '') +
+      '<div style="background:#FFF8FA;border:1.5px solid #F9E5ED;border-radius:14px;padding:12px 14px;margin:10px 0 4px;">' +
+      '<div style="font-size:13px;color:#897783;margin-bottom:4px;">投稿人推荐理由（' + esc(s.user_email || '—') + '）</div>' +
+      '<div style="font-size:15px;line-height:1.8;color:#65515D;white-space:pre-wrap;">' + esc(s.note || '') + '</div></div>' +
+      (linked ? '<p class="fdm-hint" style="margin:10px 0;">已上架为「' + esc(linked.name) + '」（餐厅管理里可编辑）</p>' : '') +
+      (s.status === 'pending' ? '<div class="fdm-row" style="margin-top:14px;">' +
+        '<button type="button" class="fdm-btn" id="fsd-approve">✓ 通过并上架</button>' +
+        '<button type="button" class="fdm-btn danger" id="fsd-reject">✕ 拒绝</button>' +
+        '<span class="fdm-hint" id="fsd-msg"></span></div>' : '') +
+      (s.status !== 'pending' ? '<div class="fdm-row" style="margin-top:14px;"><button type="button" class="fdm-btn danger" id="fsd-del">删除这条投稿记录</button><span class="fdm-hint" id="fsd-msg"></span></div>' : '') +
+      '</div>';
+    box.querySelector('#fsd-back').onclick = function () { S.subView = null; renderSubs(); };
+    var msg = box.querySelector('#fsd-msg');
+    if (s.status === 'pending') {
+      box.querySelector('#fsd-approve').onclick = function () { approveSub(s, msg); };
+      box.querySelector('#fsd-reject').onclick = function () {
+        var note = window.prompt('拒绝原因（写给自己的备注，可留空）：') || '';
+        if (note === null) return;
+        api('PATCH', 'food_restaurant_submissions', 'id=eq.' + s.id, {
+          status: 'rejected', admin_note: note,
+          reviewed_at: new Date().toISOString(), reviewed_by: adminEmail()
+        }).then(function () { toast('已拒绝'); S.subView = null; loadAll().then(render); })
+          .catch(function (er) { msg.textContent = '失败: ' + er.message; });
+      };
+    } else {
+      box.querySelector('#fsd-del').onclick = function () {
+        if (!window.confirm('删除这条投稿记录？不可恢复。')) return;
+        api('DELETE', 'food_restaurant_submissions', 'id=eq.' + s.id).then(function () { toast('已删除'); S.subView = null; loadAll().then(render); })
+          .catch(function (er) { msg.textContent = '失败: ' + er.message; });
+      };
+    }
+  }
+  function approveSub(s, msg) {
+    var p = subPayload(s);
+    var reg = S.regions.filter(function (x) { return x.code === p.country_code; })[0];
+    // slug 去重
+    var base = F_slug(p.name);
+    var slug = base, n = 2;
+    var slugs = {};
+    S.rests.forEach(function (r) { slugs[r.slug] = 1; });
+    while (slugs[slug]) { slug = base + '-' + n; n++; }
+    var dup = S.rests.filter(function (x) { return x.name === p.name && x.city === p.city; })[0];
+    if (dup && !window.confirm('发现疑似重复餐厅：「' + dup.name + '」（' + (dup.city || '—') + '）。仍要上架吗？')) return;
+    var body = {
+      name: p.name,
+      name_i18n: p.name_i18n || {},
+      slug: slug,
+      description: p.description || '',
+      description_i18n: p.description_i18n || {},
+      country_code: p.country_code || '',
+      country_name: p.country_name || (reg ? reg.name : ''),
+      city: p.city || '',
+      address: p.address || '',
+      address_en: p.address_en || '',
+      latitude: p.latitude == null ? null : Number(p.latitude),
+      longitude: p.longitude == null ? null : Number(p.longitude),
+      cuisine: Array.isArray(p.cuisine) ? p.cuisine : [],
+      food_categories: Array.isArray(p.food_categories) ? p.food_categories : [],
+      price_level: p.price_level == null ? null : Number(p.price_level),
+      average_price: p.average_price == null ? null : Number(p.average_price),
+      currency_code: p.currency_code || (reg ? reg.currency_code : ''),
+      images: Array.isArray(p.images) ? p.images : [],
+      cover_image: (Array.isArray(p.images) && p.images.length) ? p.images[0] : (p.cover_image || ''),
+      hours: p.hours || {},
+      timezone: p.timezone || (reg ? reg.timezone_default : ''),
+      yuzu_rating: null, yuzu_note: '', yuzu_source: '社区投稿',
+      yuzu_updated_at: null, yuzu_updated_by: adminEmail(),
+      status: 'published', is_featured: false,
+      source: 'submission'
+    };
+    msg.textContent = '上架中…';
+    api('POST', 'food_restaurants', 'select=id', body).then(function (rows) {
+      var rid = rows && rows[0] && rows[0].id;
+      return api('PATCH', 'food_restaurant_submissions', 'id=eq.' + s.id, {
+        status: 'approved',
+        admin_note: rid ? 'restaurant:' + rid : '',
+        reviewed_at: new Date().toISOString(),
+        reviewed_by: adminEmail()
+      });
+    }).then(function () {
+      toast('已上架 ✓ 前台地图和主页区块都能看到它');
+      S.subView = null;
+      loadAll().then(render);
+    }).catch(function (er) { msg.textContent = '失败: ' + er.message; });
+  }
+
+  /* ── ③ 餐厅管理 ── */
   var restFilters = { q: '', status: '', country: '' };
   function restList() {
     return S.rests.filter(function (r) {

@@ -91,6 +91,29 @@
 /* ── 空态 ── */
 .fd-empty { text-align: center; color: var(--muted,#897783); font-size: 16px; padding: 34px 0; }
 
+/* ── 投稿弹层（Phase 2，她 20261115）── */
+.fd-modal { position: fixed; inset: 0; background: rgba(101, 81, 93, .38); display: flex; align-items: center; justify-content: center; padding: 18px; z-index: 300; }
+.fd-modal-card { position: relative; background: var(--card,#FFFFFF); border: 1.5px solid var(--card-border,#F9E5ED); border-radius: 18px; padding: 24px 26px 22px; width: 100%; max-width: 620px; max-height: 88vh; overflow-y: auto; }
+.fd-modal-x { position: absolute; top: 14px; right: 14px; width: 32px; height: 32px; border-radius: 50%; border: none; background: var(--accent-soft,#FCECF2); color: var(--accent-strong,#B98598); font-size: 15px; cursor: pointer; font-family: inherit; }
+.fd-modal-x:hover { background: var(--opt-bg-h,#F6C5D7); }
+.fd-modal-title { font-size: 21px; font-weight: 700; color: var(--text,#65515D); margin: 0 0 4px; }
+.fd-modal-sub { font-size: 15px; color: var(--muted,#897783); line-height: 1.65; margin: 0 0 16px; }
+.fd-frow { display: flex; gap: 12px; margin: 0 0 12px; flex-wrap: wrap; }
+.fd-frow.fd-2col > .fd-field { flex: 1 1 260px; }
+.fd-frow > .fd-field { flex: 1 1 100%; }
+.fd-field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.fd-field label { font-size: 14px; color: var(--muted,#897783); }
+.fd-field input, .fd-field select, .fd-field textarea { font-family: inherit; font-size: 16px; color: var(--text,#65515D); border: 1.5px solid var(--card-border,#F9E5ED); border-radius: 10px; padding: 9px 12px; background: #fff; outline: none; min-width: 0; width: 100%; box-sizing: border-box; }
+.fd-field input:focus, .fd-field select:focus, .fd-field textarea:focus { border-color: var(--opt-bg-h,#F6C5D7); }
+.fd-field textarea { resize: vertical; }
+.fd-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.fd-s-chip { border: 1.5px solid var(--card-border,#F9E5ED); background: #fff; color: var(--text,#65515D); border-radius: 999px; padding: 6px 15px; font-size: 15px; font-family: inherit; cursor: pointer; line-height: 1.4; }
+.fd-s-chip:hover { background: var(--opt-bg-h,#F6C5D7); }
+.fd-s-chip.on { background: var(--accent-soft,#F6C5D7); border-color: var(--accent-soft,#F6C5D7); color: var(--accent-strong,#B98598); font-weight: 600; }
+.fd-smsg { font-size: 14px; color: #C4636E; }
+.fd-toast { position: fixed; left: 50%; bottom: 34px; transform: translate(-50%, 16px); background: var(--card,#FFFFFF); color: var(--text,#65515D); border: 1.5px solid var(--card-border,#F9E5ED); border-radius: 999px; padding: 12px 22px; font-size: 15px; box-shadow: 0 8px 24px rgba(180,120,150,.18); opacity: 0; transition: opacity .3s ease, transform .3s ease; z-index: 320; max-width: 90vw; text-align: center; }
+.fd-toast.show { opacity: 1; transform: translate(-50%, 0); }
+
 /* ── 手机端 ── */
 @media (max-width: 760px) {
   .fd-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }

@@ -146,6 +146,13 @@
       <a class="home-long-btn" href="/zh/works/"><span data-zh="查看全部稿件" data-en="View All Works">查看全部稿件</span></a>
     </section>
 
+    <!-- Foodie Map：最新发现的餐厅（她 20261115 Phase 2） -->
+    <section id="sec-foodie">
+      <h2 data-zh="美食地图" data-en="Foodie Map">美食地图</h2>
+      <div id="foodie-home-grid"></div>
+      <a class="home-long-btn" href="/zh/foodie/"><span data-zh="进入美食地图" data-en="Enter the Foodie Map">进入美食地图</span></a>
+    </section>
+
     <!-- 匿名提问箱：页面最下面 -->
 
   </div>
@@ -266,6 +273,11 @@
     }
     @keyframes aiUp { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
   }
+  #foodie-home-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+  .fh-card:hover img { transform: scale(1.05); }
+  .fh-card img { transition: transform .25s; }
+  @media (max-width: 640px) { #foodie-home-grid { grid-template-columns: repeat(2, 1fr); } }
+
 </style>
 
 <button class="ai-fab" id="aiFab" aria-label="打开小助手桓桓"><span class="l1" data-zh="小助手" data-en="Assistant">小助手</span><span class="l2" data-zh="桓桓" data-en="Huanhuan">桓桓</span></button>
@@ -937,6 +949,40 @@
       if (pick) { var a = mt.querySelector('.photo'); a.setAttribute('data-img', pick.image_url); loadDbImg(a, pick.image_url); }
     });
   }).catch(function () {});
+
+
+    // Foodie Map：主页展示区块（匿名读已发布餐厅，最新 5 家；与 /foodie/ 同一数据源）
+    (function () {
+      var grid = document.getElementById('foodie-home-grid');
+      if (!grid) return;
+      var YUZU = '<svg viewBox="0 0 24 24" fill="none" style="width:16px;height:16px;flex-shrink:0;" aria-hidden="true"><circle cx="12" cy="13.2" r="8.2" fill="#FCECF2" stroke="#F48FB1" stroke-width="1.6"/><circle cx="9.2" cy="11" r="1" fill="#F6C5D7"/><circle cx="13.6" cy="12.4" r="1" fill="#F6C5D7"/><circle cx="11" cy="15.6" r="1" fill="#F6C5D7"/><path d="M12 5c0-1.8 1.2-3 3-3" stroke="#B98598" stroke-width="1.5" stroke-linecap="round"/><path d="M15 2c2.6.4 4.4 2 4.6 4.4-2.5.3-4.5-1.4-4.6-4.4z" fill="#F6C5D7" stroke="#B98598" stroke-width="1.1"/></svg>';
+      dbFetch('food_restaurants?status=eq.published&select=*&order=created_at.desc&limit=5').then(function (rows) {
+        rows = rows || [];
+        if (!rows.length) {
+          grid.style.display = 'block';
+          grid.innerHTML = '<p style="color:var(--muted);text-align:center;padding:30px 0;font-size:17px;">' + t('还在收集好吃的地方，敬请期待 ♡', 'Still gathering tasty finds — stay tuned ♡') + '</p>';
+          return;
+        }
+        grid.style.display = 'grid';
+        grid.innerHTML = rows.map(function (r) {
+          var img = r.cover_image || (Array.isArray(r.images) && r.images[0]) || '';
+          var name = (LANG === 'en') ? (r.name || '') : ((r.name_i18n && r.name_i18n['zh-Hans']) || r.name || '');
+          var reg = (window.FOODIE_REGIONS || {})[r.country_code];
+          var loc = [r.city, r.country_name].filter(Boolean).join(', ');
+          var yz = '';
+          for (var i = 0; i < Math.max(0, Math.min(3, Number(r.yuzu_rating) || 0)); i++) yz += YUZU;
+          return '<a class="card fh-card" href="' + ykLink('/foodie/restaurant/?slug=' + encodeURIComponent(r.slug || r.id)) + '" style="margin-bottom:0;padding:0;overflow:hidden;text-decoration:none;display:block;">' +
+            (img ? '<div style="width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--accent-soft,#FCECF2);"><img src="' + escAttrDb(img) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + escAttrDb(name) + '" loading="lazy"></div>'
+                 : '<div style="width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:var(--accent-soft,#FCECF2);color:var(--muted);font-size:15px;">' + (LANG === 'en' ? 'Yuzu' : '柚子') + '</div>') +
+            '<div style="padding:10px 12px 12px;">' +
+            '<b style="display:block;font-size:17px;color:var(--text,#65515D);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(name) + '</b>' +
+            '<div style="display:flex;align-items:center;gap:6px;margin-top:4px;font-size:14px;color:var(--muted,#897783);">' +
+            (yz ? '<span style="display:inline-flex;gap:2px;">' + yz + '</span>' : '') +
+            '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escDb(loc) + '</span></div>' +
+            '</div></a>';
+        }).join('');
+      }).catch(function () {});
+    })();
 
   // ===== 主页设置（后台「主页管理」同步：文案/头像/背景图）=====
   // 她 20261108：色卡/BJD/稿件改为公开浏览——不再经「柚子专属门禁」，匿名直接读公开键；
