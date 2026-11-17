@@ -16,36 +16,32 @@
 
   // ── 唯一导航数据源：六栏分组（她 20261117 PART B §四）──
   // 具体路由以现有网站为准；权限过滤 permFilter 照旧（照片=任意登录；BJD/色卡/稿件=柚子专属确认后出现）
-  var NAV = [
-    { key: 'home', num: '01', zh: '首页', en: 'Home', items: [
-      { key: 'home', zh: '回到主页', en: 'Back to Home', page: 'index', url: '/' },
+  var NAV = [ // 她 20261117 15:15 任务书：五栏重构，一级标题可点（编号/中英标题随链接整体可点）；缺总览页的栏标题暂指向栏内主页面
+    { key: 'home', num: '01', zh: '首页', en: 'Home', url: '/', items: [
       { key: 'cal', zh: '日历 · 重要日子', en: 'Calendar', page: 'index', url: '/', scrollTo: 'home-cal', scroll: true },
       { key: 'about', zh: '关于 Snow Yuzu', en: 'About', page: 'about', url: '/about/' }
     ]},
-    { key: 'shop', num: '02', zh: '我的小铺', en: 'My Shop', nav: 'shop', items: [
-      { key: 'shop', zh: '逛小铺', en: 'Shop', page: 'shop', url: '/shop/', area: 'shop' },
+    { key: 'shop', num: '02', zh: '我的小铺', en: 'My Shop', nav: 'shop', url: '/shop/', items: [ // Shop 与栏头 My Shop 同页，按她规则不重复建入口
       { key: 'howto', zh: '下单流程', en: 'How to Order', page: 'howto', url: '/how-to-order/' },
       { key: 'cart', zh: '购物车', en: 'Cart', page: 'shop', url: '/shop/?sec=cart', sec: 'cart', area: 'shop' },
       { key: 'orders', zh: '我的订单', en: 'My Orders', page: 'account', url: '/account/?sec=orders', sec: 'orders' }
     ]},
-    { key: 'gallery', num: '03', zh: '收藏展示', en: 'Collection', nav: 'gallery', items: [
-      { key: 'instax', zh: '拍立得展示', en: 'Instax Display', page: 'photos', url: '/photos/?sec=instax', sec: 'instax', area: 'gallery' },
-      { key: 'film', zh: '胶卷相机照片展示', en: 'Film Camera Pictures', page: 'photos', url: '/photos/?sec=film', sec: 'film', area: 'gallery' },
+    { key: 'gallery', num: '03', zh: '收藏展示', en: 'Collection', nav: 'gallery', url: '/photos/', items: [ // 无总览页，栏头暂指向照片页
+      { key: 'works', zh: '稿件展示', en: 'Commissions', page: 'works', url: '/works/', area: 'works' },
       { key: 'bjd', zh: 'BJD', en: 'BJD', page: 'bjd', url: '/bjd/', area: 'bjd' },
-      { key: 'cards', zh: '色卡', en: 'Color Cards', page: 'cards', url: '/color-card/', area: 'cards' }
+      { key: 'cards', zh: '色卡', en: 'Color Cards', page: 'cards', url: '/color-card/', area: 'cards' },
+      { key: 'photos', zh: '照片分享', en: 'Photo Gallery', page: 'photos', url: '/photos/', area: 'gallery' } // 原 Photo Gallery 入口恢复（页内拍立得/胶卷分区保留不动）
     ]},
-    { key: 'explore', num: '04', zh: '探索', en: 'Explore', nav: 'foodie', items: [
+    { key: 'explore', num: '04', zh: '探索', en: 'Explore', nav: 'foodie', url: '/foodie/', items: [ // 无总览页，栏头暂指向美食地图
       { key: 'foodie', zh: '美食地图', en: 'Foodie Map', page: 'foodie', url: '/foodie/', path: '/foodie/', area: 'foodie' },
       { key: 'foodiemap', zh: '地图找餐厅', en: 'Find Restaurants', page: 'foodie', url: '/foodie/map/', path: '/foodie/map/', area: 'foodie' },
       { key: 'yuzurec', zh: '柚子推荐', en: 'Yuki\'s Picks', page: 'foodie', url: '/foodie/?sec=yuzu', sec: 'yuzu', path: '/foodie/', area: 'foodie' }
     ]},
-    { key: 'works', num: '05', zh: '定制创作', en: 'Commissions', nav: 'works', items: [
-      { key: 'works', zh: '稿件展示', en: 'Commissions', page: 'works', url: '/works/', area: 'works' }
-    ]},
-    { key: 'account', num: '06', zh: '账号', en: 'Account', items: [
-      { key: 'acct-profile', zh: '个人资料', en: 'My Account', page: 'account', url: '/account/' },
+    { key: 'account', num: '05', zh: '账号', en: 'Account', url: '/account/', items: [ // Account 与 My Account 同页，栏头即账号页入口
+      { key: 'acct-profile', zh: '我的账号', en: 'My Account', page: 'account', url: '/account/' },
       { key: 'acct-reviews', zh: '我的评价', en: 'My Reviews', page: 'account', url: '/account/?sec=my-reviews', sec: 'my-reviews' },
-      { key: 'acct-questions', zh: '我的提问', en: 'My Questions', page: 'account', url: '/account/?sec=my-questions', sec: 'my-questions' }
+      { key: 'acct-questions', zh: '我的提问', en: 'My Questions', page: 'account', url: '/account/?sec=my-questions', sec: 'my-questions' },
+      { key: 'admin', zh: '管理后台', en: 'Admin', page: 'admin', url: '/admin.html', adminOnly: true } // 仅管理员可见（shop_is_admin 服务端判定）
     ]}
   ];
 
@@ -152,6 +148,7 @@
     btn.classList.add('acct-loading');
     var done = function () { btn.classList.remove('acct-loading'); };
     var go = function (exclusive) {
+      if (curPage === 'admin') { location.href = acct; return; } // 后台里点账号图标 → 前台账号页（不重载后台）
       if (exclusive) { location.href = '/admin.html'; return; }
       if (curPage === 'shop' && typeof window.__shopNav === 'function') { location.href = acct; return; }
       location.href = acct;
@@ -208,15 +205,24 @@
 
   // ── 语言切换行（已按她 20261117 03:38 指示撤出菜单：原本顶栏的切换器保留原位，这里不再重复渲染）──
 
-  // ── 六栏渲染 ──
+  // ── 五栏渲染（她 20261117 15:15：一级标题改为可点链接——桌面直接跳转，手机仍作手风琴展开）──
+  function titleCurrent(col) { // 栏头高亮：目标页就是当前页（含 sec）
+    try {
+      var u = new URL(col.url, location.origin);
+      if (normPath(u.pathname) !== curPage) return false;
+      var q = u.searchParams;
+      if (q.get('sec')) return q.get('sec') === curSec && !curSubId;
+      return !curSec && !curSubId;
+    } catch (e) { return false; }
+  }
   function buildCol(col) {
-    var g = el('<div class="menu-group" data-nav="' + (col.nav || '') + '" data-key="' + col.key + '"></div>');
+    var g = el('<div class="menu-group' + (titleCurrent(col) ? ' current' : '') + '" data-nav="' + (col.nav || '') + '" data-key="' + col.key + '"></div>');
     var subLabel = (LANG === 'en') ? col.zh : col.en; // 标题本地化，副标题永远显示另一种语言
-    var head = '<button class="menu-toggle" type="button">'
+    var head = '<a class="menu-toggle" href="' + hrefOf({ url: col.url }) + '">'
       + (col.num ? '<span class="menu-col-num">' + col.num + '</span>' : '')
       + '<span>' + span(col.zh, col.en) + '</span>'
       + (subLabel ? '<span class="menu-col-en">' + subLabel + '</span>' : '')
-      + '<span class="plus"></span></button>';
+      + '<span class="plus"></span></a>';
     g.appendChild(el(head));
     var sub = el('<div class="submenu"></div>');
     col.items.forEach(function (s) {
@@ -228,30 +234,7 @@
     return g;
   }
 
-  // 柚子专属：没登录是普通链接（后台登录入口）；专属账号登录后是可展开分组；普通买家登录后隐藏
-  // （保留原状态机：确认中占位 → RPC 确认后重建出现）
-  function buildOwner() {
-    var s = readSession();
-    if (window.ykExclusiveCheck) {
-      if (window.__YK_MENU_OK !== true) {
-        if (s) return el('<div class="menu-owner-pending">' + span('身份确认中…', 'Checking identity…') + '</div>');
-        return el('<div style="display:none;"></div>');
-      }
-    } else if (!s) {
-      return el('<div style="display:none;"></div>'); // 后台自身未登录也不显示
-    }
-    if (s) {
-      var g = el('<div class="menu-group menu-owner-group" id="menu-owner-group"></div>');
-      g.appendChild(el('<button class="menu-toggle" type="button">' + span('柚子专属', 'Yuki\'s Personal') + '<span class="plus"></span></button>'));
-      var sub = el('<div class="submenu"></div>');
-      sub.appendChild(el('<a class="menu-link" data-key="admin" href="/admin.html">' + span('管理后台', 'Admin') + '</a>'));
-      g.appendChild(sub);
-      return g;
-    }
-    return el('<a class="menu-owner" id="menu-owner-link" href="/admin.html">' + span('柚子专属', 'Yuki\'s Personal') + '</a>');
-  }
-
-  // 权限过滤（不改动传入对象，返回新数组）：照片=任意登录可见；BJD/色卡/稿件=柚子专属（未确认前先隐藏，确认后自动出现）
+  // 权限过滤（不改动传入对象，返回新数组）：照片=任意登录可见；BJD/色卡/稿件=柚子专属（未确认前先隐藏，确认后自动出现）；Admin=shop_is_admin 服务端确认后出现
   // 区块显隐（areas）沿用后台设置的同一份数据：关了的区块菜单里也不出现
   function permFilter(list) {
     var s = null;
@@ -260,13 +243,27 @@
     var out = [];
     (list || []).forEach(function (col) {
       var items = col.items.filter(function (it) {
-        if (it.key === 'instax' || it.key === 'film' || it.area === 'gallery' && it.page === 'photos') return logged;
-        if (it.key === 'bjd' || it.key === 'cards' || col.key === 'works') return window.__YK_MENU_OK === true;
+        if (it.adminOnly) return window.__YK_ADMIN_OK === true;
+        if (it.key === 'photos' || it.key === 'instax' || it.key === 'film' || it.area === 'gallery' && it.page === 'photos') return logged;
+        if (it.key === 'bjd' || it.key === 'cards' || it.page === 'works') return window.__YK_MENU_OK === true;
         return true;
       });
       if (items.length) out.push(Object.assign({}, col, { items: items }));
     });
     return out;
+  }
+  // Admin 子项：登录后用 shop_is_admin（与后台登录同一套服务端判定）确认一次，确认后重建菜单
+  function checkAdminMenu() {
+    var s = readSession();
+    if (!s || !s.a || window.__YK_ADMIN_CHECKED) return;
+    window.__YK_ADMIN_CHECKED = true;
+    fetch(DB_BASE + 'rpc/shop_is_admin', {
+      method: 'POST',
+      headers: { 'apikey': DB_KEY, 'Authorization': 'Bearer ' + s.a, 'Content-Type': 'application/json' },
+      body: '{}'
+    }).then(function (r) { return r.json(); }).then(function (ok) {
+      if (ok === true) { window.__YK_ADMIN_OK = true; render(); }
+    }).catch(function () {});
   }
   function render(list) {
     var menu = document.getElementById('menu');
@@ -274,10 +271,10 @@
     menu.innerHTML = '';
     var cols = el('<div class="menu-cols" id="menu-cols"></div>');
     permFilter(list || NAV).forEach(function (col) { cols.appendChild(buildCol(col)); });
-    cols.appendChild(buildOwner());
     menu.appendChild(cols);
     if (!document.getElementById('topbar-acct')) menu.appendChild(buildAcctBottom());
     paintAcctBtn();
+    checkAdminMenu(); // 登录态下确认一次 shop_is_admin，确认后重建菜单补上 Admin 子项
   }
 
   // ── 数据库同步（全站同一份数据：照片分区 / 区域标题与显隐 / BJD 名单 / 色卡名单）──
@@ -290,6 +287,10 @@
   }
 
   function refresh() {
+    try {
+      var st = JSON.parse(localStorage.getItem('yuki-user-session') || 'null') || JSON.parse(localStorage.getItem('yuki-admin-session') || 'null');
+      if (!(st && (st.a || st.r))) { window.__YK_ADMIN_OK = false; window.__YK_ADMIN_CHECKED = false; } // 登出后重置，避免残留管理员入口
+    } catch (e) {}
     render();
     Promise.all([
       dbFetch('photo_sections?select=id,key,name_zh,name_en,sort&order=sort.asc,created_at.asc&limit=100'),
@@ -317,7 +318,8 @@
       if (gal) {
         var secs = sections.filter(function (s) { return s.key !== 'bjd'; })
           .map(function (s) { return { key: s.key, zh: s.name_zh, en: s.name_en, page: 'photos', url: '/photos/?sec=' + encodeURIComponent(s.key), sec: s.key, area: 'gallery' }; });
-        var statics = gal.items.filter(function (it) { return it.key === 'bjd' || it.key === 'cards'; });
+        // 她 20261117 15:15：重建时保留稿件/BJD/色卡/Photo Gallery 四个静态入口（Photo Gallery 恢复原照片页入口，不丢）
+        var statics = gal.items.filter(function (it) { return it.key === 'bjd' || it.key === 'cards' || it.key === 'works' || it.key === 'photos'; });
         gal.items = secs.concat(statics);
         var ga = areas.gallery;
         if (ga && ga.title_zh) { gal.zh = ga.title_zh; gal.en = ga.title_en || ga.title_zh; }
@@ -372,7 +374,8 @@
     if (burger) { setMenu(!document.getElementById('menu').classList.contains('open')); return; }
     var toggle = e.target.closest('.menu-toggle');
     if (toggle && toggle.closest('#menu')) {
-      if (!isMobile()) return; // 桌面端栏头常开，不可折叠
+      if (!isMobile()) return; // 桌面端栏头是链接，直接跳转
+      e.preventDefault(); // 手机端栏头 = 手风琴展开（她 20261117 15:15：桌面可点跳转，手机继续折叠）
       toggle.closest('.menu-group').classList.toggle('open');
       return;
     }

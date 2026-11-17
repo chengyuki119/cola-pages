@@ -79,9 +79,11 @@
   color: var(--text);
   cursor: pointer;
   text-align: left;
+  text-decoration: none; /* 她 20261117 15:15：栏头改为 <a> 可点链接 */
   transition: background .2s;
 }
 .menu-toggle:hover, .menu-group.open .menu-toggle, .menu-group.active .menu-toggle { background: var(--card); }
+.menu-group.current > .menu-toggle { background: var(--accent-soft,#FCECF2); font-weight: 600; } /* 栏头指向当前页时的粉色高亮 */
 /* 栏头：编号 + 中文标题 + 英文辅助标题 */
 .menu-toggle .menu-col-num {
   font-size: 12px;

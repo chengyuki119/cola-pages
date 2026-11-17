@@ -149,10 +149,8 @@
     var pub = S.rests.filter(function (r) { return r.status === 'published'; }).length;
     var hid = S.rests.length - pub;
     var feat = S.rests.filter(function (r) { return r.is_featured; }).length;
-    var y1 = S.rests.filter(function (r) { return r.yuzu_rating === 1; }).length;
-    var y2 = S.rests.filter(function (r) { return r.yuzu_rating === 2; }).length;
-    var y3 = S.rests.filter(function (r) { return r.yuzu_rating === 3; }).length;
-    var hot = S.rests.filter(function (r) { return r.yuzu_rating === 3; }).slice(0, 5)
+    var yc = {}; [1,2,3,4,5].forEach(function (n) { yc[n] = S.rests.filter(function (r) { return r.yuzu_rating === n; }).length; }); // 她 20261117：评级扩到 1~5 颗柚子
+    var hot = S.rests.filter(function (r) { return (r.yuzu_rating || 0) >= 4; }).slice(0, 5)
       .map(function (r) { return '<div style="display:flex;gap:8px;align-items:center;padding:4px 0;">' + yuzuIco(r.yuzu_rating) + '<span>' + esc(r.name) + '</span></div>'; }).join('');
     document.getElementById('fdm-sub-dash').innerHTML =
       '<div class="card" style="max-width:none;">' +
@@ -160,7 +158,7 @@
       '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px;">' +
       stat('待审投稿', S.subs.filter(function (s) { return s.status === 'pending'; }).length) +
       stat('餐厅总数', S.rests.length) + stat('已发布', pub) + stat('隐藏', hid) + stat('精选', feat) +
-      stat('柚子 🍊', y1) + stat('柚子🍊🍊', y2) + stat('柚子🍊🍊🍊', y3) + stat('地区数', S.regions.length) +
+      stat('柚子 🍊', yc[1]) + stat('柚子🍊🍊', yc[2]) + stat('柚子🍊🍊🍊', yc[3]) + stat('柚子🍊🍊🍊🍊', yc[4]) + stat('柚子🍊🍊🍊🍊🍊', yc[5]) + stat('地区数', S.regions.length) +
       '</div>' +
       '<h3 style="font-size:16px;">各国家和地区餐厅数</h3>' +
       (Object.keys(byCountry).map(function (c) {
@@ -496,7 +494,7 @@
       ffield('ff-parking', '停车信息', f.parking, '100%') + ffield('ff-resv', '预订信息', f.reservation, '100%') + '</div></div>' +
       '<div class="fdm-row">' +
       '<div class="fdm-field"><label>柚子评级（官方）</label><select id="ff-yuzu">' +
-      '<option value="">未评级</option>' + [1, 2, 3].map(function (n) {
+      '<option value="">未评级</option>' + [1, 2, 3, 4, 5].map(function (n) {
         return '<option value="' + n + '"' + (Number(f.yuzu_rating) === n ? ' selected' : '') + '>' + n + ' 个柚子</option>';
       }).join('') + '</select></div>' +
       '<div class="fdm-field" style="flex:1 1 280px;"><label>推荐理由（评级时展示）</label><input id="ff-ynote" value="' + esc(f.yuzu_note || '') + '"></div>' +

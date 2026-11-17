@@ -772,12 +772,12 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     .form-grid, .edit-grid { grid-template-columns: 1fr; }
   }
 </style>
-  <link rel="stylesheet" href="site-menu.css?v=20261117F">
+  <link rel="stylesheet" href="site-menu.css?v=20261117I">
   <style>
     /* 后台菜单已随全站改为顶部下拉（她 20261117 PART B），旧手机抽屉宽度覆盖已删 */
     /* 登录视图旧规则（460 窄列居中）已删——她 20261108 16:58 改按前台子页面 1200 版式，见上方 body:not(.adm-in) 区块 */
   </style>
-  <script src="site-menu.js?v=20261117H" defer></script>
+  <script src="site-menu.js?v=20261117I" defer></script>
   <link rel="stylesheet" href="/css/button-theme.css?v=20261112A">
   <style>
     /* ═══ 她 20261030 §5：后台字体统一加深（三档，仅后台生效）═══
@@ -952,7 +952,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
 </head>
 <body>
 <header class="topbar">
-  <div class="lang-switch" id="admin-lang" style="display:none;">
+  <div class="lang-switch" id="admin-lang">
     <button class="lang-btn" data-lang="zh" type="button">简体中文</button>
     <button class="lang-btn" data-lang="en" type="button">English</button>
   </div>
@@ -962,6 +962,10 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3.5h2.2l2.3 11.2a1.8 1.8 0 0 0 1.8 1.4h8.5a1.8 1.8 0 0 0 1.8-1.4l1.5-8.2H6"/></svg>
       <span class="topbar-cart-badge" id="topbar-cart-badge" style="display:none;">0</span>
     </a>
+    <button class="topbar-acct" id="topbar-acct" aria-label="Account"> <!-- 她 20261117 15:22：后台顶栏补账号按钮（点去前台账号页），不再只剩购物车+汉堡 -->
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8.2" r="3.4"/><path d="M5 20c.8-3.6 3.6-5.6 7-5.6s6.2 2 7 5.6"/></svg>
+      <span class="topbar-acct-dot"></span>
+    </button>
     <button class="burger" id="burger" aria-label="菜单">
       <span></span><span></span><span></span>
     </button>
@@ -1616,9 +1620,11 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   })();
   // 语言切换（她 20261026 最终合并版 §1.1）：与前台同一存储键 yuki-lang；切换后重载让 t() 动态文案生效
   (function () {
-    // 她 20261030 §9.2：后台统一中文，不跟随前台语言切换（后台语言按钮已隐藏）
-    window.LANG = 'zh';
-    document.documentElement.lang = 'zh-CN';
+    // 她 20261117 15:22：后台恢复语言按钮——跟随 yuki-lang（默认中文），切换后整页重载
+    var saved = 'zh';
+    try { saved = localStorage.getItem('yuki-lang') || 'zh'; } catch (err) {}
+    window.LANG = saved;
+    document.documentElement.lang = saved === 'en' ? 'en' : 'zh-CN';
     var box = document.getElementById('admin-lang');
     if (!box) return;
     function paint() { box.querySelectorAll('.lang-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.lang === window.LANG); }); }
@@ -7551,7 +7557,7 @@ function loadEmailLog() {
 <script src="js/admin-shop.js?v=20261112T"></script>
 <script src="js/foodie-coord.js?v=20261116B"></script>
 <script src="js/foodie-map-engine.js?v=20261117A"></script>
-<script src="js/admin-foodie.js?v=20261116B"></script>
+<script src="js/admin-foodie.js?v=20261117B"></script>
 <script src="js/name-lexicon.js?v=20261117A"></script>
 <script src="js/admin-lexicon.js?v=20261117B"></script>
 <script src="js/admin-covers.js?v=20261117A"></script>
