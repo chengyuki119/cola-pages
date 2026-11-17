@@ -343,14 +343,18 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
   select { font-family: inherit; font-size: 15px; color: var(--text, #65515D); background: #fff; border: 1.5px solid var(--border, #F9E5ED); border-radius: 10px; padding: 7px 10px; outline: none; max-width: 100%; cursor: pointer; box-sizing: border-box; }
   select:focus { border-color: var(--text, #65515D); }
 </style>
-  <link rel="stylesheet" href="/site-menu.css?v=20261117C">
+  <link rel="stylesheet" href="/site-menu.css?v=20261117D">
   <script src="/js/site-common.js?v=20261117A"></script>
-  <script src="/site-menu.js?v=20261117C" defer></script>
+  <script src="/site-menu.js?v=20261117D" defer></script>
   <link rel="stylesheet" href="/css/button-theme.css?v=20261112A">
     <link rel="stylesheet" href="/css/input-unify.css?v=20261107H">
   </head>
 <body>
 <header class="topbar">
+    <div class="lang-switch">
+    <button class="lang-btn" data-lang="zh">简体中文</button>
+    <button class="lang-btn" data-lang="en">English</button>
+  </div>
   <a class="site-logo" href="/zh/" aria-label="回主页"><img src="/logo.png" alt="logo"></a>
   <div class="topbar-right">
     <a class="topbar-cart" id="topbar-cart" href="/zh/shop/?sec=cart" aria-label="购物车">

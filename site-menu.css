@@ -62,14 +62,7 @@
 }
 .menu a:hover, .menu a.active { background: var(--card); }
 
-/* 语言切换行（她 02:59 确认：从顶栏挪进展开菜单顶部，lang-path.js 接管点击） */
-.menu-lang {
-  display: flex; align-items: center; gap: 8px;
-  padding: 0 0 12px;
-  border-bottom: 1px solid var(--card-hover,#F9E5ED);
-  margin-bottom: 12px;
-}
-.menu-lang .menu-lang-label { font-size: 13px; color: var(--muted,#897783); margin-right: auto; }
+/* 语言切换行（已撤出菜单：她 20261117 03:38 指示保留顶栏原本的切换器，菜单里不重复渲染） */
 
 /* 横向多栏分组容器：桌面端一排多栏，手机端纵向 */
 .menu-cols { display: flex; flex-direction: column; gap: 2px; }

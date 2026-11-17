@@ -181,16 +181,7 @@
     }).catch(function () { fail(); go(false); });
   }
 
-  // ── 语言切换行（展开菜单顶部；lang-path.js 在捕获阶段接管 .lang-btn 点击）──
-  function buildLangRow() {
-    if (curPage === 'admin') return el('<div style="display:none;"></div>'); // 后台隐藏语言切换，保留原有布局
-    var isZh = normPath(location.pathname).indexOf('/zh') === 0 || location.pathname.indexOf('/zh') === 0;
-    return el('<div class="menu-lang" id="menu-lang">'
-      + '<span class="menu-lang-label">' + span('语言 · Language', 'Language') + '</span>'
-      + '<button class="lang-btn' + (isZh ? ' active' : '') + '" data-lang="zh" type="button">简体中文</button>'
-      + '<button class="lang-btn' + (isZh ? '' : ' active') + '" data-lang="en" type="button">English</button>'
-      + '</div>');
-  }
+  // ── 语言切换行（已按她 20261117 03:38 指示撤出菜单：原本顶栏的切换器保留原位，这里不再重复渲染）──
 
   // ── 六栏渲染 ──
   function buildCol(col) {
@@ -256,7 +247,6 @@
     var menu = document.getElementById('menu');
     if (!menu) return;
     menu.innerHTML = '';
-    menu.appendChild(buildLangRow());
     var cols = el('<div class="menu-cols" id="menu-cols"></div>');
     permFilter(list || NAV).forEach(function (col) { cols.appendChild(buildCol(col)); });
     cols.appendChild(buildOwner());
