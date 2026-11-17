@@ -25,8 +25,7 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; color-scheme: light; scrollbar-gutter: stable; }
   body {
-    /* 她 20261117 15:32：全站背景图（柚子的甜品店插画），fixed+cover，卡片内容浮在其上 */
-    background: var(--bg) url("/img/bg-yuki-cafe.jpg") center / cover no-repeat fixed;
+    background: var(--bg); /* 她 20261117 15:45：全站背景保持原单色（插画只用于主页朋友圈封面） */
     color: var(--text);
     font-family: var(--font-body);
     line-height: 1.6;
@@ -139,9 +138,9 @@
     padding: 80px 24px 64px;
   }
 
-  /* ===== 主页背景：她 20261117 15:32 指定全站背景图（柚子的甜品店插画），首页同款不再单独纯色 ===== */
+  /* ===== 主页背景（仅首页生效）：几乎纯色，只留极淡的上下过渡（她 20261117 15:45 维持原样） ===== */
   body.home {
-    background: var(--bg,#FFF8FA) url("/img/bg-yuki-cafe.jpg") center / cover no-repeat fixed;
+    background: linear-gradient(180deg, var(--bg,#FFF8FA) 0%, var(--bg,#FFF8FA) 100%);
   }
 
   section { margin-bottom: 56px; }
