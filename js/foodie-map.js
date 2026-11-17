@@ -76,13 +76,15 @@
 
   function renderMarkers(rows) {
     if (!adapter) return;
-    adapter.clearMarkers();
-    adapter.addMarkers(rows, {
-      // 她 20261117 §九：点击地图标记直接进入该餐厅详情页（与列表点击同一目标）
-      onMarkerClick: function (r) {
-        location.href = F.detailUrl(r);
-      }
-    });
+    try { // 引擎异常时不拖累列表与搜索（她 §三：搜索失败不能让页面无响应）
+      adapter.clearMarkers();
+      adapter.addMarkers(rows, {
+        // 她 20261117 §九：点击地图标记直接进入该餐厅详情页（与列表点击同一目标）
+        onMarkerClick: function (r) {
+          location.href = F.detailUrl(r);
+        }
+      });
+    } catch (e) { /* 标记失败不阻塞 */ }
   }
 
   function refresh() {
@@ -144,15 +146,19 @@
     buildMap(reg);
   }
 
-  /* 她 20261117 §八：定位（仅本页内存使用；拒绝/失败静默回退，不报错不卡住）*/
+  /* 她 20261117 §八：定位（仅本页内存使用）；01:50 追加：定位成功后在地图上显示「当前在这里」粉点标记，拒绝/失败有友好提示但不影响搜索 */
   var AUTO_LOC_DONE = false;
-  function locateMe(zoom) {
+  function locateMe(zoom, silent) {
     if (!navigator.geolocation || !adapter) return;
     navigator.geolocation.getCurrentPosition(function (p) {
       USER_LOC = [p.coords.latitude, p.coords.longitude];
+      if (adapter.setUserLoc) adapter.setUserLoc(USER_LOC[0], USER_LOC[1]); // 当前位置粉点
       refresh(); // 附近餐厅排到列表前面
       if (adapter) adapter.flyTo(p.coords.latitude, p.coords.longitude, zoom || 12);
-    }, function () {}, { timeout: 8000, maximumAge: 300000 });
+      if (!silent) flashStatus(F.t('located'), 2600);
+    }, function () {
+      if (!silent) flashStatus(F.t('locDeny'), 4000); // 拒绝权限/失败：友好提示，定位不影响搜索
+    }, { timeout: 8000, maximumAge: 300000 });
   }
 
   /* 创建/重建地图适配器：按地区自动选引擎（§一.4）*/
@@ -164,6 +170,7 @@
     if (adapter) { adapter.destroy(); adapter = null; } // 任务书 §一.5：销毁旧实例
     E.load({ el: el, center: center, zoom: zoom, country: FILTER.country, cfg: E._cfg || null }).then(function (a) {
       adapter = a;
+      if (USER_LOC && a.setUserLoc) a.setUserLoc(USER_LOC[0], USER_LOC[1]); // 重建地图后恢复当前位置粉点
       renderMarkers(current());
       // 引擎信息轻提示（§六：显示当前坐标系统）
       var st = document.getElementById('fd-status');
@@ -173,30 +180,52 @@
         setTimeout(function () { if (st.textContent === label) st.textContent = ''; }, 2600);
       }
       // 她 20261117 §八：首次进入（Global）自动尝试定位到用户附近；拒绝权限则保持默认视野
-      if (!AUTO_LOC_DONE && !FILTER.country) { AUTO_LOC_DONE = true; locateMe(12); }
+      if (!AUTO_LOC_DONE && !FILTER.country) { AUTO_LOC_DONE = true; locateMe(12, true); }
     }).catch(function () { /* load 内部已降级 leaflet，不会到这里 */ });
   }
 
-  /* ── 搜索：本地餐厅优先，空结果走 Nominatim ── */
+  /* ── 搜索：本地餐厅优先（命中则飞到第一个匹配餐厅）；空结果走 Nominatim 地点搜索 ──
+     她 20261117 01:31 任务书 §三：搜索按钮/Enter 触发、加载态防重复、无结果/失败明确提示 */
+  function setSearchBusy(b) {
+    var btn = document.getElementById('fd-search-go');
+    if (btn) { btn.disabled = b; }
+  }
+  function flashStatus(msg, ms) {
+    var st = document.getElementById('fd-status');
+    if (!st) return;
+    st.textContent = msg || '';
+    if (msg) setTimeout(function () { if (st.textContent === msg) st.textContent = ''; }, ms || 4000);
+  }
   function doSearch(q) {
     FILTER.q = q;
     var rows = current();
     refresh();
-    if (rows.length) return;
+    if (rows.length) {
+      // 本地餐厅命中：飞到第一个有坐标的匹配餐厅，标记已在地图上（搜到→地图移动+标记可见）
+      var first = rows.filter(function (r) { return r.latitude != null && r.longitude != null; })[0];
+      if (first && adapter) adapter.flyTo(Number(first.latitude), Number(first.longitude), 15);
+      flashStatus(F.t('foundN').replace('{n}', rows.length));
+      return;
+    }
     if (!q || GEO_BUSY) return;
     GEO_BUSY = true;
-    document.getElementById('fd-status').textContent = '…';
+    setSearchBusy(true);
+    flashStatus(F.t('searching'), 15000); // 加载中提示
     var cc = REGIONS.filter(function (x) { return x.code === FILTER.country; }).map(function (x) { return x.code.toLowerCase(); }).join(',');
     var url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(q) + (cc ? '&countrycodes=' + cc : '');
     fetch(url).then(function (r) { return r.json(); }).then(function (js) {
       if (js && js[0]) {
         if (adapter) adapter.flyTo(Number(js[0].lat), Number(js[0].lon), 12);
-        document.getElementById('fd-status').textContent = '';
+        flashStatus(F.t('placeFound'), 2600);
       } else {
-        document.getElementById('fd-status').textContent = '';
+        flashStatus(F.t('noResult'), 4000); // 无结果：明确提示
       }
-    }).catch(function () { document.getElementById('fd-status').textContent = ''; })
-      .finally(function () { GEO_BUSY = false; });
+    }).catch(function () {
+      flashStatus(F.t('searchErr'), 4000); // 失败：明确提示，不无响应
+    }).finally(function () {
+      GEO_BUSY = false;
+      setSearchBusy(false);
+    });
   }
 
   function init() {
@@ -226,10 +255,27 @@
         applyRegion();
       };
       document.getElementById('fd-locate').onclick = function () { locateMe(13); };
+      // 她 20261117 01:31 §三：搜索按钮 + Enter + 输入框可清空
+      var qInput = document.getElementById('fd-q');
+      var clearBtn = document.getElementById('fd-q-clear');
+      if (qInput && !qInput.placeholder) qInput.placeholder = F.t('searchPh');
       document.getElementById('fd-search-form').addEventListener('submit', function (e) {
         e.preventDefault();
-        doSearch((document.getElementById('fd-q').value || '').trim());
+        doSearch((qInput.value || '').trim());
       });
+      var goBtn = document.getElementById('fd-search-go');
+      if (goBtn) goBtn.addEventListener('click', function () { doSearch((qInput.value || '').trim()); });
+      if (clearBtn) {
+        qInput.addEventListener('input', function () { clearBtn.style.display = qInput.value ? '' : 'none'; });
+        clearBtn.addEventListener('click', function () {
+          qInput.value = '';
+          FILTER.q = '';
+          clearBtn.style.display = 'none';
+          refresh(); // 清空后恢复完整列表
+          document.getElementById('fd-status').textContent = '';
+          qInput.focus();
+        });
+      }
       document.getElementById('fd-list').addEventListener('click', function (e) {
         var a = e.target.closest('[data-rid]');
         if (!a) return;

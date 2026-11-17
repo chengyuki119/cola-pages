@@ -39,7 +39,16 @@
 .fd-card-loc { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
 
 /* ── 柚子评级（品牌 SVG，1~3 个柚子）── */
-/* 她 20261117 §三：Leaflet 降级瓦片同款柔和观感（低饱和+提亮+轻暖调，接近 Snow Yuzu 地图样式） */
+/* 她 20261117 01:50：当前位置标记（粉点+呼吸光晕，三引擎同款；仅本页内存展示，不上传不存储） */
+.fd-loc-engine { position: relative; display: flex; width: 34px; height: 34px; align-items: center; justify-content: center; }
+.fd-loc-halo { position: absolute; left: 0; top: 0; width: 34px; height: 34px; border-radius: 50%; background: rgba(244,143,177,.30); animation: fdLocPulse 2s ease-out infinite; }
+.fd-loc-dot { position: relative; width: 16px; height: 16px; border-radius: 50%; background: #F48FB1; border: 2.5px solid #FFFFFF; box-shadow: 0 1px 6px rgba(180,120,150,.45); }
+@keyframes fdLocPulse { 0% { transform: scale(.55); opacity: .9; } 70% { transform: scale(1.3); opacity: 0; } 100% { transform: scale(1.3); opacity: 0; } }
+
+/* 她 20261117 01:50：搜索按钮加载态 */
+.fd-map-cta[disabled] { opacity: .6; cursor: wait; }
+
+/* 她 20261117：Leaflet 降级瓦片同款柔和观感（低饱和+提亮+轻暖调，接近 Snow Yuzu 地图样式） */
 .leaflet-container img.leaflet-tile { filter: saturate(.55) brightness(1.05) contrast(.92) sepia(.08); }
 .fd-yuzu { display: inline-flex; align-items: center; gap: 2px; flex-shrink: 0; }
 .fd-yuzu svg { width: 20px; height: 20px; }

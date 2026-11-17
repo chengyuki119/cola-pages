@@ -80,6 +80,14 @@
     return el;
   }
 
+  /* 她 20261117 01:50：当前位置标记（区分柚子餐厅 pin 的粉点+呼吸光晕，仅本页内存展示） */
+  function locDom() {
+    var el = document.createElement('span');
+    el.className = 'fd-loc-engine';
+    el.innerHTML = '<span class="fd-loc-halo"></span><span class="fd-loc-dot"></span>';
+    return el;
+  }
+
   /* ── Google 适配器 ── */
   function GoogleAdapter(opts) {
     var self = this;
@@ -159,6 +167,16 @@
         }
       });
     }
+  };
+  GoogleAdapter.prototype.setUserLoc = function (lat, lng) {
+    if (this.locMarker) { this.locMarker.map = null; this.locMarker = null; }
+    this.locMarker = new google.maps.marker.AdvancedMarkerElement({
+      map: this.map,
+      position: { lat: lat, lng: lng },
+      content: locDom(),
+      title: 'Current location',
+      zIndex: 2000
+    });
   };
   GoogleAdapter.prototype.openPopup = function (r, html) {
     if (!this.info) this.info = new google.maps.InfoWindow({ maxWidth: 250 });
@@ -259,6 +277,12 @@
       });
     }
   };
+  AMapAdapter.prototype.setUserLoc = function (lat, lng) {
+    if (this.locMarker) { this.locMarker.setMap(null); this.locMarker = null; }
+    var g = window.FoodieCoord ? window.FoodieCoord.wgs2gcj(lat, lng) : [lat, lng]; // 入库 WGS-84 → 显示 GCJ-02
+    this.locMarker = new AMap.Marker({ position: [g[1], g[0]], content: locDom(), anchor: 'center', zIndex: 200, title: 'Current location' });
+    this.locMarker.setMap(this.map);
+  };
   AMapAdapter.prototype.openPopup = function (r, html) {
     if (!this.info) this.info = new AMap.InfoWindow({ isCustom: true, offset: new AMap.Pixel(0, -36) });
     var wrap = document.createElement('div');
@@ -343,6 +367,14 @@
     if (this.cluster) this.cluster.addLayers(group);
     else group.forEach(function (m) { m.addTo(this.map); }, this);
   };
+  LeafletAdapter.prototype.setUserLoc = function (lat, lng) {
+    var self = this;
+    if (self.locMarker) { self.map.removeLayer(self.locMarker); self.locMarker = null; }
+    self.locMarker = L.marker([lat, lng], {
+      icon: L.divIcon({ className: '', html: locDom().outerHTML, iconSize: [34, 34], iconAnchor: [17, 17] }),
+      interactive: false, zIndexOffset: 1000
+    }).addTo(self.map);
+  };
   LeafletAdapter.prototype.openPopup = function (r) {
     var m = this.markers[r.id];
     if (m) m.openPopup();
@@ -366,6 +398,7 @@
   window.FoodieMapEngine = {
     fetchConfig: fetchConfig,
     pinDom: pinDom,
+    locDom: locDom,
     /* 决定某地区用哪个引擎；cfg 为空/缺 key 时一律 leaflet */
     pickEngine: function (country, cfg) {
       if (!cfg) return 'leaflet';
