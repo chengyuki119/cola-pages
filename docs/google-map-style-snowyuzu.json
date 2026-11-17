@@ -1,0 +1,28 @@
+{
+  "name": "Snow Yuzu Soft",
+  "_说明": "她 20261117 第二任务书 第三部分：低饱和度柔和 Snow Yuzu 配色。用法见同目录 google-map-style-使用说明.md —— 在 Google Cloud Console「Map Styles」新建样式 → 导入本 JSON → 关联到现有 mapId（978a3c94f7738f2f991725ef），地图页与主页地图共用同一 mapId，自动同步。",
+  "mapId关联提示": "创建样式时选 'JavaScript' 并关联现有 Map ID；无需改任何前端代码。",
+  "styles": [
+    { "elementType": "geometry", "stylers": [{ "color": "#f7f3f4" }] },
+    { "elementType": "labels.text.fill", "stylers": [{ "color": "#4a5568" }] },
+    { "elementType": "labels.text.stroke", "stylers": [{ "color": "#fdfbfc" }] },
+    { "featureType": "administrative", "elementType": "geometry.stroke", "stylers": [{ "color": "#e3d5db" }] },
+    { "featureType": "administrative.land_parcel", "elementType": "labels.text.fill", "stylers": [{ "color": "#8a7a83" }] },
+    { "featureType": "landscape.natural", "stylers": [{ "color": "#f6f1ee" }] },
+    { "featureType": "poi", "stylers": [{ "color": "#f3ecef" }] },
+    { "featureType": "poi.park", "stylers": [{ "color": "#e3efe2" }] },
+    { "featureType": "poi.park", "elementType": "labels.text.fill", "stylers": [{ "color": "#7fa07f" }] },
+    { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#ece7ea" }] },
+    { "featureType": "road", "elementType": "geometry.stroke", "stylers": [{ "color": "#e6dde1" }] },
+    { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#f0dfe6" }] },
+    { "featureType": "road.highway", "elementType": "geometry.stroke", "stylers": [{ "color": "#ecd3dd" }] },
+    { "featureType": "road.highway", "elementType": "labels.text.fill", "stylers": [{ "color": "#6d5c66" }] },
+    { "featureType": "road.arterial", "elementType": "labels.text.fill", "stylers": [{ "color": "#6d5c66" }] },
+    { "featureType": "road.local", "elementType": "labels.text.fill", "stylers": [{ "color": "#8a7a83" }] },
+    { "featureType": "transit", "stylers": [{ "color": "#f0e8ec" }] },
+    { "featureType": "transit.line", "elementType": "geometry", "stylers": [{ "color": "#e8dde3" }] },
+    { "featureType": "water", "stylers": [{ "color": "#dceaf2" }] },
+    { "featureType": "water", "elementType": "labels.text.fill", "stylers": [{ "color": "#7fa3c0" }] },
+    { "featureType": "building", "elementType": "geometry", "stylers": [{ "color": "#fbf3ef" }] }
+  ]
+}

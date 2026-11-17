@@ -1009,6 +1009,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         <button class="tab-btn" data-tab="works">稿件管理</button>
         <div class="pp-group">商城管理</div>
         <button class="tab-btn" data-tab="shop">小铺管理</button>
+        <button class="tab-btn" data-tab="lexicon">词库管理</button>
+        <button class="tab-btn" data-tab="commreq">定制申请</button>
         <button class="tab-btn" data-tab="reviews">评价返图管理</button>
         <button class="tab-btn" data-tab="shopmgr">订单管理</button>
         <button class="tab-btn" data-tab="vip">客户与会员</button>
@@ -1025,6 +1027,51 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       </div>
     </div>
 
+
+    <!-- 词库管理（她 20261117 第二任务书 §8）-->
+    <div id="tab-lexicon" style="display:none;">
+      <style>
+        .lx-wrap { max-width: none; } /* 她 20261117 01:25：后台按显示器自适应 */
+        .lx-card { background:#fff; border:1.5px solid #F9E5ED; border-radius:16px; padding:18px 20px; margin-bottom:14px; }
+        .lx-row { display:grid; grid-template-columns: 200px 160px 1fr 40px; gap:8px; align-items:center; margin-bottom:8px; }
+        .lx-head { font-size:14px; color:#897783; margin-bottom:6px; }
+        .lx-row input { border:1.5px solid #F9E5ED; border-radius:10px; padding:8px 12px; font-family:inherit; font-size:15px; color:#65515D; background:#fff; outline:none; width:100%; box-sizing:border-box; }
+        .lx-row input:focus { border-color:#F6C5D7; }
+        .lx-ip { font-size:15px; font-weight:600; color:#B98598; margin:14px 0 8px; }
+        .lx-btn { border:1.5px solid #F8DDE8; background:#FCECF2; color:#65515D; border-radius:999px; padding:8px 20px; font-family:inherit; font-size:15px; cursor:pointer; }
+        .lx-btn.primary { background:#F6C5D7; border-color:#F8DDE8; font-weight:600; }
+        .lx-x { border:none; background:none; color:#C4636E; font-size:18px; cursor:pointer; }
+        @media (max-width: 760px) { .lx-row { grid-template-columns: 1fr 1fr; } .lx-row .lx-alias { grid-column: 1 / -1; } }
+      </style>
+      <div class="lx-wrap">
+        <div class="lx-card">
+          <b style="font-size:17px;">商品名称词库</b>
+          <p style="font-size:14px;color:#897783;margin:6px 0 0;">标准英文名是识别主键；中文名与别名用于识别。改名/改别名保存后立即生效（商品添加识别 + 小铺搜索共用）。种子词库已内置 VALORANT / Sanrio / 其他 IP。</p>
+        </div>
+        <div class="lx-card" id="lx-chars"></div>
+        <div class="lx-card" id="lx-types"></div>
+        <div style="display:flex;gap:10px;position:sticky;bottom:10px;">
+          <button class="lx-btn primary" id="lx-save">保存词库</button>
+          <button class="lx-btn" id="lx-addchar">＋ 添加角色</button>
+          <button class="lx-btn" id="lx-addtype">＋ 添加商品类型</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 定制申请（她 20261117 第二任务书 第二部分 §六）-->
+    <div id="tab-commreq" style="display:none;">
+      <style>
+        .cr-card { background:#fff; border:1.5px solid #F9E5ED; border-radius:16px; padding:16px 18px; margin-bottom:12px; max-width: 900px; }
+        .cr-mat { font-size:14px; color:#65515D; background:#FCECF2; border-radius:10px; padding:6px 10px; display:inline-block; margin:4px 6px 0 0; }
+      </style>
+      <div style="max-width:none;">
+        <div style="display:flex;gap:8px;margin-bottom:14px;">
+          <button class="lx-btn on" id="cr-f-pending" style="border-radius:999px;">待处理</button>
+          <button class="lx-btn" id="cr-f-done" style="border-radius:999px;">已处理</button>
+        </div>
+        <div id="cr-list"></div>
+      </div>
+    </div>
 
     <!-- 留言管理 -->
     <div id="tab-messages" style="display:none;">
@@ -1213,6 +1260,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
             <input id="p-unit" placeholder="商品单位，如 个 / 件 / 套（选填）">
             <input id="p-cost" type="number" min="0" step="0.01" placeholder="商品成本（只有你自己看得到）">
             <input id="p-sku" placeholder="商品条码（选填，唯一编号）">
+            <div class="cur-line" style="grid-column:1/-1;"><span style="font-size:15px;color:var(--muted);">所属区域</span><div id="p-sec-row" style="display:flex;gap:8px;flex-wrap:wrap;"><button type="button" class="cur-chip on" data-psec="product">普通商品</button><button type="button" class="cur-chip" data-psec="material">手作素材</button></div></div>
+            <div id="p-mat-row" style="grid-column:1/-1;display:none;"><div class="cur-line"><span style="font-size:15px;color:var(--muted);">素材分类</span><div style="display:flex;gap:8px;" id="p-mcat-row"><button type="button" class="cur-chip" data-mcat="转印贴">转印贴</button><button type="button" class="cur-chip" data-mcat="3D模具">3D 模具</button><button type="button" class="cur-chip" data-mcat="布料">布料</button></div><p class="cur-hint">素材与普通商品同库存/购物车/订单体系，只是在前台单独展示</p></div></div>
             <input id="p-cat" placeholder="商品分类（点一下可选已有分类）">
             <input id="p-tag" placeholder="商品标签，如 手作 / 毛线 / 黏土">
           </div>
@@ -2135,6 +2184,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     try { if (btn) btn.scrollIntoView({ block: 'nearest' }); } catch (e) {}
     try { window.scrollTo(0, 0); } catch (e) {} // §1.1 右侧新页面主体从顶部显示
     setTimeout(function () { try { window.scrollTo(0, 0); } catch (e) {} }, 80); // 异步渲染后再次确认（不刷新页面、不清表单）
+    if (name === 'lexicon' && window.AdminLexicon) window.AdminLexicon.renderLexicon();
+    if (name === 'commreq' && window.AdminLexicon) window.AdminLexicon.renderCommReq();
     if (name === 'works') renderWorks();
     if (name === 'reviews') loadReviewsAdmin();
     if (name === 'system') { loadEmailLog(); if (window.AdminInvite) window.AdminInvite.boot(); }
@@ -2669,7 +2720,9 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       // 她 20261104 §四.1：商品编码留空就自动发一个（SY-P00001），规格 SKU 自动 SY-P00001-001
       var _code = _sku || (window.ykNextProdCode ? window.ykNextProdCode() : '');
       if (_code) body.sku = _code;
-      if (_cat) body.category = _cat;
+      var _sec = window.__lxSecCategory ? window.__lxSecCategory() : null;
+      if (_sec && _sec.sec === 'material') { if (_sec.cat) body.category = _sec.cat; } // 她 20261117：素材分类写进 category，前台据此分区
+      else if (_cat) body.category = _cat;
       if (_nen) body.name_en = _nen;
       var av = window.smAddVarCollect ? window.smAddVarCollect() : []; // 上架时一并提交规格（她 2026-10-25 要求上架页也能加规格）
       if (av.length) {
@@ -2677,6 +2730,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         body.variants = av;
       }
       if (urls.length > 1) body.images = urls; // 多图：images 列还没建时下面会自动降级为只存主图
+      (function () { var _lx = window.__lxCollectFields ? window.__lxCollectFields() : {}; Object.keys(_lx).forEach(function (k) { body[k] = _lx[k]; }); })(); // 她 20261117 §8.7：保留原始输入与识别结果（列没建自动降级）
       var tryPost = function (b, triedCur) {
         return api('products', { method: 'POST', body: JSON.stringify(b) }).then(function (r) {
           if (r.ok) return r;
@@ -2693,7 +2747,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
             });
           }
           if (b.unit || b.sku || b.category || b.name_en || b.cover_zh || b.cover_en) { // unit/sku/category/name_en/cover 列还没建：去掉重试，其余字段照常入库
-            delete b.unit; delete b.sku; delete b.category; delete b.name_en; delete b.cover_zh; delete b.cover_en;
+            delete b.unit; delete b.sku; delete b.category; delete b.name_en; delete b.cover_zh; delete b.cover_en; delete b.name_raw; delete b.name_match;
             return tryPost(b, true).then(function (r2) {
               if (!r2.ok) throw new Error();
               toast('单位/编码/分类的列还没建，这次先只存名称价格等；跑建列 SQL 后可以再补');
@@ -7506,6 +7560,8 @@ function loadEmailLog() {
 <script src="js/foodie-coord.js?v=20261116B"></script>
 <script src="js/foodie-map-engine.js?v=20261117A"></script>
 <script src="js/admin-foodie.js?v=20261116B"></script>
+<script src="js/name-lexicon.js?v=20261117A"></script>
+<script src="js/admin-lexicon.js?v=20261117A"></script>
 <script src="vendor/leaflet/leaflet.js?v=20261114A"></script>
 <script src="js/admin-import.js?v=20261105C"></script>
 <script src="js/admin-crm.js?v=20261108K"></script>

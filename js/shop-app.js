@@ -1923,16 +1923,83 @@
   window.addEventListener('pageshow', function (e) {
     if (e.persisted) { try { location.reload(); } catch (err) {} }
   });
-  // ===== 列表增强：排序/筛选已按她 20261103 要求删掉（分类筛选条不再显示），仅保留在售/已下架分区渲染 ====
+  // ===== 列表增强：排序/筛选已按她 20261103 要求删掉；她 20261117 第二任务书：商品/手作素材双区块 + 分类 + 搜索 + 瀑布流 =====
+  var SHOP_MAT_CATS = ['转印贴', '3D模具', '布料'];
+  var SHOP_MAT_EN = { '转印贴': 'Transfer Stickers', '3D模具': '3D Molds', '布料': 'Fabrics' };
+  var SHOP_SECTION_KEY = 'yuki-shop-section';
+  var SHOP_MAT_KEY = 'yuki-shop-matcat';
+  window.__shopQ = '';
+  function isMat(p) { return SHOP_MAT_CATS.indexOf(p.category) > -1; }
+  function dispCat(p) {
+    var c = p.category || '';
+    if (window.LANG === 'en') return SHOP_MAT_EN[c] || Y18(c, 'en');
+    return Y18(c, 'zh');
+  }
   function enhanceList() {
     if (window.__ACCOUNT_DEFAULT_SEC) return; // 独立账号页：不拉商品列表
     var grid = document.getElementById('product-grid');
     if (window.__shopPaint) return;
     function paint() {
-      var list = PRODUCTS.slice();
-      var onSale = list.filter(function (p) { return statusOfG(p) !== 'out'; });
-      var past = list.filter(function (p) { return statusOfG(p) === 'out'; });
       var g = document.getElementById('product-grid');
+      var secbar = document.getElementById('shop-secbar');
+      var matbar = document.getElementById('shop-matbar');
+      var sbox = document.getElementById('shop-searchbox');
+      var mats = PRODUCTS.filter(isMat);
+      var prods = PRODUCTS.filter(function (p) { return !isMat(p); });
+      var sec = 'product';
+      try { sec = sessionStorage.getItem(SHOP_SECTION_KEY) || 'product'; } catch (e) {}
+      if (sec === 'material' && !mats.length) sec = 'product';
+      // 区块切换条：只有真有手作素材时才出现（她 §2.1：商品与手作素材并列切换）
+      if (secbar) {
+        secbar.style.display = mats.length ? 'flex' : 'none';
+        secbar.innerHTML =
+          '<button type="button" class="shop-sec-chip' + (sec === 'product' ? ' on' : '') + '" data-ssec="product">' + t('商品', 'Products') + '</button>' +
+          '<button type="button" class="shop-sec-chip' + (sec === 'material' ? ' on' : '') + '" data-ssec="material">' + t('手作素材', 'Handmade Materials') + '</button>';
+        secbar.querySelectorAll('[data-ssec]').forEach(function (b) {
+          b.addEventListener('click', function () {
+            try { sessionStorage.setItem(SHOP_SECTION_KEY, b.getAttribute('data-ssec')); } catch (e) {}
+            paint();
+          });
+        });
+      }
+      var list = sec === 'material' ? mats : prods;
+      // 素材分类条（她 §2.1：转印贴 / 3D 模具 / 布料）
+      var matCat = '';
+      try { matCat = sessionStorage.getItem(SHOP_MAT_KEY) || ''; } catch (e) {}
+      if (matbar) {
+        matbar.style.display = (sec === 'material') ? 'flex' : 'none';
+        matbar.innerHTML = [''].concat(SHOP_MAT_CATS).map(function (c) {
+          return '<button type="button" class="shop-mat-chip' + (matCat === c ? ' on' : '') + '" data-mcat="' + escAttr(c) + '">' + (c ? (window.LANG === 'en' ? SHOP_MAT_EN[c] : c) : t('全部', 'All')) + '</button>';
+        }).join('');
+        matbar.querySelectorAll('[data-mcat]').forEach(function (b) {
+          b.addEventListener('click', function () {
+            try { sessionStorage.setItem(SHOP_MAT_KEY, b.getAttribute('data-mcat')); } catch (e) {}
+            paint();
+          });
+        });
+      }
+      if (sec === 'material' && matCat) list = list.filter(function (p) { return p.category === matCat; });
+      // 搜索（她 §8.11：昵称/标准中文名/标准英文名都能搜到同一商品——词库别名扩展）
+      if (sbox) {
+        sbox.style.display = PRODUCTS.length ? 'flex' : 'none';
+        var si = document.getElementById('shop-q');
+        if (si && si.placeholder === undefined) si.placeholder = t('搜索商品…', 'Search products…');
+        if (si && !si.dataset.bound) {
+          si.dataset.bound = '1';
+          si.addEventListener('input', function () { window.__shopQ = si.value.trim(); paint(); });
+        }
+        if (si && si.value !== window.__shopQ) si.value = window.__shopQ;
+      }
+      var q = (window.__shopQ || '').toLowerCase();
+      if (q) {
+        var terms = (window.NameLexicon ? NameLexicon.searchTerms(window.__shopQ) : [window.__shopQ]).map(function (x) { return String(x).toLowerCase(); });
+        list = list.filter(function (p) {
+          var hay = String((p.name || '') + ' ' + (p.name_en || '') + ' ' + (p.tag || '') + ' ' + (p.category || '')).toLowerCase();
+          return terms.some(function (x) { return hay.indexOf(x) > -1; });
+        });
+      }
+      var onSale = list.filter(function (p) { return statusOfG(p) !== 'out'; });
+      g.classList.add('masonry'); // 她 §四：两列错落瀑布流，图片保持原比例
       g.innerHTML = onSale.length ? onSale.map(productCardShop).join('') : '<p style="grid-column:1/-1;text-align:center;color:var(--muted);">' + t('没有找到相关商品', 'Nothing found') + '</p>';
       bindCards(g);
       // 她 20261107：往期商品区块已整块删掉（不再区分在售/售尽展示，售尽商品也不上前台列表）
@@ -1967,7 +2034,7 @@
       '<button type="button" class="fav-btn' + (isFav(p.id) ? ' on' : '') + '" data-fav="' + escAttr(p.id) + '" aria-label="' + t('收藏', 'Favorite') + '">' + svgHeart(isFav(p.id)) + '</button></div>' +
       '<div class="product-info">' +
       '<div style="display:flex;align-items:center;gap:8px;min-width:0;">' +
-      '<span class="product-tag" style="margin-bottom:0;">' + esc(dispTag(p) || t('没有标签', 'Untagged')) + '</span>' +
+      '<span class="product-tag" style="margin-bottom:0;">' + esc((isMat(p) ? dispCat(p) : dispTag(p)) || t('没有标签', 'Untagged')) + '</span>' +
       productEditBtn(p) +
       '</div>' +
       '<h3 style="margin-top:6px;">' + esc(dispName(p)) + '</h3>' +

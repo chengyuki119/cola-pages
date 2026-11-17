@@ -4,7 +4,7 @@
    本文件只服务 /foodie/ 子页，不影响其他页面样式。 */
 
 /* ── 区块骨架 ── */
-.fd-wrap { max-width: 1500px; margin: 0 auto; } /* 她 20261117 §三：与全站统一 1500px */
+.fd-wrap { max-width: 1080px; margin: 0 auto; } /* 她 20261117 01:25：前台回原宽度 */
 @media (min-width: 761px) {
   .fd-map-side { width: 360px; }
 }
@@ -39,6 +39,8 @@
 .fd-card-loc { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
 
 /* ── 柚子评级（品牌 SVG，1~3 个柚子）── */
+/* 她 20261117 §三：Leaflet 降级瓦片同款柔和观感（低饱和+提亮+轻暖调，接近 Snow Yuzu 地图样式） */
+.leaflet-container img.leaflet-tile { filter: saturate(.55) brightness(1.05) contrast(.92) sepia(.08); }
 .fd-yuzu { display: inline-flex; align-items: center; gap: 2px; flex-shrink: 0; }
 .fd-yuzu svg { width: 20px; height: 20px; }
 .fd-yuzu-lg svg { width: 26px; height: 26px; }
@@ -69,7 +71,7 @@
 .fd-leaflet-pop a { color: #F48FB1; font-size: 14px; text-decoration: none; }
 
 /* ── 详情页 ── */
-.fd-detail { max-width: 1500px; margin: 0 auto; } /* 她 20261117 §三：全站统一宽度 */
+.fd-detail { max-width: 860px; margin: 0 auto; }
 .fd-detail-cover { position: relative; width: 100%; padding-top: 46%; border-radius: 18px; overflow: hidden; background: var(--accent-soft,#FCECF2); border: 1.5px solid var(--card-border,#F9E5ED); }
 .fd-detail-cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .fd-cover-ph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: var(--accent-soft,#FCECF2); }
