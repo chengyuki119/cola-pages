@@ -111,10 +111,35 @@
 
   // ── 顶栏账号按钮（PART B：右上角账号入口，旁边是汉堡）──
   // 未登录 → /account/?next=回跳；已登录 → RPC 专属确认分流（专属→后台/买家→账户页）
+  // 小圆点（她 20261117 03:41）：不常驻——只有管理员有没看过的新订单才显示；
+  // 已读标记 = 她进过后台（admin 页面打开时把 lastseen 刷到当下）
+  var ORDERS_SEEN_KEY = 'yuki-orders-lastseen';
   function paintAcctBtn() {
+    if (curPage === 'admin') { // 进过后台 = 已看过，清掉小红点（后台无账号按钮也要刷标记）
+      try { localStorage.setItem(ORDERS_SEEN_KEY, String(Date.now())); } catch (e) {}
+    }
     var b = document.getElementById('topbar-acct');
     if (!b) return;
-    b.classList.toggle('is-in', !!readSession());
+    var s = readSession();
+    if (!s || !s.a) return;
+    // 用 shop_is_admin（后台登录验证同一套服务端判定）而不是柚子专属白名单
+    fetch(DB_BASE + 'rpc/shop_is_admin', {
+      method: 'POST',
+      headers: { 'apikey': DB_KEY, 'Authorization': 'Bearer ' + s.a, 'Content-Type': 'application/json' },
+      body: '{}'
+    }).then(function (r) { return r.json(); }).then(function (ok) {
+      if (ok === true) checkNewOrders(b, s.a); // 只有管理员看得到订单点，买家不显示
+    }).catch(function () {});
+  }
+  function checkNewOrders(btn, token) {
+    var last = Number((function () { try { return localStorage.getItem(ORDERS_SEEN_KEY) || '0'; } catch (e) { return '0'; } })());
+    fetch(DB_BASE + 'shop_orders?select=created_at&order=created_at.desc&limit=1', {
+      headers: { 'apikey': DB_KEY, 'Authorization': 'Bearer ' + token }
+    }).then(function (r) { return r.ok ? r.json() : []; }).then(function (rows) {
+      if (rows[0] && rows[0].created_at && new Date(rows[0].created_at).getTime() > last) {
+        btn.classList.add('has-update');
+      }
+    }).catch(function () {}); // 拿不到就安静地不显示，绝不乱点
   }
   function goAccountBtn(btn) {
     var acct = (typeof window.ykLink === 'function') ? window.ykLink('/account/') : '/account/';

@@ -217,7 +217,8 @@
   background: var(--accent-strong, #F6C5D7);
   display: none;
 }
-.topbar-acct.is-in .topbar-acct-dot { display: block; }
+/* 她 20261117 03:41：账号点不在常驻显示，只有管理员有没看过的新订单时才出现（逻辑见 site-menu.js checkNewOrders） */
+.topbar-acct.has-update .topbar-acct-dot { display: block; }
 .topbar-cart-badge {
   position: absolute; top: -5px; right: -5px;
   min-width: 19px; height: 19px; border-radius: 999px;
