@@ -1,5 +1,17 @@
+.btn-save, .btn-save-tb, .btn-ok, .btn-cancel, .btn-del, .back-link,
+.home-long-btn, .er-btn-main, .er-btn-soft, .gate button, .adm-home-btn,
+.track-search button, #pp-btn, #cal-form .ev-save, #cal-form .ev-cancel,
+.ask-card > button, .aix-add, .btn-save-link, .sm-o-retry, .sm-var-add,
+.mo-additem, .mo-save, .ex-go, .po-save,
+.buy-btn, .tab-btn, .lx-btn, .fd-map-cta, .sel-btn, .cal-btn, .idx-btn,
+.card-edit-btn, .adm-subtab, .btn-mini {
+  padding: var(--btn-pad-y) var(--btn-pad-x) !important;
+  border-radius: var(--btn-radius) !important;
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    全站按钮 / 选择控件 统一配色（20261030 总任务书）
+
    ---------------------------------------------------------------------------
    只改颜色：背景色、描边色、文字色（含 hover / active / disabled / selected）。
    不改任何尺寸、位置、圆角、字号、内外边距、排列顺序，不加缩放/位移动画。
@@ -18,6 +30,15 @@
    注意：--accent / --accent-soft / --accent-strong / --price 允许被后台"主题颜色"（Supabase）
    覆写，而本文件的 --btn-* / --opt-* 令牌不在那张映射表里，所以按钮配色不会被主题色带偏。
    ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ═══ 她 20261117 15:32 UI 最终检查：全站按钮几何统一 ═══
+   文字按钮统一几何：上下 10px / 左右 14px、圆角 10px，按钮围绕文字自然包裹。
+   图标按钮（qty / share / fav / lightbox 等）与选择 chip 不在此列，属独立类型。 */
+:root {
+  --btn-pad-y: 10px;
+  --btn-pad-x: 14px;
+  --btn-radius: 10px;
+}
 
 :root {
   /* 普通按钮 */
@@ -823,7 +844,8 @@ textarea {
 
 /* 2. 首页长按钮：同一个胶囊形，悬停跟随主按钮（原来用 brightness 滤镜，会显得更脏） */
 .home-long-btn {
-  border-radius: 999px !important;
+  border-radius: var(--btn-radius) !important; /* 她 20261117 15:32：胶囊改统一 10px 圆角 */
+  padding: var(--btn-pad-y) var(--btn-pad-x) !important;
 }
 .home-long-btn:hover {
   background-color: var(--btn-pri-bg-h) !important;

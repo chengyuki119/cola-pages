@@ -34,7 +34,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    background: var(--bg);
+    background: var(--bg) url("/img/bg-yuki-cafe.jpg") center / cover no-repeat fixed; /* 她 20261117 15:32 全站背景图 */
     color: var(--text);
     font-family: "Millo Body", -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
     line-height: 1.6;
@@ -325,7 +325,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
   .pdp .pg-wrap { width: 100%; max-width: 100%; margin: 0 auto; }
   .pdp .pg-img { object-fit: contain !important; background: #fff; } /* 主图完整显示不裁切（她 2026-10-26）；列表卡仍 cover 填满 */
   .pdp .d-price > div:first-child { font-size: 28px !important; }
-  .pdp .d-actions .buy-btn { /* 主粉统一（她 20261029 §4） */ flex: 1; min-width: 120px; justify-content: center; padding: 13px 22px !important; font-size: 17px; }
+  .pdp .d-actions .buy-btn { /* 主粉统一（她 20261029 §4） */ flex: 1; min-width: 120px; justify-content: center; padding: var(--btn-pad-y,10px) var(--btn-pad-x,14px) !important; font-size: 17px; }
 }
   /* ===== 商城新增：视图 / 规格 / 订单 / 拼团 ===== */
   .sku-chip { border: 2px solid #F6C5D7; background: #fff; color: var(--text,#65515D); border-radius: 999px; padding: 7px 16px; font-size: 16px; font-family: inherit; cursor: pointer; transition: all .2s; }
@@ -368,12 +368,12 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
   .keycap-notes-wrap .pol-card p { margin: 0 0 10px; }
   .keycap-notes-wrap .pol-card p:last-child { margin-bottom: 0; }
 </style>
-  <link rel="stylesheet" href="/site-menu.css?v=20261117I">
+  <link rel="stylesheet" href="/site-menu.css?v=20261117J">
   <script src="/js/site-common.js?v=20261117A"></script>
   <script src="/js/policy-content.js?v=20261105C"></script>
-  <script src="/site-menu.js?v=20261117I" defer></script>
+  <script src="/site-menu.js?v=20261117J" defer></script>
 <script src="/js/page-covers.js?v=20261117A" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261112A">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261117B">
     <link rel="stylesheet" href="/css/input-unify.css?v=20261107H">
   <style id="pdp-desktop-notes">
 /* 她 20261112 01:51 §二：商品详情页电脑端布局（只改 ≥640px；手机端一行都不改，保持现状）
@@ -457,7 +457,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
         <span id="r-file-name" style="font-size:16px;color:var(--muted);"><span data-zh="未选择图片" data-en="No photo chosen">未选择图片</span></span>
       </div>
       <div class="actions" style="display:flex;justify-content:flex-end;margin-top:10px;">
-        <button class="buy-btn" id="r-submit" style="padding:8px 22px;"><span data-zh="提交评价" data-en="Submit">提交评价</span></button>
+        <button class="buy-btn" id="r-submit" style=""><span data-zh="提交评价" data-en="Submit">提交评价</span></button>
       </div>
     </div>
     <div id="review-list"><p style="text-align:center;color:var(--muted);font-size:17px;">加载中…</p></div>

@@ -13,20 +13,19 @@
   <meta property="og:image" content="https://yukicheng.com/og-image.jpg">
   <link rel="icon" type="image/png" sizes="32x32" href="/icon-yuki2-32.png">
 <link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki2-180.png">
-  <link rel="stylesheet" href="/css/site.css?v=20261117A">
-  <link rel="stylesheet" href="/site-menu.css?v=20261117I">
+  <link rel="stylesheet" href="/css/site.css?v=20261117B">
+  <link rel="stylesheet" href="/site-menu.css?v=20261117J">
   <link rel="stylesheet" href="/css/foodie.css?v=20261117E">
   <script src="/js/site-common.js?v=20261117A"></script>
-  <script src="/site-menu.js?v=20261117I" defer></script>
+  <script src="/site-menu.js?v=20261117J" defer></script>
 <script src="/js/page-covers.js?v=20261117A" defer></script>
   <script src="/js/foodie-app.js?v=20261117B" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261112A">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261117B">
   <style>
     .fd-hero { margin: 4px 0 18px; }
     .fd-hero h1 { font-size: 25px; font-weight: 700; color: var(--text,#65515D); margin: 0; }
     .fd-hero p { font-size: 16px; color: var(--muted,#897783); margin: 6px 0 0; line-height: 1.7; }
-    .fd-map-cta { display: inline-flex; align-items: center; gap: 8px; background: var(--accent-soft,#FCECF2); border: 1.5px solid var(--card-border,#F9E5ED); color: var(--accent-strong,#B98598); border-radius: 999px; padding: 11px 22px; font-size: 16px; font-weight: 600; text-decoration: none; font-family: inherit; }
-    .fd-map-cta:hover { background: var(--opt-bg-h,#F6C5D7); }
+    /* .fd-map-cta 几何/配色统一走 css/foodie.css + css/button-theme.css（她 20261117 15:32），页内不再重复定义 */
   </style>
 </head>
 <body>
@@ -72,7 +71,7 @@
       <form class="fd-search" id="fd-search-form" action="#">
         <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
         <input type="search" id="fd-q" autocomplete="off">
-        <button class="fd-map-cta" type="submit" style="padding:8px 18px;" id="fd-search-go">Go</button>
+        <button class="fd-map-cta" type="submit" style="" id="fd-search-go">Go</button>
       </form>
       <div class="fd-regions" id="fd-regions"></div>
     </div>

@@ -160,8 +160,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .tab-btn { font-family: "Millo Body", -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
     flex: 1 1 auto; white-space: nowrap;
     border: none; background: var(--card);
-    font-size:16px; padding: 9px 12px;
-    border-radius: 12px; cursor: pointer;
+    font-size:16px; /* padding/圆角统一走 button-theme.css（她 20261117 15:32） */
+    cursor: pointer;
     color: var(--muted);
     transition: background .2s, color .2s;
   }
@@ -243,7 +243,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       padding: 8px 7px; /* 首尾条目不贴控制台上下边（她 20261029 验收反馈） */
     }
     /* 她 20261030 §3：桌面端菜单条目加高、字距放松，消除「太松散」与「字太小」 */
-    #pp-menu .tab-btn { font-size: 16.5px; padding: 11px 13px; line-height: 1.35; }
+    #pp-menu .tab-btn { font-size: 16.5px; line-height: 1.35; }
     /* 20261031 全站字号统一：后台操作按钮不再为了塞进一行缩到 13px，最低 14px（输入/提示文字不受影响） */
     .btn-mini { font-size: 14px !important; }
     #pp-menu .pp-group { font-size: 13px; padding: 10px 13px 4px; }
@@ -268,7 +268,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       box-shadow: 0 6px 20px rgba(255,143,171,.18); animation: ppIn .16s ease;
     }
     #pp-menu.open { display: block; }
-    #pp-menu .tab-btn { font-size: 14px; padding: 8px 10px; }
+    #pp-menu .tab-btn { font-size: 14px; }
     #pp-menu .pp-group { font-size: 12px; padding: 8px 10px 2px; }
     .adm-head { margin-left: 0; margin-bottom: 14px; padding: 26px 14px 0; box-sizing: border-box; align-items: center; } /* 整行下移离顶栏远一点，与下方选择器拉开（她 20261029 03:36：贴太近像重叠） */
     .adm-head-title { flex: 1 1 auto; min-width: 0; }
@@ -772,13 +772,13 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     .form-grid, .edit-grid { grid-template-columns: 1fr; }
   }
 </style>
-  <link rel="stylesheet" href="site-menu.css?v=20261117I">
+  <link rel="stylesheet" href="site-menu.css?v=20261117J">
   <style>
     /* 后台菜单已随全站改为顶部下拉（她 20261117 PART B），旧手机抽屉宽度覆盖已删 */
     /* 登录视图旧规则（460 窄列居中）已删——她 20261108 16:58 改按前台子页面 1200 版式，见上方 body:not(.adm-in) 区块 */
   </style>
-  <script src="site-menu.js?v=20261117I" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261112A">
+  <script src="site-menu.js?v=20261117J" defer></script>
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261117B">
   <style>
     /* ═══ 她 20261030 §5：后台字体统一加深（三档，仅后台生效）═══
        主要文字 #65515D ｜ 普通正文 #65515D ｜ 辅助文字 #897783
@@ -1040,7 +1040,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         .lx-row input { border:1.5px solid #F9E5ED; border-radius:10px; padding:8px 12px; font-family:inherit; font-size:15px; color:#65515D; background:#fff; outline:none; width:100%; box-sizing:border-box; }
         .lx-row input:focus { border-color:#F6C5D7; }
         .lx-ip { font-size:15px; font-weight:600; color:#B98598; margin:14px 0 8px; }
-        .lx-btn { border:1.5px solid #F8DDE8; background:#FCECF2; color:#65515D; border-radius:999px; padding:8px 20px; font-family:inherit; font-size:15px; cursor:pointer; }
+        .lx-btn { border:1.5px solid #F8DDE8; background:#FCECF2; color:#65515D; font-family:inherit; font-size:15px; cursor:pointer; } /* 几何统一走 button-theme.css */
         .lx-btn.primary { background:#F6C5D7; border-color:#F8DDE8; font-weight:600; }
         .lx-x { border:none; background:none; color:#C4636E; font-size:18px; cursor:pointer; }
         @media (max-width: 760px) { .lx-row { grid-template-columns: 1fr 1fr; } .lx-row .lx-alias { grid-column: 1 / -1; } }

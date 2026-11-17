@@ -25,7 +25,8 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; color-scheme: light; scrollbar-gutter: stable; }
   body {
-    background: var(--bg);
+    /* 她 20261117 15:32：全站背景图（柚子的甜品店插画），fixed+cover，卡片内容浮在其上 */
+    background: var(--bg) url("/img/bg-yuki-cafe.jpg") center / cover no-repeat fixed;
     color: var(--text);
     font-family: var(--font-body);
     line-height: 1.6;
@@ -138,9 +139,9 @@
     padding: 80px 24px 64px;
   }
 
-  /* ===== 主页背景（仅首页生效）：几乎纯色，只留极淡的上下过渡，无粉色雾化/光晕 ===== */
+  /* ===== 主页背景：她 20261117 15:32 指定全站背景图（柚子的甜品店插画），首页同款不再单独纯色 ===== */
   body.home {
-    background: linear-gradient(180deg, var(--bg,#FFF8FA) 0%, var(--bg,#FFF8FA) 100%);
+    background: var(--bg,#FFF8FA) url("/img/bg-yuki-cafe.jpg") center / cover no-repeat fixed;
   }
 
   section { margin-bottom: 56px; }
@@ -330,7 +331,7 @@
   .bjd-size-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
   .bjd-size-h { font-size:18px; margin: 20px 0 10px; }
   .bjd-size-h:first-child { margin-top: 0; }
-  .home-long-btn { display: block; text-align: center; margin-top: 14px; padding: 11px 0; font-size:17px; border-radius: 12px; background: #F6C5D7; color: #897783; font-weight: 600; text-decoration: none; transition: filter .2s; }
+  .home-long-btn { display: block; text-align: center; margin-top: 14px; padding: var(--btn-pad-y,10px) var(--btn-pad-x,14px); font-size:17px; border-radius: var(--btn-radius,10px); background: #F6C5D7; color: #897783; font-weight: 600; text-decoration: none; transition: filter .2s; }
   .home-long-btn:hover { filter: brightness(0.94); } /* 悬停变深不变浅（她 20261028 总任务书 6.2/6.3） */
   .home-long-btn:focus-visible { filter: brightness(0.94); outline: 2px solid var(--accent-strong,#897783); outline-offset: 2px; }
   #bjd-home-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; } /* §6.1 每行 5 个 */
@@ -665,7 +666,7 @@
   .pdp .pg-wrap { width: 100%; max-width: 100%; margin: 0 auto; }
   .pdp .pg-img { object-fit: cover !important; } /* 正方形填满不拉伸不空白（内联 contain 需 !important 压过） */
   .pdp .d-price > div:first-child { font-size: 28px !important; }
-  .pdp .d-actions .buy-btn { flex: 1; min-width: 120px; justify-content: center; padding: 13px 22px !important; font-size: 17px; }
+  .pdp .d-actions .buy-btn { flex: 1; min-width: 120px; justify-content: center; padding: var(--btn-pad-y,10px) var(--btn-pad-x,14px) !important; font-size: 17px; }
 }
 
 /* ═══ 首页小铺商品展示（视觉规范参考色卡页卡片）═══ */

@@ -33,7 +33,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    background: var(--bg);
+    background: var(--bg) url("/img/bg-yuki-cafe.jpg") center / cover no-repeat fixed; /* 她 20261117 15:32 全站背景图 */
     color: var(--text);
     font-family: "Millo Body", -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
     line-height: 1.6;
@@ -343,10 +343,10 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
   select { font-family: inherit; font-size: 15px; color: var(--text, #65515D); background: #fff; border: 1.5px solid var(--border, #F9E5ED); border-radius: 10px; padding: 7px 10px; outline: none; max-width: 100%; cursor: pointer; box-sizing: border-box; }
   select:focus { border-color: var(--text, #65515D); }
 </style>
-  <link rel="stylesheet" href="/site-menu.css?v=20261117I">
+  <link rel="stylesheet" href="/site-menu.css?v=20261117J">
   <script src="/js/site-common.js?v=20261117A"></script>
-  <script src="/site-menu.js?v=20261117I" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261112A">
+  <script src="/site-menu.js?v=20261117J" defer></script>
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261117B">
     <link rel="stylesheet" href="/css/input-unify.css?v=20261107H">
   </head>
 <body>
@@ -413,7 +413,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
         <span id="r-file-name" style="font-size:16px;color:var(--muted);"><span data-zh="未选择图片" data-en="No photo chosen">未选择图片</span></span>
       </div>
       <div class="actions" style="display:flex;justify-content:flex-end;margin-top:10px;">
-        <button class="buy-btn" id="r-submit" style="padding:8px 22px;"><span data-zh="提交评价" data-en="Submit">提交评价</span></button>
+        <button class="buy-btn" id="r-submit" style=""><span data-zh="提交评价" data-en="Submit">提交评价</span></button>
       </div>
     </div>
     <div id="review-list"><p style="text-align:center;color:var(--muted);font-size:17px;">加载中…</p></div>
@@ -424,7 +424,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     <h2 style="font-size:24px;margin-bottom:14px;display:flex;align-items:center;gap:8px;"><span style="width:4px;height:18px;background:var(--accent,#F9E5ED);border-radius:2px;display:inline-block;"></span><span data-zh="付款方式" data-en="Payment">付款方式</span></h2>
     <div class="pay-cta">
       <p data-zh="支持微信 / 支付宝，点下面看收款方式～" data-en="WeChat / Alipay — tap below to see the payment codes~">支持微信 / 支付宝，点下面看收款方式～</p>
-      <button class="buy-btn" id="pay-open" style="padding:10px 26px;"><span data-zh="查看收款方式" data-en="View payment methods">查看收款方式</span></button>
+      <button class="buy-btn" id="pay-open" style=""><span data-zh="查看收款方式" data-en="View payment methods">查看收款方式</span></button>
     </div>
   </section>
 

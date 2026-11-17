@@ -168,40 +168,6 @@
     }).catch(function () { done(); go(false); });
   }
 
-  // 菜单底部账户入口：仅无顶栏账号按钮的页面保留（如后台 admin.html）
-  function buildAcctBottom() {
-    var s = readSession();
-    var acct = (typeof window.ykLink === 'function') ? window.ykLink('/account/') : '/account/';
-    if (s) return el('<a class="menu-acct-bottom is-in" href="' + acct + '" data-acct="account">' + span('我的账户', 'My Account') + '</a>');
-    return el('<a class="menu-acct-bottom" href="' + acct + '?next=' + encodeURIComponent(location.pathname + location.search) + '" data-acct="account">' + span('登录', 'Log in') + '</a>');
-  }
-  // 已登录点「我的账户」：按真实专属身份（RPC）决定去向——专属→后台、买家→普通账户页；验证中保持加载态不误跳
-  function routeAccount(link) {
-    var acctURL = (typeof window.ykLink === 'function') ? window.ykLink('/account/') : '/account/';
-    if (typeof window.ykExclusiveCheck !== 'function') { location.href = acctURL; return; }
-    var restore = link.innerHTML;
-    link.classList.add('acct-loading');
-    link.innerHTML = span('身份确认中…', 'Checking…');
-    var go = function (exclusive) {
-      if (exclusive) { location.href = '/admin.html'; return; }
-      if (curPage === 'shop' && typeof window.__shopNav === 'function') { location.href = acctURL; return; }
-      location.href = acctURL;
-    };
-    var fail = function () { link.classList.remove('acct-loading'); link.innerHTML = restore; };
-    window.ykExclusiveCheck().then(function (res) {
-      if (res && res.ok === 'pending') {
-        setTimeout(function () {
-          try { window.YK_EXCLUSIVE_MEMO = null; } catch (e) {}
-          window.ykExclusiveCheck().then(function (r2) {
-            if (r2 && r2.ok === 'pending') { fail(); return; } // 仍未就绪：回原样，不误跳
-            go(!!(r2 && r2.ok === true));
-          }).catch(fail);
-        }, 2500);
-        return;
-      }
-      go(!!(res && res.ok === true));
-    }).catch(function () { fail(); go(false); });
-  }
 
   // ── 语言切换行（已按她 20261117 03:38 指示撤出菜单：原本顶栏的切换器保留原位，这里不再重复渲染）──
 
@@ -272,7 +238,6 @@
     var cols = el('<div class="menu-cols" id="menu-cols"></div>');
     permFilter(list || NAV).forEach(function (col) { cols.appendChild(buildCol(col)); });
     menu.appendChild(cols);
-    if (!document.getElementById('topbar-acct')) menu.appendChild(buildAcctBottom());
     paintAcctBtn();
     checkAdminMenu(); // 登录态下确认一次 shop_is_admin，确认后重建菜单补上 Admin 子项
   }
@@ -382,12 +347,6 @@
     var aa = e.target.closest('#menu a[data-acct]');
     if (aa) {
       setMenu(false);
-      if (aa.classList.contains('menu-acct-bottom') && readSession()) {
-        // 已登录：先过真实专属身份验证再决定去向（专属→后台 / 买家→账户页）
-        e.preventDefault();
-        routeAccount(aa);
-        return;
-      }
       if (curPage === 'shop' && typeof window.__shopNav === 'function') {
         e.preventDefault();
         window.__shopNav(aa.getAttribute('data-acct'));

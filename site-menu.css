@@ -60,7 +60,8 @@
   text-decoration: none;
   transition: background .2s;
 }
-.menu a:hover, .menu a.active { background: var(--card); }
+/* 她 20261117 15:32：三态统一——默认无底色，悬停浅粉，当前页深粉 */
+.menu a:hover { background: var(--accent-soft, #FCECF2); }
 
 /* 语言切换行（已撤出菜单：她 20261117 03:38 指示保留顶栏原本的切换器，菜单里不重复渲染） */
 
@@ -71,19 +72,19 @@
 .menu-group { display: flex; flex-direction: column; }
 .menu-toggle {
   display: flex; align-items: center; gap: 12px;
-  padding: 13px 16px;
+  padding: 10px 14px; /* 她 20261117 15:32：与子项同尺寸 */
   border: none;
   background: none;
-  border-radius: 12px;
-  font-size:18px;
+  border-radius: 10px;
+  font-size:17px;
   color: var(--text);
   cursor: pointer;
   text-align: left;
   text-decoration: none; /* 她 20261117 15:15：栏头改为 <a> 可点链接 */
   transition: background .2s;
 }
-.menu-toggle:hover, .menu-group.open .menu-toggle, .menu-group.active .menu-toggle { background: var(--card); }
-.menu-group.current > .menu-toggle { background: var(--accent-soft,#FCECF2); font-weight: 600; } /* 栏头指向当前页时的粉色高亮 */
+.menu-toggle:hover, .menu-group.open .menu-toggle { background: var(--accent-soft, #FCECF2); } /* 悬停=浅粉 */
+.menu-group.current > .menu-toggle { background: var(--btn-bg-a, #F6C5D7); font-weight: 600; } /* 当前页=深粉（与悬停两种状态） */
 /* 栏头：编号 + 中文标题 + 英文辅助标题 */
 .menu-toggle .menu-col-num {
   font-size: 12px;
@@ -112,7 +113,7 @@
   transition: max-height .3s ease;
 }
 .menu-group.open .submenu { max-height: 70vh; overflow-y: auto; }
-.submenu a { padding-left: 34px; font-size: 17px; color: var(--muted); }
+.submenu a { padding: 10px 14px 10px 34px; font-size: 17px; color: var(--muted); border-radius: 10px; } /* 与栏头同高度 */
 
 /* ═══ 桌面端（>700px）：横向多栏，栏头不可折叠、子项全部展开 ═══ */
 @media (min-width: 701px) {
@@ -124,38 +125,23 @@
     gap: 4px 20px;
   }
   .menu-cols .menu-group { flex: 1 1 150px; min-width: 148px; }
-  .menu-cols .menu-toggle { cursor: default; padding: 10px 14px; }
-  .menu-cols .menu-toggle:hover,
-  .menu-cols .menu-group.open .menu-toggle { background: none; }
+  .menu-cols .menu-toggle { cursor: default; }
   .menu-cols .menu-toggle .plus { display: none; }
   .menu-cols .submenu { max-height: none !important; overflow: visible; }
-  .menu-cols .submenu a { padding-left: 14px; }
-  .menu-cols .menu-owner-group { flex: 1 1 150px; min-width: 148px; }
+  .menu-cols .submenu a { padding: 10px 14px; }
 }
 
 .menu-link {
   display: flex; align-items: center; gap: 12px;
-  padding: 13px 16px;
-  border-radius: 12px;
-  font-size:18px;
-  color: var(--text);
-  text-decoration: none;
-  transition: background .2s;
-}
-.menu-link:hover { background: var(--card); }
-/* 柚子专属后台入口：展开菜单内一行（保留原有权限状态机） */
-.menu-owner {
-  margin-top: 4px;
-  display: flex; align-items: center; gap: 10px;
   padding: 10px 14px;
-  border-radius: 12px;
+  border-radius: 10px;
   font-size:17px;
   color: var(--text);
   text-decoration: none;
-  background: var(--card);
   transition: background .2s;
 }
-.menu-owner:hover { background: var(--card-hover); }
+.menu-link:hover { background: var(--accent-soft, #FCECF2); }
+/* 柚子专属独立入口已并入 05 账号栏 Admin 子项（她 20261117 15:15） */
 
 /* 聚焦可见性：键盘 Tab 时给清晰的粉色描边 */
 .menu a:focus-visible,
@@ -168,7 +154,7 @@
 }
 
 /* 当前所在页面：柔和粉色高亮（所有页面统一，只标当前，不重排不隐藏） */
-.menu a.current, .menu-link.current { background: var(--accent-soft,#FCECF2); font-weight: 600; }
+.menu a.current, .menu-link.current { background: var(--btn-bg-a,#F6C5D7); font-weight: 600; }
 .menu-group.current > .menu-toggle { background: var(--accent-soft,#FCECF2); font-weight: 600; }
 
 /* ═══ 她 20261117 02:59 任务书 PART B：顶栏改版 ═══
@@ -234,33 +220,7 @@
   .site-logo, .site-logo img { height: 40px; }
 }
 
-/* 菜单底部账户入口：仅后台等无顶栏账号按钮的页面保留 */
-.menu a.menu-acct-bottom {
-  margin-top: auto;
-  display: flex; align-items: center; justify-content: center;
-  min-height: 44px;
-  border-radius: 12px;
-  font-size: 17px;
-  text-decoration: none;
-  background: var(--accent,#F9E5ED); color: var(--text, #65515D); /* 登录按钮：粉底深字（她 2026-10-26 全站清浅底白字） */
-  transition: opacity .2s;
-}
-.menu-acct-bottom:hover { opacity: .88; }
-.menu a.menu-acct-bottom.is-in {
-  background: var(--accent-soft, #FCECF2); color: var(--text, #65515D); /* 已登录态：浅粉底深字 */
-  box-shadow: none;
-}
-
-/* 身份确认中占位（登录后权限 RPC 未返回前的过渡态，不提前降级显示） */
-.menu-owner-pending {
-  padding: 11px 16px;
-  border-radius: 12px;
-  font-size: 15px;
-  color: var(--muted, #897783);
-  background: var(--card, #FFFFFF);
-  text-align: center;
-}
-.menu-acct-bottom.acct-loading { pointer-events: none; opacity: .75; }
+/* 菜单底部横条账户入口已删除（她 20261117 15:32 §一.6：与账号栏 My Account 重复） */
 
 /* ═══ 手机端 Index 页面选择入口（她 20261028 总任务书 B3）═══ */
 .idx-wrap { position: relative; display: none; margin: 12px 12px 0; z-index: 80; }
