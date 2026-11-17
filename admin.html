@@ -1009,7 +1009,6 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         <div class="pp-group">商城管理</div>
         <button class="tab-btn" data-tab="shop">小铺管理</button>
         <button class="tab-btn" data-tab="lexicon">词库管理</button>
-        <button class="tab-btn" data-tab="commreq">定制申请</button>
         <button class="tab-btn" data-tab="reviews">评价返图管理</button>
         <button class="tab-btn" data-tab="shopmgr">订单管理</button>
         <button class="tab-btn" data-tab="vip">客户与会员</button>
@@ -1054,21 +1053,6 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           <button class="lx-btn" id="lx-addchar">＋ 添加角色</button>
           <button class="lx-btn" id="lx-addtype">＋ 添加商品类型</button>
         </div>
-      </div>
-    </div>
-
-    <!-- 定制申请（她 20261117 第二任务书 第二部分 §六）-->
-    <div id="tab-commreq" style="display:none;">
-      <style>
-        .cr-card { background:#fff; border:1.5px solid #F9E5ED; border-radius:16px; padding:16px 18px; margin-bottom:12px; max-width: 900px; }
-        .cr-mat { font-size:14px; color:#65515D; background:#FCECF2; border-radius:10px; padding:6px 10px; display:inline-block; margin:4px 6px 0 0; }
-      </style>
-      <div style="max-width:none;">
-        <div style="display:flex;gap:8px;margin-bottom:14px;">
-          <button class="lx-btn on" id="cr-f-pending" style="border-radius:999px;">待处理</button>
-          <button class="lx-btn" id="cr-f-done" style="border-radius:999px;">已处理</button>
-        </div>
-        <div id="cr-list"></div>
       </div>
     </div>
 
@@ -2193,7 +2177,6 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     try { window.scrollTo(0, 0); } catch (e) {} // §1.1 右侧新页面主体从顶部显示
     setTimeout(function () { try { window.scrollTo(0, 0); } catch (e) {} }, 80); // 异步渲染后再次确认（不刷新页面、不清表单）
     if (name === 'lexicon' && window.AdminLexicon) window.AdminLexicon.renderLexicon();
-    if (name === 'commreq' && window.AdminLexicon) window.AdminLexicon.renderCommReq();
     if (name === 'works') renderWorks();
     if (name === 'covers' && window.AdminCovers) window.AdminCovers.boot(); // 封面图管理（她 20261117 PART C）
     if (name === 'reviews') loadReviewsAdmin();
@@ -7570,7 +7553,7 @@ function loadEmailLog() {
 <script src="js/foodie-map-engine.js?v=20261117A"></script>
 <script src="js/admin-foodie.js?v=20261116B"></script>
 <script src="js/name-lexicon.js?v=20261117A"></script>
-<script src="js/admin-lexicon.js?v=20261117A"></script>
+<script src="js/admin-lexicon.js?v=20261117B"></script>
 <script src="js/admin-covers.js?v=20261117A"></script>
 <script src="vendor/leaflet/leaflet.js?v=20261114A"></script>
 <script src="js/admin-import.js?v=20261105C"></script>

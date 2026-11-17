@@ -2121,31 +2121,10 @@
         '<button type="button" class="acc-item" data-v="orders">' + t('我的订单', 'My Orders') + '</button></div>' +
         '<div class="acc-group"><div class="acc-group-title">' + t('互动', 'Activity') + '</div>' +
         '<button type="button" class="acc-item" data-v="myreviews">' + t('评价', 'Reviews') + '</button>' +
-        '<button type="button" class="acc-item" data-v="myquestions">' + t('留言', 'Messages') + '</button>' +
-        '<button type="button" class="acc-item acc-olw" data-olw="1" style="display:none;">' + t('我们的小世界 ♡', 'Our Little World ♡') + '</button></div>' +
+        '<button type="button" class="acc-item" data-v="myquestions">' + t('留言', 'Messages') + '</button></div>' +
         '<div class="acc-group"><button type="button" class="acc-logout" id="acc-logout">' + t('退出登录', 'Log out') + '</button></div>';
     }
     menu.innerHTML = inn;
-    revealOlw();
-  }
-  /* 她 20261117 02:22 任务书 §一：Our Little World 入口只给绑定成员和管理员看；
-     可见性走服务端 RLS（couple_members 非成员查到 0 行）+ shop_is_admin，前端只负责显隐 */
-  function revealOlw() {
-    var menu = document.getElementById('acc-menu');
-    var btn = menu && menu.querySelector('.acc-olw');
-    if (!btn) return;
-    btn.style.display = 'none';
-    var tok = USER && USER.a;
-    if (!tok) return;
-    fetch(SUPABASE_URL + '/rest/v1/couple_members?select=space_id&limit=1', { headers: { 'apikey': ANON, 'Authorization': 'Bearer ' + tok } })
-      .then(function (r) { return r.ok ? r.json() : []; })
-      .then(function (rows) {
-        if (rows && rows.length) { btn.style.display = ''; return; }
-        return fetch(SUPABASE_URL + '/rest/v1/rpc/shop_is_admin', { method: 'POST', headers: { 'apikey': ANON, 'Authorization': 'Bearer ' + tok, 'Content-Type': 'application/json' }, body: '{}' })
-          .then(function (r) { return r.ok ? r.json() : false; })
-          .then(function (v) { if (v === true) btn.style.display = ''; })
-          .catch(function () {});
-      }).catch(function () {});
   }
   function doLogout() { // 退出登录：侧栏常驻显眼按钮；先吊销服务端会话再清本地（她 20261029 任务书 §1.2）
     var at = USER && USER.a;
@@ -2166,7 +2145,6 @@
     menu.dataset.bound = '1';
     menu.addEventListener('click', function (e) {
       if (e.target.closest && e.target.closest('.acc-logout')) { doLogout(); return; }
-      if (e.target.closest && e.target.closest('.acc-olw')) { location.href = '/our-little-world/'; return; }
       var it = e.target.closest('.acc-item');
       if (it) accNav(it.getAttribute('data-v'));
     });

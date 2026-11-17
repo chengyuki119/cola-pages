@@ -1,7 +1,6 @@
-/* ═══════════ 词库管理 + 定制申请 + 商品表单智能识别（她 20261117 第二份任务书）
+/* ═══════════ 词库管理 + 商品表单智能识别（她 20261117 第二份任务书）
    自带鉴权（localStorage yuki-admin-session 的 access token / window.ACCESS），
-   依赖 js/name-lexicon.js（NameLexicon 全局）。RLS：词库 site_settings 管理员写，
-   commission_requests 匿名/登录可投稿、管理员读写（见 sql/commission-requests.sql）。 */
+   依赖 js/name-lexicon.js（NameLexicon 全局）。RLS：词库 site_settings 管理员写 */
 (function () {
   'use strict';
   var LX = window.NameLexicon;
@@ -222,68 +221,6 @@
     });
   }
 
-  /* ═══ 定制申请页签 ═══ */
-  var CR_FILTER = 'pending';
-  function renderCommReq() {
-    var btnP = document.getElementById('cr-f-pending');
-    var btnD = document.getElementById('cr-f-done');
-    if (btnP && !btnP.dataset.bound) {
-      btnP.dataset.bound = btnD.dataset.bound = '1';
-      btnP.addEventListener('click', function () { CR_FILTER = 'pending'; paintCrFilter(); paintCommReq(); });
-      btnD.addEventListener('click', function () { CR_FILTER = 'done'; paintCrFilter(); paintCommReq(); });
-    }
-    paintCrFilter();
-    paintCommReq();
-    function paintCrFilter() {
-      if (btnP) btnP.classList.toggle('on', CR_FILTER === 'pending');
-      if (btnD) btnD.classList.toggle('on', CR_FILTER === 'done');
-    }
-  }
-  function paintCommReq() {
-    var list = document.getElementById('cr-list');
-    if (!list) return;
-    list.innerHTML = '<p style="color:#897783;">加载中…</p>';
-    api('commission_requests?select=*&status=eq.' + CR_FILTER + '&order=created_at.desc').then(function (r) {
-      if (!r.ok) throw new Error('load fail');
-      return r.json();
-    }).then(function (rows) {
-      rows = rows || [];
-      if (!rows.length) { list.innerHTML = '<p style="color:#897783;">' + (CR_FILTER === 'pending' ? '没有待处理的定制申请' : '没有已处理的记录') + '</p>'; return; }
-      list.innerHTML = rows.map(function (c) {
-        var mats = Array.isArray(c.materials) ? c.materials : [];
-        return '<div class="cr-card" data-id="' + escAttr(c.id) + '">' +
-          '<div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;">' +
-            '<b style="font-size:16px;">' + escAttr(c.email || '') + '</b>' +
-            '<span style="font-size:13px;color:#897783;">' + new Date(c.created_at).toLocaleString() + '</span>' +
-          '</div>' +
-          (c.note ? '<p style="font-size:15px;line-height:1.7;margin:8px 0 0;">' + escAttr(c.note) + '</p>' : '') +
-          (mats.length ? '<div style="margin-top:8px;"><b style="font-size:14px;color:#897783;">想用的素材（仅供参考，不扣库存）：</b><br>' +
-            mats.map(function (m) { return '<span class="cr-mat">' + escAttr((m.name || m.id || '') + (m.category ? ' · ' + m.category : '') + (m.variant ? ' · ' + m.variant : '') + (m.qty && m.qty > 1 ? ' × ' + m.qty : '')) + '</span>'; }).join('') + '</div>' : '') +
-          '<div style="display:flex;gap:8px;margin-top:12px;">' +
-            '<button type="button" class="lx-btn lx-btn-primary cr-done">标为已处理</button>' +
-            '<button type="button" class="lx-btn cr-del" style="color:#C4636E;">删除</button>' +
-          '</div>' +
-        '</div>';
-      }).join('');
-      list.querySelectorAll('.cr-card').forEach(function (card) {
-        var id = card.getAttribute('data-id');
-        card.querySelector('.cr-done').addEventListener('click', function () {
-          api('commission_requests?id=eq.' + id, { method: 'PATCH', body: JSON.stringify({ status: 'done' }) }).then(function (r) {
-            if (r.ok) { toast('已标为已处理'); paintCommReq(); } else toast('操作失败（需要管理员登录态）');
-          });
-        });
-        card.querySelector('.cr-del').addEventListener('click', function () {
-          if (!confirm('删除这条定制申请？（不可恢复）')) return;
-          api('commission_requests?id=eq.' + id, { method: 'DELETE' }).then(function (r) {
-            if (r.ok) { toast('已删除'); paintCommReq(); } else toast('删除失败');
-          });
-        });
-      });
-    }).catch(function () {
-      list.innerHTML = '<p style="color:#897783;">加载失败。请先在 Supabase SQL Editor 执行 sql/commission-requests.sql（定制申请表）</p>';
-    });
-  }
-
   /* 启动：商品表单在 #tab-shop 内，页签显示时绑定；词库按钮也在此刻绑 */
   function bootLexicon() {
     initProdRecognize();
@@ -292,5 +229,5 @@
   }
   document.addEventListener('DOMContentLoaded', bootLexicon);
   if (document.readyState !== 'loading') bootLexicon();
-  window.AdminLexicon = { renderLexicon: renderLexicon, renderCommReq: renderCommReq };
+  window.AdminLexicon = { renderLexicon: renderLexicon };
 })();

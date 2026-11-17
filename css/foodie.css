@@ -48,6 +48,11 @@
 /* 她 20261117 01:50：搜索按钮加载态 */
 .fd-map-cta[disabled] { opacity: .6; cursor: wait; }
 
+/* 她 20261117 15:07：fd-map-cta 提升为共用样式（原来只写在 foodie 首页页内，
+   餐厅详情页拿不到 → Share 按钮露出原生白底黑框；单一来源在 foodie.css） */
+.fd-map-cta { display: inline-flex; align-items: center; gap: 8px; background: var(--accent-soft,#FCECF2); border: 1.5px solid var(--card-border,#F9E5ED); color: var(--accent-strong,#B98598); border-radius: 999px; padding: 11px 22px; font-size: 16px; font-weight: 600; text-decoration: none; font-family: inherit; cursor: pointer; }
+.fd-map-cta:hover { background: var(--opt-bg-h,#F6C5D7); }
+
 /* 她 20261117：Leaflet 降级瓦片同款柔和观感（低饱和+提亮+轻暖调，接近 Snow Yuzu 地图样式） */
 .leaflet-container img.leaflet-tile { filter: saturate(.55) brightness(1.05) contrast(.92) sepia(.08); }
 .fd-yuzu { display: inline-flex; align-items: center; gap: 2px; flex-shrink: 0; }
