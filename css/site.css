@@ -90,7 +90,7 @@
     min-height: 480px;
     background:
       linear-gradient(180deg, rgba(255,251,252,0) 82%, rgba(255,251,252,.8) 96%, var(--bg,#FFF8FA) 100%), /* 仅照片最底部一小段轻微过渡，避免大面积泛白 */
-      url("/cover.jpg"); /*  封面背景图：可在后台「主页管理」更换，图片本身颜色内容不动 */
+      url("/cover.jpg?v=20261117"); /*  封面背景图：可在后台「主页管理」更换；换图记得同步换这里的 v 参数（【73】缓存） */
     background-color: var(--bg);
     background-size: cover;
     background-position: center;
