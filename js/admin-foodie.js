@@ -28,10 +28,10 @@
   }
   function db() { return fetch(REST + 'food_restaurants?select=*&order=created_at.desc', { headers: HDRS() }).then(function (r) { return r.ok ? r.json() : []; }); }
 
-  var S = { regions: [], cats: [], rests: [], subs: [], sub: 'dash', editing: null, subView: null, map: null, marker: null };
+  var S = { regions: [], cats: [], rests: [], subs: [], sub: 'dash', editing: null, subView: null, map: null, marker: null, cfgRow: null, mapAdapter: null };
 
   var SUBS = [
-    ['dash', '总览'], ['subs', '投稿审核'], ['rests', '餐厅管理'], ['regions', '地区管理'], ['cats', '分类管理'], ['data', '数据 CSV']
+    ['dash', '总览'], ['subs', '投稿审核'], ['rests', '餐厅管理'], ['regions', '地区管理'], ['cats', '分类管理'], ['mapcfg', '地图服务'], ['data', '数据 CSV']
   ];
 
   /* ── 小件 ── */
@@ -107,6 +107,7 @@
       '<div id="fdm-sub-dash"></div><div id="fdm-sub-rests" style="display:none;"></div>' +
       '<div id="fdm-sub-subs" style="display:none;"></div>' +
       '<div id="fdm-sub-regions" style="display:none;"></div><div id="fdm-sub-cats" style="display:none;"></div>' +
+      '<div id="fdm-sub-mapcfg" style="display:none;"></div>' +
       '<div id="fdm-sub-data" style="display:none;"></div>';
     fdmSubStyle();
     document.getElementById('fdm-root').addEventListener('click', function (e) {
@@ -137,6 +138,7 @@
     else if (S.sub === 'rests') renderRests();
     else if (S.sub === 'regions') renderRegions();
     else if (S.sub === 'cats') renderCats();
+    else if (S.sub === 'mapcfg') renderMapCfg();
     else if (S.sub === 'data') renderData();
   }
 
@@ -467,7 +469,8 @@
       ffield('ff-lng', '经度 Longitude', f.longitude, '170px') +
       '<div class="fdm-field"><label>&nbsp;</label><button type="button" class="fdm-btn ghost" id="ff-pin">📍 在地图上点选</button></div>' +
       '<div class="fdm-field"><label>&nbsp;</label><button type="button" class="fdm-btn ghost" id="ff-geocode">🔎 按地址查询坐标</button></div></div>' +
-      '<div id="ff-mapbox" style="display:none;height:260px;border-radius:14px;border:1.5px solid #F9E5ED;overflow:hidden;margin-bottom:12px;"></div>' +
+      '<div id="ff-mapbox" style="display:none;height:260px;border-radius:14px;border:1.5px solid #F9E5ED;overflow:hidden;margin-bottom:6px;"></div>' +
+      '<div class="fdm-hint" id="ff-coordsys" style="margin:0 0 12px;display:none;"></div>' +
       '<div class="fdm-row">' + ffield('ff-phone', '电话', f.phone, '200px') +
       ffield('ff-web', '官网', f.website, '260px') + ffield('ff-menu', '菜单链接', f.menu_url, '260px') +
       '<div class="fdm-field"><label>价位</label><select id="ff-price">' +
@@ -540,38 +543,66 @@
       });
     };
     bindImgs();
-    // 地图点选
+    // 地图点选（她 20261115 地图引擎任务书 §六）：按所选地区自动选引擎，CN 高德选点自动 GCJ-02→WGS-84
+    function putEngineMarker(la, ln) {
+      if (!S.mapAdapter) return;
+      S.mapAdapter.clearMarkers();
+      S.mapAdapter.addMarkers([{ id: 'pick', latitude: la, longitude: ln, yuzu_rating: 0, name: '' }], {});
+    }
+    function coordsysHint(a) {
+      var el = document.getElementById('ff-coordsys');
+      el.style.display = '';
+      el.textContent = a.name === 'amap' ? '当前地图：高德 AMap · 显示 GCJ-02（选点会自动转回 WGS-84 保存）'
+        : (a.name === 'google' ? '当前地图：Google Maps · WGS-84' : '当前地图：OpenStreetMap 降级 · WGS-84（未配置 Google/高德 Key）');
+    }
     box.querySelector('#ff-pin').onclick = function () {
       var bx = document.getElementById('ff-mapbox');
       bx.style.display = '';
-      if (!S.map) {
-        S.map = L.map('ff-mapbox').setView([20, 0], 2);
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(S.map);
-        S.map.on('click', function (e) {
-          document.getElementById('ff-lat').value = e.latlng.lat.toFixed(6);
-          document.getElementById('ff-lng').value = e.latlng.lng.toFixed(6);
-          putMarker(e.latlng.lat, e.latlng.lng);
-        });
-      }
-      setTimeout(function () { S.map.invalidateSize(); }, 60);
+      var cc = document.getElementById('ff-country').value || '';
+      var reg = S.regions.filter(function (x) { return x.code === cc; })[0];
       var la = Number(document.getElementById('ff-lat').value), ln = Number(document.getElementById('ff-lng').value);
-      if (la && ln) { S.map.setView([la, ln], 14); putMarker(la, ln); }
+      if (!(la && ln)) { la = reg ? Number(reg.map_center_lat) : 20; ln = reg ? Number(reg.map_center_lng) : 0; }
+      if (S.mapAdapter) { S.mapAdapter.destroy(); S.mapAdapter = null; } // 每次打开按地区重建（避免引擎混用）
+      if (!window.FoodieMapEngine) { toast('地图引擎脚本未加载'); return; }
+      window.FoodieMapEngine.load({ el: bx, center: [la || 20, ln || 0], zoom: (document.getElementById('ff-lat').value ? 14 : (reg ? (reg.map_zoom || 4) : 2)), country: cc }).then(function (a) {
+        S.mapAdapter = a;
+        coordsysHint(a);
+        if (document.getElementById('ff-lat').value) putEngineMarker(Number(document.getElementById('ff-lat').value), Number(document.getElementById('ff-lng').value));
+        a.clickPoint(function (wla, wln) {
+          document.getElementById('ff-lat').value = wla.toFixed(6);
+          document.getElementById('ff-lng').value = wln.toFixed(6);
+          putEngineMarker(wla, wln);
+        });
+      }).catch(function (er) { toast('地图加载失败: ' + (er && er.message || '')); });
     };
-    function putMarker(la, ln) {
-      if (S.marker) S.map.removeLayer(S.marker);
-      S.marker = L.marker([la, ln]).addTo(S.map);
-    }
     box.querySelector('#ff-geocode').onclick = function () {
       var parts = [document.getElementById('ff-addr').value, document.getElementById('ff-city').value, document.getElementById('ff-postal').value, document.getElementById('ff-state').value].filter(Boolean).join(', ');
       if (!parts) { toast('先填地址再查询'); return; }
+      var cc = document.getElementById('ff-country').value || '';
       document.getElementById('ff-msg').textContent = '坐标查询中…';
+      var fill = function (la, ln, via) {
+        document.getElementById('ff-lat').value = Number(la).toFixed(6);
+        document.getElementById('ff-lng').value = Number(ln).toFixed(6);
+        document.getElementById('ff-msg').textContent = '已按地址填入坐标（' + via + '；可点「在地图上点选」微调）';
+        if (S.mapAdapter) { S.mapAdapter.flyTo(Number(la), Number(ln), 14); putEngineMarker(Number(la), Number(ln)); }
+      };
+      // CN 走高德地理编码（GCJ-02→WGS-84 入库），其余走 Nominatim（免费）
+      if (cc === 'CN' && window.AMap && window.FoodieCoord) {
+        window.AMap.plugin('AMap.Geocoder', function () {
+          var g = new window.AMap.Geocoder({});
+          g.getLocation(parts, function (status, result) {
+            if (status === 'complete' && result.geocodes && result.geocodes[0] && result.geocodes[0].location) {
+              var p = result.geocodes[0].location;
+              var w = window.FoodieCoord.gcj2wgs(p.getLat(), p.getLng());
+              fill(w[0], w[1], '高德 GCJ-02→WGS-84');
+            } else { document.getElementById('ff-msg').textContent = '高德没查到这个地址，手动填或地图点选'; }
+          });
+        });
+        return;
+      }
       fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(parts)).then(function (r) { return r.json(); }).then(function (js) {
-        if (js && js[0]) {
-          document.getElementById('ff-lat').value = js[0].lat;
-          document.getElementById('ff-lng').value = js[0].lon;
-          document.getElementById('ff-msg').textContent = '已按地址填入坐标（可点「在地图上点选」微调）';
-          if (S.map) { S.map.setView([js[0].lat, js[0].lon], 14); putMarker(Number(js[0].lat), Number(js[0].lon)); }
-        } else { document.getElementById('ff-msg').textContent = '没查到这个地址的坐标，手动填或地图点选'; }
+        if (js && js[0]) fill(js[0].lat, js[0].lon, 'Nominatim');
+        else { document.getElementById('ff-msg').textContent = '没查到这个地址的坐标，手动填或地图点选'; }
       }).catch(function () { document.getElementById('ff-msg').textContent = '查询失败，手动填或地图点选'; });
     };
     box.querySelector('#ff-cancel').onclick = function () { S.editing = null; renderRests(); };
@@ -640,6 +671,10 @@
       loadAll().then(function () { showSub('rests'); toast('已保存'); });
     };
     // 重复检查：同名+同城市
+    // 保存前检查经纬度有效性（她 20261115 地图引擎任务书 §六）
+    if ((body.latitude == null) !== (body.longitude == null)) { toast('经纬度要一起填或一起留空'); return; }
+    if (body.latitude != null && (body.latitude < -90 || body.latitude > 90)) { toast('纬度无效（范围 -90 ~ 90）'); return; }
+    if (body.longitude != null && (body.longitude < -180 || body.longitude > 180)) { toast('经度无效（范围 -180 ~ 180）'); return; }
     var dup = S.rests.filter(function (x) {
       return (!isNew && x.id !== S.editing.id) || isNew;
     }).filter(function (x) { return x.name === body.name && x.city === body.city; })[0];
@@ -777,6 +812,49 @@
       var req = c ? api('PATCH', 'food_categories', 'id=eq.' + c.id, body) : api('POST', 'food_categories', 'select=id', body);
       req.then(function () { el.innerHTML = ''; loadAll().then(render); toast('已保存'); }).catch(function (er) { toast('失败: ' + er.message); });
     };
+  }
+
+  /* ── 地图服务配置（她 20261115 地图引擎任务书 §四/§五）：key 存库不入 git ── */
+  function renderMapCfg() {
+    var box = document.getElementById('fdm-sub-mapcfg');
+    box.innerHTML = '<div class="card" style="max-width:none;"><h3>地图服务配置</h3>' +
+      '<p class="fdm-hint" style="margin:0 0 12px;">海外用 Google Maps，中国大陆用高德；这里填的都是「前端 Key」（要在 Google Cloud / 高德开放平台设置 HTTP Referrer 白名单 + API 范围 + 配额限制，不会存任何服务器端秘密）。没填 Key 的地区自动降级 OpenStreetMap，页面不会报错。</p>' +
+      '<div id="mapcfg-form"><span class="fdm-hint">读取配置中…</span></div></div>';
+    api('GET', 'foodie_map_config', 'select=*&limit=1').then(function (rows) {
+      var c = (rows && rows[0]) || null;
+      S.cfgRow = c;
+      var f = function (id, label, val, ph) {
+        return '<div class="fdm-field" style="flex:1 1 380px;"><label>' + label + '</label><input id="' + id + '" value="' + esc(val == null ? '' : val) + '" placeholder="' + esc(ph || '') + '" autocomplete="off"></div>';
+      };
+      var html = '<div class="fdm-row">' +
+        f('mc-gkey', 'Google Maps JS API Key（海外引擎；另需配 mapId）', c && c.google_key, 'AIza…') +
+        f('mc-gmid', 'Google mapId（AdvancedMarkerElement 需要；Cloud Console → Maps Management 创建）', c && c.google_map_id, '') + '</div>' +
+        '<div class="fdm-row">' +
+        f('mc-akey', '高德 Web端(JS API) Key（中国大陆引擎）', c && c.amap_key, '') +
+        f('mc-asec', '高德安全密钥 securityJsCode（与 Key 配套）', c && c.amap_security, '') + '</div>' +
+        '<div class="fdm-row"><button type="button" class="fdm-btn" id="mc-save">保存</button>' +
+        '<button type="button" class="fdm-btn ghost" id="mc-test">预览地图页</button>' +
+        '<span class="fdm-hint" id="mc-msg"></span></div>' +
+        '<p class="fdm-hint" style="margin:8px 0 0;">Key 申请指引：Google Cloud Console → 启用 Maps JavaScript API → 建立 Key → Application restrictions 选 HTTP referrers，加 https://yukicheng.com/* 和 http://localhost:8901/*；API restrictions 只留 Maps JavaScript API。高德开放平台 → 创建「Web端(JS API)」Key → 安全密钥一并显示；安全域名填 yukicheng.com。</p>';
+      document.getElementById('mapcfg-form').innerHTML = html;
+      document.getElementById('mc-save').onclick = function () {
+        var g = function (id) { return (document.getElementById(id).value || '').trim(); };
+        var body = {
+          google_key: g('mc-gkey'), google_map_id: g('mc-gmid'),
+          amap_key: g('mc-akey'), amap_security: g('mc-asec')
+        };
+        var msg = document.getElementById('mc-msg');
+        msg.textContent = '保存中…';
+        var req = S.cfgRow && S.cfgRow.id
+          ? api('PATCH', 'foodie_map_config', 'id=eq.' + S.cfgRow.id, body)
+          : api('POST', 'foodie_map_config', 'select=id', body);
+        req.then(function () { msg.textContent = '已保存 ✓ 前台地图页刷新后生效'; renderMapCfg(); })
+          .catch(function (er) { msg.textContent = '失败: ' + er.message.slice(0, 120); });
+      };
+      document.getElementById('mc-test').onclick = function () { window.open('/foodie/map/', '_blank'); };
+    }).catch(function (er) {
+      document.getElementById('mapcfg-form').innerHTML = '<span style="color:#C4636E;font-size:15px;">foodie_map_config 表还不存在——先执行 sql/foodie-map-engine.sql（地图引擎升级的数据库迁移）。</span>';
+    });
   }
 
   /* ── ⑤ 数据 CSV ── */

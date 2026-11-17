@@ -1,6 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════════
-   Foodie Map · 全球地图页逻辑（Phase 1）
-   地图: Leaflet + OSM 瓦片（免费，无 API Key）；聚合用 leaflet.markercluster。
+   Foodie Map · 全球地图页逻辑（Phase 2 引擎适配版，她 20261115 任务书）
+   地图: FoodieMapEngine 适配层 —— 海外 Google Maps / 中国大陆高德 /
+         无 Key 时 Leaflet+OSM 降级兜底；业务代码不直接依赖任何一家 SDK。
    搜索: 先在已加载餐厅里本地匹配（名称/多语言名/地址/城市/邮编/菜系），
          没有结果时用 Nominatim 地理编码把地图带到对应位置（免费公共接口）。
    筛选: 菜系/类别/价位/柚子评级/地区 —— 全部本地计算，地图列表双向联动。
@@ -8,27 +9,15 @@
 (function () {
   'use strict';
   var F = window.FOODIE;
-  if (!F || typeof L === 'undefined') return;
+  if (!F) return;
 
-  var map, cluster;
-  var ALL = [];          // 全部已发布餐厅
+  var E = window.FoodieMapEngine; // 适配层（foodie-map-engine.js）
+  var adapter = null;             // 当前地图适配器实例
+  var ALL = [];                   // 全部已发布餐厅
   var CATS = { cuisine: [], food_type: [] };
   var REGIONS = [];
-  var MARKERS = {};      // id → marker
   var FILTER = { country: '', q: '', cuisine: '', food: '', price: 0, yuzu: 0 };
   var GEO_BUSY = false;
-
-  var osmUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
-  var osmAttr = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
-
-  function markerIcon() {
-    return L.divIcon({
-      className: 'fd-pin',
-      html: '<span style="display:flex;width:34px;height:34px;border-radius:50% 50% 50% 4px;transform:rotate(-45deg);background:#FFFFFF;border:2px solid #F48FB1;box-shadow:0 3px 8px rgba(180,120,150,.3);align-items:center;justify-content:center;">' +
-            '<span style="transform:rotate(45deg);display:flex;">' + F.YUZU_SVG.replace('<svg ', '<svg style="width:22px;height:22px;" ') + '</span></span>',
-      iconSize: [34, 34], iconAnchor: [17, 34], popupAnchor: [0, -30]
-    });
-  }
 
   function popHtml(r) {
     var loc = [F.rCity(r), r.country_name].filter(Boolean).join(', ');
@@ -76,24 +65,21 @@
   }
 
   function renderMarkers(rows) {
-    if (cluster) cluster.clearLayers();
-    MARKERS = {};
-    var group = [];
-    rows.forEach(function (r) {
-      if (r.latitude == null || r.longitude == null) return;
-      var m = L.marker([r.latitude, r.longitude], { icon: markerIcon() });
-      m.bindPopup(popHtml(r), { className: 'fd-pop', maxWidth: 240 });
-      MARKERS[r.id] = m;
-      group.push(m);
+    if (!adapter) return;
+    adapter.clearMarkers();
+    adapter.addMarkers(rows, {
+      popHtml: popHtml,
+      onMarkerClick: function (r) {
+        // 标记点击：轻提示坐标系统（高德显示 GCJ-02）；链接点击由 popup 内 <a> 自行跳转
+      }
     });
-    if (cluster) cluster.addLayers(group);
   }
 
   function flyTo(r) {
-    if (r.latitude == null) return;
-    map.flyTo([r.latitude, r.longitude], Math.max(map.getZoom(), 14), { duration: .6 });
-    var m = MARKERS[r.id];
-    if (m) setTimeout(function () { m.openPopup(); }, 650);
+    if (r.latitude == null || !adapter) return;
+    adapter.flyTo(Number(r.latitude), Number(r.longitude), 14, function () {
+      adapter.openPopup(r, popHtml(r));
+    });
   }
 
   function refresh() {
@@ -154,9 +140,30 @@
   }
   function applyRegion(keepView) {
     var reg = REGIONS.filter(function (x) { return x.code === FILTER.country; })[0];
-    if (reg && !keepView) map.setView([reg.map_center_lat, reg.map_center_lng], reg.map_zoom);
     renderRegions();
     refresh();
+    // 她 20261115 任务书 §一.5：切换地区销毁旧地图实例并重建，避免事件堆积/内存泄漏
+    buildMap(reg);
+  }
+
+  /* 创建/重建地图适配器：按地区自动选引擎（§一.4）*/
+  function buildMap(reg) {
+    var el = document.getElementById('fd-map');
+    if (!el || !E) return;
+    var center = reg ? [Number(reg.map_center_lat) || 20, Number(reg.map_center_lng) || 0] : [20, 0];
+    var zoom = reg ? (Number(reg.map_zoom) || 4) : 2;
+    if (adapter) { adapter.destroy(); adapter = null; } // 任务书 §一.5：销毁旧实例
+    E.load({ el: el, center: center, zoom: zoom, country: FILTER.country, cfg: E._cfg || null }).then(function (a) {
+      adapter = a;
+      renderMarkers(current());
+      // 引擎信息轻提示（§六：显示当前坐标系统）
+      var st = document.getElementById('fd-status');
+      if (st) {
+        var label = a.name === 'amap' ? 'AMap · GCJ-02' : (a.name === 'google' ? 'Google Maps · WGS-84' : 'OSM · WGS-84');
+        st.textContent = label;
+        setTimeout(function () { if (st.textContent === label) st.textContent = ''; }, 2600);
+      }
+    }).catch(function () { /* load 内部已降级 leaflet，不会到这里 */ });
   }
 
   /* ── 搜索：本地餐厅优先，空结果走 Nominatim ── */
@@ -172,7 +179,7 @@
     var url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(q) + (cc ? '&countrycodes=' + cc : '');
     fetch(url).then(function (r) { return r.json(); }).then(function (js) {
       if (js && js[0]) {
-        map.flyTo([Number(js[0].lat), Number(js[0].lon)], 12, { duration: .8 });
+        if (adapter) adapter.flyTo(Number(js[0].lat), Number(js[0].lon), 12);
         document.getElementById('fd-status').textContent = '';
       } else {
         document.getElementById('fd-status').textContent = '';
@@ -182,10 +189,7 @@
   }
 
   function init() {
-    map = L.map('fd-map', { worldCopyJump: true }).setView([20, 0], 2);
-    L.tileLayer(osmUrl, { maxZoom: 19, attribution: osmAttr }).addTo(map);
-    cluster = L.markerClusterGroup({ showCoverageOnHover: false, maxClusterRadius: 42 });
-    map.addLayer(cluster);
+    if (!E) return; // 适配层未加载：不建图，列表照常渲染
 
     var qs = new URLSearchParams(location.search);
     if (qs.get('country')) FILTER.country = qs.get('country').toUpperCase();
@@ -198,7 +202,8 @@
       }),
       F.restQuery('status=eq.published&select=' + encodeURIComponent(
         'id,slug,name,name_i18n,description,city,region,state_or_province,country_code,country_name,district,postal_code,address,address_en,latitude,longitude,cuisine,food_categories,price_level,average_price,currency_code,yuzu_rating,yuzu_note,cover_image,images'
-      )).then(function (rows) { ALL = rows || []; })
+      )).then(function (rows) { ALL = rows || []; }),
+      E.fetchConfig().then(function (cfg) { E._cfg = cfg; }) // 地图服务配置（Google/高德 key）
     ]).then(function () {
       renderRegions();
       renderFilters();
@@ -210,9 +215,9 @@
         applyRegion();
       };
       document.getElementById('fd-locate').onclick = function () {
-        if (!navigator.geolocation) return;
+        if (!navigator.geolocation || !adapter) return;
         navigator.geolocation.getCurrentPosition(function (p) {
-          map.flyTo([p.coords.latitude, p.coords.longitude], 13, { duration: .8 });
+          adapter.flyTo(p.coords.latitude, p.coords.longitude, 13);
         }, function () {}, { timeout: 8000 });
       };
       document.getElementById('fd-search-form').addEventListener('submit', function (e) {
