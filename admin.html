@@ -1005,6 +1005,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         <button class="tab-btn" data-tab="bjd">BJD管理</button>
         <button class="tab-btn" data-tab="cards">色卡管理</button>
         <button class="tab-btn" data-tab="works">稿件管理</button>
+        <button class="tab-btn" data-tab="covers">封面图管理</button>
         <div class="pp-group">商城管理</div>
         <button class="tab-btn" data-tab="shop">小铺管理</button>
         <button class="tab-btn" data-tab="lexicon">词库管理</button>
@@ -1510,6 +1511,15 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           <span class="hm-file-name" id="hm-cover-name">未选择图片</span>
           <button class="btn-save" id="btn-cover">上传背景图</button>
         </div>
+      </div>
+    </div>
+
+    <!-- 封面图管理（她 20261117 02:50 任务书 PART C）-->
+    <div id="tab-covers" style="display:none;">
+      <div class="card">
+        <h3>封面图管理</h3>
+        <p class="sub" style="margin:-6px 0 12px;">给各个页面顶部上传/替换封面图；没设置的页面保持原设计不显示。独立 covers 存储桶，不碰商品/BJD/色卡/餐厅任何图片。删除后可重新上传恢复。</p>
+        <div id="covers-list"></div>
       </div>
     </div>
 
@@ -2164,7 +2174,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     document.querySelectorAll('.tab-btn').forEach(function (x) { x.classList.remove('active'); });
     var btn = document.querySelector('.tab-btn[data-tab="' + main + '"]');
     if (btn) btn.classList.add('active');
-    ['messages', 'shop', 'shopmgr', 'crm', 'vip', 'pos', 'mailsync', 'mailtpl', 'theme', 'workbench', 'export', 'print', 'cost', 'units', 'qcscan', 'reviews', 'photos', 'home', 'profile', 'works', 'cards', 'bjd', 'days', 'ai', 'system', 'foodie'].forEach(function (n) {
+    ['messages', 'shop', 'shopmgr', 'crm', 'vip', 'pos', 'mailsync', 'mailtpl', 'theme', 'workbench', 'export', 'print', 'cost', 'units', 'qcscan', 'reviews', 'photos', 'home', 'profile', 'works', 'covers', 'cards', 'bjd', 'days', 'ai', 'system', 'foodie'].forEach(function (n) {
       var panel = document.getElementById('tab-' + n);
       if (panel) panel.style.display = (n === name) ? '' : 'none';
     });
@@ -2185,6 +2195,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     if (name === 'lexicon' && window.AdminLexicon) window.AdminLexicon.renderLexicon();
     if (name === 'commreq' && window.AdminLexicon) window.AdminLexicon.renderCommReq();
     if (name === 'works') renderWorks();
+    if (name === 'covers' && window.AdminCovers) window.AdminCovers.boot(); // 封面图管理（她 20261117 PART C）
     if (name === 'reviews') loadReviewsAdmin();
     if (name === 'system') { loadEmailLog(); if (window.AdminInvite) window.AdminInvite.boot(); }
     if (name === 'days') renderDays(); // 每次切到重要日子都重渲染，避免 settings 迟到导致自动列表空白
@@ -7560,6 +7571,7 @@ function loadEmailLog() {
 <script src="js/admin-foodie.js?v=20261116B"></script>
 <script src="js/name-lexicon.js?v=20261117A"></script>
 <script src="js/admin-lexicon.js?v=20261117A"></script>
+<script src="js/admin-covers.js?v=20261117A"></script>
 <script src="vendor/leaflet/leaflet.js?v=20261114A"></script>
 <script src="js/admin-import.js?v=20261105C"></script>
 <script src="js/admin-crm.js?v=20261108K"></script>
