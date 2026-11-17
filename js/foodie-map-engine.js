@@ -139,10 +139,12 @@
         map: self.map,
         position: { lat: Number(r.latitude), lng: Number(r.longitude) },
         content: pinDom(r.yuzu_rating),
-        title: r.name || ''
+        title: r.name || '',
+        gmpClickable: true // 她 20261117：AdvancedMarkerElement 必须 gmpClickable 才会响应点击（否则标记点不动，AMap/Leaflet 不受影响）
       });
       if (handlers.onMarkerClick) {
-        m.addListener('click', function () { handlers.onMarkerClick(r); });
+        m.addListener('gmp-click', function () { handlers.onMarkerClick(r); }); // 新版事件名
+        m.addListener('click', function () { handlers.onMarkerClick(r); }); // 兼容旧版事件名
       }
       if (handlers.popHtml) {
         m.addListener('click', function () { self.openPopup(r, handlers.popHtml(r)); });
