@@ -12,11 +12,11 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/icon-yuki2-32.png">
 <link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki2-180.png">
   <link rel="stylesheet" href="/css/site.css?v=20261117A">
-  <link rel="stylesheet" href="/site-menu.css?v=20261105C">
+  <link rel="stylesheet" href="/site-menu.css?v=20261117C">
   <link rel="stylesheet" href="/css/foodie.css?v=20261117D">
   <link rel="stylesheet" href="/vendor/leaflet/leaflet.css?v=20261114B">
   <script src="/js/site-common.js?v=20261117A"></script>
-  <script src="/site-menu.js?v=20261117A" defer></script>
+  <script src="/site-menu.js?v=20261117C" defer></script>
   <script src="/js/foodie-app.js?v=20261117B" defer></script>
   <script src="/js/foodie-coord.js?v=20261116B"></script>
   <script src="/vendor/leaflet/leaflet.js?v=20261114B"></script>
@@ -30,16 +30,17 @@
 <body>
 
 <header class="topbar">
-  <div class="lang-switch">
-    <button class="lang-btn" data-lang="zh">简体中文</button>
-    <button class="lang-btn" data-lang="en">English</button>
-  </div>
   <a class="site-logo" href="/" aria-label="Back to home"><img src="/logo.png" alt="logo"></a>
   <div class="topbar-right">
     <a class="topbar-cart" id="topbar-cart" href="/shop/?sec=cart" aria-label="Cart">
       <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3.5h2.2l2.3 11.2a1.8 1.8 0 0 0 1.8 1.4h8.5a1.8 1.8 0 0 0 1.8-1.4l1.5-8.2H6"/></svg>
       <span class="topbar-cart-badge" id="topbar-cart-badge" style="display:none;">0</span>
     </a>
+    <button class="topbar-acct" id="topbar-acct" aria-label="账号">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8.2" r="3.4"/><path d="M5 20c.8-3.6 3.6-5.6 7-5.6s6.2 2 7 5.6"/></svg>
+      <span class="topbar-acct-dot"></span>
+    </button>
+
     <button class="burger" id="burger" aria-label="Menu">
       <span></span><span></span><span></span>
     </button>

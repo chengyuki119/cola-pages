@@ -30,23 +30,30 @@
   z-index: 150;
 }
 .menu-mask.open { opacity: 1; visibility: visible; }
+/* ═══ 她 20261117 02:59 任务书 PART B：汉堡式下拉导航 ═══
+   点击汉堡后在 Header 正下方从上往下展开整排导航，不再右侧滑出。
+   桌面端横向多栏分组；手机端纵向分组可折叠；动画 opacity + translateY 轻柔展开。 */
 .menu {
   position: fixed;
-  top: 60px; right: 0; bottom: 0;
-  width: 250px;
+  top: 60px; left: 0; right: 0; bottom: auto;
+  width: auto;
+  max-height: calc(100vh - 60px);
   background: var(--bg,#FFF8FA);
-  box-shadow: -4px 0 24px rgba(255,143,171,.18);
-  transform: translateX(100%);
-  transition: transform .25s;
+  box-shadow: 0 12px 28px rgba(255,143,171,.18);
+  border-top: 1px solid var(--card-hover,#F9E5ED);
+  border-radius: 0 0 18px 18px;
+  opacity: 0; visibility: hidden;
+  transform: translateY(-8px);
+  transition: opacity .22s ease, transform .22s ease, visibility .22s;
   z-index: 180;
-  padding: 24px 18px 24px;
-  display: flex; flex-direction: column; gap: 6px;
+  padding: 14px 24px 18px;
+  display: flex; flex-direction: column;
   overflow-y: auto;
 }
-.menu.open { transform: translateX(0); }
+.menu.open { opacity: 1; visibility: visible; transform: translateY(0); }
 .menu a { font-family: "Millo Body", -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
   display: flex; align-items: center; gap: 10px;
-  padding: 11px 16px;
+  padding: 10px 14px;
   border-radius: 12px;
   font-size:17px;
   color: var(--text);
@@ -55,7 +62,19 @@
 }
 .menu a:hover, .menu a.active { background: var(--card); }
 
-/* 手风琴菜单：顶层 + / 展开 ⌄ / 子项 - */
+/* 语言切换行（她 02:59 确认：从顶栏挪进展开菜单顶部，lang-path.js 接管点击） */
+.menu-lang {
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 0 12px;
+  border-bottom: 1px solid var(--card-hover,#F9E5ED);
+  margin-bottom: 12px;
+}
+.menu-lang .menu-lang-label { font-size: 13px; color: var(--muted,#897783); margin-right: auto; }
+
+/* 横向多栏分组容器：桌面端一排多栏，手机端纵向 */
+.menu-cols { display: flex; flex-direction: column; gap: 2px; }
+
+/* 手风琴菜单（手机端）：顶层 + / 展开 ⌄ / 子项 - */
 .menu-group { display: flex; flex-direction: column; }
 .menu-toggle {
   display: flex; align-items: center; gap: 12px;
@@ -70,6 +89,18 @@
   transition: background .2s;
 }
 .menu-toggle:hover, .menu-group.open .menu-toggle, .menu-group.active .menu-toggle { background: var(--card); }
+/* 栏头：编号 + 中文标题 + 英文辅助标题 */
+.menu-toggle .menu-col-num {
+  font-size: 12px;
+  color: var(--muted,#897783);
+  letter-spacing: .06em;
+}
+.menu-toggle .menu-col-en {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--muted,#897783);
+  margin-left: 2px;
+}
 /* 父级统一向下箭头：展开时旋转 180°，不做其他装饰 */
 .menu-toggle .plus {
   margin-left: auto;
@@ -87,6 +118,26 @@
 }
 .menu-group.open .submenu { max-height: 70vh; overflow-y: auto; }
 .submenu a { padding-left: 34px; font-size: 17px; color: var(--muted); }
+
+/* ═══ 桌面端（>700px）：横向多栏，栏头不可折叠、子项全部展开 ═══ */
+@media (min-width: 701px) {
+  .menu-cols {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 4px 20px;
+  }
+  .menu-cols .menu-group { flex: 1 1 150px; min-width: 148px; }
+  .menu-cols .menu-toggle { cursor: default; padding: 10px 14px; }
+  .menu-cols .menu-toggle:hover,
+  .menu-cols .menu-group.open .menu-toggle { background: none; }
+  .menu-cols .menu-toggle .plus { display: none; }
+  .menu-cols .submenu { max-height: none !important; overflow: visible; }
+  .menu-cols .submenu a { padding-left: 14px; }
+  .menu-cols .menu-owner-group { flex: 1 1 150px; min-width: 148px; }
+}
+
 .menu-link {
   display: flex; align-items: center; gap: 12px;
   padding: 13px 16px;
@@ -97,10 +148,11 @@
   transition: background .2s;
 }
 .menu-link:hover { background: var(--card); }
+/* 柚子专属后台入口：展开菜单内一行（保留原有权限状态机） */
 .menu-owner {
-  margin-top: auto;
+  margin-top: 4px;
   display: flex; align-items: center; gap: 10px;
-  padding: 11px 16px;
+  padding: 10px 14px;
   border-radius: 12px;
   font-size:17px;
   color: var(--text);
@@ -110,25 +162,34 @@
 }
 .menu-owner:hover { background: var(--card-hover); }
 
+/* 聚焦可见性：键盘 Tab 时给清晰的粉色描边 */
+.menu a:focus-visible,
+.menu .menu-toggle:focus-visible,
+.burger:focus-visible,
+.topbar-acct:focus-visible,
+.topbar-cart:focus-visible {
+  outline: 2px solid var(--accent-strong, #F6C5D7);
+  outline-offset: 2px;
+}
+
 /* 当前所在页面：柔和粉色高亮（所有页面统一，只标当前，不重排不隐藏） */
 .menu a.current, .menu-link.current { background: var(--accent-soft,#FCECF2); font-weight: 600; }
 .menu-group.current > .menu-toggle { background: var(--accent-soft,#FCECF2); font-weight: 600; }
 
-/* 顶栏中间 logo：全站统一组件（只按高度等比缩放，永不拉伸/裁切/压扁） */
+/* ═══ 她 20261117 02:59 任务书 PART B：顶栏改版 ═══
+   左侧 Logo（不再居中）；右侧 = 购物车 · 账号按钮 · 汉堡按钮；中间无导航文字。 */
 .site-logo {
-  position: absolute;
-  left: 50%; top: 50%;
-  transform: translate(-50%, -50%);
+  position: static;
+  transform: none;
   height: 48px;
   display: block;
+  margin-right: auto;
+  margin-left: 16px;
 }
-.site-logo img { display: block; height: 48px; width: auto; max-width: 42vw; object-fit: contain; }
-@media (max-width: 400px) {
-  .site-logo, .site-logo img { height: 40px; }
-}
+@media (max-width: 400px) { .site-logo { margin-left: 10px; } }
 
-/* ═══ 顶部导航栏右侧：购物车（Logo 右、汉堡左）+ 菜单底部账户入口，全站同一套 ═══ */
-/* logo 本身绝对定位居中（site.css），右侧组用 flex 两端对齐即可 */
+/* ═══ 顶部导航栏右侧：购物车 · 账号 · 汉堡，全站同一套 ═══ */
+/* logo 本身改在左侧（site.css 的绝对居中由这里覆盖回普通流式布局） */
 .topbar-right {
   display: flex; align-items: center; gap: 10px;
 }
@@ -143,6 +204,27 @@
 }
 .topbar-cart:hover { background: var(--card-hover, #FCECF2); }
 .topbar-cart svg { display: block; }
+/* 顶栏账号按钮：与购物车/汉堡同款尺寸手感（20261117 PART B 新增） */
+.topbar-acct {
+  position: relative;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 42px; height: 42px;
+  border: none;
+  border-radius: 12px;
+  background: #ffffff;
+  color: var(--text, #65515D);
+  cursor: pointer;
+  transition: background .2s;
+}
+.topbar-acct:hover { background: var(--card-hover, #FCECF2); }
+.topbar-acct svg { display: block; }
+.topbar-acct .topbar-acct-dot {
+  position: absolute; top: 6px; right: 6px;
+  width: 8px; height: 8px; border-radius: 999px;
+  background: var(--accent-strong, #F6C5D7);
+  display: none;
+}
+.topbar-acct.is-in .topbar-acct-dot { display: block; }
 .topbar-cart-badge {
   position: absolute; top: -5px; right: -5px;
   min-width: 19px; height: 19px; border-radius: 999px;
@@ -150,6 +232,13 @@
   font-size: 12px; line-height: 19px; text-align: center; padding: 0 5px;
   font-weight: 600; box-sizing: border-box;
 }
+/* 顶栏 logo 图像尺寸（跟随左侧布局） */
+.site-logo img { display: block; height: 48px; width: auto; max-width: 42vw; object-fit: contain; }
+@media (max-width: 400px) {
+  .site-logo, .site-logo img { height: 40px; }
+}
+
+/* 菜单底部账户入口：仅后台等无顶栏账号按钮的页面保留 */
 .menu a.menu-acct-bottom {
   margin-top: auto;
   display: flex; align-items: center; justify-content: center;
@@ -246,10 +335,8 @@
 .topbar { display: flex; align-items: center; justify-content: space-between; }
 .topbar-right { margin-left: auto; flex: 0 0 auto; flex-wrap: nowrap; }
 .topbar-right .topbar-cart { order: 1; }
-.topbar-right .burger { order: 2; margin-left: 0; }
-/* 兼容：万一哪一页把汉堡直接挂在顶栏下（不在 .topbar-right 里），也推到最右 */
-.topbar > .burger { order: 9; margin-left: auto; }
-.topbar > #topbar-cart { order: 8; }
+.topbar-right .topbar-acct { order: 2; }
+.topbar-right .burger { order: 3; margin-left: 0; }
 /* 右侧留白：桌面 16px、手机 10px，与原来一致（不改尺寸/位置，只锁死右边界） */
-.topbar { padding-right: 16px; }
-@media (max-width: 400px) { .topbar { padding-right: 10px; } }
+.topbar { padding-right: 16px; padding-left: 16px; }
+@media (max-width: 400px) { .topbar { padding-right: 10px; padding-left: 10px; } }
