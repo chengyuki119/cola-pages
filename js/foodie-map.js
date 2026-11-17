@@ -92,6 +92,10 @@
   function chip(label, on, val, kind) {
     return '<button type="button" class="fd-region-chip' + (on ? ' on' : '') + '" data-fk="' + kind + '" data-fv="' + F.esc(val) + '">' + F.esc(label) + '</button>';
   }
+  // 仅用于站内静态可信 HTML（柚子 SVG，非用户输入）；用户数据一律走 chip() 转义
+  function chipHtml(labelHtml, on, val, kind) {
+    return '<button type="button" class="fd-region-chip' + (on ? ' on' : '') + '" data-fk="' + kind + '" data-fv="' + F.esc(val) + '">' + labelHtml + '</button>';
+  }
   function renderFilters() {
     var catRow = function (kind) {
       var cur = kind === 'cuisine' ? FILTER.cuisine : FILTER.food;
@@ -102,7 +106,7 @@
     };
     var priceRow = [1, 2, 3, 4].map(function (n) { return chip('$'.repeat(n), FILTER.price === n, n, 'price'); }).join('');
     var yuzuRow = [3, 2, 1].map(function (n) {
-      return chip('<span style="display:inline-flex;gap:1px;">' + F.yuzuHtml(n) + '</span>', FILTER.yuzu === n, n, 'yuzu');
+      return chipHtml('<span style="display:inline-flex;gap:1px;">' + F.yuzuHtml(n) + '</span>', FILTER.yuzu === n, n, 'yuzu');
     }).join('');
     document.getElementById('fd-f-cuisine').innerHTML = chip(F.t('cuisine'), false, '', 'cuisine-all') + catRow('cuisine');
     document.getElementById('fd-f-food').innerHTML = chip(F.t('foodType'), false, '', 'food-all') + catRow('food_type');

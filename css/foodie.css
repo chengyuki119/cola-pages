@@ -5,6 +5,12 @@
 
 /* ── 区块骨架 ── */
 .fd-wrap { max-width: 1080px; margin: 0 auto; }
+/* 地图页桌面端放宽，让筛选+地图吃满宽度（她 20261116 反馈左右留白过大）；只作用地图页，其他页面不动 */
+.page-body.fd-page-wide { max-width: 1640px; }
+.fd-wrap.fd-wrap-wide { max-width: 1560px; }
+@media (min-width: 761px) {
+  .fd-wrap.fd-wrap-wide .fd-map-side { width: 360px; }
+}
 .fd-sec { margin: 0 0 34px; }
 .fd-sec-title { font-size: 21px; font-weight: 700; color: var(--text,#65515D); margin: 0 0 14px; display: flex; align-items: center; gap: 8px; }
 .fd-sec-title .fd-more { margin-left: auto; font-size: 15px; font-weight: 500; color: var(--price,#F48FB1); text-decoration: none; }
