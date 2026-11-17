@@ -32,7 +32,16 @@
       var s = document.createElement('script');
       s.src = url;
       s.async = true;
-      s.onload = function () { resolve(); };
+      s.onload = function () {
+        // bootstrap onload ≠ 子库就绪（如 Google marker 库异步填充），轮询到 check() 通过为止；
+        // 否则首访构造适配器时库未就绪抛错 → 误降级 Leaflet（她 20261117 实测 Global 首载降级的真根因）
+        var t0 = Date.now();
+        (function poll() {
+          if (check()) { resolve(); return; }
+          if (Date.now() - t0 > 15000) { sdkCache[key] = null; reject(new Error('SDK ready timeout: ' + key)); return; }
+          setTimeout(poll, 60);
+        })();
+      };
       s.onerror = function () { sdkCache[key] = null; reject(new Error('SDK load failed: ' + key)); };
       document.head.appendChild(s);
     });
@@ -373,6 +382,7 @@
         opts.cfg = cfg;
         var engine = self.pickEngine(opts.country, cfg);
         if (engine === 'google') {
+          opts.mapId = cfg.google_map_id || undefined; // GoogleAdapter 读 opts.mapId；调用方只传 cfg，必须在这里接上
           return loadGoogle(cfg.google_key).then(function () {
             return new GoogleAdapter(opts);
           });
