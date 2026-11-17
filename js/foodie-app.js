@@ -16,7 +16,7 @@
   var T = {
     discover:     { en: 'Discover', 'zh-Hans': '发现美食', 'zh-Hant': '發現美食', ja: 'グルメ探検' },
     map:          { en: 'Map', 'zh-Hans': '地图', 'zh-Hant': '地圖', ja: 'マップ' },
-    foodieMap:    { en: 'Foodie Map', 'zh-Hans': '全球美食地图', 'zh-Hant': '全球美食地圖', ja: 'グルメマップ' },
+    foodieMap:    { en: 'Foodie Map', 'zh-Hans': '美食地图', 'zh-Hant': '美食地圖', ja: 'グルメマップ' },
     searchPh:     { en: 'Search restaurants, cuisines, cities…', 'zh-Hans': '搜索餐厅、菜系、城市…', 'zh-Hant': '搜尋餐廳、菜系、城市…', ja: 'レストラン・料理・都市を検索…' },
     global:       { en: 'Global', 'zh-Hans': '全球', 'zh-Hant': '全球', ja: '全世界' },
     yuzuPicks:    { en: 'Yuzu Picks', 'zh-Hans': '柚子推荐', 'zh-Hant': '柚子推薦', ja: '柚子のおすすめ' },
@@ -55,8 +55,9 @@
     photos:       { en: 'Photos', 'zh-Hans': '照片', 'zh-Hant': '照片', ja: 'フォト' },
     myLocation:   { en: 'My location', 'zh-Hans': '我的位置', 'zh-Hant': '我的位置', ja: '現在地' },
     /* Phase 2 投稿（她 20261115）*/
-    suggest:      { en: 'Recommend a Restaurant ♡', 'zh-Hans': '推荐餐厅 ♡' },
-    sTitle:       { en: 'Recommend a Restaurant', 'zh-Hans': '推荐一家餐厅' },
+    suggest:      { en: 'Add New Restaurant', 'zh-Hans': '添加新的餐厅' },
+    sTitle:       { en: 'Add a New Restaurant', 'zh-Hans': '添加新的餐厅' },
+    loginFirst:   { en: 'Please log in first to add a restaurant ♡', 'zh-Hans': '请先登录后再添加餐厅 ♡' },
     sIntro:       { en: 'Found a great place? Tell Yuki about it — approved finds go on the map with your credit.', 'zh-Hans': '吃到好吃的地方？告诉柚子，审核通过后就会出现在地图上 ♡' },
     sName:        { en: 'Restaurant name (original language) *', 'zh-Hans': '餐厅名称（当地语言原文）*' },
     sNameZh:      { en: 'Chinese name (optional)', 'zh-Hans': '中文名称（选填）' },
@@ -71,7 +72,7 @@
     sWhy:         { en: 'Why do you recommend it? *', 'zh-Hans': '推荐理由 *' },
     sEmail:       { en: 'Your email (only for follow-up, never published) *', 'zh-Hans': '联系邮箱（只用于核实，不会公开）*' },
     sSelect:      { en: 'Select', 'zh-Hans': '选择' },
-    sSend:        { en: 'Send Recommendation', 'zh-Hans': '提交推荐' },
+    sSend:        { en: 'Submit', 'zh-Hans': '提交' },
     sSending:     { en: 'Sending…', 'zh-Hans': '提交中…' },
     sDone:        { en: 'Got it — thank you ♡ Once approved, it will appear on the map.', 'zh-Hans': '已收到你的推荐，谢谢 ♡ 审核通过后就会出现在地图上。' },
     sErrName:     { en: 'Please enter the restaurant name.', 'zh-Hans': '请填写餐厅名称。' },
@@ -171,15 +172,19 @@
   }
   function post(table, body) {
     if (window.FOODIE_MOCK || /[?&]fdmock=1/.test(location.search)) return Promise.resolve({ ok: true, mock: true });
+    // 她 20261117 §十：投稿需登录——有会话时带 access token（后端 guard/policy 校验 authenticated）
+    var auth = window.ykToken ? window.ykToken().then(function (at) { return at ? { 'Authorization': 'Bearer ' + at } : {}; }).catch(function () { return {}; }) : Promise.resolve({});
+    return auth.then(function (authHdr) {
     return fetch((window.DB_BASE || 'https://ukxrvcptwhlwvdanovgd.supabase.co/rest/v1/') + table, {
       method: 'POST',
       // 不带 Prefer: return=representation —— anon 对投稿表无 SELECT policy，回读会整单 401（她 20261115 SQL 生效后实测发现）
-      headers: Object.assign({}, (window.DB_HEADERS || {}), { 'Content-Type': 'application/json' }),
+      headers: Object.assign({}, (window.DB_HEADERS || {}), authHdr, { 'Content-Type': 'application/json' }),
       body: JSON.stringify(body)
     }).then(function (r) {
       if (r.ok) return { ok: true };
       return r.text().then(function (txt) { return { ok: false, message: pickErrMsg(txt) }; });
     }).catch(function () { return { ok: false, message: '' }; });
+    });
   }
 
   /* ── 多语言名称/介绍：缺词回退（zh-Hant ↔ zh-Hans ↔ 原文）── */

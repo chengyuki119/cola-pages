@@ -43,7 +43,20 @@
     var r = R;
     var imgs = Array.isArray(r.images) ? r.images.filter(Boolean) : [];
     var cover = r.cover_image || imgs[0] || '';
-    document.getElementById('fd-cover').innerHTML = cover ? '<img src="' + F.esc(cover) + '" alt="' + F.esc(F.rName(r)) + '">' : '';
+    // 她 20261117 §九：读餐厅自己的图；没有图才用统一柚子占位（绝不显示别家图）
+    document.getElementById('fd-cover').innerHTML = cover
+      ? '<img src="' + F.esc(cover) + '" alt="' + F.esc(F.rName(r)) + '">'
+      : '<div class="fd-cover-ph">' + F.YUZU_SVG + '</div>';
+    // 分享预览 meta：动态写入当前餐厅的名称/封面/描述（执行 JS 的抓取器可读到；静态 OG 兜底仍是站点默认）
+    (function () {
+      var abs = function (u) { return u && u.charAt(0) === '/' ? location.origin + u : u; };
+      var set = function (sel, attr, v) { var m = document.querySelector(sel); if (m) m.setAttribute(attr, v); };
+      var desc = (F.rDesc(r) || '').slice(0, 160);
+      set('meta[property="og:title"]', 'content', F.rName(r) + ' · Foodie Map · Snow Yuzu');
+      set('meta[property="og:description"]', 'content', desc || document.querySelector('meta[name="description"]').getAttribute('content'));
+      if (cover) set('meta[property="og:image"]', 'content', abs(cover));
+      document.title = F.rName(r) + ' · Foodie Map · Snow Yuzu';
+    })();
 
     var open = F.isOpenNow(r);
     var cats = (r.cuisine || []).map(F.cuisineLabel).filter(Boolean);

@@ -4,12 +4,9 @@
    本文件只服务 /foodie/ 子页，不影响其他页面样式。 */
 
 /* ── 区块骨架 ── */
-.fd-wrap { max-width: 1080px; margin: 0 auto; }
-/* 地图页桌面端放宽，让筛选+地图吃满宽度（她 20261116 反馈左右留白过大）；只作用地图页，其他页面不动 */
-.page-body.fd-page-wide { max-width: 1640px; }
-.fd-wrap.fd-wrap-wide { max-width: 1560px; }
+.fd-wrap { max-width: 1500px; margin: 0 auto; } /* 她 20261117 §三：与全站统一 1500px */
 @media (min-width: 761px) {
-  .fd-wrap.fd-wrap-wide .fd-map-side { width: 360px; }
+  .fd-map-side { width: 360px; }
 }
 .fd-sec { margin: 0 0 34px; }
 .fd-sec-title { font-size: 21px; font-weight: 700; color: var(--text,#65515D); margin: 0 0 14px; display: flex; align-items: center; gap: 8px; }
@@ -72,9 +69,11 @@
 .fd-leaflet-pop a { color: #F48FB1; font-size: 14px; text-decoration: none; }
 
 /* ── 详情页 ── */
-.fd-detail { max-width: 860px; margin: 0 auto; }
+.fd-detail { max-width: 1500px; margin: 0 auto; } /* 她 20261117 §三：全站统一宽度 */
 .fd-detail-cover { position: relative; width: 100%; padding-top: 46%; border-radius: 18px; overflow: hidden; background: var(--accent-soft,#FCECF2); border: 1.5px solid var(--card-border,#F9E5ED); }
 .fd-detail-cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.fd-cover-ph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: var(--accent-soft,#FCECF2); }
+.fd-cover-ph svg { width: 46px; height: 46px; opacity: .75; }
 .fd-detail-head { margin-top: 18px; }
 .fd-detail-name { font-size: 27px; font-weight: 700; color: var(--text,#65515D); margin: 0; line-height: 1.35; }
 .fd-detail-sub { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 8px; font-size: 15px; color: var(--muted,#897783); }

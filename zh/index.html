@@ -37,12 +37,15 @@
 <meta name="twitter:title" content="小柚的小世界">
 <meta name="twitter:description" content="欢迎来到小柚的小世界">
 <meta name="twitter:image" content="https://yukicheng.com/zh/">
-<link rel="stylesheet" href="/css/site.css?v=20261107H">
+<link rel="stylesheet" href="/css/site.css?v=20261117A">
   <link rel="stylesheet" href="/site-menu.css?v=20261105C">
     <script src="/site-menu.js" defer></script>
   <link rel="stylesheet" href="/css/button-theme.css?v=20261112A">
 <link rel="stylesheet" href="/vendor/leaflet/leaflet.css?v=20261114B">
 <script src="/vendor/leaflet/leaflet.js?v=20261114B"></script>
+<script src="/js/foodie-coord.js?v=20261116B"></script>
+<script src="/vendor/google/markerclusterer.umd.js?v=20261116A"></script>
+<script src="/js/foodie-map-engine.js?v=20261117A"></script>
 </head>
 <body class="home">
 
@@ -143,9 +146,9 @@
 
     <!-- 稿件展示 -->
     <section id="sec-works">
-      <h2 data-zh="稿件展示" data-en="Works">稿件展示</h2>
+      <h2 data-zh="稿件" data-en="Commissions">稿件</h2>
       <div id="works-home-grid"></div>
-      <a class="home-long-btn" href="/zh/works/"><span data-zh="查看全部稿件" data-en="View All Works">查看全部稿件</span></a>
+      <a class="home-long-btn" href="/zh/works/"><span data-zh="查看全部" data-en="View All">查看全部</span></a>
     </section>
 
     <!-- Foodie Map：最新发现的餐厅（她 20261115 Phase 2） -->
@@ -168,7 +171,7 @@
 <div id="share-pop"></div>
 
 
-<script src="/js/site-common.js?v=20261107H"></script>
+<script src="/js/site-common.js?v=20261117A"></script>
 
 <!-- ═══════════ 桓桓 · AI 助手（AI 入口 · 第一阶段测试：模拟回复 + 后台知识库匹配，未接真 AI）═══════════ -->
 <style>
@@ -283,8 +286,6 @@
 
   #foodie-home-map { width: 100%; height: 230px; border-radius: 16px; border: 1.5px solid #F9E5ED; background: #FCECF2; margin-bottom: 14px; cursor: pointer; position: relative; z-index: 1; overflow: hidden; }
   #foodie-home-map .leaflet-control-attribution { font-size: 10px; opacity: .6; }
-  #foodie-home-map .fh-pin { display: flex; width: 32px; height: 32px; border-radius: 50% 50% 50% 4px; transform: rotate(-45deg); background: #FFFFFF; border: 2px solid #F48FB1; box-shadow: 0 3px 8px rgba(180,120,150,.3); align-items: center; justify-content: center; }
-  #foodie-home-map .fh-pin > span { transform: rotate(45deg); display: flex; }
   @media (max-width: 640px) { #foodie-home-map { height: 180px; } }
 
 </style>
@@ -349,7 +350,7 @@
     piggy: { zh: '我是小柚最喜欢的小宝宝猪呀！🐷♡', en: "I'm Yuki's favorite little piggy baby! 🐷♡" },
     features: {
       zh: 'Snow Yuzu 有很多可以逛的地方哦 ♡\n- 日历：查看重要日子和生日展示。\n- 照片墙：看看日常照片。\n- BJD：浏览娃娃档案和私人收藏。\n- 稿件展示：查看绘画和委托作品。\n- 色卡：浏览色卡私人收藏及相关信息。\n- 小铺：挑选喜欢的手作键帽。\n- 提问箱：可以匿名留下问题。\n欢迎慢慢探索每一个页面～',
-      en: "There's lots to explore at Snow Yuzu ♡\n- Calendar: Browse important dates and birthday displays.\n- Photo Gallery: Explore everyday photos.\n- BJD: Browse doll profiles and private collections.\n- Artwork Gallery: View commissioned illustrations and artwork.\n- Color Cards: Explore private color card collections.\n- My Shop: Browse handmade keycaps.\n- Ask Box: Leave an anonymous message.\nTake your time and enjoy exploring~"
+      en: "There's lots to explore at Snow Yuzu ♡\n- Calendar: Browse important dates and birthday displays.\n- Photo Gallery: Explore everyday photos.\n- BJD: Browse doll profiles and private collections.\n- Commissions: View commissioned illustrations and artwork.\n- Color Cards: Explore private color card collections.\n- My Shop: Browse handmade keycaps.\n- Ask Box: Leave an anonymous message.\nTake your time and enjoy exploring~"
     },
     calendar: { zh: '日历可以在网站主页找到哦～里面有重要日子和生日展示，可以看看有哪些特别的日子 ♡', en: "You can find the calendar on the homepage~ It displays important dates and birthdays. Come see what's coming up! ♡" },
     photos: { zh: '去「照片」页面就可以看到啦！也可以在主页往下滑，看看照片展示～', en: 'Visit the Photos page to see the gallery! You can also scroll down the homepage to explore the photo displays~' },
@@ -359,7 +360,7 @@
     },
     works: {
       zh: '可以去稿件展示页面看看哦！那里展示了柚子收藏的绘画作品和约稿成果 ♡\n\n这些稿件属于柚子的私人收藏，未经柚子允许，请不要截图、保存、转载或二次传播，也不要擅自将作品用于其他用途。',
-      en: "You can visit the Artwork Gallery to explore Yuki's collected illustrations and commissioned artwork ♡\n\nThese artworks are part of Yuki's private collection. Please do not screenshot, save, repost, redistribute, or use any artwork without Yuki's permission."
+      en: "You can visit the Commissions page to explore Yuki's collected illustrations and commissioned artwork ♡\n\nThese artworks are part of Yuki's private collection. Please do not screenshot, save, repost, redistribute, or use any artwork without Yuki's permission."
     },
     colorcard: {
       zh: '色卡页面可以查看柚子收藏的色卡图片、画师、张数、收卡价格和色卡总价。点击卡片还能查看详细信息哦～\n\n这些都是柚子的私人收藏 ♡ 未经柚子允许，请不要截图、保存、转载或二次传播，也不要擅自将图片用于其他用途。感谢你的理解！',
@@ -395,7 +396,7 @@
     features: { zh: '网站有什么功能？', en: 'What can I explore on this website?' },
     howtobuy: { zh: '怎么购买键帽？', en: 'How do I buy keycaps?' },
     bjd: { zh: 'BJD 和色卡在哪里？', en: 'Where can I find BJD and Color Cards?' },
-    works: { zh: '稿件展示在哪里？', en: 'Where is the Artwork Gallery?' },
+    works: { zh: '稿件展示在哪里？', en: 'Where is the Commissions page?' },
     colorcard: { zh: '色卡收藏在哪里看？', en: 'Where can I see the Color Cards?' },
     contact: { zh: '如何联系柚子？', en: 'How can I contact Yuki?' },
     payment: { zh: '付款方式是什么？', en: 'What are the payment options?' },
@@ -970,7 +971,7 @@
       var grid = document.getElementById('foodie-home-grid');
       if (!grid) return;
       var YUZU = '<svg viewBox="0 0 24 24" fill="none" style="width:16px;height:16px;flex-shrink:0;" aria-hidden="true"><circle cx="12" cy="13.2" r="8.2" fill="#FCECF2" stroke="#F48FB1" stroke-width="1.6"/><circle cx="9.2" cy="11" r="1" fill="#F6C5D7"/><circle cx="13.6" cy="12.4" r="1" fill="#F6C5D7"/><circle cx="11" cy="15.6" r="1" fill="#F6C5D7"/><path d="M12 5c0-1.8 1.2-3 3-3" stroke="#B98598" stroke-width="1.5" stroke-linecap="round"/><path d="M15 2c2.6.4 4.4 2 4.6 4.4-2.5.3-4.5-1.4-4.6-4.4z" fill="#F6C5D7" stroke="#B98598" stroke-width="1.1"/></svg>';
-      dbFetch('food_restaurants?status=eq.published&select=*&order=created_at.desc&limit=5').then(function (rows) {
+      dbFetch('food_restaurants?status=eq.published&yuzu_rating=not.is.null&select=*&order=yuzu_rating.desc.nullslast,created_at.desc&limit=5').then(function (rows) {
         rows = rows || [];
         if (!rows.length) {
           grid.style.display = 'block';
@@ -999,30 +1000,28 @@
         initHomeFoodieMap(rows); // 她 20261115：主页美食地图要有地图的样子
       }).catch(function () {});
 
+      // 她 20261117 §四：主页地图预览与 Foodie Map 主页面同款引擎/同款柚子 pin（Google/高德/Leaflet 降级一致）
       function initHomeFoodieMap(rows) {
       var el = document.getElementById('foodie-home-map');
-      if (!el || typeof L === 'undefined') return;
+      if (!el || !window.FoodieMapEngine) return;
       el.innerHTML = '';
-      var map = L.map(el, { zoomControl: false, scrollWheelZoom: false, dragging: false, doubleClickZoom: false, boxZoom: false, keyboard: false, touchZoom: false, attributionControl: true });
-      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(map);
-      var pts = [];
-      rows.forEach(function (r) {
-        var la = Number(r.latitude), ln = Number(r.longitude);
-        if (!la || !ln) return;
-        var m = L.marker([la, ln], {
-          icon: L.divIcon({ className: 'fh-pin-wrap', html: '<span class="fh-pin"><span>' + YUZU + '</span></span>', iconSize: [32, 32], iconAnchor: [16, 32] })
-        }).addTo(map);
-        m.on('click', function (e) { L.DomEvent.stopPropagation(e); location.href = ykLink('/foodie/restaurant/?slug=' + encodeURIComponent(r.slug || r.id)); });
-        pts.push([la, ln]);
+      if (el._leaflet_id != null) delete el._leaflet_id; // Leaflet 降级路径判重标记（教训【58】）
+      window.FoodieMapEngine.load({ el: el, center: [20, 0], zoom: 2, country: '' }).then(function (a) {
+        a.addMarkers(rows.map(function (r) {
+          return { id: r.id, slug: r.slug, latitude: r.latitude, longitude: r.longitude, yuzu_rating: r.yuzu_rating, name: (LANG === 'en') ? (r.name || '') : ((r.name_i18n && r.name_i18n['zh-Hans']) || r.name || '') };
+        }), {
+          onMarkerClick: function (r) {
+            location.href = ykLink('/foodie/restaurant/?slug=' + encodeURIComponent(r.slug || r.id));
+          }
+        });
+        homeFoodieAdapter = a;
+      }).catch(function () {});
+      el.addEventListener('click', function (e) {
+        if (e.target.closest('.fd-pin-engine')) return; // 点柚子 pin 进餐厅详情，不跳地图页
+        location.href = ykLink('/foodie/map/');
       });
-      if (pts.length === 1) map.setView(pts[0], 12);
-      else if (pts.length > 1) map.fitBounds(pts, { padding: [30, 30], maxZoom: 12 });
-      else map.setView([20, 0], 2);
-      setTimeout(function () { map.invalidateSize(); }, 80);
-      el.addEventListener('click', function () { location.href = ykLink('/zh/foodie/map/'); });
     }
-    })();
-
+    })(); // Foodie 主页区块 IIFE 结束
 
   // ===== 主页设置（后台「主页管理」同步：文案/头像/背景图）=====
   // 她 20261108：色卡/BJD/稿件改为公开浏览——不再经「柚子专属门禁」，匿名直接读公开键；
@@ -1179,8 +1178,9 @@
     var areas = parseSetting('areas', []);
     areas.forEach(function (a) {
       if (a.key === 'cards' && a.title_zh === '色卡展示') a.title_zh = '色卡'; // 旧默认名按新版规范显示
+      if (a.key === 'works' && (a.title_en === 'Works' || a.title_zh === '稿件展示')) { a.title_en = 'Commissions'; a.title_zh = '稿件'; } // 她 20261117 §二：Work→Commissions 旧名迁移
     });
-    if (!areas.some(function (a) { return a.key === 'works'; })) areas.push({ key: 'works', title_zh: '稿件展示', title_en: 'Works', visible: true }); // 旧数据没有稿件展示条目时用默认值参与排序
+    if (!areas.some(function (a) { return a.key === 'works'; })) areas.push({ key: 'works', title_zh: '稿件', title_en: 'Commissions', visible: true }); // 旧数据没有稿件展示条目时用默认值参与排序
     AREAS_CACHE = areas;
     if (areas.length) {
       var homeBody = document.querySelector('#page-home .page-body');

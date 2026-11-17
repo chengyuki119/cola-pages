@@ -18,14 +18,7 @@
   var REGIONS = [];
   var FILTER = { country: '', q: '', cuisine: '', food: '', price: 0, yuzu: 0 };
   var GEO_BUSY = false;
-
-  function popHtml(r) {
-    var loc = [F.rCity(r), r.country_name].filter(Boolean).join(', ');
-    return '<div class="fd-leaflet-pop" data-no-translate><b>' + F.esc(F.rName(r)) + '</b>' +
-      (loc ? '<span style="color:#897783;font-size:13px;">' + F.esc(loc) + '</span><br>' : '') +
-      F.yuzuHtml(r.yuzu_rating) +
-      '<br><a href="' + F.esc(F.detailUrl(r)) + '">' + F.esc(F.t('seeAll')) + ' →</a></div>';
-  }
+  var USER_LOC = null; // [lat,lng]（仅本页内存用于定位/附近排序，不上传不存储）
 
   function passFilter(r) {
     if (FILTER.country && r.country_code !== FILTER.country) return false;
@@ -45,7 +38,24 @@
     return (r.latitude != null && r.longitude != null) || true; // 无坐标的餐厅只在列表显示
   }
 
-  function current() { return ALL.filter(passFilter); }
+  function current() {
+    var rows = ALL.filter(passFilter);
+    if (USER_LOC) {
+      // 她 20261117 §八：定位后附近优先（Haversine 距离升序；无坐标的排后面照常展示）
+      var R = 6371, d = function (r) {
+        var a = Math.PI / 180, dLa = (r.latitude - USER_LOC[0]) * a, dLo = (r.longitude - USER_LOC[1]) * a;
+        var h = Math.sin(dLa / 2) * Math.sin(dLa / 2) + Math.cos(USER_LOC[0] * a) * Math.cos(r.latitude * a) * Math.sin(dLo / 2) * Math.sin(dLo / 2);
+        return 2 * R * Math.asin(Math.sqrt(h));
+      };
+      rows = rows.slice().sort(function (x, y) {
+        var hx = x.latitude == null, hy = y.latitude == null;
+        if (hx !== hy) return hx ? 1 : -1;
+        if (hx) return 0;
+        return d(x) - d(y);
+      });
+    }
+    return rows;
+  }
 
   function renderList(rows) {
     var box = document.getElementById('fd-list');
@@ -68,17 +78,10 @@
     if (!adapter) return;
     adapter.clearMarkers();
     adapter.addMarkers(rows, {
-      popHtml: popHtml,
+      // 她 20261117 §九：点击地图标记直接进入该餐厅详情页（与列表点击同一目标）
       onMarkerClick: function (r) {
-        // 标记点击：轻提示坐标系统（高德显示 GCJ-02）；链接点击由 popup 内 <a> 自行跳转
+        location.href = F.detailUrl(r);
       }
-    });
-  }
-
-  function flyTo(r) {
-    if (r.latitude == null || !adapter) return;
-    adapter.flyTo(Number(r.latitude), Number(r.longitude), 14, function () {
-      adapter.openPopup(r, popHtml(r));
     });
   }
 
@@ -97,19 +100,10 @@
     return '<button type="button" class="fd-region-chip' + (on ? ' on' : '') + '" data-fk="' + kind + '" data-fv="' + F.esc(val) + '">' + labelHtml + '</button>';
   }
   function renderFilters() {
-    var catRow = function (kind) {
-      var cur = kind === 'cuisine' ? FILTER.cuisine : FILTER.food;
-      return CATS[kind].map(function (c) {
-        var label = F.lang() === 'en' ? c.label_en : (c.label_zh || c.label_en);
-        return chip(label, cur === c.key, c.key, kind);
-      }).join('');
-    };
     var priceRow = [1, 2, 3, 4].map(function (n) { return chip('$'.repeat(n), FILTER.price === n, n, 'price'); }).join('');
     var yuzuRow = [3, 2, 1].map(function (n) {
       return chipHtml('<span style="display:inline-flex;gap:1px;">' + F.yuzuHtml(n) + '</span>', FILTER.yuzu === n, n, 'yuzu');
     }).join('');
-    document.getElementById('fd-f-cuisine').innerHTML = chip(F.t('cuisine'), false, '', 'cuisine-all') + catRow('cuisine');
-    document.getElementById('fd-f-food').innerHTML = chip(F.t('foodType'), false, '', 'food-all') + catRow('food_type');
     document.getElementById('fd-f-price').innerHTML = '<span style="font-size:14px;color:var(--muted,#897783);align-self:center;">' + F.esc(F.t('price')) + '</span>' + priceRow;
     document.getElementById('fd-f-yuzu').innerHTML = '<span style="font-size:14px;color:var(--muted,#897783);align-self:center;">' + F.esc(F.t('rating')) + '</span>' + yuzuRow;
     document.getElementById('fd-f-clear').style.display = (FILTER.cuisine || FILTER.food || FILTER.price || FILTER.yuzu) ? '' : 'none';
@@ -150,6 +144,17 @@
     buildMap(reg);
   }
 
+  /* 她 20261117 §八：定位（仅本页内存使用；拒绝/失败静默回退，不报错不卡住）*/
+  var AUTO_LOC_DONE = false;
+  function locateMe(zoom) {
+    if (!navigator.geolocation || !adapter) return;
+    navigator.geolocation.getCurrentPosition(function (p) {
+      USER_LOC = [p.coords.latitude, p.coords.longitude];
+      refresh(); // 附近餐厅排到列表前面
+      if (adapter) adapter.flyTo(p.coords.latitude, p.coords.longitude, zoom || 12);
+    }, function () {}, { timeout: 8000, maximumAge: 300000 });
+  }
+
   /* 创建/重建地图适配器：按地区自动选引擎（§一.4）*/
   function buildMap(reg) {
     var el = document.getElementById('fd-map');
@@ -167,6 +172,8 @@
         st.textContent = label;
         setTimeout(function () { if (st.textContent === label) st.textContent = ''; }, 2600);
       }
+      // 她 20261117 §八：首次进入（Global）自动尝试定位到用户附近；拒绝权限则保持默认视野
+      if (!AUTO_LOC_DONE && !FILTER.country) { AUTO_LOC_DONE = true; locateMe(12); }
     }).catch(function () { /* load 内部已降级 leaflet，不会到这里 */ });
   }
 
@@ -218,12 +225,7 @@
         FILTER.country = b.getAttribute('data-rc') || '';
         applyRegion();
       };
-      document.getElementById('fd-locate').onclick = function () {
-        if (!navigator.geolocation || !adapter) return;
-        navigator.geolocation.getCurrentPosition(function (p) {
-          adapter.flyTo(p.coords.latitude, p.coords.longitude, 13);
-        }, function () {}, { timeout: 8000 });
-      };
+      document.getElementById('fd-locate').onclick = function () { locateMe(13); };
       document.getElementById('fd-search-form').addEventListener('submit', function (e) {
         e.preventDefault();
         doSearch((document.getElementById('fd-q').value || '').trim());
@@ -233,7 +235,7 @@
         if (!a) return;
         e.preventDefault();
         var r = ALL.filter(function (x) { return x.id === a.getAttribute('data-rid'); })[0];
-        if (r) flyTo(r);
+        if (r) location.href = F.detailUrl(r); // 她 20261117 §九：列表点击直接进详情页
       });
       applyRegion(true);
       refresh();

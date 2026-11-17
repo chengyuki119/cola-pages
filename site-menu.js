@@ -12,23 +12,21 @@
   try { LANG = (window.YK && window.YK.lang) || localStorage.getItem('yuki-lang') || 'en'; } catch (e) {}
   function t(zh, en) { return LANG === 'en' ? en : zh; }
 
-  // ── 唯一导航数据源 ──
+  // ── 唯一导航数据源（她 20261117 改版任务书 §一：统一顺序，Contact 入口移 About，Home 由 Logo 回主页）──
   var NAV = [
-    { key: 'home', zh: 'Home', en: 'Home', page: 'index', url: '/' },
     { key: 'cal', zh: '日历', en: 'Calendar', page: 'index', url: '/', scrollTo: 'home-cal', scroll: true },
+    { key: 'shop', group: true, nav: 'shop', zh: '我的小铺', en: 'My Shop', items: [
+      { key: 'shop', zh: '逛小铺', en: 'Shop', page: 'shop', url: '/shop/' },
+      { key: 'reviews', zh: '评价返图', en: 'Review', page: 'shop', url: '/shop/?sec=reviews', sec: 'reviews' }
+    ]},
     { key: 'gallery', group: true, nav: 'gallery', zh: '照片展示', en: 'Photo Gallery', items: [
       { key: 'instax', zh: '拍立得展示', en: 'Instax Display', page: 'photos', url: '/photos/?sec=instax', sec: 'instax' },
       { key: 'film', zh: '胶卷相机照片展示', en: 'Film Camera Pictures', page: 'photos', url: '/photos/?sec=film', sec: 'film' }
     ]},
     { key: 'bjd', zh: 'BJD', en: 'BJD', page: 'bjd', url: '/bjd/' },
     { key: 'cards', zh: '色卡', en: 'Color Cards', page: 'cards', url: '/color-card/' },
-    { key: 'works', zh: '稿件展示', en: 'Commissions', page: 'works', url: '/works/' },
+    { key: 'works', zh: '稿件', en: 'Commissions', page: 'works', url: '/works/' },
     { key: 'foodie', zh: '美食地图', en: 'Foodie Map', page: 'foodie', url: '/foodie/' },
-    { key: 'shop', group: true, nav: 'shop', zh: '我的小铺', en: 'My Shop', items: [
-      { key: 'shop', zh: '逛小铺', en: 'Shop', page: 'shop', url: '/shop/' },
-      { key: 'reviews', zh: '评价返图', en: 'Review', page: 'shop', url: '/shop/?sec=reviews', sec: 'reviews' }
-    ]},
-    { key: 'anon', zh: '联系我们', en: 'Contact Us', page: 'askbox', url: '/askbox/' },
     { key: 'about', zh: '关于 Snow Yuzu', en: 'About', page: 'about', url: '/about/' }
   ];
 

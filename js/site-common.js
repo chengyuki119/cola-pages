@@ -1251,6 +1251,8 @@ window.ykGatePage = ykGatePage;
 window.ykRefreshSession = ykRefreshSession;
 window.ykWriteSession = ykWriteSession;
 window.ykSessionKey = ykSessionKey;
+window.ykSession = ykSession;
+window.ykToken = ykToken; // 她 20261117 §十：Foodie 投稿需要登录态提交
 // 登录态取数：有会话用 access token，否则 anon（照片页等登录可见数据用）
 function ykAuthFetch(path) {
   return ykToken().then(function (at) {
