@@ -174,6 +174,8 @@
 
   // ── 五栏渲染（她 20261117 15:15：一级标题改为可点链接——桌面直接跳转，手机仍作手风琴展开）──
   function titleCurrent(col) { // 栏头高亮：目标页就是当前页（含 sec）
+    // 她 20261117 18:13：首页时高亮的是 Home 这一栏，不能把「日历」（它只是首页里的一个区块）当成当前页
+    if (curPage === 'index') return isHomePage && col.key === 'home';
     try {
       var u = new URL(col.url, location.origin);
       if (normPath(u.pathname) !== curPage) return false;
@@ -384,6 +386,8 @@
     });
   }
   function currentKey() {
+    // 首页 / 政策、FAQ 等没有自己条目的页面：子项一律不高亮（高亮交给栏头，不再回退到「日历」）
+    if (curPage === 'index') return '';
     var best = '';
     var scan = function (cond) {
       NAV.forEach(function (item) {

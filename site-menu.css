@@ -153,9 +153,9 @@
   outline-offset: 2px;
 }
 
-/* 当前所在页面：柔和粉色高亮（所有页面统一，只标当前，不重排不隐藏） */
+/* 当前所在页面：深粉色高亮（所有页面统一，只标当前一处于；栏头与子项同一个色，避免一眼看不出在哪页） */
 .menu a.current, .menu-link.current { background: var(--btn-bg-a,#F6C5D7); font-weight: 600; }
-.menu-group.current > .menu-toggle { background: var(--accent-soft,#FCECF2); font-weight: 600; }
+.menu-group.current > .menu-toggle { background: var(--btn-bg-a,#F6C5D7); font-weight: 600; }
 
 /* ═══ 她 20261117 02:59 任务书 PART B：顶栏改版 ═══
    左侧 Logo（不再居中）；右侧 = 购物车 · 账号按钮 · 汉堡按钮；中间无导航文字。 */
