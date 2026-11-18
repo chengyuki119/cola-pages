@@ -12,6 +12,8 @@
   var R = null;
   var miniMap = null;
   var miniMapSeq = 0; // render 会被调两次，序号守卫保证只有最后一次的地图生效
+  var GAL = [];       // 当前餐厅可看的图（封面 + 相册，去重保序）
+  var LB_I = 0;       // 灯箱当前下标
 
   /* WGS-84 → GCJ-02：统一走 js/foodie-coord.js（她 20261115 地图引擎任务书 §三）*/
   function wgs2gcj(lat, lng) { return window.FoodieCoord.wgs2gcj(lat, lng); }
@@ -43,9 +45,13 @@
     var r = R;
     var imgs = Array.isArray(r.images) ? r.images.filter(Boolean) : [];
     var cover = r.cover_image || imgs[0] || '';
+    // 她 20261117：点封面/照片看大图（与照片展示页同一套灯箱）；封面排第一张
+    GAL = [];
+    if (cover) GAL.push(cover);
+    imgs.forEach(function (u) { if (GAL.indexOf(u) < 0) GAL.push(u); });
     // 她 20261117 §九：读餐厅自己的图；没有图才用统一柚子占位（绝不显示别家图）
     document.getElementById('fd-cover').innerHTML = cover
-      ? '<img src="' + F.esc(cover) + '" alt="' + F.esc(F.rName(r)) + '">'
+      ? '<img src="' + F.esc(cover) + '" alt="' + F.esc(F.rName(r)) + '" data-gi="0">'
       : '<div class="fd-cover-ph">' + F.YUZU_SVG + '</div>';
     // 分享预览 meta：动态写入当前餐厅的名称/封面/描述（执行 JS 的抓取器可读到；静态 OG 兜底仍是站点默认）
     (function () {
@@ -99,7 +105,9 @@
     var gallery = imgs.slice(cover && imgs[0] === cover ? 1 : 0);
     document.getElementById('fd-gallery').innerHTML = gallery.length
       ? '<h2 class="fd-sec-title" style="font-size:18px;">' + F.esc(F.t('photos')) + '</h2><div class="fd-gallery">' +
-        gallery.map(function (u) { return '<img loading="lazy" src="' + F.esc(u) + '" alt="" data-gallery>'; }).join('') + '</div>'
+        gallery.map(function (u) {
+          return '<img loading="lazy" src="' + F.esc(u) + '" alt="' + F.esc(F.rName(r)) + '" data-gallery data-gi="' + Math.max(0, GAL.indexOf(u)) + '">';
+        }).join('') + '</div>'
       : '';
 
     var nav = navUrl(r);
@@ -152,6 +160,69 @@
     document.body.appendChild(d);
     setTimeout(function () { d.remove(); }, 2200);
   }
+
+  /* ── 看图灯箱（她 20261117：跟照片展示页同一套外观；多图可左右翻页 + 手指滑动）── */
+  function lbShow(i) {
+    var box = document.getElementById('fd-lightbox');
+    if (!box || !GAL.length) return;
+    LB_I = ((i % GAL.length) + GAL.length) % GAL.length;
+    var src = GAL[LB_I];
+    var img = document.getElementById('fd-lb-img');
+    img.src = src;
+    img.alt = (R ? F.rName(R) : '') + ' ' + (LB_I + 1);
+    var dl = document.getElementById('fd-lb-download');
+    dl.href = src;
+    dl.setAttribute('download', String(src).split('/').pop().split('?')[0] || 'photo.jpg');
+    dl.textContent = F.t('download');
+    document.getElementById('fd-lb-close').textContent = F.t('close');
+    var one = GAL.length < 2;
+    document.getElementById('fd-lb-prev').style.display = one ? 'none' : '';
+    document.getElementById('fd-lb-next').style.display = one ? 'none' : '';
+    document.getElementById('fd-lb-count').textContent = one ? '' : (LB_I + 1) + ' / ' + GAL.length;
+    box.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function lbClose() {
+    var box = document.getElementById('fd-lightbox');
+    if (box) box.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.addEventListener('click', function (e) {
+    var pic = e.target.closest('.fd-gallery img, #fd-cover img');
+    if (pic) { lbShow(Number(pic.getAttribute('data-gi')) || 0); return; }
+    var box = e.target.closest('#fd-lightbox');
+    if (!box) return;
+    if (e.target.closest('#fd-lb-close')) { lbClose(); return; }
+    if (e.target.closest('#fd-lb-prev')) { lbShow(LB_I - 1); return; }
+    if (e.target.closest('#fd-lb-next')) { lbShow(LB_I + 1); return; }
+    if (e.target.closest('.lightbox-bar')) return; // 下载/关闭/张数那一条上的点击不关灯箱
+    lbClose();
+  });
+
+  document.addEventListener('keydown', function (e) {
+    var box = document.getElementById('fd-lightbox');
+    if (!box || !box.classList.contains('open')) return;
+    if (e.key === 'Escape') lbClose();
+    else if (e.key === 'ArrowLeft') lbShow(LB_I - 1);
+    else if (e.key === 'ArrowRight') lbShow(LB_I + 1);
+  });
+
+  (function () {
+    var x0 = 0, y0 = 0;
+    document.addEventListener('touchstart', function (e) {
+      var box = document.getElementById('fd-lightbox');
+      if (!box || !box.classList.contains('open') || !e.touches.length) return;
+      x0 = e.touches[0].clientX; y0 = e.touches[0].clientY;
+    }, { passive: true });
+    document.addEventListener('touchend', function (e) {
+      var box = document.getElementById('fd-lightbox');
+      if (!box || !box.classList.contains('open') || !e.changedTouches.length) return;
+      var dx = e.changedTouches[0].clientX - x0;
+      var dy = e.changedTouches[0].clientY - y0;
+      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) lbShow(LB_I + (dx < 0 ? 1 : -1));
+    }, { passive: true });
+  })();
 
   function init() {
     var qs = new URLSearchParams(location.search);

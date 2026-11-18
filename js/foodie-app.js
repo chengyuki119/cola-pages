@@ -63,6 +63,8 @@
     yuzu4:        { en: 'A regular favourite — I keep going back.', 'zh-Hans': '会一直回头去吃的店。', 'zh-Hant': '會一直回頭去吃的店。', ja: '何度も通いたいお気に入り。' },
     yuzu5:        { en: 'My favourite. Worth the whole trip.', 'zh-Hans': '最喜欢的一家，专程去也值。', 'zh-Hant': '最喜歡的一家，專程去也值。', ja: '一番のお気に入り。わざわざ行く価値あり。' },
     photos:       { en: 'Photos', 'zh-Hans': '照片', 'zh-Hant': '照片', ja: 'フォト' },
+    download:     { en: 'Download', 'zh-Hans': '下载原图', 'zh-Hant': '下載原圖', ja: 'ダウンロード' },
+    close:        { en: 'Close', 'zh-Hans': '关闭', 'zh-Hant': '關閉', ja: '閉じる' },
     myLocation:   { en: 'My location', 'zh-Hans': '我的位置', 'zh-Hant': '我的位置', ja: '現在地' },
     /* Phase 2 投稿（她 20261115）*/
     suggest:      { en: 'Add New Restaurant', 'zh-Hans': '添加新的餐厅' },
