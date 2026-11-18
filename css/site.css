@@ -107,21 +107,6 @@
     max-width: 100%;
     object-fit: contain; /* 兜底：万一将来换成别的写法也不会裁切 */
   }
-  .hero::before { /* 她 20261118 00:14 §三：封面图片左右两侧自然渐隐到页面背景色，让矩形图片融入整页。
-     颜色取自封面图左右两侧实际像素均值：左 #EED3E0、右 #EED7E4，外缘用主页背景 --bg #FFF8FA。
-     只盖左右各约 14%，不碰中间主体，不模糊、不缩放，不影响清晰度。 */
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 1;
-    background:
-      linear-gradient(90deg, var(--bg, #FFF8FA) 0%, #EED3E0 3%, rgba(238, 211, 224, .72) 9%, rgba(238, 211, 224, .34) 15%, rgba(255, 248, 250, 0) 22%),
-      linear-gradient(270deg, var(--bg, #FFF8FA) 0%, #EED7E4 3%, rgba(238, 215, 228, .72) 9%, rgba(238, 215, 228, .34) 15%, rgba(255, 248, 250, 0) 22%);
-  }
-  @media (max-width: 1200px) { /* 手机/平板：展示区本身满宽，两边没有背景可融，保持原样不加渐变 */
-    .hero::before { display: none; }
-  }
   .hero::after { /* 原来叠在背景图上的底部过渡，改成覆盖层，保证照片底部与页面背景衔接 */
     content: '';
     position: absolute;
