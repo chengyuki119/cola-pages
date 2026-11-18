@@ -416,7 +416,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .vis-chip.vis-on { background: var(--accent-soft); color: var(--accent-strong); }
   .area-kebab, .hm-kebab { width: 32px; height: 32px; flex-shrink: 0; border: none; border-radius: 10px; background: var(--card); color: var(--muted); font-size:19px; cursor: pointer; font-family: inherit; line-height: 1; }
   .area-kebab:hover, .hm-kebab:hover { background: var(--card-hover); color: var(--text); }
-  .empty { text-align: center; color: var(--muted); font-size:17px; padding: 30px 0; }
+  .empty { text-align: center; color: var(--muted); font-size:15px; line-height: 1.7; padding: 30px 0; grid-column: 1 / -1; } /* 她 20261118 00:32：提示语字号回到网站正文档 15px，并在网格里整行显示，不再被挤成两行 */
   h3 { font-size:18px; margin: 0 0 12px; }
   h3.outside { margin: 18px 0 12px; }
 
@@ -6052,7 +6052,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         '<button type="button" class="btn-cancel btn-bjd-cancel-tb">取消</button>' +
         '</div>' +
         '</div>';
-    }).join('') || '<p class="empty">还没有 BJD 档案，点下面「+ 新增 BJD」</p>';
+    }).join('') || '<p class="empty">还没有 BJD 档案，<span style="display:inline-block;">点下面「+ 新增 BJD」</span></p>';
     document.getElementById('bjd-total').textContent = BJDS.length ? '共 ' + BJDS.length + ' 个娃娃' : '';
     renderBjdLists(); // 尺寸 + 身体类型两排标签一起重建
     if (BJDS_EDIT >= 0) EDIT_TYPE = 'bjd'; else if (EDIT_TYPE === 'bjd') EDIT_TYPE = null;
