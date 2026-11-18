@@ -154,6 +154,7 @@
   h3 { font-size: 19px; }
   .txt-aux { font-size: 13px; }
   h2::before { content: ""; width: 4px; height: 18px; background: var(--accent-soft, #FCECF2); border-radius: 2px; }
+  h2 a { color: inherit; text-decoration: none; } /* 她 20261117 15:59：全站区块标题可点，样式不变 */
 
   /* ===== 社交链接 ===== */
   .links { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
@@ -399,7 +400,10 @@
   .cal-main { flex: 1.35; min-width: 0; }
   .cal-side { flex: 1; min-width: 0; font-size:16px; }
   .cal-head { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
-  .cal-head b { flex: 1; text-align: center; font-size:18px; }
+  .cal-head-pad { flex: 1; min-width: 0; }
+  .cal-head-pad.r { display: flex; justify-content: flex-end; }
+  .cal-nav { display: flex; align-items: center; gap: 6px; } /* 她 20261117 15:59：‹ 标题 › 居中成组，Today 独立靠右，不再被 › 挤在一起 */
+  .cal-head b { flex: none; text-align: center; font-size:18px; }
   .cal-btn { border: none; background: var(--card-hover); color: var(--text); width: 26px; height: 26px; border-radius: 999px; cursor: pointer; font-size:17px; line-height: 1; padding: 0; } /* 2026-11-04 23:19 圆角统一（原 8px） */
   .cal-btn.wide { width: auto; padding: 0 12px; font-size:15px; color: var(--text, #65515D); background: var(--accent-soft, #FCECF2); border-radius: 999px; font-weight: 600; transition: background .2s, transform .15s; }
   .cal-btn.wide:hover { background: var(--accent, #F9E5ED); }

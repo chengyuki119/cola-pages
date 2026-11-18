@@ -114,11 +114,6 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .shop-mat-chip.on { background: #FCECF2; border-color: #F6C5D7; color: #B98598; font-weight: 600; }
   .shop-searchbox { display: flex; align-items: center; gap: 8px; border: 1.5px solid #F9E5ED; background: #fff; border-radius: 999px; padding: 8px 16px; margin: 0 0 16px; max-width: 460px; }
   .shop-searchbox input { border: none; outline: none; background: transparent; font: inherit; font-size: 16px; color: #65515D; width: 100%; }
-  #product-grid.masonry { display: block; column-count: 2; column-gap: 16px; }
-  #product-grid.masonry > .product { break-inside: avoid; margin-bottom: 16px; display: inline-block; width: 100%; }
-  #product-grid.masonry .product-img { height: auto; }
-  #product-grid.masonry .product-img img { height: auto !important; }
-  @media (max-width: 640px) { #product-grid.masonry { column-count: 2; column-gap: 10px; } #product-grid.masonry > .product { margin-bottom: 10px; } }
   .product {
     background: #fff;
     border: 1.5px solid #F9E5ED; /* 20261026r 商品卡描框（与 site.css r 轮规则同一套；本页不加载 site.css，故此处声明） */
@@ -369,11 +364,11 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
   .keycap-notes-wrap .pol-card p:last-child { margin-bottom: 0; }
 </style>
   <link rel="stylesheet" href="/site-menu.css?v=20261117J">
-  <script src="/js/site-common.js?v=20261117A"></script>
+  <script src="/js/site-common.js?v=20261117B"></script>
   <script src="/js/policy-content.js?v=20261105C"></script>
   <script src="/site-menu.js?v=20261117J" defer></script>
 <script src="/js/page-covers.js?v=20261117A" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261117B">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261117C">
     <link rel="stylesheet" href="/css/input-unify.css?v=20261107H">
   <style id="pdp-desktop-notes">
 /* 她 20261112 01:51 §二：商品详情页电脑端布局（只改 ≥640px；手机端一行都不改，保持现状）
@@ -914,7 +909,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
   }
 </script>
 <script src="/js/name-lexicon.js?v=20261117A"></script>
-  <script src="/js/shop-app.js?v=20261117C"></script>
+  <script src="/js/shop-app.js?v=20261117D"></script>
 <script src="/js/site-footer.js?v=20261114A"></script>
 <script>
   // 统一 Footer（已有 <footer> 则替换其内容，不新建第二个）

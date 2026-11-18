@@ -37,7 +37,7 @@
 :root {
   --btn-pad-y: 10px;
   --btn-pad-x: 14px;
-  --btn-radius: 10px;
+  --btn-radius: 999px; /* 她 20261117 15:59：胶囊 Pill Shape，不许改方角 */
 }
 
 :root {
@@ -844,7 +844,7 @@ textarea {
 
 /* 2. 首页长按钮：同一个胶囊形，悬停跟随主按钮（原来用 brightness 滤镜，会显得更脏） */
 .home-long-btn {
-  border-radius: var(--btn-radius) !important; /* 她 20261117 15:32：胶囊改统一 10px 圆角 */
+  border-radius: var(--btn-radius) !important; /* 她 20261117 15:59：胶囊 999px，跟全站按钮同一 token */
   padding: var(--btn-pad-y) var(--btn-pad-x) !important;
 }
 .home-long-btn:hover {

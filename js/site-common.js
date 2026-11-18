@@ -10,6 +10,7 @@ function escDb(s) {
 function escAttrDb(s) {
   return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 }
+function y18(x) { return window.YK18N ? window.YK18N.t(x) : x; } // 20261117：提升为全站全局（原只在各页 IIFE 内，主页 block 903 渲染链引用不到 → 色卡/稿件/BJD 区块整条链静默死掉）；页面自带局部 y18 会就近遮蔽，互不影响
 
 // ===== Supabase 数据层（全站同一份连接与登录态） =====
 var DB_BASE = 'https://ukxrvcptwhlwvdanovgd.supabase.co/rest/v1/';

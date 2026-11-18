@@ -66,7 +66,7 @@
       '.fdm-chip{border:1.5px solid #F9E5ED;background:#fff;color:#65515D;border-radius:999px;padding:5px 13px;font-size:14px;cursor:pointer;font-family:inherit;}' +
       '.fdm-chip.on{background:#F6C5D7;border-color:#F6C5D7;color:#B98598;font-weight:600;}' +
       '.fdm-rest{display:flex;gap:12px;align-items:center;border:1.5px solid #F9E5ED;border-radius:14px;padding:10px 14px;margin-bottom:10px;background:#fff;}' +
-      '.fdm-rest img{width:72px;height:56px;object-fit:cover;border-radius:10px;background:#FCECF2;flex-shrink:0;}' +
+      '.fdm-rest img{width:72px;height:72px;object-fit:cover;border-radius:10px;background:#FCECF2;flex-shrink:0;}' +
       '.fdm-rest-body{flex:1;min-width:0;}' +
       '.fdm-more{position:relative;}' +
       '.fdm-menu{position:absolute;right:0;top:34px;background:#fff;border-radius:12px;box-shadow:0 6px 20px rgba(180,120,150,.18);padding:6px;min-width:130px;display:none;z-index:30;}' +
@@ -82,7 +82,7 @@
       '.fdm-tbl td{padding:8px 10px;border-bottom:1px solid #F9E5ED;color:#65515D;}' +
       '.fdm-imgs{display:flex;gap:10px;flex-wrap:wrap;}' +
       '.fdm-img{position:relative;width:96px;}' +
-      '.fdm-img img{width:96px;height:72px;object-fit:cover;border-radius:10px;border:1.2px solid #F9E5ED;}' +
+      '.fdm-img img{width:96px;height:96px;object-fit:cover;border-radius:10px;border:1.2px solid #F9E5ED;}' +
       '.fdm-img .del{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;border:none;background:#fff;color:#C4636E;cursor:pointer;font-size:13px;line-height:1;box-shadow:0 2px 8px rgba(180,120,150,.25);}' +
       '.fdm-hint{font-size:14px;color:#897783;}';
     document.head.appendChild(st);
@@ -238,7 +238,7 @@
       line('城市', p.city) + line('地址', p.address) +
       ((p.cuisine || []).length || (p.food_categories || []).length ? '<div style="margin:4px 0;">' + chipsHtml('cuisine') + chipsHtml('food_type') + '</div>' : '') +
       line('价位', p.price_level ? '$'.repeat(Number(p.price_level)) + (p.average_price != null && p.currency_code ? ' · 人均约 ' + p.currency_code + ' ' + p.average_price : '') : '') +
-      (imgs.length ? '<div style="margin:8px 0;">' + imgs.map(function (u) { return '<img src="' + esc(u) + '" style="width:110px;height:84px;object-fit:cover;border-radius:10px;border:1.2px solid #F9E5ED;margin:0 8px 8px 0;background:#FCECF2;">'; }).join('') + '</div>' : '') +
+      (imgs.length ? '<div style="margin:8px 0;">' + imgs.map(function (u) { return '<img src="' + esc(u) + '" style="width:110px;height:110px;object-fit:cover;border-radius:10px;border:1.2px solid #F9E5ED;margin:0 8px 8px 0;background:#FCECF2;">'; }).join('') + '</div>' : '') +
       '<div style="background:#FFF8FA;border:1.5px solid #F9E5ED;border-radius:14px;padding:12px 14px;margin:10px 0 4px;">' +
       '<div style="font-size:13px;color:#897783;margin-bottom:4px;">投稿人推荐理由（' + esc(s.user_email || '—') + '）</div>' +
       '<div style="font-size:15px;line-height:1.8;color:#65515D;white-space:pre-wrap;">' + esc(s.note || '') + '</div></div>' +
@@ -484,7 +484,7 @@
       '<div class="fdm-imgs" id="ff-imgs">' + imgs.map(function (u, i) {
         return '<div class="fdm-img"><img src="' + esc(u) + '"><button type="button" class="del" data-i="' + i + '" title="删除">✕</button></div>';
       }).join('') +
-      '<button type="button" class="fdm-btn ghost" id="ff-img-add" style="width:96px;height:72px;border-radius:10px;">＋ 上传</button>' +
+      '<button type="button" class="fdm-btn ghost" id="ff-img-add" style="width:96px;height:96px;border-radius:10px;">＋ 上传</button>' +
       '<input type="file" id="ff-img-file" accept="image/*" multiple style="display:none;">' +
       '</div></div></div>' +
       '<div class="fdm-row" style="align-items:flex-start;">' +
@@ -521,7 +521,7 @@
     var paintImgs = function () {
       document.getElementById('ff-imgs').innerHTML = imgsArr.map(function (u, i) {
         return '<div class="fdm-img"><img src="' + esc(u) + '"><button type="button" class="del" data-i="' + i + '" title="删除">✕</button></div>';
-      }).join('') + '<button type="button" class="fdm-btn ghost" id="ff-img-add" style="width:96px;height:72px;border-radius:10px;">＋ 上传</button><input type="file" id="ff-img-file" accept="image/*" multiple style="display:none;">';
+      }).join('') + '<button type="button" class="fdm-btn ghost" id="ff-img-add" style="width:96px;height:96px;border-radius:10px;">＋ 上传</button><input type="file" id="ff-img-file" accept="image/*" multiple style="display:none;">';
       bindImgs();
     };
     var bindImgs = function () {

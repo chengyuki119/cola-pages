@@ -38,10 +38,10 @@
 <meta name="twitter:title" content="小柚的小世界">
 <meta name="twitter:description" content="欢迎来到小柚的小世界">
 <meta name="twitter:image" content="https://yukicheng.com/zh/">
-<link rel="stylesheet" href="/css/site.css?v=20261117D">
+<link rel="stylesheet" href="/css/site.css?v=20261117E">
   <link rel="stylesheet" href="/site-menu.css?v=20261117J">
     <script src="/site-menu.js?v=20261117J" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261117B">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261117C">
 <link rel="stylesheet" href="/vendor/leaflet/leaflet.css?v=20261114B">
 <script src="/vendor/leaflet/leaflet.js?v=20261114B"></script>
 <script src="/js/foodie-coord.js?v=20261116B"></script>
@@ -95,10 +95,13 @@
     <div id="home-cal">
       <div class="cal-main">
         <div class="cal-head">
-          <button class="cal-btn" id="cal-prev" aria-label="上个月">‹</button>
-          <b id="cal-title"></b>
-          <button class="cal-btn" id="cal-next" aria-label="下个月">›</button>
-          <button class="cal-btn wide" id="cal-today" data-zh="今天" data-en="Today">今天</button>
+          <span class="cal-head-pad"></span>
+          <div class="cal-nav">
+            <button class="cal-btn" id="cal-prev" aria-label="上个月">‹</button>
+            <b id="cal-title"></b>
+            <button class="cal-btn" id="cal-next" aria-label="下个月">›</button>
+          </div>
+          <span class="cal-head-pad r"><button class="cal-btn wide" id="cal-today" data-zh="今天" data-en="Today">今天</button></span>
         </div>
         <div class="cal-grid" id="cal-grid"></div>
         <button class="cal-add" id="cal-add" style="display:none" data-zh="+ 添加重要日子" data-en="+ Add a Day">+ 添加重要日子</button>
@@ -122,13 +125,13 @@
 
     <!-- 自制小铺（日历下方） -->
     <section id="shop">
-      <h2>我的小铺</h2>
+      <h2><a href="/zh/shop/">我的小铺</a></h2>
       <div id="home-shop-grid" class="home-shop-grid"></div>
       <a class="home-long-btn" href="/zh/shop/" style="margin-top:16px;"><span data-zh="进入小铺" data-en="Enter the Shop">进入小铺</span></a>
     </section>
 
     <section id="sec-gallery">
-      <h2 data-zh="照片墙" data-en="Photo Gallery">照片墙</h2>
+      <h2><a href="/zh/photos/" data-zh="照片墙" data-en="Photo Gallery">照片墙</a></h2>
       <div class="preview-grid">
         <div class="tile" data-sec="instax"><a class="photo" href="/zh/photos/?sec=instax" data-img="/photos/vct1.jpg"><span>photos/vct1.jpg</span></a><span class="tile-label" data-zh="拍立得展示" data-en="Instax Display">拍立得展示</span></div>
         <div class="tile" data-sec="film"><a class="photo" href="/zh/photos/?sec=film" data-img="/photos/film1.jpg"><span>photos/film1.jpg</span></a><span class="tile-label" data-zh="胶卷相机照片展示" data-en="Film Camera Pictures">胶卷相机照片展示</span></div>
@@ -137,28 +140,28 @@
 
     <!-- BJD：简洁预览 + 基本信息 + 长条按钮 → BJD Sub Page（尺寸分类在子页） -->
     <section id="sec-bjd">
-      <h2 data-zh="BJD" data-en="BJD">BJD</h2>
+      <h2><a href="/zh/bjd/" data-zh="BJD" data-en="BJD">BJD</a></h2>
       <div id="bjd-home-grid"></div>
       <a class="home-long-btn" href="/zh/bjd/"><span data-zh="进入 BJD 小屋" data-en="Enter BJD World">进入 BJD 小屋</span></a>
     </section>
 
     <!-- 色卡：每张色卡简洁预览（方图 + 名字 + 铺名 + 总金额 + 长条按钮） -->
     <section id="sec-cards">
-      <h2 data-zh="色卡" data-en="Color Cards">色卡</h2>
+      <h2><a href="/zh/color-card/" data-zh="色卡" data-en="Color Cards">色卡</a></h2>
       <div id="cards-home-grid"></div>
       <a class="home-long-btn" href="/zh/color-card/"><span data-zh="进入色卡小屋" data-en="Enter Color Card Studio">进入色卡小屋</span></a>
     </section>
 
     <!-- 稿件展示 -->
     <section id="sec-works">
-      <h2 data-zh="稿件" data-en="Commissions">稿件</h2>
+      <h2><a href="/zh/works/" data-zh="稿件" data-en="Commissions">稿件</a></h2>
       <div id="works-home-grid"></div>
       <a class="home-long-btn" href="/zh/works/"><span data-zh="查看全部" data-en="View All">查看全部</span></a>
     </section>
 
     <!-- Foodie Map：最新发现的餐厅（她 20261115 Phase 2） -->
     <section id="sec-foodie">
-      <h2 data-zh="美食地图" data-en="Foodie Map">美食地图</h2>
+      <h2><a href="/zh/foodie/" data-zh="美食地图" data-en="Foodie Map">美食地图</a></h2>
       <div id="foodie-home-map" title="Foodie Map"></div>
       <div id="foodie-home-grid"></div>
       <a class="home-long-btn" href="/zh/foodie/"><span data-zh="进入美食地图" data-en="Enter the Foodie Map">进入美食地图</span></a>
@@ -176,7 +179,7 @@
 <div id="share-pop"></div>
 
 
-<script src="/js/site-common.js?v=20261117A"></script>
+<script src="/js/site-common.js?v=20261117B"></script>
 
 <!-- ═══════════ 桓桓 · AI 助手（AI 入口 · 第一阶段测试：模拟回复 + 后台知识库匹配，未接真 AI）═══════════ -->
 <style>
@@ -1050,7 +1053,10 @@
     return ykGateApply(S);
   }).then(function (S) {
     function parseSetting(key, fallback) {
-      try { var v = JSON.parse(S[key] || 'null'); return v == null ? fallback : v; } catch (e) { return fallback; }
+      var raw = S[key];
+      if (raw == null) return fallback;
+      if (typeof raw !== 'string') return raw; // 20261117：键值可能是 PostgREST 已解析的 jsonb（如 bjds=[]），直接用，不再 JSON.parse 报错吞掉
+      try { var v = JSON.parse(raw || 'null'); return v == null ? fallback : v; } catch (e) { return fallback; }
     }
     // 顶部文案
     var hero = parseSetting('hero', {});
@@ -1208,9 +1214,16 @@
         el.style.display = (a.visible === false || el.getAttribute('data-yk-hidden') === '1') ? 'none' : ''; // 柚子专属门禁隐藏优先
         var h2 = el.querySelector('h2');
         if (h2 && a.title_zh) {
-          h2.setAttribute('data-zh', a.title_zh);
-          h2.setAttribute('data-en', a.title_en || a.title_zh);
-          h2.textContent = a.title_zh;
+          var h2a = h2.querySelector('a'); // 20261117：标题可点（anchor 承载 data-zh/data-en），区域改名只换文字不动链接
+          if (h2a) {
+            h2a.setAttribute('data-zh', a.title_zh);
+            h2a.setAttribute('data-en', a.title_en || a.title_zh);
+            h2a.textContent = a.title_zh;
+          } else {
+            h2.setAttribute('data-zh', a.title_zh);
+            h2.setAttribute('data-en', a.title_en || a.title_zh);
+            h2.textContent = a.title_zh;
+          }
         }
         if (custom) {
           var p = el.querySelector('p');

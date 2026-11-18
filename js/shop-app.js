@@ -1999,8 +1999,7 @@
         });
       }
       var onSale = list.filter(function (p) { return statusOfG(p) !== 'out'; });
-      g.classList.add('masonry'); // 她 §四：两列错落瀑布流，图片保持原比例
-      g.innerHTML = onSale.length ? onSale.map(productCardShop).join('') : '<p style="grid-column:1/-1;text-align:center;color:var(--muted);">' + t('没有找到相关商品', 'Nothing found') + '</p>';
+      g.innerHTML = onSale.length ? onSale.map(productCardShop).join('') : '<p style="grid-column:1/-1;text-align:center;color:var(--muted);">' + t('没有找到相关商品', 'Nothing found') + '</p>'; // 她 20261117 15:59：回归一行 5 个网格，删两列瀑布流
       bindCards(g);
       // 她 20261107：往期商品区块已整块删掉（不再区分在售/售尽展示，售尽商品也不上前台列表）
     }
