@@ -4,7 +4,7 @@
 .ask-card > button, .aix-add, .btn-save-link, .sm-o-retry, .sm-var-add,
 .mo-additem, .mo-save, .ex-go, .po-save,
 .buy-btn, .tab-btn, .lx-btn, .fd-map-cta, .sel-btn, .cal-btn, .idx-btn,
-.card-edit-btn, .adm-subtab, .btn-mini {
+.adm-subtab, .btn-mini {
   padding: var(--btn-pad-y) var(--btn-pad-x) !important;
   border-radius: var(--btn-radius) !important;
 }
@@ -922,6 +922,8 @@ textarea {
   color: #897783 !important;
   opacity: 1 !important;
 }
-/* 她 20261117 23:51 §四：撤销 23:14 的方形规格（10px 圆角 / 32px 高 / 15px 600），
-   编辑按钮恢复两天前那一版——即本文件顶部 :root 的 --btn-pad-y 10px / --btn-pad-x 14px + --btn-radius 999px
-   全文只由几何 token 与配色 token 控制，不再单独覆盖任何尺寸属性。位置改到卡片右侧操作区见 shop-app.js / shop/index.html。 */
+/* 她 20261117 23:51 §四：编辑按钮恢复 2026-11-15 那一版（她两天前看到的那版）。
+   几何交回各页原本的 .card-edit-btn 规则（site.css / shop / account：padding 4px 12px、
+   border-radius 999px、border:none、font-size 14px、底 var(--card-hover) #FCECF2、hover #F6C5D7）；
+   本文件不再用 --btn-pad-* / --btn-radius 这对 token 覆盖它（2026-11-17 15:32 起才被覆盖），
+   也不另写尺寸，只保留配色类规则。位置改到卡片右侧操作区见 shop-app.js / shop/index.html。 */
