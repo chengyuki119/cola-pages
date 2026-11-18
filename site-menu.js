@@ -211,7 +211,7 @@
     (list || []).forEach(function (col) {
       var items = col.items.filter(function (it) {
         if (it.adminOnly) return window.__YK_ADMIN_OK === true;
-        // 照片展示（/photos/）页面本身对所有人开放，菜单不再要登录：否则未登录访客的 Collection 整栏会消失
+        if (it.key === 'photos' || it.key === 'instax' || it.key === 'film' || it.area === 'gallery' && it.page === 'photos') return logged;
         if (it.key === 'bjd' || it.key === 'cards' || it.page === 'works') return window.__YK_MENU_OK === true;
         return true;
       });
