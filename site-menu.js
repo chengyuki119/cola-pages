@@ -16,7 +16,7 @@
 
   // ── 唯一导航数据源：六栏分组（她 20261117 PART B §四）──
   // 具体路由以现有网站为准；权限过滤 permFilter 照旧（照片=任意登录；BJD/色卡/稿件=柚子专属确认后出现）
-  var NAV = [ // 她 20261117 15:15 任务书：五栏重构，一级标题可点（编号/中英标题随链接整体可点）；缺总览页的栏标题暂指向栏内主页面
+  var NAV = [ // 她 20261117 16:26 任务书 §十二：六栏 Home/My Shop/Collection/Commissions/Explore/Account，栏头可点；缺总览页的栏标题指向栏内主页面
     { key: 'home', num: '01', zh: '首页', en: 'Home', url: '/', items: [
       { key: 'cal', zh: '日历 · 重要日子', en: 'Calendar', page: 'index', url: '/', scrollTo: 'home-cal', scroll: true },
       { key: 'about', zh: '关于 Snow Yuzu', en: 'About', page: 'about', url: '/about/' }
@@ -27,17 +27,19 @@
       { key: 'orders', zh: '我的订单', en: 'My Orders', page: 'account', url: '/account/?sec=orders', sec: 'orders' }
     ]},
     { key: 'gallery', num: '03', zh: '收藏展示', en: 'Collection', nav: 'gallery', url: '/photos/', items: [ // 无总览页，栏头暂指向照片页
-      { key: 'works', zh: '稿件展示', en: 'Commissions', page: 'works', url: '/works/', area: 'works' },
       { key: 'bjd', zh: 'BJD', en: 'BJD', page: 'bjd', url: '/bjd/', area: 'bjd' },
       { key: 'cards', zh: '色卡', en: 'Color Cards', page: 'cards', url: '/color-card/', area: 'cards' },
       { key: 'photos', zh: '照片分享', en: 'Photo Gallery', page: 'photos', url: '/photos/', area: 'gallery' } // 原 Photo Gallery 入口恢复（页内拍立得/胶卷分区保留不动）
     ]},
-    { key: 'explore', num: '04', zh: '探索', en: 'Explore', nav: 'foodie', url: '/foodie/', items: [ // 无总览页，栏头暂指向美食地图
+    { key: 'works', num: '04', zh: '稿件', en: 'Commissions', nav: 'works', url: '/works/', items: [ // 她 20261117 任务书：Commissions 独立成栏
+      { key: 'works-all', zh: '稿件展示', en: 'All Commissions', page: 'works', url: '/works/', area: 'works' }
+    ]},
+    { key: 'explore', num: '05', zh: '探索', en: 'Explore', nav: 'foodie', url: '/foodie/', items: [ // 无总览页，栏头暂指向美食地图
       { key: 'foodie', zh: '美食地图', en: 'Foodie Map', page: 'foodie', url: '/foodie/', path: '/foodie/', area: 'foodie' },
       { key: 'foodiemap', zh: '地图找餐厅', en: 'Find Restaurants', page: 'foodie', url: '/foodie/map/', path: '/foodie/map/', area: 'foodie' },
       { key: 'yuzurec', zh: '柚子推荐', en: 'Yuki\'s Picks', page: 'foodie', url: '/foodie/?sec=yuzu', sec: 'yuzu', path: '/foodie/', area: 'foodie' }
     ]},
-    { key: 'account', num: '05', zh: '账号', en: 'Account', url: '/account/', items: [ // Account 与 My Account 同页，栏头即账号页入口
+    { key: 'account', num: '06', zh: '账号', en: 'Account', url: '/account/', items: [ // Account 与 My Account 同页，栏头即账号页入口
       { key: 'acct-profile', zh: '我的账号', en: 'My Account', page: 'account', url: '/account/' },
       { key: 'acct-reviews', zh: '我的评价', en: 'My Reviews', page: 'account', url: '/account/?sec=my-reviews', sec: 'my-reviews' },
       { key: 'acct-questions', zh: '我的提问', en: 'My Questions', page: 'account', url: '/account/?sec=my-questions', sec: 'my-questions' },
@@ -236,7 +238,9 @@
     if (!menu) return;
     menu.innerHTML = '';
     var cols = el('<div class="menu-cols" id="menu-cols"></div>');
-    permFilter(list || NAV).forEach(function (col) { cols.appendChild(buildCol(col)); });
+    var visCols = permFilter(list || NAV);
+    visCols.forEach(function (col, i) { col.num = String(i + 1).padStart(2, '0'); }); // 她 20261117：编号按实际可见栏连续排（柚子专属栏隐藏时不跳号）
+    visCols.forEach(function (col) { cols.appendChild(buildCol(col)); });
     menu.appendChild(cols);
     paintAcctBtn();
     checkAdminMenu(); // 登录态下确认一次 shop_is_admin，确认后重建菜单补上 Admin 子项

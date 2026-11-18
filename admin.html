@@ -66,9 +66,9 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   }
   .back-link:hover { background: #FCECF2; }
   /* 语言切换（与前台同款组件样式；admin 不加载 site.css，样式内联） */
-  .lang-switch { display: flex; gap: 4px; background: var(--accent-soft, #FCECF2); padding: 4px; border-radius: 999px; } /* 20261026s 她指定款：粉胶囊底座+白胶囊选中（前台后台同款） */
-  .lang-btn { border: none; background: none; color: var(--muted); font-size:15px; font-family: inherit; padding: 5px 12px; border-radius: 999px; cursor: pointer; transition: background .2s, color .2s, box-shadow .2s; } /* 20261117：字号对齐前台同款 15px */
-  .lang-btn.active { background: #fff; color: var(--text, #65515D); font-weight: 600; box-shadow: 0 1px 4px rgba(180,120,150,.28); }
+  .lang-switch { display: flex; gap: 4px; background: #FBE9EC; box-shadow: inset 0 -2px 0 #F5C6CF; padding: 4px; border-radius: 999px; } /* 她 20261117 16:34 截图：极浅粉底座+底部深粉边缘，与前台同款 */
+  .lang-btn { border: none; background: #FFFFFF; color: #F0A0B0; font-size:15px; font-weight:600; font-family: inherit; padding: 5px 12px; border-radius: 999px; cursor: pointer; transition: background .2s, color .2s, box-shadow .2s; } /* 未选中：白胶囊粉字（她 20261117 第一张图） */
+  .lang-btn.active { background: #F2A7B8; color: #C96A80; font-weight: 600; } /* 选中：玫瑰粉填充+深玫瑰字 */
 
   .wrap { width: 100%; max-width: none; margin: 0; padding: 0; box-sizing: border-box; } /* 20261029 她任务书：不再限宽，改用统一的 50px 边距体系 */
   /* 后台标题行 + 侧栏宽度变量（她 20261026t 任务书 §1：标题与右侧内容面板左缘对齐；变量复用避免魔法数重复） */
@@ -777,8 +777,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     /* 后台菜单已随全站改为顶部下拉（她 20261117 PART B），旧手机抽屉宽度覆盖已删 */
     /* 登录视图旧规则（460 窄列居中）已删——她 20261108 16:58 改按前台子页面 1200 版式，见上方 body:not(.adm-in) 区块 */
   </style>
-  <script src="site-menu.js?v=20261117J" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261117C">
+  <script src="site-menu.js?v=20261117L" defer></script>
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261117D">
   <style>
     /* ═══ 她 20261030 §5：后台字体统一加深（三档，仅后台生效）═══
        主要文字 #65515D ｜ 普通正文 #65515D ｜ 辅助文字 #897783
@@ -7557,7 +7557,7 @@ function loadEmailLog() {
 <script src="js/admin-shop.js?v=20261112T"></script>
 <script src="js/foodie-coord.js?v=20261116B"></script>
 <script src="js/foodie-map-engine.js?v=20261117A"></script>
-<script src="js/admin-foodie.js?v=20261117C"></script>
+<script src="js/admin-foodie.js?v=20261117D"></script>
 <script src="js/name-lexicon.js?v=20261117A"></script>
 <script src="js/admin-lexicon.js?v=20261117B"></script>
 <script src="js/admin-covers.js?v=20261117A"></script>
@@ -7571,7 +7571,7 @@ function loadEmailLog() {
 <script src="js/vendor/jsQR.js?v=20261105C"></script>
 <script src="js/vendor/qrcode-generator.js?v=20261105C"></script>
 <script src="js/vendor/JsBarcode.all.min.js?v=20261105C"></script>
-<script src="js/admin-workbench.js?v=20261105C"></script>
+<script src="js/admin-workbench.js?v=20261117A"></script>
 <script src="js/admin-biz.js?v=20261108M"></script>
 <script src="js/admin-export.js?v=20261105C"></script>
 <footer style="padding:18px 0 0; text-align:center;">© 2026 Yuki · Made with Cola</footer>

@@ -31,8 +31,8 @@
   var S = { regions: [], cats: [], rests: [], subs: [], sub: 'dash', editing: null, subView: null, map: null, marker: null, cfgRow: null, mapAdapter: null };
 
   var SUBS = [
-    ['dash', '总览'], ['subs', '投稿审核'], ['rests', '餐厅管理'], ['regions', '地区管理'], ['cats', '分类管理'], ['mapcfg', '地图服务'], ['data', '数据 CSV']
-  ];
+    ['dash', '总览'], ['subs', '投稿审核'], ['rests', '餐厅管理'], ['settings', '地图与分类设置'], ['data', '数据管理']
+  ]; // 她 20261117 16:26 任务书 §八：地区/分类/地图服务合并为一个设置区，CSV 归入数据管理，导航 7→5
 
   /* ── 小件 ── */
   function h(tag, attrs, html) { return '<' + tag + (attrs ? ' ' + attrs : '') + '>' + (html == null ? '' : html) + '</' + tag.split(' ')[0] + '>'; }
@@ -106,6 +106,7 @@
     document.getElementById('fdm-root').innerHTML = subBar() +
       '<div id="fdm-sub-dash"></div><div id="fdm-sub-rests" style="display:none;"></div>' +
       '<div id="fdm-sub-subs" style="display:none;"></div>' +
+      '<div id="fdm-sub-settings" style="display:none;"></div>' +
       '<div id="fdm-sub-regions" style="display:none;"></div><div id="fdm-sub-cats" style="display:none;"></div>' +
       '<div id="fdm-sub-mapcfg" style="display:none;"></div>' +
       '<div id="fdm-sub-data" style="display:none;"></div>';
@@ -123,10 +124,17 @@
 
   function showSub(name) {
     S.sub = name;
-    document.querySelectorAll('#fdm-root .fdm-sub').forEach(function (x) { x.classList.toggle('on', x.getAttribute('data-sub') === name); });
+    document.querySelectorAll('#fdm-root .fdm-subs > .fdm-sub').forEach(function (x) { x.classList.toggle('on', x.getAttribute('data-sub') === name); });
+    var wrap = null;
     SUBS.forEach(function (x) {
       var el = document.getElementById('fdm-sub-' + x[0]);
       if (el) el.style.display = (x[0] === name) ? '' : 'none';
+      if (x[0] === name) wrap = x[0];
+    });
+    // 设置区内嵌三个原始容器（地区/分类/地图服务）：选中设置区时一并展开
+    ['regions', 'cats', 'mapcfg'].forEach(function (k) {
+      var el = document.getElementById('fdm-sub-' + k);
+      if (el) el.style.display = (name === 'settings') ? '' : 'none';
     });
     render();
     if (typeof enhanceSelects === 'function') enhanceSelects();
@@ -136,9 +144,7 @@
     if (S.sub === 'dash') renderDash();
     else if (S.sub === 'subs') renderSubs();
     else if (S.sub === 'rests') renderRests();
-    else if (S.sub === 'regions') renderRegions();
-    else if (S.sub === 'cats') renderCats();
-    else if (S.sub === 'mapcfg') renderMapCfg();
+    else if (S.sub === 'settings') { renderRegions(); renderCats(); renderMapCfg(); } // 一个设置区内三段连排，数据与逻辑不动
     else if (S.sub === 'data') renderData();
   }
 
@@ -157,15 +163,14 @@
       '<h3>Foodie 总览</h3>' +
       '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px;">' +
       stat('待审投稿', S.subs.filter(function (s) { return s.status === 'pending'; }).length) +
-      stat('餐厅总数', S.rests.length) + stat('已发布', pub) + stat('隐藏', hid) + stat('精选', feat) +
-      stat('柚子 🍊', yc[1]) + stat('柚子🍊🍊', yc[2]) + stat('柚子🍊🍊🍊', yc[3]) + stat('柚子🍊🍊🍊🍊', yc[4]) + stat('柚子🍊🍊🍊🍊🍊', yc[5]) + stat('地区数', S.regions.length) +
+      stat('餐厅总数', S.rests.length) + stat('已发布', pub) + stat('地区数', S.regions.length) + // 她 20261117 任务书 §八5：总览只留必要统计，不再铺隐藏/精选/逐级柚子卡
       '</div>' +
       '<h3 style="font-size:16px;">各国家和地区餐厅数</h3>' +
       (Object.keys(byCountry).map(function (c) {
         var reg = S.regions.filter(function (x) { return x.code === c; })[0];
         return '<span style="display:inline-flex;margin:0 14px 6px 0;">' + esc((reg && reg.name_zh) || c) + ': <b style="margin-left:6px;">' + byCountry[c] + '</b></span>';
       }).join('') || '<span class="empty">暂无数据</span>') +
-      (hot ? '<h3 style="font-size:16px;margin-top:16px;">三柚子推荐</h3>' + hot : '') +
+      (hot ? '<h3 style="font-size:16px;margin-top:16px;">柚子推荐（4 颗以上）</h3>' + hot : '') +
       '</div>';
   }
   function stat(label, val) {
@@ -870,7 +875,7 @@
       '<div class="fdm-row"><button type="button" class="fdm-btn" id="fd-exp">导出全部餐厅 CSV</button><span class="fdm-hint">数组列用 | 分隔；导出文件按当前数据生成</span></div>' +
       '<h3 style="margin-top:18px;">导入 CSV</h3>' +
       '<p class="fdm-hint" style="margin:0 0 8px;">表头请用：<br><code style="font-size:12px;word-break:break-all;">' + CSV_COLS.join(',') + '</code><br>cuisine/food_categories 用 | 分隔多个值；已存在的 slug 会跳过并计入错误报告。</p>' +
-      '<div class="fdm-row"><input type="file" id="fd-imp-file" accept=".csv,text/csv" style="font-family:inherit;font-size:14px;"></div>' +
+      '<div class="fdm-row"><label class="fdm-btn" style="cursor:pointer;display:inline-flex;align-items:center;">选择 CSV 文件<input type="file" id="fd-imp-file" accept=".csv,text/csv" hidden></label><span class="fdm-hint" id="fd-imp-name">未选择文件</span></div>' +
       '<div class="fdm-row"><button type="button" class="fdm-btn" id="fd-imp">开始导入</button><span class="fdm-hint" id="fd-imp-msg"></span></div>' +
       '<div id="fd-imp-report" style="font-size:14px;color:#897783;max-height:220px;overflow-y:auto;"></div></div>';
     document.getElementById('fd-exp').onclick = function () {
@@ -888,6 +893,7 @@
     var csvText = '';
     document.getElementById('fd-imp-file').onchange = function (e) {
       var f = e.target.files[0];
+      document.getElementById('fd-imp-name').textContent = f ? '已选择：' + f.name : '未选择文件';
       if (!f) return;
       var fr = new FileReader();
       fr.onload = function () { csvText = String(fr.result || ''); document.getElementById('fd-imp-msg').textContent = '已读取 ' + f.name + '，点「开始导入」'; };

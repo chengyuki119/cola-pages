@@ -1,0 +1,25 @@
+# ═══ Snow Yuzu 奶油粉 Google Maps 配色（她 20261117 任务书 §九 指定色板）═══
+# 用途：Google Cloud Console → Map Management → Map Styles → 新建样式 → IMPORT JSON，
+#       然后把这个样式关联到现有 Map ID（978a3c94f7738f2f991725ef）。
+# 关联后前台现有地图（mapId 不变、代码零改动）自动换成这套配色。
+# 海洋/陆地/绿地/道路/国界/文字 六类全部按她指定色值；文字描边用陆地基色保证可读性。
+[
+  { "featureType": "water", "elementType": "geometry.fill", "stylers": [ { "color": "#FCEEEF" } ] },
+  { "featureType": "water", "elementType": "labels.text.fill", "stylers": [ { "color": "#B79AA4" } ] },
+  { "featureType": "water", "elementType": "labels.text.stroke", "stylers": [ { "color": "#FFF9F5" } ] },
+  { "featureType": "landscape", "elementType": "geometry.fill", "stylers": [ { "color": "#FFF9F5" } ] },
+  { "featureType": "landscape.man_made", "elementType": "geometry.fill", "stylers": [ { "color": "#FFFBF8" } ] },
+  { "featureType": "poi.park", "elementType": "geometry.fill", "stylers": [ { "color": "#E8F3E6" } ] },
+  { "featureType": "poi.attraction", "elementType": "labels.text.fill", "stylers": [ { "color": "#7A6A70" } ] },
+  { "featureType": "road", "elementType": "geometry.fill", "stylers": [ { "color": "#F3DDE4" } ] },
+  { "featureType": "road.highway", "elementType": "geometry.fill", "stylers": [ { "color": "#F3D9E2" } ] },
+  { "featureType": "road", "elementType": "geometry.stroke", "stylers": [ { "color": "#F0E4E8" } ] },
+  { "featureType": "road", "elementType": "labels.text.fill", "stylers": [ { "color": "#7A6A70" } ] },
+  { "featureType": "road", "elementType": "labels.text.stroke", "stylers": [ { "color": "#FFF9F5" } ] },
+  { "featureType": "administrative", "elementType": "geometry.stroke", "stylers": [ { "color": "#E6D3DA" } ] },
+  { "featureType": "administrative.country", "elementType": "labels.text.fill", "stylers": [ { "color": "#7A6A70" } ] },
+  { "featureType": "administrative.locality", "elementType": "labels.text.fill", "stylers": [ { "color": "#7A6A70" } ] },
+  { "featureType": "administrative.neighborhood", "elementType": "labels.text.fill", "stylers": [ { "color": "#93848B" } ] },
+  { "featureType": "poi", "elementType": "labels.text.fill", "stylers": [ { "color": "#93848B" } ] },
+  { "featureType": "transit", "elementType": "labels.text.fill", "stylers": [ { "color": "#93848B" } ] }
+]

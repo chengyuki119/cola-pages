@@ -455,7 +455,8 @@
           '<p style="margin:0;font-size:13px;color:var(--muted,#897783);line-height:1.8;">支持 CSV / Excel(.xlsx)。一行一个商品，同一原始单号的多行会合并成一单多商品。解析后先预览校验，再保存为草稿。</p>' +
           '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center;">' +
             '<button class="btn-mini" id="wb-dl-tpl">下载 CSV 模板</button>' +
-            '<input id="wb-file" type="file" accept=".csv,.xlsx,.xls" style="font-size:14px;color:var(--text,#65515D);font-family:inherit;">' +
+            '<label class="btn-mini" style="cursor:pointer;">选择文件<input id="wb-file" type="file" accept=".csv,.xlsx,.xls" hidden></label>' +
+            '<span id="wb-file-name" style="font-size:14px;color:var(--muted,#897783);">未选择文件</span>' +
           '</div>' +
           '<div id="wb-imp-preview" style="margin-top:12px;"></div>' +
           '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;">' +
@@ -469,6 +470,7 @@
     mask.querySelector('#wb-dl-tpl').addEventListener('click', downloadTpl);
     mask.querySelector('#wb-file').addEventListener('change', function () {
       var f = this.files && this.files[0];
+      mask.querySelector('#wb-file-name').textContent = f ? '已选择：' + f.name : '未选择文件';
       if (f) parseImportFile(f, mask);
     });
   }

@@ -429,13 +429,14 @@
 /* 下拉 / 弹出菜单里的普通选项行：她 20261107 14:33 澄清后侧栏样式收敛到 admin.html 按端分流
    （手机端浮层=浅粉条块，桌面端=白底描边+选中浅粉），这里不再重复定义 */
 
-/* 语言切换（胶囊分段控件）：胶囊底色沿用原粉色底座，选中项淡粉白填充、取消可见描边 */
-.lang-btn { color: var(--opt-fg) !important; }
-.lang-btn:hover { background-color: var(--opt-bg-h) !important; color: var(--opt-fg-h) !important; } /* 她 20261112：hover 原本和选中态同为 #FFF8FA，看起来像已选中；改浅粉区分 */
+/* 语言切换（胶囊分段控件）：她 20261117 16:34 截图定稿——未选中白胶囊粉字，选中玫瑰粉填充深玫瑰字 */
+.lang-btn { background-color: #FFFFFF !important; color: #F0A0B0 !important; font-weight: 600 !important; }
+.lang-btn:hover { background-color: #FFF3F6 !important; color: #F0A0B0 !important; }
 .lang-btn.active {
-  background-color: var(--opt-bg) !important;
-  border-color: var(--opt-bg) !important;
-  color: var(--btn-fg) !important;
+  background-color: #F2A7B8 !important;
+  border-color: #F2A7B8 !important;
+  color: #C96A80 !important;
+  font-weight: 600 !important;
 }
 
 /* ─────────────────────────────────────────────────────────────
