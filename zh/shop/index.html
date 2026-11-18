@@ -150,6 +150,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   .product-info p { color: var(--muted); font-size:16px; margin: 4px 0 12px; flex: 1; }
   .product-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; row-gap: 8px; }
   .product-row .buy-btn, .product-row .card-edit-btn, .product-row .no-buy, .product-row .price { white-space: nowrap; flex-shrink: 0; }
+.card-acts { margin-left: auto; display: flex; align-items: center; justify-content: flex-end; gap: 6px; row-gap: 6px; flex-wrap: wrap; flex-shrink: 0; max-width: 100%; }
   .card-edit-btn { border: none; background: var(--card-hover); color:var(--text,#65515D); font-size:14px; cursor: pointer; padding: 4px 12px; border-radius: 999px; font-family: inherit; transition: background .2s, color .2s; white-space: nowrap; }
   .card-edit-btn:hover { background: #F6C5D7; color: var(--text, #65515D); }
   .price { font-size:21px; font-weight: 700; color:var(--price,#F48FB1); font-family: "Millo Body", -apple-system, "PingFang SC", sans-serif; }
@@ -368,7 +369,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
   <script src="/js/policy-content.js?v=20261105C"></script>
   <script src="/site-menu.js?v=20261117R" defer></script>
 <script src="/js/page-covers.js?v=20261117A" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261117G">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261117H">
     <link rel="stylesheet" href="/css/input-unify.css?v=20261107H">
 <link rel="stylesheet" href="/css/yk-lightbox.css?v=20261117A">
   <style id="pdp-desktop-notes">
@@ -652,12 +653,14 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
       '<div class="product-info">' +
       '<div style="display:flex;align-items:center;gap:8px;min-width:0;">' +
       '<span class="product-tag" style="margin-bottom:0;">' + esc(dispTag(p) || t('没有标签','Untagged')) + '</span>' +
-      productEditBtn(p) +
       '</div>' +
       '<h3 style="margin-top:6px;">' + esc(dispName(p)) + '</h3>' +
       '<div class="product-row" style="margin-top:auto;">' +
       '<span class="price">' + (p.price ? '<small>' + ((p.currency || 'USD') === 'CNY' ? '¥' : '$') + '</small>' + esc(fmtPriceShop(p.price)) : '') + '</span>' +
+      '<div class="card-acts">' +
       (st === 'on' ? '<span class="no-buy" style="font-size:14px;">' + t('请进详情选购', 'Open to buy') + '</span>' : '<span class="no-buy">' + (st === 'display' ? t('仅展示，不能下单','Not for sale') : '') + '</span>') +
+      productEditBtn(p) +
+      '</div>' +
       '</div></div></div>';
   }
   function renderProducts() {
@@ -738,9 +741,9 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     }, 300);
   }
 </script>
-<script src="/js/name-lexicon.js?v=20261117A"></script>
+<script src="/js/name-lexicon.js?v=20261117B"></script>
   <script src="/js/yk-lightbox.js?v=20261117A"></script>
-<script src="/js/shop-app.js?v=20261117G"></script>
+<script src="/js/shop-app.js?v=20261117H"></script>
 <script src="/js/site-footer.js?v=20261114A"></script>
 <script>
   // 统一 Footer（已有 <footer> 则替换其内容，不新建第二个）

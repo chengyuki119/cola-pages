@@ -17,7 +17,14 @@
     { en: 'Tejo',   zh: '钛狐', aliases: ['钛狐', 'Tejo'] },
     { en: 'Sage',   zh: '贤者', aliases: ['贤者', 'Sage', '奶妈'] },
     { en: 'Jett',   zh: '捷风', aliases: ['捷风', 'Jett', '杰峰', '杰特', '杰奇'] },
-    { en: 'Clove',  zh: '齐乐', aliases: ['齐乐', 'Clove'] }
+    { en: 'Clove',  zh: '齐乐', aliases: ['齐乐', 'Clove'] },
+    /* 她 20261117 23:51 任务书 §一：补充别名（只加别名与标准名，不新建角色） */
+    { en: 'Chamber', zh: '尚博勒', aliases: ['尚博勒', 'Chamber', '钱包'] },
+    { en: 'Cypher',  zh: '零',     aliases: ['零', 'Cypher', '保安'] },
+    { en: 'Veto',    zh: '禁灭',   aliases: ['禁灭', 'Veto'] },
+    { en: 'Killjoy', zh: '',       aliases: ['Killjoy', 'KJ', 'kj'] },
+    { en: 'Phoenix', zh: '',       aliases: ['Phoenix', '火男', '菲尼克斯', '不死鸟'] },
+    { en: 'KAY/O',   zh: '',       aliases: ['KAY/O', 'KO', 'Ko', 'Kayo', 'KAYO', 'K/O'] }
   ];
   // 官方名单里没有确认中文名的：只挂英文名本身做识别，不编中文名
   VALORANT_ALL.forEach(function (en) {
@@ -154,7 +161,10 @@
       list.forEach(function (a) {
         if (!a || removed(a)) return;
         var idx = rest.toLowerCase().indexOf(a.toLowerCase());
-        if (idx > -1 && a.length >= (c.en === 'Neko' ? 4 : 2)) scored.push({ c: c, a: a, len: a.length });
+        if (idx === -1) return;
+        // 她 20261117 23:51 §一：单字别名（如「零」）只在整段输入就是它时才算命中，避免误伤其他商品名
+        var exact = norm(rest).toLowerCase() === a.toLowerCase();
+        if (exact || a.length >= (c.en === 'Neko' ? 4 : 2)) scored.push({ c: c, a: a, len: a.length });
       });
     });
     scored.sort(function (x, y) { return y.len - x.len; });

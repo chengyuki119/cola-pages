@@ -2033,12 +2033,15 @@
       '<div class="product-info">' +
       '<div style="display:flex;align-items:center;gap:8px;min-width:0;">' +
       '<span class="product-tag" style="margin-bottom:0;">' + esc((isMat(p) ? dispCat(p) : dispTag(p)) || t('没有标签', 'Untagged')) + '</span>' +
-      productEditBtn(p) +
       '</div>' +
       '<h3 style="margin-top:6px;">' + esc(dispName(p)) + '</h3>' +
       '<div class="product-row" style="margin-top:auto;">' +
       '<span class="price">' + priceHtml(curOf(p), p.price === '' ? null : fmtPriceShop(p.price)) + '</span>' +
-      (st === 'on' ? '<button class="buy-btn cart-quick" style="margin-left:auto;">' + t('加入购物车', 'Add to cart') + '</button>' : '<span class="no-buy">' + (st === 'display' ? t('仅展示，不能下单', 'Not for sale') : '') + '</span>') +
+      /* 她 20261117 23:51 §三：编辑按钮与「加入购物车」同一右侧操作区，编辑永远靠卡片右边缘 */
+      '<div class="card-acts">' +
+      (st === 'on' ? '<button class="buy-btn cart-quick">' + t('加入购物车', 'Add to cart') + '</button>' : '<span class="no-buy">' + (st === 'display' ? t('仅展示，不能下单', 'Not for sale') : '') + '</span>') +
+      productEditBtn(p) +
+      '</div>' +
       '</div></div></div>';
   }
   function bindCards(scope) {
