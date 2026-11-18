@@ -85,16 +85,29 @@
   @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
 
   /* ===== 朋友圈封面区（主页） ===== */
+  /* 她 20261117 22:36：封面图必须完整展示，任何设备都不裁切、不拉伸。
+     做法：改成真 <img>（width:100%;height:auto），高度由原图比例自动算出，不再用 background-size:cover。 */
   .hero {
     position: relative;
-    height: 72vh;
-    min-height: 480px;
-    background:
-      linear-gradient(180deg, rgba(255,251,252,0) 82%, rgba(255,251,252,.8) 96%, var(--bg,#FFF8FA) 100%), /* 仅照片最底部一小段轻微过渡，避免大面积泛白 */
-      url("/cover.jpg?v=20261117"); /*  封面背景图：可在后台「主页管理」更换；换图记得同步换这里的 v 参数（【73】缓存） */
+    height: auto;
+    min-height: 0;
     background-color: var(--bg);
-    background-size: cover;
-    background-position: center;
+  }
+  .hero-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+    object-fit: contain; /* 兜底：万一将来换成别的写法也不会裁切 */
+  }
+  .hero::after { /* 原来叠在背景图上的底部过渡，改成覆盖层，保证照片底部与页面背景衔接 */
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 26%;
+    background: linear-gradient(180deg, rgba(255,251,252,0) 0%, rgba(255,251,252,.8) 72%, var(--bg,#FFF8FA) 100%);
+    pointer-events: none;
+    z-index: 1;
   }
   .hero-inner {
     position: absolute;
@@ -400,16 +413,46 @@
   }
   .cal-main { flex: 1.35; min-width: 0; }
   .cal-side { flex: 1; min-width: 0; font-size:16px; }
-  .cal-head { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
-  .cal-head-pad { flex: 1; min-width: 0; }
-  .cal-head-pad.r { display: flex; justify-content: flex-end; }
-  .cal-nav { display: flex; align-items: center; gap: 6px; } /* 她 20261117 15:59：‹ 标题 › 居中成组，Today 独立靠右，不再被 › 挤在一起 */
+  /* 她 20261117 22:36：日历顶部整组控件在卡片内水平居中，月份标题保持视觉中心。
+     做法：grid 三等分——左右两列固定同宽（右侧放 Today、左侧留同样宽的空白），中间列放 ‹ 标题 ›。
+     左右同宽 → 标题永远在卡片正中心；Today 宽度变化不会再把它挤偏。 */
+  .cal-head {
+    --cal-side: 72px; /* 右侧 Today 预留宽度（左侧留同样宽度） */
+    --btn-pad-y: 0;  /* button-theme.css 给所有按钮挂了 !important 的 10px 14px 内边距，这里把变量归零，日历控件才不会被子全局内边距撞大 */
+    --btn-pad-x: 0;
+    display: grid;
+    grid-template-columns: var(--cal-side) minmax(0, auto) var(--cal-side);
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .cal-head .cal-btn { width: 26px !important; height: 26px !important; padding: 0 !important; }
+  .cal-head .cal-btn.wide { width: auto !important; height: 26px !important; padding: 0 12px !important; }
+  .cal-head-pad { display: flex; min-width: 0; }
+  .cal-head-pad.r { justify-content: flex-end; }
+  .cal-nav { display: flex; align-items: center; justify-content: center; gap: 6px; } /* 她 20261117 15:59：‹ 标题 › 居中成组，Today 独立靠右，不再被 › 挤在一起 */
   .cal-head b { flex: none; text-align: center; font-size:18px; }
+  /* 标题尾巴的装饰星号会把它顶偏 → 左侧补一个同宽隐形星号，视觉上回到正中心 */
+  @media (min-width: 401px) { .cal-head b::before { content: " ☆"; visibility: hidden; } }
   .cal-btn { border: none; background: var(--card-hover); color: var(--text); width: 26px; height: 26px; border-radius: 999px; cursor: pointer; font-size:17px; line-height: 1; padding: 0; } /* 2026-11-04 23:19 圆角统一（原 8px） */
   .cal-btn.wide { width: auto; padding: 0 12px; font-size:15px; color: var(--text, #65515D); background: var(--accent-soft, #FCECF2); border-radius: 999px; font-weight: 600; transition: background .2s, transform .15s; }
   .cal-btn.wide:hover { background: var(--accent, #F9E5ED); }
   .cal-btn.wide:active { transform: scale(.96); }
-  @media (max-width: 400px) { .cal-head { gap: 4px; } .cal-btn.wide { padding: 0 9px; } }
+  @media (max-width: 430px) {
+    .cal-head { --cal-side: 60px; gap: 4px; margin-bottom: 6px; }
+    .cal-head b { font-size: 15px; }
+    .cal-nav { gap: 4px; }
+    .cal-head .cal-btn { width: 24px !important; height: 24px !important; font-size: 16px; }
+    .cal-head .cal-btn.wide { height: 24px !important; padding: 0 8px !important; font-size: 13px; }
+  }
+  @media (max-width: 340px) {
+    .cal-head { --cal-side: 48px; gap: 3px; }
+    .cal-head b { font-size: 13px; }
+    .cal-nav { gap: 3px; }
+    .cal-head .cal-btn { width: 21px !important; height: 21px !important; font-size: 15px; }
+    .cal-head .cal-btn.wide { height: 21px !important; padding: 0 5px !important; font-size: 11.5px; }
+  }
   /* 20261029 她反馈：旧版给 #cal-today 加 z-index:1160 压过顶栏/菜单，手机端滚动时按钮浮在内容上层——已删，改由小助手避让（见 ai-fab.dodge） */
   .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; font-size:15px; }
   .cal-wd { color: var(--muted); padding: 4px 0; font-size:14px; }
