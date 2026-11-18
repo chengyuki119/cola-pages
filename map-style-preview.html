@@ -3,85 +3,140 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Google Maps 奶油粉配色预览 · Snow Yuzu（未上线预览）</title>
+<title>Google Maps 配色对比 · Snow Yuzu（改前 / D 方案）</title>
 <link rel="stylesheet" href="/css/site.css?v=20261117N">
 <link rel="stylesheet" href="/css/button-theme.css?v=20261117H">
 <style>
   body { background: var(--bg,#FFF8FA); margin: 0; font-family: inherit; }
-  .wrap { max-width: 1200px; margin: 0 auto; padding: 40px 24px 60px; }
-  h1 { color:#65515D; font-size: 24px; margin: 0 0 6px; }
-  .tip { color:#897783; font-size: 15px; line-height: 1.9; margin: 0 0 18px; }
-  .tip b { color:#B98598; }
-  #pv-map { width: 100%; height: 560px; border-radius: 18px; border: 1.5px solid #F9E5ED; background: #FCEEEF; }
-  @media (max-width: 640px) { #pv-map { height: 380px; } }
-  .swatches { display:flex; gap: 14px; flex-wrap: wrap; margin: 16px 0 0; }
-  .sw { display:flex; align-items:center; gap:8px; font-size:14px; color:#65515D; }
-  .sw i { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid #F9E5ED; display:inline-block; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 32px 20px 60px; }
+  h1 { color:#55464E; font-size: 24px; margin: 0 0 6px; font-weight: 700; }
+  .tip { color:#62545B; font-size: 15px; line-height: 1.8; margin: 0 0 16px; }
+  .tip b { color:#B98598; font-weight: 600; }
+  .cities { display:flex; gap: 8px; flex-wrap: wrap; margin: 0 0 16px; }
+  .city { border: 1.5px solid #FFD1E0; background: #FFF7FA; color: #A98D96; font: inherit; font-size: 15px;
+          padding: 8px 16px; border-radius: 999px; cursor: pointer; }
+  .city:hover { background: #FCE1EA; }
+  .city.on { background: #F8D3E2; border-color: #EFB0C5; color: #55464E; font-weight: 600; }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 760px) { .pair { grid-template-columns: 1fr; } }
+  .col h2 { font-size: 18px; margin: 0 0 8px; color:#55464E; font-weight: 600; display:flex; align-items:center; gap:8px; }
+  .col h2 i { width: 4px; height: 16px; border-radius: 2px; display:inline-block; background:#F9E5ED; }
+  .map { width: 100%; height: 420px; border-radius: 16px; border: 1.5px solid #F9E5ED; background: #FCEEEF; }
+  @media (max-width: 760px) { .map { height: 320px; } }
+  .legend { display:flex; gap: 14px; flex-wrap: wrap; margin: 16px 0 0; }
+  .lg { display:flex; align-items:center; gap:8px; font-size: 14px; color:#62545B; }
+  .lg i { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid #F9E5ED; display:inline-block; }
+  .note { margin: 20px 0 0; font-size: 14px; color: #81717A; line-height: 1.9; }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>Google Maps 奶油粉配色预览 ♡</h1>
+  <h1>Google Maps 配色对比（改前 / D 方案）</h1>
   <p class="tip">
-    这是<b>独立预览页</b>，未接入正式美食地图，只用来确认配色效果。真实道路/国界/地名数据完整，缩放、拖动可用。<br>
-    配色确认后：把 <b>docs/google-map-style-yuzu.json</b> 导入 Google Cloud Console 的 Map Styles 并关联现有 Map ID，正式地图就会自动变成这个效果（前台代码零改动）。
+    左边是<b>改前</b>（道路 #F3DDE4、边界 #E6D3DA），右边是 <b>D 方案</b>（道路 #E0B9C8、边界 #CDB0BB）。
+    只差这两个颜色，陆地 / 水域 / 公园 / 文字一律不变。<br>
+    这是<b>配色预览页</b>（不带 Map ID 的老式地图，所以 colors 数组能直接生效），不是美食地图本身。
   </p>
-  <div id="pv-map"></div>
-  <div class="swatches">
-    <span class="sw"><i style="background:#FCEEEF"></i>海洋 #FCEEEF</span>
-    <span class="sw"><i style="background:#FFF9F5"></i>陆地 #FFF9F5</span>
-    <span class="sw"><i style="background:#E8F3E6"></i>公园 #E8F3E6</span>
-    <span class="sw"><i style="background:#F3DDE4"></i>道路 #F3DDE4</span>
-    <span class="sw"><i style="background:#E6D3DA"></i>国界 #E6D3DA</span>
-    <span class="sw"><i style="background:#7A6A70"></i>文字 #7A6A70</span>
+  <div class="cities" id="cities">
+    <button class="city on" data-city="irvine">Irvine / Orange County</button>
+    <button class="city" data-city="la">Los Angeles</button>
+    <button class="city" data-city="ny">New York</button>
+    <button class="city" data-city="tokyo">Tokyo</button>
   </div>
+  <div class="pair">
+    <div class="col">
+      <h2><i></i>改前</h2>
+      <div class="map" id="map-before"></div>
+    </div>
+    <div class="col">
+      <h2><i></i>D 方案</h2>
+      <div class="map" id="map-after"></div>
+    </div>
+  </div>
+  <div class="legend">
+    <span class="lg"><i style="background:#FCEEEF"></i>水域 #FCEEEF</span>
+    <span class="lg"><i style="background:#FFF9F5"></i>陆地 #FFF9F5</span>
+    <span class="lg"><i style="background:#E8F3E6"></i>公园 #E8F3E6</span>
+    <span class="lg"><i style="background:#F3DDE4"></i>道路＝改前 #F3DDE4</span>
+    <span class="lg"><i style="background:#E0B9C8"></i>道路＝D 方案 #E0B9C8</span>
+    <span class="lg"><i style="background:#E6D3DA"></i>边界＝改前 #E6D3DA</span>
+    <span class="lg"><i style="background:#CDB0BB"></i>边界＝D 方案 #CDB0BB</span>
+    <span class="lg"><i style="background:#7A6A70"></i>文字 #7A6A70</span>
+  </div>
+  <p class="note">
+    正式美食地图用的是 Map ID（自定义粉色标记与聚合需要它），带 Map ID 时 Google 会忽略页面里的 colors 数组，
+    所以正式页面要变成 D 方案，需要在 Google Cloud Console 把这套 JSON 导入成 Map Style 并挂到现有 Map ID 上——不产生任何费用。
+  </p>
 </div>
 <script>
 (function () {
   var anon = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVreHJ2Y3B0d2hsd3ZkYW5vdmdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyMzgyNDcsImV4cCI6MjEwODgxNDI0N30.Grdi23yToGPFF8e_kxFjf37JOOf51j-FW_FYQTUVu8E';
-  // 指定色板（与 docs/google-map-style-yuzu.json 一致）；预览页刻意不用 Map ID——
-  // 带 Map ID 时 Google 只认 Cloud 样式，代码里的 styles 数组会被忽略，预览就看不到效果了
-  var STYLE = [
-    { featureType: 'water', elementType: 'geometry.fill', stylers: [{ color: '#FCEEEF' }] },
-    { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#B79AA4' }] },
-    { featureType: 'water', elementType: 'labels.text.stroke', stylers: [{ color: '#FFF9F5' }] },
-    { featureType: 'landscape', elementType: 'geometry.fill', stylers: [{ color: '#FFF9F5' }] },
-    { featureType: 'landscape.man_made', elementType: 'geometry.fill', stylers: [{ color: '#FFFBF8' }] },
-    { featureType: 'poi.park', elementType: 'geometry.fill', stylers: [{ color: '#E8F3E6' }] },
-    { featureType: 'poi.attraction', elementType: 'labels.text.fill', stylers: [{ color: '#7A6A70' }] },
-    { featureType: 'road', elementType: 'geometry.fill', stylers: [{ color: '#F3DDE4' }] },
-    { featureType: 'road.highway', elementType: 'geometry.fill', stylers: [{ color: '#F3D9E2' }] },
-    { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#F0E4E8' }] },
-    { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#7A6A70' }] },
-    { featureType: 'road', elementType: 'labels.text.stroke', stylers: [{ color: '#FFF9F5' }] },
-    { featureType: 'administrative', elementType: 'geometry.stroke', stylers: [{ color: '#E6D3DA' }] },
-    { featureType: 'administrative.country', elementType: 'labels.text.fill', stylers: [{ color: '#7A6A70' }] },
-    { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#7A6A70' }] },
-    { featureType: 'administrative.neighborhood', elementType: 'labels.text.fill', stylers: [{ color: '#93848B' }] },
-    { featureType: 'poi', elementType: 'labels.text.fill', stylers: [{ color: '#93848B' }] },
-    { featureType: 'transit', elementType: 'labels.text.fill', stylers: [{ color: '#93848B' }] }
-  ];
+
+  /* 公共部分：两边的差异只有「道路 geometry.fill」和「行政边界 geometry.stroke」两个色 */
+  function baseStyle(roadColor, borderColor) {
+    return [
+      { featureType: 'water', elementType: 'geometry.fill', stylers: [{ color: '#FCEEEF' }] },
+      { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#B79AA4' }] },
+      { featureType: 'water', elementType: 'labels.text.stroke', stylers: [{ color: '#FFF9F5' }] },
+      { featureType: 'landscape', elementType: 'geometry.fill', stylers: [{ color: '#FFF9F5' }] },
+      { featureType: 'landscape.man_made', elementType: 'geometry.fill', stylers: [{ color: '#FFFBF8' }] },
+      { featureType: 'landscape.man_made', elementType: 'geometry.stroke', stylers: [{ color: '#F3E7EC' }] },
+      { featureType: 'poi.park', elementType: 'geometry.fill', stylers: [{ color: '#E8F3E6' }] },
+      { featureType: 'poi.attraction', elementType: 'labels.text.fill', stylers: [{ color: '#7A6A70' }] },
+      { featureType: 'road', elementType: 'geometry.fill', stylers: [{ color: roadColor }] },
+      { featureType: 'road.highway', elementType: 'geometry.fill', stylers: [{ color: roadColor }] },
+      { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#F0E4E8' }] },
+      { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#7A6A70' }] },
+      { featureType: 'road', elementType: 'labels.text.stroke', stylers: [{ color: '#FFF9F5' }] },
+      { featureType: 'administrative', elementType: 'geometry.stroke', stylers: [{ color: borderColor }] },
+      { featureType: 'administrative.country', elementType: 'labels.text.fill', stylers: [{ color: '#7A6A70' }] },
+      { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#7A6A70' }] },
+      { featureType: 'administrative.neighborhood', elementType: 'labels.text.fill', stylers: [{ color: '#93848B' }] },
+      { featureType: 'poi', elementType: 'labels.text.fill', stylers: [{ color: '#93848B' }] },
+      { featureType: 'transit', elementType: 'labels.text.fill', stylers: [{ color: '#93848B' }] }
+    ];
+  }
+
+  var STYLE_BEFORE = baseStyle('#F3DDE4', '#E6D3DA'); /* 改前 */
+  var STYLE_AFTER  = baseStyle('#E0B9C8', '#CDB0BB'); /* D 方案 */
+
+  var CITIES = {
+    irvine: { center: { lat: 33.6846, lng: -117.8265 }, zoom: 12 },
+    la:     { center: { lat: 34.0522, lng: -118.2437 }, zoom: 12 },
+    ny:     { center: { lat: 40.7128, lng: -74.0060  }, zoom: 12 },
+    tokyo:  { center: { lat: 35.6812, lng: 139.7671  }, zoom: 12 }
+  };
+
+  var mapB = null, mapA = null;
+
   fetch('https://ukxrvcptwhlwvdanovgd.supabase.co/rest/v1/foodie_map_config?select=google_key&limit=1', { headers: { apikey: anon, Authorization: 'Bearer ' + anon } })
     .then(function (r) { return r.json(); })
     .then(function (rows) {
       var key = rows && rows[0] && rows[0].google_key;
-      if (!key) { document.getElementById('pv-map').textContent = '未配置 Google Maps Key'; return; }
+      if (!key) { document.getElementById('map-before').textContent = '未配置 Google Maps Key'; return; }
       window.__pvReady = function () {
-        /* classic Map（无 mapId）+ classic Marker：styles 数组才会生效，专供配色预览 */
-        var map = new google.maps.Map(document.getElementById('pv-map'), {
-          center: { lat: 33.68, lng: -117.79 }, // Irvine 一带，方便看道路/街区配色
-          zoom: 12,
-          styles: STYLE,
-          mapTypeControl: false, streetViewControl: false, fullscreenControl: false
-        });
-        new google.maps.Marker({ position: { lat: 33.66392, lng: -117.7412 }, map: map, title: 'In-N-Out Burger（示例标记）' });
+        var opts = { center: CITIES.irvine.center, zoom: CITIES.irvine.zoom, mapTypeControl: false, streetViewControl: false, fullscreenControl: false, gestureHandling: 'cooperative' };
+        /* 两幅都不带 Map ID → colors 数组生效 */
+        mapB = new google.maps.Map(document.getElementById('map-before'), Object.assign({}, opts, { styles: STYLE_BEFORE }));
+        mapA = new google.maps.Map(document.getElementById('map-after'),  Object.assign({}, opts, { styles: STYLE_AFTER }));
+        new google.maps.Marker({ position: { lat: 33.66392, lng: -117.7412 }, map: mapB, title: '示例标记' });
+        new google.maps.Marker({ position: { lat: 33.66392, lng: -117.7412 }, map: mapA, title: '示例标记' });
       };
       var s = document.createElement('script');
       s.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(key) + '&v=weekly&loading=async&callback=__pvReady';
       s.async = true;
       document.head.appendChild(s);
     })
-    .catch(function () { document.getElementById('pv-map').textContent = '配置读取失败'; });
+    .catch(function () { document.getElementById('map-before').textContent = '配置读取失败'; });
+
+  document.getElementById('cities').addEventListener('click', function (e) {
+    var b = e.target.closest('.city'); if (!b) return;
+    [].forEach.call(document.querySelectorAll('.city'), function (x) { x.classList.remove('on'); });
+    b.classList.add('on');
+    var c = CITIES[b.getAttribute('data-city')]; if (!c) return;
+    if (mapB) { mapB.setCenter(c.center); mapB.setZoom(c.zoom); }
+    if (mapA) { mapA.setCenter(c.center); mapA.setZoom(c.zoom); }
+  });
 })();
 </script>
 </body>
