@@ -18,13 +18,14 @@
     { en: 'Sage',   zh: '贤者', aliases: ['贤者', 'Sage', '奶妈'] },
     { en: 'Jett',   zh: '捷风', aliases: ['捷风', 'Jett', '杰峰', '杰特', '杰奇'] },
     { en: 'Clove',  zh: '齐乐', aliases: ['齐乐', 'Clove'] },
-    /* 她 20261117 23:51 任务书 §一：补充别名（只加别名与标准名，不新建角色） */
+    /* 她 20261117 23:51 任务书 §一：补充别名（只加别名与标准名，不新建角色）
+       她 20261118 00:14 §一：Killjoy 中文名定为「奇乐」、Phoenix 定为「不死鸟」、KAY/O 不设中文名 */
     { en: 'Chamber', zh: '尚博勒', aliases: ['尚博勒', 'Chamber', '钱包'] },
     { en: 'Cypher',  zh: '零',     aliases: ['零', 'Cypher', '保安'] },
     { en: 'Veto',    zh: '禁灭',   aliases: ['禁灭', 'Veto'] },
-    { en: 'Killjoy', zh: '',       aliases: ['Killjoy', 'KJ', 'kj'] },
-    { en: 'Phoenix', zh: '',       aliases: ['Phoenix', '火男', '菲尼克斯', '不死鸟'] },
-    { en: 'KAY/O',   zh: '',       aliases: ['KAY/O', 'KO', 'Ko', 'Kayo', 'KAYO', 'K/O'] }
+    { en: 'Killjoy', zh: '奇乐',   aliases: ['奇乐', 'Killjoy', 'KJ', 'kj'] },
+    { en: 'Phoenix', zh: '不死鸟', aliases: ['不死鸟', 'Phoenix', '火男', '菲尼克斯'] },
+    { en: 'KAY/O',   zh: '',       aliases: ['KAY/O', 'Kayo', 'KO', 'K/O', 'KAYO', 'Ko'] }
   ];
   // 官方名单里没有确认中文名的：只挂英文名本身做识别，不编中文名
   VALORANT_ALL.forEach(function (en) {
