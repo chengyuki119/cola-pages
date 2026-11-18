@@ -363,12 +363,12 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
   .keycap-notes-wrap .pol-card p { margin: 0 0 10px; }
   .keycap-notes-wrap .pol-card p:last-child { margin-bottom: 0; }
 </style>
-  <link rel="stylesheet" href="/site-menu.css?v=20261117K">
-  <script src="/js/site-common.js?v=20261117B"></script>
+  <link rel="stylesheet" href="/site-menu.css?v=20261117M">
+  <script src="/js/site-common.js?v=20261117C"></script>
   <script src="/js/policy-content.js?v=20261105C"></script>
-  <script src="/site-menu.js?v=20261117Q" defer></script>
+  <script src="/site-menu.js?v=20261117R" defer></script>
 <script src="/js/page-covers.js?v=20261117A" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261117F">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261117G">
     <link rel="stylesheet" href="/css/input-unify.css?v=20261107H">
 <link rel="stylesheet" href="/css/yk-lightbox.css?v=20261117A">
   <style id="pdp-desktop-notes">
@@ -421,44 +421,11 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
 
 <div class="shop-body">
 <a class="back-link page-back" href="/zh/" style="margin:8px 0 24px 2px;"><span data-zh="← 返回主页" data-en="← Back to Home">← 返回主页</span></a>
-  <div class="notice">
-    <b><span data-zh="怎么买： " data-en="How to Buy: ">怎么买： </span></b><span data-zh="选好规格加入购物车 → 去结算 → 上传付款截图等柚子确认，或用 Stripe 在线付款。有疑问欢迎发邮件到 snowyuzustudio@gmail.com。" data-en="Pick Options → add to cart → checkout → upload your payment screenshot for Yuki to confirm, or pay online with Stripe. Questions? Email snowyuzustudio@gmail.com.">选好规格加入购物车 → 去结算 → 上传付款截图等柚子确认，或用 Stripe 在线付款。有疑问欢迎发邮件到 snowyuzustudio@gmail.com。</span>
-  </div>
 
-  <div class="shop-secbar" id="shop-secbar" style="display:none;"></div>
-  <div class="shop-matbar" id="shop-matbar" style="display:none;"></div>
-  <div class="shop-searchbox" id="shop-searchbox" style="display:none;">
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#B98598" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-    <input id="shop-q" type="search" autocomplete="off">
-  </div>
   <div class="grid" id="product-grid">
     <p data-zh="加载中…" data-en="Loading…" style="grid-column:1/-1;text-align:center;color:var(--muted);">加载中…</p>
   </div>
 
-  <section id="reviews" style="margin-top:44px;">
-    <h2 style="font-size:24px;margin-bottom:14px;display:flex;align-items:center;gap:8px;"><span style="width:4px;height:18px;background:var(--accent,#F9E5ED);border-radius:2px;display:inline-block;"></span><span data-zh="评价返图" data-en="Reviews">评价返图</span></h2>
-    <div class="card" style="background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:20px;">
-      <p style="font-size:16px;color:var(--muted);margin-bottom:10px;"><span data-zh="买过小铺东西的小可爱，欢迎晒图评价～" data-en="Bought something? Share your photos & review~">买过小铺东西的小可爱，欢迎晒图评价～</span></p>
-      <input id="r-name" maxlength="30" data-ph-zh="你的名字（选填）" data-ph-en="Your name (optional)" style="width:100%;margin-bottom:10px;padding:12px 14px;font-size:18px;border:1px solid #F9E5ED;border-radius:12px;background:#FFF8FA;outline:none;color:var(--text);font-family:inherit;box-sizing:border-box;">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-        <span style="font-size:16px;color:var(--muted);"><span data-zh="评分" data-en="Rating">评分</span></span>
-        <span id="r-stars" style="display:inline-flex;gap:4px;">
-          <span class="star" data-v="1">★</span><span class="star" data-v="2">★</span><span class="star" data-v="3">★</span><span class="star" data-v="4">★</span><span class="star" data-v="5">★</span>
-        </span>
-        <span id="r-star-text" style="font-size:16px;color:var(--text,#65515D);">5/5</span>
-      </div>
-      <textarea id="r-text" style="width:100%;min-height:70px;border:1px solid #F9E5ED;border-radius:12px;background:#FFF8FA;padding:12px 14px;font-family:inherit;font-size:18px;color:var(--text);resize:none;outline:none;box-sizing:border-box;" data-ph-zh="写下你的评价～" data-ph-en="Write your review~"></textarea>
-      <div style="margin-top:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-        <label class="buy-btn" style="padding:7px 16px;font-size:16px;cursor:pointer;"><span data-zh="选择图片" data-en="Choose photo">选择图片</span><input id="r-file" type="file" accept="image/*" hidden></label>
-        <span id="r-file-name" style="font-size:16px;color:var(--muted);"><span data-zh="未选择图片" data-en="No photo chosen">未选择图片</span></span>
-      </div>
-      <div class="actions" style="display:flex;justify-content:flex-end;margin-top:10px;">
-        <button class="buy-btn" id="r-submit" style=""><span data-zh="提交评价" data-en="Submit">提交评价</span></button>
-      </div>
-    </div>
-    <div id="review-list"><p style="text-align:center;color:var(--muted);font-size:17px;">加载中…</p></div>
-    <div id="rv-menu" role="menu"><button type="button" class="rv-menu-del" id="rv-menu-del" data-zh="删除这条评价" data-en="Delete this review">删除这条评价</button></div>
-  </section>
 
   <div id="view-detail"></div>
   <div id="view-cart"></div>
@@ -763,146 +730,8 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     probe.src = src;
   });
 
-  // ===== 评价返图 =====
-  var RATING = 0;
-  // 站内米豆乳字体把 ★ 画成空心、☆ 画成实心，所以这里反着来：得分的用 ☆（看起来是实心）
-  function starText(n) { return '☆☆☆☆☆'.slice(0, n) + '★★★★★'.slice(0, 5 - n); }
-  function paintStars() {
-    document.querySelectorAll('#r-stars .star').forEach(function (s) {
-      var on = parseInt(s.getAttribute('data-v'), 10) <= RATING;
-      s.classList.toggle('on', on);
-      s.textContent = on ? '☆' : '★'; // 选中的那个在站内字体里画出来是实心的
-    });
-    document.getElementById('r-star-text').textContent = RATING > 0 ? RATING + '/5' : '';
-  }
-  document.getElementById('r-stars').addEventListener('click', function (e) {
-    var s = e.target.closest('.star');
-    if (!s) return;
-    RATING = parseInt(s.getAttribute('data-v'), 10);
-    paintStars();
-  });
-  paintStars();
-  document.getElementById('r-file').addEventListener('change', function () {
-    var el = document.getElementById('r-file-name');
-    var n = this.files && this.files[0] ? this.files[0].name : '';
-    el.innerHTML = n ? '已选：' + esc(n) : '<span data-zh="未选择图片" data-en="No photo chosen">未选择图片</span>';
-    if (!n) applyLang(LANG);
-  });
-  function fmtDate(iso) {
-    var d = new Date(iso);
-    return (d.getMonth() + 1) + '.' + d.getDate();
-  }
-  function loadReviews() {
-    fetch(SUPABASE_URL + '/rest/v1/reviews?select=id,name,content,rating,image_url,created_at&order=created_at.desc&limit=100', {
-      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }
-    }).then(function (r) { return r.json(); }).then(function (rows) {
-      var list = document.getElementById('review-list');
-      if (!rows || !rows.length) {
-        list.innerHTML = '<p style="text-align:center;color:var(--muted);font-size:17px;">' + t('还没有评价，来做第一个吧～', 'No reviews yet, be the first~') + '</p>';
-        return;
-      }
-      list.innerHTML = rows.map(function (rv) {
-        var img = rv.image_url ? '<img src="' + esc(imgUrl(rv.image_url)) + '" style="width:120px;height:120px;object-fit:cover;border-radius:12px;margin-top:10px;display:block;">' : '';
-        var stars = '<span style="color:var(--text,#65515D);letter-spacing:2px;">' + starText(rv.rating || 5) + '</span> <span style="font-size:15px;">' + (rv.rating || 5) + '/5</span>';
-        var kebab = SHOP_ADMIN ? '<button class="rv-kebab" data-id="' + esc(rv.id) + '" aria-label="管理">⋮</button>' : '';
-        return '<div class="rv-card" data-rv="' + esc(rv.id) + '" style="background:#fff;border-radius:var(--radius);padding:14px 16px;' + (SHOP_ADMIN ? 'padding-right:52px;' : '') + 'margin-bottom:12px;box-shadow:0 2px 10px rgba(180,120,150,.10);position:relative;">' +
-          '<div style="font-size:16px;color:var(--muted);">' + esc(rv.name || t('小可爱','A lovely buyer')) + ' · ' + fmtDate(rv.created_at) + '</div>' +
-          '<div style="margin-top:4px;">' + stars + '</div>' +
-          '<div style="font-size:17px;margin-top:4px;white-space:pre-wrap;word-break:break-word;">' + esc(rv.content) + '</div>' +
-          img + kebab + '</div>';
-      }).join('');
-    }).catch(function () {
-      document.getElementById('review-list').innerHTML = '<p style="text-align:center;color:var(--muted);font-size:17px;">' + t('评价加载失败，请刷新重试','Failed to load reviews, please refresh') + '</p>';
-    });
-  }
-  document.getElementById('rv-menu-del').addEventListener('click', function () {
-    var id = RV_MENU_ID;
-    rvMenuClose();
-    if (!id) return;
-    adminToken().then(function (tk) {
-      if (!tk) { toast(t('请先在后台登录再删', 'Please log in first')); return; }
-      return fetch(SUPABASE_URL + '/rest/v1/reviews?id=eq.' + id, {
-        method: 'DELETE',
-        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + tk, 'Prefer': 'return=representation' }
-      }).then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('del')); }).then(function (back) {
-        if (!Array.isArray(back) || !back.length) { toast(t('没删掉：删除权限还没开，先去 Supabase 跑那段 SQL', 'Not deleted: run the SQL in Supabase first')); return; }
-        toast(t('已删除', 'Deleted'));
-        loadReviews();
-      });
-    }).catch(function () { toast(t('删除失败，稍后再试', 'Delete failed, try again later')); });
-  });
-  var RV_MENU_ID = null;
-  function rvMenuClose() { document.getElementById('rv-menu').classList.remove('open'); }
-  document.getElementById('review-list').addEventListener('click', function (e) {
-    var kb = e.target.closest('.rv-kebab');
-    if (!kb) return;
-    e.stopPropagation();
-    RV_MENU_ID = kb.getAttribute('data-id');
-    rvMenuClose();
-    var m = document.getElementById('rv-menu');
-    var r = kb.getBoundingClientRect();
-    m.classList.add('open');
-    var top = window.scrollY + r.bottom + 6;
-    var left = window.scrollX + Math.max(8, Math.min(r.right - m.offsetWidth, window.innerWidth - m.offsetWidth - 8));
-    m.style.top = Math.round(top) + 'px';
-    m.style.left = Math.round(left) + 'px';
-  });
-  document.addEventListener('click', function (e) {
-    if (e.target.closest && (!e.target.closest('#rv-menu') && !e.target.closest('.rv-kebab'))) rvMenuClose();
-  });
-  document.getElementById('r-submit').addEventListener('click', function () {
-    var btn = this;
-    var name = document.getElementById('r-name').value.trim();
-    var text = document.getElementById('r-text').value.trim();
-    var file = document.getElementById('r-file').files[0];
-    if (!text) { toast(t('先写点评价内容哦', 'Please write something first')); return; }
-    if (!RATING) { toast(t('记得点星星评分哦', 'Please pick a star rating first')); return; }
-    btn.disabled = true;
-    btn.style.opacity = '.5';
-    var upload = file
-      ? fetch(SUPABASE_URL + '/storage/v1/object/reviews/' + Date.now() + '-' + file.name.replace(/[^\w.\-]/g, '_'), {
-          method: 'POST',
-          headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'Content-Type': file.type || 'image/jpeg' },
-          body: file
-        }).then(function (r) { if (!r.ok) throw new Error('upload failed'); return r.json(); })
-          .then(function (res) { return SUPABASE_URL + '/storage/v1/object/public/reviews/' + res.Key.split('/').slice(1).join('/'); })
-      : Promise.resolve(null);
-    upload.then(function (imageUrl) {
-      return fetch(SUPABASE_URL + '/rest/v1/reviews', {
-        method: 'POST',
-        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
-        body: JSON.stringify({ name: name, content: text, rating: RATING, image_url: imageUrl })
-      });
-    }).then(function (r) {
-      if (!r.ok) throw new Error();
-      return r.json().catch(function () { return null; });
-    }).then(function (rows) {
-      // 记住本机发出去的评价（不绑账号，只在本机「发出去的评价」里展示）
-      try {
-        if (rows && rows[0] && rows[0].id) {
-          var ids = JSON.parse(localStorage.getItem('yuki-my-reviews') || '[]');
-          if (Array.isArray(ids) && ids.indexOf(rows[0].id) === -1) { ids.push(rows[0].id); localStorage.setItem('yuki-my-reviews', JSON.stringify(ids.slice(-100))); }
-        }
-      } catch (e) {}
-      toast(t('评价提交成功，谢谢你～', 'Review submitted, thank you~'));
-      document.getElementById('r-name').value = '';
-      document.getElementById('r-text').value = '';
-      document.getElementById('r-file').value = '';
-      document.getElementById('r-file-name').innerHTML = '<span data-zh="未选择图片" data-en="No photo chosen">未选择图片</span>';
-      applyLang(LANG);
-      RATING = 0;
-      paintStars();
-      loadReviews();
-    }).catch(function () {
-      toast(t('提交失败，稍后再试试', 'Submission failed, try again later'));
-    }).finally(function () {
-      btn.disabled = false;
-      btn.style.opacity = '';
-    });
-  });
-  loadReviews();
   var shopSec = new URLSearchParams(location.search).get('sec');
-  if (shopSec === 'reviews' || shopSec === 'pay') {
+  if (shopSec === 'pay') {
     setTimeout(function () {
       var el = document.getElementById(shopSec);
       if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.pageYOffset - 74, behavior: 'smooth' });
@@ -911,7 +740,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
 </script>
 <script src="/js/name-lexicon.js?v=20261117A"></script>
   <script src="/js/yk-lightbox.js?v=20261117A"></script>
-<script src="/js/shop-app.js?v=20261117E"></script>
+<script src="/js/shop-app.js?v=20261117F"></script>
 <script src="/js/site-footer.js?v=20261114A"></script>
 <script>
   // 统一 Footer（已有 <footer> 则替换其内容，不新建第二个）

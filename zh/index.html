@@ -38,10 +38,10 @@
 <meta name="twitter:title" content="小柚的小世界">
 <meta name="twitter:description" content="欢迎来到小柚的小世界">
 <meta name="twitter:image" content="https://yukicheng.com/zh/">
-<link rel="stylesheet" href="/css/site.css?v=20261117I">
-  <link rel="stylesheet" href="/site-menu.css?v=20261117K">
-    <script src="/site-menu.js?v=20261117Q" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261117F">
+<link rel="stylesheet" href="/css/site.css?v=20261117J">
+  <link rel="stylesheet" href="/site-menu.css?v=20261117M">
+    <script src="/site-menu.js?v=20261117R" defer></script>
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261117G">
 <link rel="stylesheet" href="/vendor/leaflet/leaflet.css?v=20261114B">
 <script src="/vendor/leaflet/leaflet.js?v=20261114B"></script>
 <script src="/js/foodie-coord.js?v=20261116B"></script>
@@ -180,7 +180,7 @@
 <div id="share-pop"></div>
 
 
-<script src="/js/site-common.js?v=20261117B"></script>
+<script src="/js/site-common.js?v=20261117C"></script>
 
 <!-- ═══════════ 桓桓 · AI 助手（AI 入口 · 第一阶段测试：模拟回复 + 后台知识库匹配，未接真 AI）═══════════ -->
 <style>
@@ -1805,12 +1805,14 @@
 // ═══ 首页小铺：展示 4 件真实商品（与商城同一套上下架规则；下架/删除的不出现；不显示成本）═══
 (function () {
   var HIDE = [];
-  var HOME_OFF = []; // 她 20261104 §二.6：「是否在首页展示」= 存 site_settings.shop_home_off（不在名单 = 展示）
-  function loadHomeOff() {
-    return fetch(DB_BASE + 'site_settings?select=value&key=eq.shop_home_off', { headers: DB_HEADERS })
+  // 她 20261117 23:14 §二：商品默认不上首页。改成白名单 site_settings.shop_home_on = [商品id]：
+  // 只有她明确授权（后台「主页展示」开关打开）的商品才会出现在首页；默认一律不展示。
+  var HOME_ON = [];
+  function loadHomeOn() {
+    return fetch(DB_BASE + 'site_settings?select=value&key=eq.shop_home_on', { headers: DB_HEADERS })
       .then(function (r) { return r.ok ? r.json() : []; }).then(function (rows) {
-        try { var v = JSON.parse((rows && rows[0] && rows[0].value) || '[]'); HOME_OFF = Array.isArray(v) ? v.map(String) : []; } catch (e) { HOME_OFF = []; }
-      }).catch(function () { HOME_OFF = []; });
+        try { var v = JSON.parse((rows && rows[0] && rows[0].value) || '[]'); HOME_ON = Array.isArray(v) ? v.map(String) : []; } catch (e) { HOME_ON = []; }
+      }).catch(function () { HOME_ON = []; });
   }
   function loadHidden() {
     return fetch(DB_BASE + 'site_settings?select=value&key=eq.shop_hidden', { headers: DB_HEADERS })
@@ -1890,11 +1892,11 @@
     var card = e.target.closest('.hs-card');
     if (card && card.getAttribute('data-href')) location.href = card.getAttribute('data-href');
   });
-  Promise.all([loadHidden(), loadHomeOff()]).then(fetchProducts).then(function (rows) {
+  Promise.all([loadHidden(), loadHomeOn()]).then(fetchProducts).then(function (rows) {
     if (!grid) return;
     var list = (rows || []).filter(function (p) {
       var pid = String(p.id);
-      return HIDE.indexOf(pid) === -1 && HOME_OFF.indexOf(pid) === -1;
+      return HIDE.indexOf(pid) === -1 && HOME_ON.indexOf(pid) > -1;
     });
     if (!list.length) return; // 没有可展示的商品：只保留原入口卡，不放假数据
     var _hpt = [];

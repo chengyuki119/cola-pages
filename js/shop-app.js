@@ -91,12 +91,13 @@
   }
   function varLabel(v) { // 当前语言下，一条规格该显示的名字
     if (!v) return '';
-    if (window.LANG !== 'en') {
-      if (v.dims && typeof v.dims === 'object' && Object.keys(v.dims).length) return dimsText(v.dims);
-      return Y18(v.name || v.sku || '', 'zh');
-    }
     if (v.dims && typeof v.dims === 'object' && Object.keys(v.dims).length) return dimsText(v.dims);
-    return tokTranslate(v.name || v.sku || '');
+    // 她 20261117 23:14：规格名要双语——有手写的 name_en 就优先用它（避免机翻把人名译成 Wet Nurse 之类）
+    if (window.LANG === 'en') {
+      if (v.name_en) return String(v.name_en);
+      return tokTranslate(v.name || v.sku || '');
+    }
+    return Y18(v.name || v.sku || '', 'zh');
   }
   function cartItemLabel(it) { // 购物车行：有 dims 就用 dims 重拼，没 dims 退回逐词翻译
     if (window.LANG !== 'en') return it.name || '';
@@ -1963,69 +1964,42 @@
     if (window.__ACCOUNT_DEFAULT_SEC) return; // 独立账号页：不拉商品列表
     var grid = document.getElementById('product-grid');
     if (window.__shopPaint) return;
+    // 她 20261117 23:14 §三-2：小铺改为四个纵向区域，从上到下 建帽 → 布艺手工 → 款式选择 → 仅供展示，
+    // 四个区域共用同一套商品卡模板（不另做 UI）；搜索、怎么买、评价返图已按要求删除。
+    var SHOP_ZONES = [
+      { key: 'keycap', zh: '建帽', en: 'Keycaps' },
+      { key: 'fabric', zh: '布艺手工', en: 'Fabric & Handmade' },
+      { key: 'style', zh: '款式选择', en: 'Style Options' },
+      { key: 'display', zh: '仅供展示', en: 'Display Only' }
+    ];
+    var SHOP_FABRIC_CATS = ['布艺手工', '布艺', '挂件', '摆设'];
+    var SHOP_STYLE_CATS = ['布料', '转印贴', '3D模具', '贴纸', '模具', '键帽款式', '款式选择'];
+    function zoneOf(p) { // 归属：仅供展示（已停售）优先，其次按商品分类落到布艺手作 / 款式选择，其余都算建帽
+      if (p.display_only) return 'display';
+      var c = String(p.category || '');
+      if (SHOP_FABRIC_CATS.indexOf(c) > -1) return 'fabric';
+      if (SHOP_STYLE_CATS.indexOf(c) > -1) return 'style';
+      return 'keycap';
+    }
     function paint() {
       var g = document.getElementById('product-grid');
-      var secbar = document.getElementById('shop-secbar');
-      var matbar = document.getElementById('shop-matbar');
-      var sbox = document.getElementById('shop-searchbox');
-      var mats = PRODUCTS.filter(isMat);
-      var prods = PRODUCTS.filter(function (p) { return !isMat(p); });
-      var sec = 'product';
-      try { sec = sessionStorage.getItem(SHOP_SECTION_KEY) || 'product'; } catch (e) {}
-      if (sec === 'material' && !mats.length) sec = 'product';
-      // 区块切换条：只有真有手作素材时才出现（她 §2.1：商品与手作素材并列切换）
-      if (secbar) {
-        secbar.style.display = mats.length ? 'flex' : 'none';
-        secbar.innerHTML =
-          '<button type="button" class="shop-sec-chip' + (sec === 'product' ? ' on' : '') + '" data-ssec="product">' + t('商品', 'Products') + '</button>' +
-          '<button type="button" class="shop-sec-chip' + (sec === 'material' ? ' on' : '') + '" data-ssec="material">' + t('手作素材', 'Handmade Materials') + '</button>';
-        secbar.querySelectorAll('[data-ssec]').forEach(function (b) {
-          b.addEventListener('click', function () {
-            try { sessionStorage.setItem(SHOP_SECTION_KEY, b.getAttribute('data-ssec')); } catch (e) {}
-            paint();
-          });
-        });
-      }
-      var list = sec === 'material' ? mats : prods;
-      // 素材分类条（她 §2.1：转印贴 / 3D 模具 / 布料）
-      var matCat = '';
-      try { matCat = sessionStorage.getItem(SHOP_MAT_KEY) || ''; } catch (e) {}
-      if (matbar) {
-        matbar.style.display = (sec === 'material') ? 'flex' : 'none';
-        matbar.innerHTML = [''].concat(SHOP_MAT_CATS).map(function (c) {
-          return '<button type="button" class="shop-mat-chip' + (matCat === c ? ' on' : '') + '" data-mcat="' + escAttr(c) + '">' + (c ? (window.LANG === 'en' ? SHOP_MAT_EN[c] : c) : t('全部', 'All')) + '</button>';
-        }).join('');
-        matbar.querySelectorAll('[data-mcat]').forEach(function (b) {
-          b.addEventListener('click', function () {
-            try { sessionStorage.setItem(SHOP_MAT_KEY, b.getAttribute('data-mcat')); } catch (e) {}
-            paint();
-          });
-        });
-      }
-      if (sec === 'material' && matCat) list = list.filter(function (p) { return p.category === matCat; });
-      // 搜索（她 §8.11：昵称/标准中文名/标准英文名都能搜到同一商品——词库别名扩展）
-      if (sbox) {
-        sbox.style.display = PRODUCTS.length ? 'flex' : 'none';
-        var si = document.getElementById('shop-q');
-        if (si && si.placeholder === undefined) si.placeholder = t('搜索商品…', 'Search products…');
-        if (si && !si.dataset.bound) {
-          si.dataset.bound = '1';
-          si.addEventListener('input', function () { window.__shopQ = si.value.trim(); paint(); });
-        }
-        if (si && si.value !== window.__shopQ) si.value = window.__shopQ;
-      }
-      var q = (window.__shopQ || '').toLowerCase();
-      if (q) {
-        var terms = (window.NameLexicon ? NameLexicon.searchTerms(window.__shopQ) : [window.__shopQ]).map(function (x) { return String(x).toLowerCase(); });
-        list = list.filter(function (p) {
-          var hay = String((p.name || '') + ' ' + (p.name_en || '') + ' ' + (p.tag || '') + ' ' + (p.category || '')).toLowerCase();
-          return terms.some(function (x) { return hay.indexOf(x) > -1; });
-        });
-      }
-      var onSale = list.filter(function (p) { return statusOfG(p) !== 'out'; });
-      g.innerHTML = onSale.length ? onSale.map(productCardShop).join('') : '<p style="grid-column:1/-1;text-align:center;color:var(--muted);">' + t('没有找到相关商品', 'Nothing found') + '</p>'; // 她 20261117 15:59：回归一行 5 个网格，删两列瀑布流
+      if (!g) return;
+      var groups = { keycap: [], fabric: [], style: [], display: [] };
+      PRODUCTS.forEach(function (p) { groups[zoneOf(p)].push(p); });
+      var head = function (z) {
+        return '<div style="grid-column:1/-1;margin:6px 0 -2px;">' +
+          '<h2 style="font-size:23px;margin:0 0 12px;display:flex;align-items:center;gap:8px;">' +
+          '<span style="width:4px;height:18px;background:var(--accent,#F9E5ED);border-radius:2px;display:inline-block;"></span>' +
+          t(z.zh, z.en) + '</h2></div>';
+      };
+      var empty = '<p style="grid-column:1/-1;margin:0 0 18px;font-size:16px;color:var(--muted);">' + t('这一区还在准备中～', 'Nothing here yet~') + '</p>';
+      g.innerHTML = SHOP_ZONES.map(function (z) {
+        var list = groups[z.key].filter(function (p) { return z.key === 'display' || statusOfG(p) !== 'out'; });
+        return head(z) + (list.length
+          ? '<div style="display:contents">' + list.map(productCardShop).join('') + '</div>'
+          : empty);
+      }).join('');
       bindCards(g);
-      // 她 20261107：往期商品区块已整块删掉（不再区分在售/售尽展示，售尽商品也不上前台列表）
     }
     function statusOfG(p) { if (p.display_only) return 'display'; if (p.sold) return 'out'; var ts = totalStock(p); if (ts != null) return ts > 0 ? 'on' : 'out'; if (!(p.stock > 0)) return 'out'; return 'on'; }
     window.__shopPaint = paint;

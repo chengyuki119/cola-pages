@@ -922,3 +922,26 @@ textarea {
   color: #897783 !important;
   opacity: 1 !important;
 }
+/* ─────────────────────────────────────────────────────────────
+   她 20261117 23:14 §四：四个编辑按钮（小铺商品 / 色卡 / BJD / 稿件）统一规格
+   —— 字体、字号、字重、圆角、高度、内边距、交互状态全部一致；
+   按钮在卡片里的位置与卡片布局都不动（只统一样式，不改功能与保存逻辑）
+   ───────────────────────────────────────────────────────────── */
+.card-edit-btn {
+  font-family: inherit !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  height: 32px !important;
+  min-height: 0 !important;
+  line-height: 1 !important;
+  padding: 0 12px !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px !important;
+  cursor: pointer;
+  transition: background-color .15s, border-color .15s, color .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.card-edit-btn:focus-visible { outline: 2px solid var(--btn-pri-bd-h, #E4A0B8); outline-offset: 2px; }
+.card-edit-btn:disabled { background-color: #F8F0F3 !important; border-color: #EADCE2 !important; color: #B9A5AE !important; cursor: default; }

@@ -19,13 +19,14 @@
   var NAV = [ // 她 20261117 17:48 任务书：五栏 Home / My Shop / Collection / Explore / Account；All Commissions 归入 Collection 第四位，不再单独成栏
     { key: 'home', num: '01', zh: '首页', en: 'Home', url: '/', items: [
       { key: 'cal', zh: '日历 · 重要日子', en: 'Calendar', page: 'index', url: '/', scrollTo: 'home-cal', scroll: true },
-      { key: 'about', zh: '关于 Snow Yuzu', en: 'About', page: 'about', url: '/about/' }
+      { key: 'about', zh: '关于 Snow Yuzu', en: 'About', page: 'about', url: '/about/' },
+      { key: 'contact', zh: '联系我们', en: 'Contact', page: 'askbox', url: '/askbox/' } // 她 20261117 23:14 §三-1：首页栏新增「联系我们」（现有 /askbox/ 页就是联系我们）
     ]},
     { key: 'shop', num: '02', zh: '我的小铺', en: 'My Shop', nav: 'shop', url: '/shop/', items: [
       { key: 'shop-main', zh: '小铺', en: 'My Shop', page: 'shop', url: '/shop/' },
       { key: 'howto', zh: '下单流程', en: 'How to Order', page: 'howto', url: '/how-to-order/' },
-      { key: 'cart', zh: '购物车', en: 'Cart', page: 'shop', url: '/shop/?sec=cart', sec: 'cart', area: 'shop' },
-      { key: 'orders', zh: '我的订单', en: 'My Orders', page: 'account', url: '/account/?sec=orders', sec: 'orders' }
+      { key: 'cart', zh: '购物车', en: 'Cart', page: 'shop', url: '/shop/?sec=cart', sec: 'cart', area: 'shop' }
+      // 她 20261117 23:14 §三-5：「我的订单」已从小铺移到账号栏（见 account 栏第二位）
     ]},
     { key: 'gallery', num: '03', zh: '收藏展示', en: 'Collection', nav: 'gallery', url: '/bjd/', items: [
       { key: 'bjd', zh: 'BJD', en: 'BJD', page: 'bjd', url: '/bjd/', area: 'bjd' },
@@ -34,12 +35,13 @@
       { key: 'works-all', zh: '稿件展示', en: 'All Commissions', page: 'works', url: '/works/', area: 'works' }
     ]},
     { key: 'explore', num: '04', zh: '探索', en: 'Explore', nav: 'foodie', url: '/foodie/', items: [
-      { key: 'foodie', zh: '美食地图', en: 'Foodie Map', page: 'foodie', url: '/foodie/', path: '/foodie/', area: 'foodie' },
-      { key: 'foodiemap', zh: '地图找餐厅', en: 'Find Restaurants', page: 'foodie', url: '/foodie/map/', path: '/foodie/map/', area: 'foodie' },
+      { key: 'foodie', zh: '美食地图', en: 'Food Map', page: 'foodie', url: '/foodie/', path: '/foodie/', area: 'foodie' },
       { key: 'yuzurec', zh: '柚子推荐', en: 'Yuki\'s Picks', page: 'foodie', url: '/foodie/?sec=yuzu', sec: 'yuzu', path: '/foodie/', area: 'foodie' }
+      // 她 20261117 23:14 §三-4：「地图找餐厅」入口删除，探索只留美食地图 + 柚子推荐
     ]},
     { key: 'account', num: '05', zh: '账号', en: 'Account', url: '/account/', items: [
       { key: 'acct-profile', zh: '我的账号', en: 'My Account', page: 'account', url: '/account/' },
+      { key: 'orders', zh: '我的订单', en: 'My Orders', page: 'account', url: '/account/?sec=orders', sec: 'orders' },
       { key: 'acct-reviews', zh: '我的评价', en: 'My Reviews', page: 'account', url: '/account/?sec=my-reviews', sec: 'my-reviews' },
       { key: 'acct-questions', zh: '我的提问', en: 'My Questions', page: 'account', url: '/account/?sec=my-questions', sec: 'my-questions' },
       { key: 'admin', zh: '管理后台', en: 'Admin', page: 'admin', url: '/admin.html', adminOnly: true } // 仅管理员可见（shop_is_admin 服务端判定）

@@ -288,7 +288,7 @@ function normBjdView(b) {
     parts: b.parts || {}, homeShow: b.homeShow !== false
   };
 }
-var SIZE_EN = { '三分头': '1/3', '四分头': '1/4', '六分头': '1/6', '三分': '1/3', '四分': '1/4', '六分': '1/6', '八分': '1/8', '十二分': '1/12', '肉四': 'Chubby 1/4', '小六': 'Small 1/6', '矮胖六': 'Short & Chubby 1/6', '正常六分': 'Normal 1/6' };
+var SIZE_EN = { '三分头': '1/3 Head', '四分头': '1/4 Head', '六分头': '1/6 Head', '三分': '1/3', '四分': '1/4', '六分': '1/6', '八分': '1/8', '十二分': '1/12', '肉四': 'Chubby 1/4', '小六': 'Small 1/6', '矮胖六': 'Short & Chubby 1/6', '正常六分': 'Normal 1/6' }; // 她 20261117 23:14：三分头/四分头 原来和 三分/四分 撞成同一个「1/4」，英文模式下两颗芯片长得一模一样，给带头尺寸加 Head 区分
 function sizeEn(s) {
   if (s == null) return s;
   s = String(s);

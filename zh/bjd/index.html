@@ -29,11 +29,11 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/icon-yuki2-32.png">
 <link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki2-180.png">
 <meta name="apple-mobile-web-app-title" content="小柚的小世界">
-<link rel="stylesheet" href="/css/site.css?v=20261117I">
-  <link rel="stylesheet" href="/site-menu.css?v=20261117K">
-    <script src="/site-menu.js?v=20261117Q" defer></script>
+<link rel="stylesheet" href="/css/site.css?v=20261117J">
+  <link rel="stylesheet" href="/site-menu.css?v=20261117M">
+    <script src="/site-menu.js?v=20261117R" defer></script>
 <script src="/js/page-covers.js?v=20261117A" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261117F">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261117G">
 </head>
 <body>
 
@@ -111,7 +111,7 @@
 </div>
 <div id="share-pop"></div>
 <div class="toast" id="toast"></div>
-<script src="/js/site-common.js?v=20261117B"></script>
+<script src="/js/site-common.js?v=20261117C"></script>
 <script>
   // ===== BJD：独立子页（娃娃墙 + 娃娃详情 /bjd/?id=N）=====
   function yb18(x) { return window.YK18N ? window.YK18N.tc(window.YK18N.t(x)) : x; } // 她 20261112：BJD 数据值接入全站互译（英模式不残留中文；英文名首字母大写）
@@ -219,18 +219,18 @@
       (b.head.size ? '<span style="color:var(--muted);font-size:17px;">　|　' + escDb(LANG === 'en' && window.sizeEnKeep ? sizeEnKeep(b.head.size) : b.head.size) + '</span>' : '') +
       '</div>' +
       (b.parts.head !== false ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:19px;">' + t('娃娃头', 'Head') + '</h2>' +
-      (bjdRow(t('厂家 / 品牌', 'Maker / Brand'), yb18(b.head.brand)) + bjdRow(t('型号 / Sculpt', 'Sculpt'), yb18(b.head.sculpt)) + bjdRow(t('娃娃头尺寸', 'Head size'), LANG === 'en' && window.sizeEnKeep ? sizeEnKeep(b.head.size) : b.head.size) + bjdRow(t('备注', 'Notes'), yb18(b.head.note)) || '<p style="color:var(--muted);font-size:16px;">' + t('暂无记录', 'No records yet') + '</p>') + '</div>' : '') +
+      (bjdRow(t('厂家 / 品牌', 'Maker / Brand'), yb18(b.head.brand)) + bjdRow(t('型号', 'Sculpt'), yb18(b.head.sculpt)) + bjdRow(t('娃娃头尺寸', 'Head size'), LANG === 'en' && window.sizeEnKeep ? sizeEnKeep(b.head.size) : b.head.size) + bjdRow(t('备注', 'Notes'), yb18(b.head.note)) || '<p style="color:var(--muted);font-size:16px;">' + t('暂无记录', 'No records yet') + '</p>') + '</div>' : '') +
       (b.parts.body !== false ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:19px;">' + t('身体', 'Body') + '</h2>' +
-      (bjdRow(t('厂家 / 品牌', 'Maker / Brand'), yb18(b.body.brand)) + bjdRow(t('Body 型号', 'Body model'), yb18(b.body.model)) + bjdRow(t('类型', 'Type'), yb18(b.body.type)) + bjdRow(t('备注', 'Notes'), yb18(b.body.note)) || '<p style="color:var(--muted);font-size:16px;">' + t('暂无记录', 'No records yet') + '</p>') + '</div>' : '') +
+      (bjdRow(t('厂家 / 品牌', 'Maker / Brand'), yb18(b.body.brand)) + bjdRow(t('身体型号', 'Body model'), yb18(b.body.model)) + bjdRow(t('类型', 'Type'), yb18(b.body.type)) + bjdRow(t('备注', 'Notes'), yb18(b.body.note)) || '<p style="color:var(--muted);font-size:16px;">' + t('暂无记录', 'No records yet') + '</p>') + '</div>' : '') +
       (b.parts.eyes !== false ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:19px;">' + t('眼珠', 'Eyes') + '</h2>' +
       (bjdRow(t('商家 / 制作者', 'Seller / Maker'), yb18(b.eyes.maker)) + bjdRow(t('来源', 'Source'), yb18(b.eyes.source)) + bjdRow(t('眼珠尺寸', 'Eye size'), b.eyes.size) + bjdRow(t('备注', 'Notes'), yb18(b.eyes.note)) || '<p style="color:var(--muted);font-size:16px;">' + t('暂无记录', 'No records yet') + '</p>') + '</div>' : '') +
       (b.parts.clothes ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:19px;">' + t('衣服', 'Outfit') + '</h2>' +
       (bjdRow(t('商家 / 制作者', 'Seller / Maker'), b.clothes.brand) + bjdRow(t('备注', 'Notes'), b.clothes.note) || '<p style="color:var(--muted);font-size:16px;">' + t('暂无记录', 'No records yet') + '</p>') + '</div>' : '') +
       (b.parts.head !== false ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:19px;">' + t('妆面', 'Face-up') + '</h2>' +
-      (bjdRow(t('妆面 / Face-up', 'Face-up'), yb18(b.faceup.faceup)) + bjdRow(t('妆师', 'Face-up artist'), yb18(b.faceup.artist)) + bjdRow(t('完成时间', 'Completed'), b.faceup.date) || '<p style="color:var(--muted);font-size:16px;">' + t('暂无记录', 'No records yet') + '</p>') + '</div>' : '') +
+      (bjdRow(t('妆面', 'Face-up'), yb18(b.faceup.faceup)) + bjdRow(t('妆师', 'Face-up artist'), yb18(b.faceup.artist)) + bjdRow(t('完成时间', 'Completed'), b.faceup.date) || '<p style="color:var(--muted);font-size:16px;">' + t('暂无记录', 'No records yet') + '</p>') + '</div>' : '') +
       ((b.price.total || priceRows || totalV) ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:19px;">' + t('价格', 'Price') + '</h2>' +
       (totalV > 0 ? '<div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--card-hover);padding:10px 0;margin-bottom:10px;"><span style="font-size:18px;font-weight:700;">' + t('娃娃总价', 'Total price') + '</span><b style="font-size:20px;color:var(--price,#F48FB1);">¥' + fmtMoney(totalV) + '</b></div>' : '') +
-      (bjdPriceRow(t('娃娃价格', 'Total price'), fmtPriceRow(b.price.total)) + priceRows) + '</div>' : '') +
+      (bjdPriceRow(t('娃娃价格', 'Listed price'), fmtPriceRow(b.price.total)) + priceRows) + '</div>' : '') +
       ((b.purchase.date || b.purchase.channel || b.purchase.status || b.birth) ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:19px;">' + t('购买信息', 'Purchase Info') + '</h2>' +
       (bjdRow(t('购买日期', 'Purchase date'), b.purchase.date) + bjdRow(t('出生日期', 'Birth date'), b.birth) + bjdRow(t('渠道 / 商家', 'Channel / Seller'), yb18(b.purchase.channel)) + bjdRow(t('状态', 'Status'), yb18(b.purchase.status))) + '</div>' : '') +
       (b.notes ? '<div class="card" style="padding:18px 20px;margin-bottom:14px;"><h2 style="font-size:19px;">' + t('备注', 'Notes') + '</h2><p style="font-size:16px;line-height:1.8;white-space:pre-wrap;">' + escDb(yb18(b.notes)) + '</p></div>' : '') +

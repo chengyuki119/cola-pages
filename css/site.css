@@ -52,6 +52,8 @@
     justify-content: space-between;
     padding: 0 16px;
   }
+  /* 她 20261117 23:14 §五：顶栏 Logo 水平居中（规则写在 site-menu.css，那边后加载、能压住各页内联的 .topbar 定义） */
+  .topbar .site-logo { display: flex; align-items: center; line-height: 0; }
   /* 她 20261117 17:48：中英按钮改回原来那版（粉色底座 + 选中白胶囊浮起），不用 16:45 的分段色块 */
   .lang-switch {
     display: flex;

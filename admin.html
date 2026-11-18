@@ -772,13 +772,13 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     .form-grid, .edit-grid { grid-template-columns: 1fr; }
   }
 </style>
-  <link rel="stylesheet" href="site-menu.css?v=20261117K">
+  <link rel="stylesheet" href="site-menu.css?v=20261117M">
   <style>
     /* 后台菜单已随全站改为顶部下拉（她 20261117 PART B），旧手机抽屉宽度覆盖已删 */
     /* 登录视图旧规则（460 窄列居中）已删——她 20261108 16:58 改按前台子页面 1200 版式，见上方 body:not(.adm-in) 区块 */
   </style>
-  <script src="site-menu.js?v=20261117Q" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261117F">
+  <script src="site-menu.js?v=20261117R" defer></script>
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261117G">
   <style>
     /* ═══ 她 20261030 §5：后台字体统一加深（三档，仅后台生效）═══
        主要文字 #65515D ｜ 普通正文 #65515D ｜ 辅助文字 #897783
@@ -2422,19 +2422,19 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       SETTINGS['shop_hidden'] = JSON.stringify(list); // 写成功了才同步内存
     });
   }
-  /* 她 20261104 §二.6：是否在首页展示。存 site_settings.shop_home_off = [商品id]；不在名单里 = 展示（默认开）*/
-  function homeOffList() {
-    try { var v = JSON.parse(SETTINGS['shop_home_off'] || '[]'); return Array.isArray(v) ? v.map(String) : []; } catch (e) { return []; }
+  /* 她 20261117 23:14 §二：商品默认不在首页展示。改成白名单 site_settings.shop_home_on = [商品id]：在名单里 = 首页展示（默认关），只有她明确授权才加进去 */
+  function homeOnList() {
+    try { var v = JSON.parse(SETTINGS['shop_home_on'] || '[]'); return Array.isArray(v) ? v.map(String) : []; } catch (e) { return []; }
   }
-  function isHomeOff(id) { return homeOffList().indexOf(String(id)) !== -1; }
-  function setHomeOff(id, off) {
-    var list = homeOffList();
+  function isHomeOn(id) { return homeOnList().indexOf(String(id)) !== -1; }
+  function setHomeOn(id, on) {
+    var list = homeOnList();
     var i = list.indexOf(String(id));
-    if (off && i === -1) list.push(String(id));
-    if (!off && i !== -1) list.splice(i, 1);
-    return saveSettingVerified('shop_home_off', list).then(function (ok) {
+    if (on && i === -1) list.push(String(id));
+    if (!on && i !== -1) list.splice(i, 1);
+    return saveSettingVerified('shop_home_on', list).then(function (ok) {
       if (!ok) throw new Error();
-      SETTINGS['shop_home_off'] = JSON.stringify(list); // 写成功了才同步内存
+      SETTINGS['shop_home_on'] = JSON.stringify(list); // 写成功了才同步内存
     });
   }
   function renderProductFilter() {
@@ -2900,8 +2900,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       h += '<button type="button" class="mi btn-display" data-act="' + (displayOnly ? 'normal' : 'display') + '">' +
         (displayOnly ? '取消仅展示' : '设为仅展示') + '</button>';
       h += '<button type="button" class="mi btn-off" data-act="hide">下架商品</button>';
-      h += '<button type="button" class="mi btn-home" data-act="' + (homeOff ? 'home' : 'unhome') + '">' +
-        (homeOff ? '设为首页展示' : '取消首页展示') + '</button>';
+      h += '<button type="button" class="mi btn-home" data-act="' + (homeOff ? 'unhome' : 'home') + '">' +
+        (homeOff ? '取消首页展示' : '设为首页展示') + '</button>';
       if (noVar) {
         h += '<div class="mi-row"><span>库存</span>' +
           '<button type="button" class="mi-mini btn-minus" title="库存 -1">−1</button>' +
@@ -2985,12 +2985,12 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
             '<div class="sc-shop">' + esc(p.tag || '&nbsp;') + '</div>' +
             '<div class="sc-shop adm-price-line">' + (p.price ? '<span style="color:var(--price,#F48FB1);font-weight:600;">' + (p.currency === 'USD' ? '$' : '¥') + esc(String(p.price)) + '</span>' : '<span style="color:var(--muted);">—</span>') + '</div>' +
             '<div class="private-line">' + stockInfo + ' · ' + costInfo + '（成本只有你自己能看到）</div>' +
-            '<span class="tgl-label" style="margin-top:7px;"><button type="button" class="tgl p-home-toggle' + (isHomeOff(p.id) ? '' : ' on') + '" aria-pressed="' + !isHomeOff(p.id) + '" data-id="' + esc(p.id) + '" aria-label="主页展示"><span class="tgl-knob"></span></button>主页展示</span>' +
+            '<span class="tgl-label" style="margin-top:7px;"><button type="button" class="tgl p-home-toggle' + (isHomeOn(p.id) ? ' on' : '') + '" aria-pressed="' + isHomeOn(p.id) + '" data-id="' + esc(p.id) + '" aria-label="主页展示"><span class="tgl-knob"></span></button>主页展示</span>' +
             '<div class="actions">' +
             '<button type="button" class="btn-edit-prod">编辑</button>' +
             '</div></div>' +
             '<button type="button" class="kebab" title="更多操作" aria-haspopup="true">⋮</button>' +
-            '<div class="card-menu" hidden>' + prodMenuHtml(off, !!p.display_only, vsum == null, isHomeOff(p.id), p.sku, p.id) + '</div>' +
+            '<div class="card-menu" hidden>' + prodMenuHtml(off, !!p.display_only, vsum == null, isHomeOn(p.id), p.sku, p.id) + '</div>' +
             '</div>';
         }).join('');
         // 前台「编辑商品」直达：按商品 id 展开对应商品的编辑状态
@@ -3079,16 +3079,16 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     if (e.target.classList.contains('btn-home')) {
       var hact = e.target.getAttribute('data-act');
       var toShow = hact ? hact === 'home' : e.target.textContent === '设为首页展示';
-      setHomeOff(id, !toShow)
+      setHomeOn(id, toShow)
         .then(function () { toast(toShow ? '已设为在首页展示' : '已取消首页展示'); loadProducts(); })
         .catch(function () { toast('操作失败：没有真的保存首页展示状态，请重新登录后再试'); });
       return;
     }
-    if (e.target.closest('.p-home-toggle')) { // 20261107 晚：卡上主页展示开关（与 ⋮ 菜单同一状态源 shop_home_off，点击即保存）
+    if (e.target.closest('.p-home-toggle')) { // 20261117 §二：卡上主页展示开关（白名单 shop_home_on，默认关；只有开了才上首页）
       var tglEl = e.target.closest('.p-home-toggle');
       var pid2 = tglEl.getAttribute('data-id') || id;
       var willShow = !tglEl.classList.contains('on');
-      setHomeOff(pid2, !willShow)
+      setHomeOn(pid2, willShow)
         .then(function () { toast(willShow ? '已设为在首页展示' : '已取消首页展示'); loadProducts(); })
         .catch(function () { toast('操作失败：没有真的保存主页展示状态，请重新登录后再试'); });
       return;
