@@ -97,6 +97,7 @@
       if (v.name_en) return String(v.name_en);
       return tokTranslate(v.name || v.sku || '');
     }
+    if (v.name_en) return String(v.name || v.name_en); // 双语规格名：中文就用原文，不能再过机翻（Clove 会被译成调味料「丁香」）
     return Y18(v.name || v.sku || '', 'zh');
   }
   function cartItemLabel(it) { // 购物车行：有 dims 就用 dims 重拼，没 dims 退回逐词翻译
