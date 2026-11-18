@@ -1967,25 +1967,24 @@
     if (window.__shopPaint) return;
     // 她 20261117 23:14 §三-2：小铺改为四个纵向区域，从上到下 建帽 → 布艺手工 → 款式选择 → 仅供展示，
     // 四个区域共用同一套商品卡模板（不另做 UI）；搜索、怎么买、评价返图已按要求删除。
+    // 她 20261118 00:25 §三：布艺手工不再单独成区（以后用标签分类，先不管理），只剩建帽 / 款式选择 / 仅供展示
     var SHOP_ZONES = [
       { key: 'keycap', zh: '建帽', en: 'Keycaps' },
-      { key: 'fabric', zh: '布艺手工', en: 'Fabric & Handmade' },
       { key: 'style', zh: '款式选择', en: 'Style Options' },
       { key: 'display', zh: '仅供展示', en: 'Display Only' }
     ];
-    var SHOP_FABRIC_CATS = ['布艺手工', '布艺', '挂件', '摆设'];
+    var SHOP_FABRIC_CATS = ['布艺手工', '布艺', '挂件', '摆设']; // 预留：以后按标签分类用，当前不参与分区
     var SHOP_STYLE_CATS = ['布料', '转印贴', '3D模具', '贴纸', '模具', '键帽款式', '款式选择'];
-    function zoneOf(p) { // 归属：仅供展示（已停售）优先，其次按商品分类落到布艺手作 / 款式选择，其余都算建帽
+    function zoneOf(p) { // 归属：仅供展示（已停售）优先，其次按商品分类落到款式选择，其余都算建帽
       if (p.display_only) return 'display';
       var c = String(p.category || '');
-      if (SHOP_FABRIC_CATS.indexOf(c) > -1) return 'fabric';
       if (SHOP_STYLE_CATS.indexOf(c) > -1) return 'style';
       return 'keycap';
     }
     function paint() {
       var g = document.getElementById('product-grid');
       if (!g) return;
-      var groups = { keycap: [], fabric: [], style: [], display: [] };
+      var groups = { keycap: [], style: [], display: [] };
       PRODUCTS.forEach(function (p) { groups[zoneOf(p)].push(p); });
       var head = function (z) {
         return '<div style="grid-column:1/-1;margin:6px 0 -2px;">' +
@@ -2031,17 +2030,17 @@
       '<div class="product-img">' + img + '<span class="st ' + stCls + '">' + stText + '</span>' +
       '<button type="button" class="fav-btn' + (isFav(p.id) ? ' on' : '') + '" data-fav="' + escAttr(p.id) + '" aria-label="' + t('收藏', 'Favorite') + '">' + svgHeart(isFav(p.id)) + '</button></div>' +
       '<div class="product-info">' +
-      '<div style="display:flex;align-items:center;gap:8px;min-width:0;">' +
+      /* 她 20261118 00:25 §二：编辑按钮与商品标签同一行——标签在左、编辑贴右；加入购物车在最底部一行、也贴右 */
+      '<div class="product-toprow">' +
       '<span class="product-tag" style="margin-bottom:0;">' + esc((isMat(p) ? dispCat(p) : dispTag(p)) || t('没有标签', 'Untagged')) + '</span>' +
+      productEditBtn(p) +
       '</div>' +
       '<h3 style="margin-top:6px;">' + esc(dispName(p)) + '</h3>' +
       '<div class="product-row" style="margin-top:auto;">' +
       '<span class="price">' + priceHtml(curOf(p), p.price === '' ? null : fmtPriceShop(p.price)) + '</span>' +
-      /* 她 20261117 23:51 §三：编辑按钮与「加入购物车」同一右侧操作区，编辑永远靠卡片右边缘 */
-      '<div class="card-acts">' +
+      '<span class="card-buywrap">' +
       (st === 'on' ? '<button class="buy-btn cart-quick">' + t('加入购物车', 'Add to cart') + '</button>' : '<span class="no-buy">' + (st === 'display' ? t('仅展示，不能下单', 'Not for sale') : '') + '</span>') +
-      productEditBtn(p) +
-      '</div>' +
+      '</span>' +
       '</div></div></div>';
   }
   function bindCards(scope) {
