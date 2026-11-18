@@ -93,6 +93,11 @@
     position: relative;
     height: auto;
     min-height: 0;
+    /* 她 20261118 00:06：桌面端展示区最大宽度 1200px 并在页面居中，不再无限放大/铺满；
+       1200 是上限不是固定值，屏幕窄于 1200 时仍是 100% 宽度，手机端展示方式不变。 */
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
     background-color: var(--bg);
   }
   .hero-img {
