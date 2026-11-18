@@ -52,32 +52,30 @@
     justify-content: space-between;
     padding: 0 16px;
   }
+  /* 她 20261117 17:48：中英按钮改回原来那版（粉色底座 + 选中白胶囊浮起），不用 16:45 的分段色块 */
   .lang-switch {
     display: flex;
     gap: 4px;
-    background: #F9EDF2; /* 她 20261117 16:45 色号定稿：外层 #F9EDF2 */
+    background: var(--accent-soft, #FCECF2); /* 原版：粉色胶囊底座（她 20261026 截图指定） */
     padding: 4px;
     border-radius: 999px;
-    box-shadow: inset 0 -2px 0 #D9B7C5, inset 0 1px 0 #FFFEFF; /* 底部软收边+顶部高光，轻柔不灰 */
   }
   .lang-btn {
     border: none;
-    background: #FEF8FA; /* 未选中：近白 #FEF8FA + 柔和阴影 */
+    background: transparent;
     font-size:15px;
-    font-weight: 600;
     padding: 5px 12px;
     border-radius: 999px;
     cursor: pointer;
-    color: #887B84;
-    box-shadow: inset 0 -2px 0 rgba(217,183,197,.5), inset 0 1px 0 #FFFEFF;
+    color: var(--muted);
     transition: background .2s, color .2s, box-shadow .2s;
   }
-  /* 选中态：浅粉 #EEC7D6，不用深粉；文字同色 #887B84，切换只变底色不变尺寸 */
+  /* 选中态：白色胶囊浮起（她 20261026 截图指定，前台后台同款） */
   .lang-btn.active {
-    background: #EEC7D6;
-    color: #887B84;
+    background: #ffffff;
+    color: var(--text, #65515D);
     font-weight: 600;
-    box-shadow: inset 0 -2px 0 #D9B7C5, inset 0 1px 0 #FFFEFF;
+    box-shadow: 0 1px 4px rgba(180,120,150,.28);
   }
 
 

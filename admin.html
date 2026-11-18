@@ -65,10 +65,10 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     transition: background .2s;
   }
   .back-link:hover { background: #FCECF2; }
-  /* 语言切换（与前台同款组件样式；admin 不加载 site.css，样式内联） */
-  .lang-switch { display: flex; gap: 4px; background: #F9EDF2; padding: 4px; border-radius: 999px; box-shadow: inset 0 -2px 0 #D9B7C5, inset 0 1px 0 #FFFEFF; } /* 她 20261117 16:45 色号定稿：外层 #F9EDF2+底部软收边+顶部高光 */
-  .lang-btn { border: none; background: #FEF8FA; color: #887B84; font-size:15px; font-weight:600; font-family: inherit; padding: 5px 12px; border-radius: 999px; cursor: pointer; box-shadow: inset 0 -2px 0 rgba(217,183,197,.5), inset 0 1px 0 #FFFEFF; transition: background .2s, color .2s, box-shadow .2s; } /* 未选中：近白 #FEF8FA+柔和阴影 */
-  .lang-btn.active { background: #EEC7D6; color: #887B84; font-weight: 600; box-shadow: inset 0 -2px 0 #D9B7C5, inset 0 1px 0 #FFFEFF; } /* 选中：浅粉 #EEC7D6，不用深粉；切换只变底色不变尺寸 */
+  /* 语言切换（与前台同款组件样式；admin 不加载 site.css，样式内联）——她 20261117 17:48：改回原版（粉色底座 + 选中白胶囊浮起） */
+  .lang-switch { display: flex; gap: 4px; background: #FCECF2; padding: 4px; border-radius: 999px; }
+  .lang-btn { border: none; background: transparent; color: #897783; font-size:15px; font-family: inherit; padding: 5px 12px; border-radius: 999px; cursor: pointer; transition: background .2s, color .2s, box-shadow .2s; }
+  .lang-btn.active { background: #ffffff; color: #65515D; font-weight: 600; box-shadow: 0 1px 4px rgba(180,120,150,.28); }
 
   .wrap { width: 100%; max-width: none; margin: 0; padding: 0; box-sizing: border-box; } /* 20261029 她任务书：不再限宽，改用统一的 50px 边距体系 */
   /* 后台标题行 + 侧栏宽度变量（她 20261026t 任务书 §1：标题与右侧内容面板左缘对齐；变量复用避免魔法数重复） */
@@ -777,8 +777,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     /* 后台菜单已随全站改为顶部下拉（她 20261117 PART B），旧手机抽屉宽度覆盖已删 */
     /* 登录视图旧规则（460 窄列居中）已删——她 20261108 16:58 改按前台子页面 1200 版式，见上方 body:not(.adm-in) 区块 */
   </style>
-  <script src="site-menu.js?v=20261117L" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261117E">
+  <script src="site-menu.js?v=20261117M" defer></script>
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261117F">
   <style>
     /* ═══ 她 20261030 §5：后台字体统一加深（三档，仅后台生效）═══
        主要文字 #65515D ｜ 普通正文 #65515D ｜ 辅助文字 #897783

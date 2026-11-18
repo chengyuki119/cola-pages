@@ -16,30 +16,29 @@
 
   // ── 唯一导航数据源：六栏分组（她 20261117 PART B §四）──
   // 具体路由以现有网站为准；权限过滤 permFilter 照旧（照片=任意登录；BJD/色卡/稿件=柚子专属确认后出现）
-  var NAV = [ // 她 20261117 16:26 任务书 §十二：六栏 Home/My Shop/Collection/Commissions/Explore/Account，栏头可点；缺总览页的栏标题指向栏内主页面
+  var NAV = [ // 她 20261117 17:48 任务书：五栏 Home / My Shop / Collection / Explore / Account；All Commissions 归入 Collection 第四位，不再单独成栏
     { key: 'home', num: '01', zh: '首页', en: 'Home', url: '/', items: [
       { key: 'cal', zh: '日历 · 重要日子', en: 'Calendar', page: 'index', url: '/', scrollTo: 'home-cal', scroll: true },
       { key: 'about', zh: '关于 Snow Yuzu', en: 'About', page: 'about', url: '/about/' }
     ]},
-    { key: 'shop', num: '02', zh: '我的小铺', en: 'My Shop', nav: 'shop', url: '/shop/', items: [ // Shop 与栏头 My Shop 同页，按她规则不重复建入口
+    { key: 'shop', num: '02', zh: '我的小铺', en: 'My Shop', nav: 'shop', url: '/shop/', items: [
+      { key: 'shop-main', zh: '小铺', en: 'My Shop', page: 'shop', url: '/shop/' },
       { key: 'howto', zh: '下单流程', en: 'How to Order', page: 'howto', url: '/how-to-order/' },
       { key: 'cart', zh: '购物车', en: 'Cart', page: 'shop', url: '/shop/?sec=cart', sec: 'cart', area: 'shop' },
       { key: 'orders', zh: '我的订单', en: 'My Orders', page: 'account', url: '/account/?sec=orders', sec: 'orders' }
     ]},
-    { key: 'gallery', num: '03', zh: '收藏展示', en: 'Collection', nav: 'gallery', url: '/photos/', items: [ // 无总览页，栏头暂指向照片页
+    { key: 'gallery', num: '03', zh: '收藏展示', en: 'Collection', nav: 'gallery', url: '/bjd/', items: [
       { key: 'bjd', zh: 'BJD', en: 'BJD', page: 'bjd', url: '/bjd/', area: 'bjd' },
       { key: 'cards', zh: '色卡', en: 'Color Cards', page: 'cards', url: '/color-card/', area: 'cards' },
-      { key: 'photos', zh: '照片分享', en: 'Photo Gallery', page: 'photos', url: '/photos/', area: 'gallery' } // 原 Photo Gallery 入口恢复（页内拍立得/胶卷分区保留不动）
-    ]},
-    { key: 'works', num: '04', zh: '稿件', en: 'Commissions', nav: 'works', url: '/works/', items: [ // 她 20261117 任务书：Commissions 独立成栏
+      { key: 'photos', zh: '照片展示', en: 'Photo Gallery', page: 'photos', url: '/photos/', area: 'gallery' },
       { key: 'works-all', zh: '稿件展示', en: 'All Commissions', page: 'works', url: '/works/', area: 'works' }
     ]},
-    { key: 'explore', num: '05', zh: '探索', en: 'Explore', nav: 'foodie', url: '/foodie/', items: [ // 无总览页，栏头暂指向美食地图
+    { key: 'explore', num: '04', zh: '探索', en: 'Explore', nav: 'foodie', url: '/foodie/', items: [
       { key: 'foodie', zh: '美食地图', en: 'Foodie Map', page: 'foodie', url: '/foodie/', path: '/foodie/', area: 'foodie' },
       { key: 'foodiemap', zh: '地图找餐厅', en: 'Find Restaurants', page: 'foodie', url: '/foodie/map/', path: '/foodie/map/', area: 'foodie' },
       { key: 'yuzurec', zh: '柚子推荐', en: 'Yuki\'s Picks', page: 'foodie', url: '/foodie/?sec=yuzu', sec: 'yuzu', path: '/foodie/', area: 'foodie' }
     ]},
-    { key: 'account', num: '06', zh: '账号', en: 'Account', url: '/account/', items: [ // Account 与 My Account 同页，栏头即账号页入口
+    { key: 'account', num: '05', zh: '账号', en: 'Account', url: '/account/', items: [
       { key: 'acct-profile', zh: '我的账号', en: 'My Account', page: 'account', url: '/account/' },
       { key: 'acct-reviews', zh: '我的评价', en: 'My Reviews', page: 'account', url: '/account/?sec=my-reviews', sec: 'my-reviews' },
       { key: 'acct-questions', zh: '我的提问', en: 'My Questions', page: 'account', url: '/account/?sec=my-questions', sec: 'my-questions' },
@@ -285,11 +284,10 @@
       // 照片分区 → 收藏展示栏（拍立得/胶卷等分区来自 photo_sections，BJD 分区已合并为独立区块）
       var gal = nav.filter(function (i) { return i.key === 'gallery'; })[0];
       if (gal) {
-        var secs = sections.filter(function (s) { return s.key !== 'bjd'; })
-          .map(function (s) { return { key: s.key, zh: s.name_zh, en: s.name_en, page: 'photos', url: '/photos/?sec=' + encodeURIComponent(s.key), sec: s.key, area: 'gallery' }; });
-        // 她 20261117 15:15：重建时保留稿件/BJD/色卡/Photo Gallery 四个静态入口（Photo Gallery 恢复原照片页入口，不丢）
-        var statics = gal.items.filter(function (it) { return it.key === 'bjd' || it.key === 'cards' || it.key === 'works' || it.key === 'photos'; });
-        gal.items = secs.concat(statics);
+        // 她 20261117 17:48：Collection 固定四个入口，顺序 BJD → Color Cards → Photo Gallery → All Commissions
+        // （不再把照片分区动态塞进这栏；拍立得 / 胶卷分区仍在 /photos/ 页内的分区里）
+        var statics = gal.items.filter(function (it) { return it.key === 'bjd' || it.key === 'cards' || it.key === 'photos' || it.key === 'works-all'; });
+        gal.items = statics;
         var ga = areas.gallery;
         if (ga && ga.title_zh) { gal.zh = ga.title_zh; gal.en = ga.title_en || ga.title_zh; }
       }
@@ -403,10 +401,17 @@
   function notify(name) {
     var menu = document.getElementById('menu');
     if (!menu) return;
+    var hit = false;
     menu.querySelectorAll('[data-nav]').forEach(function (g) {
-      if (g.getAttribute('data-nav') === name) g.classList.add('active');
+      if (g.getAttribute('data-nav') === name) { g.classList.add('active'); hit = true; }
       else if (name === null) g.classList.remove('active');
     });
+    // 稿件已并入 Collection，没有自己的栏了：按栏目里的条目反查所属栏，高亮依然生效
+    if (name && !hit) {
+      var a = menu.querySelector('a[data-key="' + name + '"], a[data-key="' + name + '-all"]');
+      var grp = a ? a.closest('.menu-group') : null;
+      if (grp) grp.classList.add('active');
+    }
   }
 
   window.addEventListener('popstate', function () {

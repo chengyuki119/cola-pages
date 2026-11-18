@@ -38,10 +38,10 @@
 <meta name="twitter:title" content="小柚的小世界">
 <meta name="twitter:description" content="欢迎来到小柚的小世界">
 <meta name="twitter:image" content="https://yukicheng.com/og-image.jpg">
-<link rel="stylesheet" href="/css/site.css?v=20261117G">
+<link rel="stylesheet" href="/css/site.css?v=20261117H">
   <link rel="stylesheet" href="/site-menu.css?v=20261117J">
-    <script src="/site-menu.js?v=20261117L" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261117E">
+    <script src="/site-menu.js?v=20261117M" defer></script>
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261117F">
   <!-- 她 20261104：英文版手机端「重要日子明细」固定两行（分类 / 重复+周年），中文版不动 -->
   <style id="en-cal-sub-2lines">
     html[lang="en"] .cal-dayview-item .dv-sub .dv-b::before { content: '· '; }
@@ -160,14 +160,6 @@
       <a class="home-long-btn" href="/shop/" style="margin-top:16px;"><span data-zh="进入小铺" data-en="Enter the Shop">进入小铺</span></a>
     </section>
 
-    <section id="sec-gallery">
-      <h2><a href="/photos/" data-zh="照片墙" data-en="Photo Gallery">照片墙</a></h2>
-      <div class="preview-grid">
-        <div class="tile" data-sec="instax"><a class="photo" href="/photos/?sec=instax" data-img="/photos/vct1.jpg"><span>photos/vct1.jpg</span></a><span class="tile-label" data-zh="拍立得展示" data-en="Instax Display">拍立得展示</span></div>
-        <div class="tile" data-sec="film"><a class="photo" href="/photos/?sec=film" data-img="/photos/film1.jpg"><span>photos/film1.jpg</span></a><span class="tile-label" data-zh="胶卷相机照片展示" data-en="Film Camera Pictures">胶卷相机照片展示</span></div>
-      </div>
-    </section>
-
     <!-- BJD：简洁预览 + 基本信息 + 长条按钮 → BJD Sub Page（尺寸分类在子页） -->
     <section id="sec-bjd">
       <h2><a href="/bjd/" data-zh="BJD" data-en="BJD">BJD</a></h2>
@@ -180,6 +172,14 @@
       <h2><a href="/color-card/" data-zh="色卡" data-en="Color Cards">色卡</a></h2>
       <div id="cards-home-grid"></div>
       <a class="home-long-btn" href="/color-card/"><span data-zh="进入色卡小屋" data-en="Enter Color Card Studio">进入色卡小屋</span></a>
+    </section>
+
+    <section id="sec-gallery">
+      <h2><a href="/photos/" data-zh="照片墙" data-en="Photo Gallery">照片墙</a></h2>
+      <div class="preview-grid">
+        <div class="tile" data-sec="instax"><a class="photo" href="/photos/?sec=instax" data-img="/photos/vct1.jpg"><span>photos/vct1.jpg</span></a><span class="tile-label" data-zh="拍立得展示" data-en="Instax Display">拍立得展示</span></div>
+        <div class="tile" data-sec="film"><a class="photo" href="/photos/?sec=film" data-img="/photos/film1.jpg"><span>photos/film1.jpg</span></a><span class="tile-label" data-zh="胶卷相机照片展示" data-en="Film Camera Pictures">胶卷相机照片展示</span></div>
+      </div>
     </section>
 
     <!-- 稿件展示 -->
@@ -1218,7 +1218,7 @@
     if (areas.length) {
       var homeBody = document.querySelector('#page-home .page-body');
       var homeFooter = homeBody ? homeBody.querySelector('footer') : null;
-      var CANON = { shop: 0, gallery: 1, cards: 2, works: 3, anon: 4 }; // 主页固定顺序（小铺在日历下方）：小铺 → 照片墙 → BJD → 色卡 → 稿件 → 提问箱
+      var CANON = { shop: 0, cards: 1, gallery: 2, works: 3, anon: 4 }; // 主页固定顺序（她 20261117 17:48）：小铺 → BJD → 色卡 → 照片墙 → 稿件 → 提问箱
       areas.slice().sort(function (a, b) {
         var ka = a.key in CANON ? CANON[a.key] : 100 + (a.sort || 0);
         var kb = b.key in CANON ? CANON[b.key] : 100 + (b.sort || 0);
@@ -1262,13 +1262,15 @@
       });
       applyLang(LANG);
     }
-    // 主页区块顺序：Photo Gallery → BJD → 色卡 → 稿件展示 → 我的小铺 → 匿名提问箱
-    var scSec = document.getElementById('sec-cards');
-    var bjdSec = document.getElementById('sec-bjd');
-    if (bjdSec && scSec && scSec.parentNode) scSec.parentNode.insertBefore(bjdSec, scSec); // BJD 在色卡之前（门禁隐藏时也无妨）
-    var shopSec = document.getElementById('shop');
-    var galSec = document.getElementById('sec-gallery');
-    if (shopSec && galSec && galSec.parentNode) galSec.parentNode.insertBefore(shopSec, galSec); // 小铺紧跟日历（在照片墙之前）
+    // 主页模块顺序（她 20261117 17:48 任务书 §二）：Calendar → My Shop → BJD → Color Cards → Photo Gallery → Commissions → Foodie Map
+    var HOME_ORDER = ['#shop', '#sec-bjd', '#sec-cards', '#sec-gallery', '#sec-works', '#sec-foodie'];
+    var homeHead = document.getElementById('cal-modal') || document.getElementById('home-cal');
+    HOME_ORDER.forEach(function (sel) {
+      var el = document.querySelector('#page-home ' + sel);
+      if (!el || !homeHead || !homeHead.parentNode) return;
+      homeHead.parentNode.insertBefore(el, homeHead.nextSibling);
+      homeHead = el;
+    });
     renderBjdHome();
     if (!document.getElementById('bjd-home-grid').dataset.bound) {
       document.getElementById('bjd-home-grid').dataset.bound = '1';
