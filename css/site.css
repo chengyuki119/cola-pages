@@ -55,27 +55,29 @@
   .lang-switch {
     display: flex;
     gap: 4px;
-    background: #FBE9EC; /* 她 20261117 16:34 截图指定：极浅粉胶囊底座 + 底部稍深粉边缘（果冻感） */
-    box-shadow: inset 0 -2px 0 #F5C6CF;
+    background: #F9EDF2; /* 她 20261117 16:45 色号定稿：外层 #F9EDF2 */
     padding: 4px;
     border-radius: 999px;
+    box-shadow: inset 0 -2px 0 #D9B7C5, inset 0 1px 0 #FFFEFF; /* 底部软收边+顶部高光，轻柔不灰 */
   }
   .lang-btn {
     border: none;
-    background: #FFFFFF; /* 未选中：白色内胶囊、粉字（她 20261117 16:34 第一张图） */
+    background: #FEF8FA; /* 未选中：近白 #FEF8FA + 柔和阴影 */
     font-size:15px;
     font-weight: 600;
     padding: 5px 12px;
     border-radius: 999px;
     cursor: pointer;
-    color: #F0A0B0;
+    color: #887B84;
+    box-shadow: inset 0 -2px 0 rgba(217,183,197,.5), inset 0 1px 0 #FFFEFF;
     transition: background .2s, color .2s, box-shadow .2s;
   }
-  /* 选中态：玫瑰粉填充 + 深玫瑰字（她 20261117 16:34 第一张图，前台后台同款） */
+  /* 选中态：浅粉 #EEC7D6，不用深粉；文字同色 #887B84，切换只变底色不变尺寸 */
   .lang-btn.active {
-    background: #F2A7B8;
-    color: #C96A80;
+    background: #EEC7D6;
+    color: #887B84;
     font-weight: 600;
+    box-shadow: inset 0 -2px 0 #D9B7C5, inset 0 1px 0 #FFFEFF;
   }
 
 
