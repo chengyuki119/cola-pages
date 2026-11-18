@@ -60,6 +60,8 @@
     yuzu1:        { en: 'Worth a stop if you are nearby.', 'zh-Hans': '值得顺路去吃。', 'zh-Hant': '值得順路去吃。', ja: '近くに寄ったら立ち寄りたい。' },
     yuzu2:        { en: 'Worth a detour.', 'zh-Hans': '值得专门绕路去吃。', 'zh-Hant': '值得專門繞路去吃。', ja: 'わざわざ足を運ぶ価値あり。' },
     yuzu3:        { en: 'Worth a special trip — highly recommended.', 'zh-Hans': '值得专程前往，强烈推荐。', 'zh-Hant': '值得專程前往，強烈推薦。', ja: 'はるばる行く価値あり、強くおすすめ。' },
+    yuzu4:        { en: 'A regular favourite — I keep going back.', 'zh-Hans': '会一直回头去吃的店。', 'zh-Hant': '會一直回頭去吃的店。', ja: '何度も通いたいお気に入り。' },
+    yuzu5:        { en: 'My favourite. Worth the whole trip.', 'zh-Hans': '最喜欢的一家，专程去也值。', 'zh-Hant': '最喜歡的一家，專程去也值。', ja: '一番のお気に入り。わざわざ行く価値あり。' },
     photos:       { en: 'Photos', 'zh-Hans': '照片', 'zh-Hant': '照片', ja: 'フォト' },
     myLocation:   { en: 'My location', 'zh-Hans': '我的位置', 'zh-Hant': '我的位置', ja: '現在地' },
     /* Phase 2 投稿（她 20261115）*/
@@ -211,12 +213,15 @@
   var YUZU_SVG = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="13.2" r="8.2" fill="#FCECF2" stroke="#F48FB1" stroke-width="1.6"/><circle cx="9.2" cy="11" r="1" fill="#F6C5D7"/><circle cx="13.6" cy="12.4" r="1" fill="#F6C5D7"/><circle cx="11" cy="15.6" r="1" fill="#F6C5D7"/><path d="M12 5c0-1.8 1.2-3 3-3" stroke="#B98598" stroke-width="1.5" stroke-linecap="round"/><path d="M15 2c2.6.4 4.4 2 4.6 4.4-2.5.3-4.5-1.4-4.6-4.4z" fill="#F6C5D7" stroke="#B98598" stroke-width="1.1"/></svg>';
   function yuzuHtml(rating, big) {
     if (!rating) return '';
-    var n = Math.max(1, Math.min(3, rating));
+    var n = Math.max(1, Math.min(5, rating)); // 她 20261117：五颗柚子制（1~5）
     var out = '';
     for (var i = 0; i < n; i++) out += YUZU_SVG;
     return '<span class="fd-yuzu' + (big ? ' fd-yuzu-lg' : '') + '" title="' + n + ' Yuzu">' + out + '</span>';
   }
-  function yuzuWord(n) { return n === 1 ? t('yuzu1') : n === 2 ? t('yuzu2') : n === 3 ? t('yuzu3') : ''; }
+  function yuzuWord(n) {
+    var k = { 1: 'yuzu1', 2: 'yuzu2', 3: 'yuzu3', 4: 'yuzu4', 5: 'yuzu5' }[n];
+    return k ? t(k) : '';
+  }
 
   /* ── 货币/价格 ── */
   var CUR_LOCALE = { USD: 'en-US', JPY: 'ja-JP', TWD: 'zh-TW', CNY: 'zh-CN', CAD: 'en-CA' };

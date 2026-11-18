@@ -103,8 +103,9 @@
   }
   function renderFilters() {
     var priceRow = [1, 2, 3, 4].map(function (n) { return chip('$'.repeat(n), FILTER.price === n, n, 'price'); }).join('');
-    var yuzuRow = [3, 2, 1].map(function (n) {
-      return chipHtml('<span style="display:inline-flex;gap:1px;">' + F.yuzuHtml(n) + '</span>', FILTER.yuzu === n, n, 'yuzu');
+    // 她 20261117：五颗柚子制——1~5 五档，与上面价格档同样式（数字胶囊），窄屏也不会挤成两行
+    var yuzuRow = [5, 4, 3, 2, 1].map(function (n) {
+      return chip(String(n), FILTER.yuzu === n, n, 'yuzu');
     }).join('');
     document.getElementById('fd-f-price').innerHTML = '<span style="font-size:14px;color:var(--muted,#897783);align-self:center;">' + F.esc(F.t('price')) + '</span>' + priceRow;
     document.getElementById('fd-f-yuzu').innerHTML = '<span style="font-size:14px;color:var(--muted,#897783);align-self:center;">' + F.esc(F.t('rating')) + '</span>' + yuzuRow;

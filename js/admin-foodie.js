@@ -953,7 +953,7 @@
           price_level: num('price_level'), average_price: num('average_price'), currency_code: get('currency_code'),
           phone: get('phone'), website: get('website'), menu_url: get('menu_url'),
           timezone: get('timezone'), parking: get('parking'), reservation: get('reservation'),
-          yuzu_rating: [1, 2, 3].indexOf(Number(get('yuzu_rating'))) > -1 ? Number(get('yuzu_rating')) : null,
+          yuzu_rating: [1, 2, 3, 4, 5].indexOf(Number(get('yuzu_rating'))) > -1 ? Number(get('yuzu_rating')) : null, // 她 20261117：五颗柚子制
           yuzu_note: get('yuzu_note'), status: get('status') === 'hidden' ? 'hidden' : 'published',
           is_featured: get('is_featured') === 'true', source: 'csv'
         };
