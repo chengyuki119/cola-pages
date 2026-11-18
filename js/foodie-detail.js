@@ -13,7 +13,6 @@
   var miniMap = null;
   var miniMapSeq = 0; // render 会被调两次，序号守卫保证只有最后一次的地图生效
   var GAL = [];       // 当前餐厅可看的图（封面 + 相册，去重保序）
-  var LB_I = 0;       // 灯箱当前下标
 
   /* WGS-84 → GCJ-02：统一走 js/foodie-coord.js（她 20261115 地图引擎任务书 §三）*/
   function wgs2gcj(lat, lng) { return window.FoodieCoord.wgs2gcj(lat, lng); }
@@ -161,68 +160,25 @@
     setTimeout(function () { d.remove(); }, 2200);
   }
 
-  /* ── 看图灯箱（她 20261117：跟照片展示页同一套外观；多图可左右翻页 + 手指滑动）── */
-  function lbShow(i) {
-    var box = document.getElementById('fd-lightbox');
-    if (!box || !GAL.length) return;
-    LB_I = ((i % GAL.length) + GAL.length) % GAL.length;
-    var src = GAL[LB_I];
-    var img = document.getElementById('fd-lb-img');
-    img.src = src;
-    img.alt = (R ? F.rName(R) : '') + ' ' + (LB_I + 1);
-    var dl = document.getElementById('fd-lb-download');
-    dl.href = src;
-    dl.setAttribute('download', String(src).split('/').pop().split('?')[0] || 'photo.jpg');
-    dl.textContent = F.t('download');
-    document.getElementById('fd-lb-close').textContent = F.t('close');
-    var one = GAL.length < 2;
-    document.getElementById('fd-lb-prev').style.display = one ? 'none' : '';
-    document.getElementById('fd-lb-next').style.display = one ? 'none' : '';
-    document.getElementById('fd-lb-count').textContent = one ? '' : (LB_I + 1) + ' / ' + GAL.length;
-    box.classList.add('open');
-    document.body.style.overflow = 'hidden';
+  /* ── 看图灯箱：统一走 js/yk-lightbox.js（与照片展示页同一套外观，多图翻页 + 双指缩放）── */
+  function lbHint() {
+    return F.lang() === 'en' ? 'Pinch to zoom' : '双指放大看细节';
   }
-  function lbClose() {
-    var box = document.getElementById('fd-lightbox');
-    if (box) box.classList.remove('open');
-    document.body.style.overflow = '';
+  function openLightbox(i) {
+    if (!window.YK_LB) return;
+    window.YK_LB.open(GAL, i, {
+      download: F.t('download'),
+      close: F.t('close'),
+      hint: lbHint(),
+      alt: R ? F.rName(R) : ''
+    });
   }
 
   document.addEventListener('click', function (e) {
     var pic = e.target.closest('.fd-gallery img, #fd-cover img');
-    if (pic) { lbShow(Number(pic.getAttribute('data-gi')) || 0); return; }
-    var box = e.target.closest('#fd-lightbox');
-    if (!box) return;
-    if (e.target.closest('#fd-lb-close')) { lbClose(); return; }
-    if (e.target.closest('#fd-lb-prev')) { lbShow(LB_I - 1); return; }
-    if (e.target.closest('#fd-lb-next')) { lbShow(LB_I + 1); return; }
-    if (e.target.closest('.lightbox-bar')) return; // 下载/关闭/张数那一条上的点击不关灯箱
-    lbClose();
+    if (!pic) return;
+    openLightbox(Number(pic.getAttribute('data-gi')) || 0);
   });
-
-  document.addEventListener('keydown', function (e) {
-    var box = document.getElementById('fd-lightbox');
-    if (!box || !box.classList.contains('open')) return;
-    if (e.key === 'Escape') lbClose();
-    else if (e.key === 'ArrowLeft') lbShow(LB_I - 1);
-    else if (e.key === 'ArrowRight') lbShow(LB_I + 1);
-  });
-
-  (function () {
-    var x0 = 0, y0 = 0;
-    document.addEventListener('touchstart', function (e) {
-      var box = document.getElementById('fd-lightbox');
-      if (!box || !box.classList.contains('open') || !e.touches.length) return;
-      x0 = e.touches[0].clientX; y0 = e.touches[0].clientY;
-    }, { passive: true });
-    document.addEventListener('touchend', function (e) {
-      var box = document.getElementById('fd-lightbox');
-      if (!box || !box.classList.contains('open') || !e.changedTouches.length) return;
-      var dx = e.changedTouches[0].clientX - x0;
-      var dy = e.changedTouches[0].clientY - y0;
-      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) lbShow(LB_I + (dx < 0 ? 1 : -1));
-    }, { passive: true });
-  })();
 
   function init() {
     var qs = new URLSearchParams(location.search);

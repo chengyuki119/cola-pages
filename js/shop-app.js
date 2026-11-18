@@ -768,17 +768,24 @@
       });
     });
     // 她 20261103 淘宝式：点大图选规格——点中某规格的图→自动选中该规格；点封面/普通详情图不改变规格状态
+    // 她 20261117：点大图看大图（与照片展示页同一套灯箱 + 双指缩放）；属于别的规格的图先按老规矩切规格，
+    // 再点一次就是看大图（双击也可以直接放大）
     var pgImg = document.querySelector('#d-pager .pg-img');
     if (pgImg) pgImg.addEventListener('click', function () {
       var wrap2 = document.querySelector('#d-pager .pg-wrap'); if (!wrap2) return;
-      var g = (d.gallery || [])[parseInt(wrap2.getAttribute('data-i') || '0', 10) || 0];
-      if (!g || !g.sku || g.sku === d.sku) return;
-      var v = currentVariant(p, g.sku);
-      if (!v || variantStock(v) <= 0) { toast(t('这个规格缺货啦，选一个有货的吧', 'This option is out of stock')); return; }
-      d.sku = g.sku;
-      syncVariantUI();
-      try { history.replaceState(null, '', '?id=' + encodeURIComponent(p.id) + '&sku=' + encodeURIComponent(d.sku)); } catch (e) {}
+      var gi = parseInt(wrap2.getAttribute('data-i') || '0', 10) || 0;
+      var g = (d.gallery || [])[gi];
+      if (g && g.sku && g.sku !== d.sku) {
+        var v = currentVariant(p, g.sku);
+        if (!v || variantStock(v) <= 0) { toast(t('这个规格缺货啦，选一个有货的吧', 'This option is out of stock')); return; }
+        d.sku = g.sku;
+        syncVariantUI();
+        try { history.replaceState(null, '', '?id=' + encodeURIComponent(p.id) + '&sku=' + encodeURIComponent(d.sku)); } catch (e) {}
+        return;
+      }
+      openProductLightbox();
     });
+    if (pgImg) pgImg.addEventListener('dblclick', function (e) { e.preventDefault(); openProductLightbox(); });
     // 翻图（箭头/缩略图/手机滑动）后记住位置 + 更新归属角标；切图不取消已选中的规格
     var wrap = document.querySelector('#d-pager .pg-wrap');
     if (wrap) wrap.addEventListener('pg-change', function () {
@@ -798,8 +805,25 @@
     var buy = document.getElementById('d-buy');
     if (buy) buy.addEventListener('click', function () { addCartFromDetail(true); });
   }
-  function addCartFromDetail(goCheckout) {
-    var d = DETAIL, p = d.p, vs = variantsOf(p);
+  /* 她 20261117：商品详情页大图 → 全屏灯箱（与照片展示页同一套；双指放大看细节） */
+  function openProductLightbox() {
+    if (!window.YK_LB) return;
+    var wrap = document.querySelector('#d-pager .pg-wrap');
+    var img = document.querySelector('#d-pager .pg-img');
+    if (!wrap || !img) return;
+    var urls = [];
+    try { urls = JSON.parse(img.getAttribute('data-urls') || '[]'); } catch (err) {}
+    if (!urls.length) urls = [img.src];
+    var i = parseInt(wrap.getAttribute('data-i') || '0', 10) || 0;
+    window.YK_LB.open(urls, i, {
+      download: t('下载原图', 'Download'),
+      close: t('关闭', 'Close'),
+      hint: t('双指放大看细节', 'Pinch to zoom'),
+      alt: (DETAIL && DETAIL.p) ? dispName(DETAIL.p) : ''
+    });
+  }
+
+  function addCartFromDetail(goCheckout) {    var d = DETAIL, p = d.p, vs = variantsOf(p);
     if (vs && !d.sku) { toast(t('先选一个规格哦', 'Please choose an option first')); return; } // 她 20261103 淘宝式：不选规格不能加购/购买
     var v = vs ? currentVariant(p, d.sku) : null;
     if (v && (variantStock(v) <= 0 || v.frozen === true)) { toast(t('这个规格缺货啦，选一个有货的吧', 'This option is out of stock')); return; } // 缺货／已禁用的组合再加一道把守

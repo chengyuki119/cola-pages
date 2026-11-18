@@ -147,29 +147,3 @@
   .fd-map-list { max-height: 44vh; }
   .fd-scroll .fd-card { min-width: 200px; max-width: 200px; }
 }
-
-/* ── 餐厅详情页：看图灯箱（她 20261117 要求「跟 photo gallery 那边一样的」）──
-   外观/下载/关闭全部沿用 .lightbox 那套，这里只补左右翻页与张数 */
-#fd-cover img { cursor: zoom-in; }
-#fd-lightbox { z-index: 400; }
-#fd-lightbox img { max-width: calc(100vw - 180px); max-height: 72vh; object-fit: contain; }
-.fd-lb-nav {
-  position: fixed; top: 50%; transform: translateY(-50%);
-  width: 46px; height: 46px; border-radius: 50%;
-  border: 1.5px solid #FFD1E0; background: #FFF7FA; color: #B98598;
-  font-size: 24px; line-height: 1; font-family: inherit;
-  display: inline-flex; align-items: center; justify-content: center;
-  cursor: pointer; z-index: 401; box-shadow: 0 4px 14px rgba(180,120,150,.18);
-  transition: background .2s, color .2s;
-}
-.fd-lb-nav:hover { background: #FCE1EA; }
-.fd-lb-nav:active { background: #F8D3E2; }
-#fd-lb-prev { left: 14px; }
-#fd-lb-next { right: 14px; }
-.fd-lb-count { align-self: center; font-size: 15px; color: #81717A; }
-@media (max-width: 640px) {
-  #fd-lightbox { padding: 16px; gap: 14px; }
-  #fd-lightbox img { max-width: 92vw; max-height: 66vh; }
-  /* 手机：图片几乎满宽，箭头会遮图 → 收起来，改为左右滑动翻页（张数照旧显示） */
-  .fd-lb-nav { display: none !important; }
-}

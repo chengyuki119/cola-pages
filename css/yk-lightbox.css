@@ -1,0 +1,109 @@
+/* ═══════════════════════════════════════════════════════════════════
+   YK Lightbox 样式（她 20261117）
+   自带全套外观，不依赖 site.css —— 商品页（/shop/）不加载 site.css 也能用。
+   视觉与照片展示页那套 .lightbox 一致：浅粉底 / 圆角大图 / 下载原图 + 关闭。
+   ═══════════════════════════════════════════════════════════════════ */
+#yk-lightbox {
+  position: fixed;
+  inset: 0;
+  background: var(--bg, #FDF7FA);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  z-index: 400;
+  cursor: zoom-out;
+  padding: 24px;
+}
+#yk-lightbox.open { display: flex; }
+
+#yk-lightbox .lightbox-bar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  cursor: default;
+}
+#yk-lightbox .lightbox-btn {
+  background: #FCE1EA;
+  color: #55464E;
+  border: none;
+  border-radius: 999px;
+  padding: 8px 20px;
+  font-size: 17px;
+  font-family: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background .2s, opacity .2s;
+}
+#yk-lightbox #yk-lb-download { background: #FCECF2; color: #B98598; }
+#yk-lightbox .lightbox-btn:hover { opacity: .85; }
+
+/* 缩放舞台：定尺寸容器 + 内部图片做 transform，缩放/平移不撑破布局 */
+.yk-lb-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(100vw - 180px);
+  height: 72vh;
+  max-width: 1180px;
+  overflow: hidden;
+  cursor: default;
+  touch-action: none;
+}
+.yk-lb-stage img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(180, 120, 150, .16);
+  transform-origin: center center;
+  will-change: transform;
+  transition: transform .12s ease-out;
+  user-select: none;
+  -webkit-user-drag: none;
+  cursor: zoom-in;
+}
+.yk-lb-stage.zoomed img { transition: none; cursor: grab; }
+
+/* 左右翻页 */
+.yk-lb-nav {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1.5px solid #FFD1E0;
+  background: #FFF7FA;
+  color: #B98598;
+  font-size: 24px;
+  line-height: 1;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 401;
+  box-shadow: 0 4px 14px rgba(180, 120, 150, .18);
+  transition: background .2s;
+}
+.yk-lb-nav:hover { background: #FCE1EA; }
+.yk-lb-nav:active { background: #F8D3E2; }
+.yk-lb-prev { left: 14px; }
+.yk-lb-next { right: 14px; }
+
+.yk-lb-count { align-self: center; font-size: 15px; color: #81717A; }
+.yk-lb-hint { align-self: center; font-size: 13px; color: #B9A5AE; }
+
+@media (max-width: 640px) {
+  #yk-lightbox { padding: 16px; gap: 14px; }
+  .yk-lb-stage { width: 92vw; height: 64vh; }
+  /* 手机：图片几乎满宽，箭头会遮图 → 收起来，改左右滑动翻页 */
+  .yk-lb-nav { display: none !important; }
+  .yk-lb-hint { display: none; }
+}

@@ -13,7 +13,8 @@
 <link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki2-180.png">
   <link rel="stylesheet" href="/css/site.css?v=20261117H">
   <link rel="stylesheet" href="/site-menu.css?v=20261117K">
-  <link rel="stylesheet" href="/css/foodie.css?v=20261117H">
+  <link rel="stylesheet" href="/css/foodie.css?v=20261117I">
+  <link rel="stylesheet" href="/css/yk-lightbox.css?v=20261117A">
   <link rel="stylesheet" href="/vendor/leaflet/leaflet.css?v=20261114B">
   <script src="/js/site-common.js?v=20261117B"></script>
   <script src="/site-menu.js?v=20261117Q" defer></script>
@@ -21,7 +22,8 @@
   <script src="/js/foodie-coord.js?v=20261116B"></script>
   <script src="/vendor/leaflet/leaflet.js?v=20261114B"></script>
   <script src="/js/foodie-map-engine.js?v=20261117C"></script>
-  <script src="/js/foodie-detail.js?v=20261117B" defer></script>
+  <script src="/js/yk-lightbox.js?v=20261117A" defer></script>
+  <script src="/js/foodie-detail.js?v=20261117C" defer></script>
   <link rel="stylesheet" href="/css/button-theme.css?v=20261117F">
   <style>
     .leaflet-container { font-family: inherit; }
@@ -70,17 +72,5 @@
 </div>
 
 <script src="/js/site-footer.js?v=20261114B" defer></script>
-
-<!-- 看图灯箱（她 20261117：与照片展示页同一套外观，点封面/照片看大图；多图可左右翻页） -->
-<div class="lightbox" id="fd-lightbox" role="dialog" aria-modal="true" aria-label="Photo">
-  <button type="button" class="fd-lb-nav" id="fd-lb-prev" aria-label="Previous">‹</button>
-  <img id="fd-lb-img" alt="">
-  <div class="lightbox-bar">
-    <a class="lightbox-btn" id="fd-lb-download" download="photo.jpg">下载原图</a>
-    <button type="button" class="lightbox-btn" id="fd-lb-close">关闭</button>
-    <span class="fd-lb-count" id="fd-lb-count"></span>
-  </div>
-  <button type="button" class="fd-lb-nav" id="fd-lb-next" aria-label="Next">›</button>
-</div>
 </body>
 </html>
