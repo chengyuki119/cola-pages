@@ -25,7 +25,7 @@
     if (!s) return '';
     var d = new Date(s);
     if (isNaN(d.getTime())) return String(s);
-    return d.toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+    return d.toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
   }
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -173,9 +173,38 @@
     return null;
   }
 
+  function ensureInviteCardStyles() {
+    if (document.getElementById('admin-invite-record-styles')) return;
+    var style = document.createElement('style');
+    style.id = 'admin-invite-record-styles';
+    style.textContent =
+      '#admin-invite-card .inv-record{border:1px solid #F3D5E2;border-radius:14px;background:#fff;padding:14px 16px;margin:10px 0;box-shadow:0 2px 8px rgba(180,120,150,.08);}' +
+      '#admin-invite-card .inv-record-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}' +
+      '#admin-invite-card .inv-record-email{font-size:17px;font-weight:700;color:#65515D;overflow-wrap:anywhere;line-height:1.45;}' +
+      '#admin-invite-card .inv-record-email a{color:inherit;text-decoration:underline;text-decoration-color:#EEC7D6;text-underline-offset:3px;}' +
+      '#admin-invite-card .inv-record-name{font-size:13px;color:#897783;margin-top:3px;}' +
+      '#admin-invite-card .inv-record-state{flex:0 0 auto;border-radius:999px;padding:4px 10px;color:#fff;font-size:12px;line-height:1.5;white-space:nowrap;}' +
+      '#admin-invite-card .inv-record-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 18px;margin-top:12px;}' +
+      '#admin-invite-card .inv-record-field{font-size:13px;color:#65515D;line-height:1.65;overflow-wrap:anywhere;}' +
+      '#admin-invite-card .inv-record-label{color:#897783;margin-right:5px;}' +
+      '#admin-invite-card .inv-record-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}' +
+      '#admin-invite-card .inv-record-actions .btn-mini{min-height:36px;}' +
+      '#admin-invite-card .inv-record-links,#admin-invite-card .inv-record-error{margin-top:8px;font-size:13px;color:#897783;line-height:1.75;overflow-wrap:anywhere;}' +
+      '@media(max-width:600px){#admin-invite-card .inv-record{padding:13px;border-radius:12px;}#admin-invite-card .inv-record-head{flex-direction:column;align-items:stretch;}#admin-invite-card .inv-record-state{align-self:flex-start;}#admin-invite-card .inv-record-fields{grid-template-columns:minmax(0,1fr);gap:4px;}#admin-invite-card .inv-record-actions{display:grid;grid-template-columns:1fr;gap:7px;}#admin-invite-card .inv-record-actions .btn-mini{width:100%;text-align:center;}}';
+    document.head.appendChild(style);
+  }
+
   function paint(box, invites, mails, admins) {
-    var mailByCode = {};
-    mails.forEach(function (m) { if (m.ref_id && !mailByCode[m.ref_id]) mailByCode[m.ref_id] = m; });
+    ensureInviteCardStyles();
+    var mailByCode = Object.create(null), mailById = Object.create(null), lastSentByCode = Object.create(null);
+    mails.forEach(function (m) {
+      if (m.id && !mailById[String(m.id)]) mailById[String(m.id)] = m;
+      if (m.ref_id && !mailByCode[String(m.ref_id)]) mailByCode[String(m.ref_id)] = m;
+      if (m.ref_id && m.sent_at) {
+        var key = String(m.ref_id), old = lastSentByCode[key];
+        if (!old || String(m.sent_at) > String(old)) lastSentByCode[key] = m.sent_at;
+      }
+    });
 
     if (!invites.length) {
       box.innerHTML = '<p style="color:#897783;font-size:14px;margin:0;">还没有发出过邀请。<b>注意</b>：如果之前在别处点过「发送邀请」并看到成功，那封邀请不是从这里发的 —— 站内当时没有这个功能，这本身就是收不到的原因之一。</p>';
@@ -183,62 +212,86 @@
     }
 
     var rows = invites.slice().reverse().map(function (v) {
-      var m = mailByCode[v.code];
-      var st = m ? label(m.status) : ['没有排队记录', '#897783'];
+      v = v || {};
+      var code = String(v.code || '').trim();
+      var email = String(v.email || '').trim();
+      var m = (v.mail_id && mailById[String(v.mail_id)]) || mailByCode[code] || null;
       var a = adminOf(admins, v.user_id);
+      var status = String(m && m.status || '').toLowerCase();
+      var st;
+      if (v.revoked) st = ['已撤销', '#C4636E'];
+      else if (!m || status === 'pending' || status === 'queued') st = ['待发送', '#E0A458'];
+      else if (status === 'sending' || status === 'processing' || status === 'claimed') st = ['发送中', '#B98598'];
+      else if (status === 'sent' || status === 'delivered') st = ['服务商已接受', '#5FA777'];
+      else if (status === 'failed' || status === 'dead' || status === 'bounced') st = ['发送失败', '#C4636E'];
+      else st = ['发送状态未知', '#897783'];
+
       var accTxt;
-      if (v.revoked) accTxt = '<span style="color:#C4636E;">已撤销</span>';
-      else if (!a) accTxt = '<span style="color:#C4636E;">没有后台权限</span>';
-      else if (a.must_set_password) accTxt = '<span style="color:#E0A458;">等对方首次登录改密码</span>';
-      else accTxt = '<span style="color:#5FA777;">可用（' + (a.role === 'owner' ? '全权限' : '只读') + '）</span>';
+      if (v.revoked) accTxt = '已撤销';
+      else if (!a) accTxt = '没有后台权限';
+      else if (a.must_set_password) accTxt = '等待首次登录设置密码';
+      else accTxt = '可用（' + (a.role === 'owner' ? '全权限' : '只读') + '）';
+
       var expired = !v.revoked && (v.until || '') < new Date().toISOString().slice(0, 10);
-      var accPlain = v.revoked ? '已撤销' : (!a ? '没有后台权限' : (a.must_set_password ? '等对方首次登录改密码' : ('可用（' + (a.role === 'owner' ? '全权限' : '只读') + '）')));
-      var linkState = v.used_at ? '<span style="color:#897783;">链接已使用</span>'
-        : (v.link ? (expired ? '<span style="color:#C4636E;">链接已过期</span>' : '<span style="color:#E0A458;">链接未使用</span>') : '');
-      return '<div style="padding:11px 0;border-bottom:1px dashed #FFE3EC;">' +
-        '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">' +
-          '<b style="flex:1;min-width:200px;color:#65515D;">' + esc(v.email) +
-            (v.name ? ' <span style="font-size:13px;color:#897783;">' + esc(v.name) + '</span>' : '') + '</b>' +
-          '<span style="font-size:12px;color:#fff;background:' + st[1] + ';border-radius:999px;padding:2px 10px;white-space:nowrap;">' + esc(st[0]) + '</span>' +
-          '<span style="font-size:13px;color:#897783;min-width:104px;text-align:right;">' + esc(stamp(m && (m.sent_at || m.created_at) || v.created_at)) + '</span>' +
-        '</div>' +
-        '<div style="margin-top:5px;font-size:13px;color:#897783;line-height:1.9;">' +
-          '邀请码 <b style="color:#65515D;">' + esc(v.code) + '</b>' +
-          ' · 有效至 ' + esc(v.until || '—') + (expired ? ' <span style="color:#C4636E;">（已过期）</span>' : '') +
-          ' · 账号 ' + accTxt +
-          (v.note ? ' · 备注 ' + esc(v.note) : '') +
-        '</div>' +
-        (v.link ? '<div style="margin-top:3px;font-size:13px;color:#897783;line-height:1.9;word-break:break-all;">设置密码链接：' +
-          '<a href="' + esc(v.link) + '" target="_blank" rel="noopener" style="color:#897783;">' + esc(v.link) + '</a> ' + linkState +
-          ' <button type="button" class="btn-mini" data-act="copylink" data-link="' + esc(v.link) + '" style="font-size:12px;padding:3px 10px;">复制链接</button></div>' : ''),
-        (m && m.last_error ? '<div style="margin-top:4px;font-size:13px;color:#C4636E;">上次错误：' + esc(m.last_error) + '</div>' : '') +
-        '<div style="margin-top:7px;display:flex;gap:8px;flex-wrap:wrap;">' +
+      var linkState = v.used_at ? '链接已使用'
+        : (v.link ? (expired ? '链接已过期' : '链接未使用') : '');
+      var lastSent = lastSentByCode[code] || (m && m.sent_at) || '';
+      var emailHtml = email
+        ? '<a href="mailto:' + esc(encodeURIComponent(email).replace(/%40/gi, '@')) + '">' + esc(email) + '</a>'
+        : '<span style="color:#C4636E;">邮箱信息缺失</span>';
+      var fields =
+        (v.note ? '<div class="inv-record-field"><span class="inv-record-label">备注</span>' + esc(v.note) + '</div>' : '') +
+        '<div class="inv-record-field"><span class="inv-record-label">状态</span>' + esc(st[0]) + '</div>' +
+        '<div class="inv-record-field"><span class="inv-record-label">创建时间</span>' + esc(stamp(v.created_at) || '—') + '</div>' +
+        '<div class="inv-record-field"><span class="inv-record-label">最近发送时间</span>' + esc(stamp(lastSent) || '尚无发送记录') + '</div>' +
+        '<div class="inv-record-field"><span class="inv-record-label">账号</span>' + esc(accTxt) + '</div>' +
+        '<div class="inv-record-field"><span class="inv-record-label">邀请码</span>' + esc(code || '邀请编号缺失') +
+          (v.until ? ' · 有效至 ' + esc(v.until) + (expired ? '（已过期）' : '') : '') + '</div>';
+      var links = v.link
+        ? '<div class="inv-record-links">设置密码链接：<a href="' + esc(v.link) + '" target="_blank" rel="noopener" style="color:#897783;">' + esc(v.link) + '</a>' +
+          (linkState ? ' · ' + esc(linkState) : '') +
+          ' <button type="button" class="btn-mini" data-act="copylink" data-link="' + esc(v.link) + '" style="font-size:12px;padding:3px 10px;">复制链接</button></div>'
+        : '';
+      var actions = code
+        ? '<div class="inv-record-actions">' +
           (v.revoked ? '' :
-            '<button type="button" class="btn-mini" data-act="resend" data-code="' + esc(v.code) + '">重新发送</button>' +
-            '<button type="button" class="btn-mini" data-act="revoke" data-code="' + esc(v.code) + '" data-email="' + esc(v.email) + '">撤销邀请</button>') +
-          '<button type="button" class="btn-mini" data-act="del" data-code="' + esc(v.code) + '" data-email="' + esc(v.email) + '" data-acc="' + esc(accPlain) + '" style="color:#C4636E;border-color:#F3D5D8;">删除记录</button>' +
-        '</div>' +
-      '</div>';
+            '<button type="button" class="btn-mini" data-act="resend" data-invite-code="' + esc(code) + '">重新发送</button>' +
+            '<button type="button" class="btn-mini" data-act="revoke" data-invite-code="' + esc(code) + '" data-email="' + esc(email) + '">撤销邀请</button>') +
+          '<button type="button" class="btn-mini" data-act="del" data-invite-code="' + esc(code) + '" data-email="' + esc(email) + '" data-acc="' + esc(accTxt) + '" style="color:#C4636E;border-color:#F3D5D8;">删除记录</button>' +
+          '</div>'
+        : '<p class="inv-record-error">缺少邀请编号，为避免操作到其他记录，当前记录不可操作。</p>';
+
+      return '<article class="inv-record" data-invite-code="' + esc(code) + '">' +
+        '<div class="inv-record-head"><div style="min-width:0;flex:1;">' +
+          '<div class="inv-record-email">' + emailHtml + '</div>' +
+          (v.name ? '<div class="inv-record-name">' + esc(v.name) + '</div>' : '') +
+        '</div><span class="inv-record-state" style="background:' + st[1] + ';">' + esc(st[0]) + '</span></div>' +
+        '<div class="inv-record-fields">' + fields + '</div>' +
+        links +
+        (m && m.last_error ? '<div class="inv-record-error">上次错误：' + esc(m.last_error) + '</div>' : '') +
+        actions +
+      '</article>';
     }).join('');
 
     box.innerHTML = rows +
       '<p style="color:#897783;font-size:13px;line-height:1.8;margin:10px 0 0;">' +
-      '状态含义：待发送 / 发送中 = 还在队列里，定时任务每分钟取一次；<b>服务商已接受</b> = Gmail SMTP 收下了这封信（没有投递回执，不能当「已送达」）；' +
-      '发送失败 = 会被自动重试；已停止重试 / 已退信 = 看上面的错误原因，修好再点「重新发送」。</p>';
+      '状态含义：待发送 / 发送中 = 仍在队列或处理；<b>服务商已接受</b> = Gmail SMTP 接受邮件（不代表已送达）；发送失败 = 邮件发送失败或退信，可检查错误后重试。</p>';
 
     box.querySelectorAll('button[data-act]').forEach(function (b) {
       b.addEventListener('click', function () {
-        var code = b.getAttribute('data-code');
+        var code = b.getAttribute('data-invite-code') || '';
         var act = b.getAttribute('data-act');
-        if (act === 'resend') resend(code);
-        else if (act === 'del') deleteInvite(code, b.getAttribute('data-email'), b.getAttribute('data-acc'));
-        else if (act === 'copylink') {
+        if (act === 'copylink') {
           var link = b.getAttribute('data-link') || '';
           var done = function () { toastMsg('链接已复制'); };
           if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(link).then(done).catch(function () { window.prompt('手动复制这条链接：', link); });
           else window.prompt('手动复制这条链接：', link);
+          return;
         }
-        else revoke(code, b.getAttribute('data-email'));
+        if (!code) return;
+        if (act === 'resend') resend(code);
+        else if (act === 'del') deleteInvite(code, b.getAttribute('data-email'), b.getAttribute('data-acc'));
+        else if (act === 'revoke') revoke(code, b.getAttribute('data-email'));
       });
     });
   }
