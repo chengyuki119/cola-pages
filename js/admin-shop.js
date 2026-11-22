@@ -1363,10 +1363,13 @@
       block.innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">' +
         '<b style="font-size:16px;color:var(--text);">商品规格</b>' +
         '<span class="hint" style="flex:1;min-width:180px;">一套卖同一件东西的多个选项时才用；不填价格 / 库存就跟随商品本身</span></div>' +
-        '<div class="sm-var-rows"></div>';
+        '<div class="sm-var-rows"></div>' +
+        '<details class="sm-private-source-notes" style="margin-top:12px;padding:10px 12px;border:1px solid var(--accent-soft,#F9E5ED);border-radius:10px;background:#fff;">' +
+        '<summary style="cursor:pointer;font-weight:600;">后台私密来源备注（加载中）</summary><div class="sm-private-source-note-list" style="margin-top:10px;"></div></details>';
       slot.appendChild(block);
       card.__block = block; // 记住自己那块规格区，避免和上架表单（同在一个 tab 里）互相串到对方的 DOM
       smVarRenderRows(card);
+      loadPrivateVariantNotes(card, pid);
     };
     // 只信带 variants 字段的数据；缓存里没有就单独拉这个商品，绝不把已有规格当空（她 2026-10-25 遇到）
     if (local && Array.isArray(local.variants)) { build(local); return; }
@@ -1428,6 +1431,31 @@
       var inp = row.querySelector('.sm-dim-name');
       if (inp) dims[i].name = (inp.value || '').trim();
     });
+  }
+  function loadPrivateVariantNotes(card, productId) {
+    var box = card && card.querySelector('.sm-private-source-notes');
+    if (!box) return;
+    var list = box.querySelector('.sm-private-source-note-list');
+    restGet('shop_variant_private_notes?select=variant_sku,series,original_parent_name,original_variant_label,source_shop_name,source_product_code,source_product_name,source_match_status&product_id=eq.' + encodeURIComponent(productId) + '&order=series.asc,variant_sku.asc')
+      .then(function (rows) {
+        var notes = arr(rows);
+        var summary = box.querySelector('summary');
+        if (summary) summary.textContent = '后台私密来源备注（' + notes.length + ' 条；普通访客不可读）';
+        if (!notes.length) { list.textContent = '当前商品没有私密来源备注'; return; }
+        list.innerHTML = notes.map(function (n) {
+          var pending = n.source_match_status !== 'verified';
+          return '<div style="padding:8px 0;border-top:1px solid #F6EAF0;">' +
+            '<b>' + esc(n.series || '') + ' · ' + esc(n.variant_sku || '') + (pending ? ' · 待核对' : ' · 已核对') + '</b>' +
+            '<div style="font-size:13px;color:var(--muted);margin-top:3px;">原父商品：' + esc(n.original_parent_name || '未记录') + '；原规格名称：' + esc(n.original_variant_label || '未记录') + '</div>' +
+            '<div style="font-size:13px;color:var(--muted);">原店铺：' + esc(n.source_shop_name || '待核对') + '；原商品编号：' + esc(n.source_product_code || '待核对') + '；原商品名称：' + esc(n.source_product_name || '待核对') + '</div>' +
+            '</div>';
+        }).join('');
+      })
+      .catch(function () {
+        var summary = box.querySelector('summary');
+        if (summary) summary.textContent = '后台私密来源备注（暂时无法读取）';
+        list.textContent = '请确认已登录管理员账号及私密备注表权限。';
+      });
   }
   function smShowManualAdd(card, show) {
     var scope2 = card.__block || card;
@@ -2485,6 +2513,7 @@
     return {
       sku: last.sku || last.sku === 0 ? last.sku : '',
       name: last.name || '',
+      series: last.series || '',
       price: last.price == null ? '' : last.price,
       stock: last.stock == null ? '' : last.stock,
       images: arr(last.images).slice()
@@ -2504,16 +2533,19 @@
     var body = {};
     if (wEl) body.weight_oz = wEl.value.trim() === '' ? null : parseFloat(wEl.value);
     var clean0 = vlist.filter(function (v) { return v.sku || v.name; });
-    // 她 20261104 §四.1：商品没编码就自动发一个（SY-P00001），规格 SKU = 商品编码-序号
+    // 无规格商品才使用商品级 SKU；有规格商品保留规格级 SKU。
     var code = (card.__p && card.__p.sku) ? String(card.__p.sku) : '';
-    if (!code) code = window.ykNextProdCode ? window.ykNextProdCode() : '';
+    // 有规格的商品只使用规格 SKU，不自动补一个父商品 SKU
+    if (!code && !clean0.length) code = window.ykNextProdCode ? window.ykNextProdCode() : '';
     if (code) body.sku = code;
     var clean = clean0.map(function (v) {
       var raw = (v.sku || '').trim();
       // 她 20261104 20:34 §六：规格里留空的价/库存就是空，不能偷偷写成 0 元 / 0 库存
       var blankP = (v.price == null || String(v.price).trim() === '');
       var blankS = (v.stock == null || String(v.stock).trim() === '');
-      return { sku: raw, name: v.name || '', price: blankP ? null : fmtMoney(v.price), stock: blankS ? null : (parseInt(v.stock, 10) || 0), images: arr(v.images), frozen: v.frozen === true, dims: (v.dims && typeof v.dims === 'object' && Object.keys(v.dims).length) ? v.dims : undefined };
+      var cleanVariant = { sku: raw, name: v.name || '', price: blankP ? null : fmtMoney(v.price), stock: blankS ? null : (parseInt(v.stock, 10) || 0), images: arr(v.images), frozen: v.frozen === true, dims: (v.dims && typeof v.dims === 'object' && Object.keys(v.dims).length) ? v.dims : undefined };
+      if (v.series) cleanVariant.series = v.series;
+      return cleanVariant;
     });
     // 已有 SKU 原样保留（改名/重排都不换）；只有新组合才发新号，而且避开已用序号
     if (code) {
@@ -2556,7 +2588,9 @@
     return ADDVAR.list.filter(function (v) { return v.sku || v.name; }).map(function (v) {
       var blankP2 = (v.price == null || String(v.price).trim() === '');
       var blankS2 = (v.stock == null || String(v.stock).trim() === '');
-      return { sku: (v.sku || '').trim() || (v.name || '').trim(), name: v.name || '', price: blankP2 ? null : fmtMoney(v.price), stock: blankS2 ? null : (parseInt(v.stock, 10) || 0), images: arr(v.images), frozen: v.frozen === true, dims: (v.dims && typeof v.dims === 'object' && Object.keys(v.dims).length) ? v.dims : undefined }; // SKU 留空时自动用规格名，保证下单 RPC 能精确匹配
+      var newVariant = { sku: (v.sku || '').trim(), name: v.name || '', price: blankP2 ? null : fmtMoney(v.price), stock: blankS2 ? null : (parseInt(v.stock, 10) || 0), images: arr(v.images), frozen: v.frozen === true, dims: (v.dims && typeof v.dims === 'object' && Object.keys(v.dims).length) ? v.dims : undefined };
+      if (v.series) newVariant.series = v.series;
+      return newVariant; // SKU 留空时由上架流程生成独立 SKU，不以规格名称代替
     });
   };
   window.smAddVarReset = function () {

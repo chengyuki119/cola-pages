@@ -389,11 +389,19 @@
   function variantsHtml(p, vs, curSku, selIn) {
     var order = dimsOrder(p);
     if (!order) {
-      return '<div class="d-variants" style="margin:10px 0;"><div style="font-size:16px;margin-bottom:6px;">' + t('规格', 'Option') + '</div><div id="d-variants" style="display:flex;gap:8px;flex-wrap:wrap;">' +
-        vs.map(function (x) {
+      var activeSeries = '';
+      var optionHtml = vs.map(function (x) {
+          var series = String(x.series || '').trim();
+          var heading = '';
+          if (series && series !== activeSeries) {
+            activeSeries = series;
+            heading = '<span class="sku-series-heading" style="flex:0 0 100%;font-size:13px;font-weight:600;color:var(--muted,#8d7f87);margin-top:6px;">' + esc(series) + '</span>';
+          }
           var out = variantStock(x) <= 0 || x.frozen === true;
-          return '<button type="button" class="sku-chip' + (varKey(x) === curSku ? ' on' : '') + (out ? ' dis' : '') + '" data-sku="' + escAttr(varKey(x)) + '">' + esc(varLabel(x)) + '</button>';
-        }).join('') + '</div></div>';
+          return heading + '<button type="button" class="sku-chip' + (varKey(x) === curSku ? ' on' : '') + (out ? ' dis' : '') + '" data-sku="' + escAttr(varKey(x)) + '">' + esc(varLabel(x)) + '</button>';
+        }).join('');
+      return '<div class="d-variants" style="margin:10px 0;"><div style="font-size:16px;margin-bottom:6px;">' + t('规格', 'Option') + '</div><div id="d-variants" style="display:flex;gap:8px;flex-wrap:wrap;">' +
+        optionHtml + '</div></div>';
     }
     var sel = {};
     if (selIn && Object.keys(selIn).length) { order.forEach(function (n) { if (selIn[n]) sel[n] = selIn[n]; }); }
@@ -1000,6 +1008,11 @@
     // 双保险：非 uuid 的残留商品直接滤掉，不让它到数据库里炸
     items = (items || []).filter(function (x) { return UUID_RE.test(String(x.id || '')); });
     if (!items.length) { toast(t('购物车里的商品已失效，请重新加入', 'Cart items expired — add them again')); return; }
+    var originalCartKeys = items.map(function (x) { return cartKey(x.id, x.sku); });
+    items = items.map(function (x) {
+      var p = productForCartItem(x);
+      return p && String(p.id) !== String(x.id) ? Object.assign({}, x, { id: p.id }) : x;
+    });
     if (btn) { btn.disabled = true; btn.textContent = t('提交中…', 'Submitting…'); }
     getUid().then(function (uid) {
       return rpc('shop_place_order', {
@@ -1014,7 +1027,7 @@
         return;
       }
       // 从购物车移除已下单项
-      var ids = items.map(function (x) { return cartKey(x.id, x.sku); });
+      var ids = originalCartKeys.concat(items.map(function (x) { return cartKey(x.id, x.sku); }));
       CART = CART.filter(function (x) { return ids.indexOf(cartKey(x.id, x.sku)) === -1; });
       saveCart();
       if (groupId) sessionStorage.setItem('yuki-join-group', groupId);
@@ -1063,7 +1076,7 @@
       var fee = parseFloat(ship.service_fee); if (isNaN(fee)) fee = 2;
       // 估算运费：按包裹重量 + 收货地（与 shop_place_order 服务端同一套算法）
       var woz = 0; sel.forEach(function (x) {
-        var p = PRODUCTS.filter(function (p2) { return String(p2.id) === String(x.id); })[0];
+        var p = productForCartItem(x);
         woz += (parseFloat(p && p.weight_oz) || 0) * x.qty;
       });
       function ckZip() { var a = ADDR.filter(function (x) { return String(x.id) === String(ckAddrId); })[0]; return a ? (a.zip || '') : ''; }
@@ -1888,13 +1901,23 @@
     list.forEach(function (x) { var k = curOf(null, x); seen[k] = (seen[k] || 0) + 1; if (seen[k] > n) { n = seen[k]; c = k; } });
     return c || 'USD';
   }
-  function cartLive(x) { // 她 20261103：购物车里的商品名/图跟随当前语言（老购物车条目无 name_en，按 id 重查）
-    if (!x || !x.id) return x;
+  function productForCartItem(x) {
+    if (!x || !x.id) return null;
     var p = PRODUCTS.filter(function (q) { return String(q.id) === String(x.id); })[0];
+    if (p || !x.sku) return p || null;
+    // 父商品合并后，旧购物车里的 SKU 仍唯一；用 SKU 找回当前父商品，不改写本地购物车记录。
+    var matches = PRODUCTS.filter(function (q) {
+      return Array.isArray(q.variants) && q.variants.some(function (v) { return v && v.sku === x.sku; });
+    });
+    return matches.length === 1 ? matches[0] : null;
+  }
+  function cartLive(x) { // 老购物车按旧商品 ID 找不到时，兼容用唯一 SKU 重新定位商品
+    if (!x || !x.id) return x;
+    var p = productForCartItem(x);
     if (!p) return x;
     var v = x.sku ? currentVariant(p, x.sku) : null;
     return Object.assign({}, x, {
-      name: dispName(p),
+      name: dispName(p) + (v ? ' · ' + varLabel(v) : ''),
       image: (v && Array.isArray(v.images) && v.images.length ? v.images[0] : '') || dispCover(p) || (Array.isArray(p.images) && p.images[0]) || p.image_url || x.image || ''
     });
   }

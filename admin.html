@@ -2715,17 +2715,19 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       var _cat = document.getElementById('p-cat') ? document.getElementById('p-cat').value.trim() : '';
       var _nen = document.getElementById('p-name-en') ? document.getElementById('p-name-en').value.trim() : '';
       if (_unit) body.unit = _unit;
-      // 她 20261104 §四.1：商品编码留空就自动发一个（SY-P00001），规格 SKU 自动 SY-P00001-001
-      var _code = _sku || (window.ykNextProdCode ? window.ykNextProdCode() : '');
-      if (_code) body.sku = _code;
       var _sec = window.__lxSecCategory ? window.__lxSecCategory() : null;
       if (_sec && _sec.sec === 'material') { if (_sec.cat) body.category = _sec.cat; } // 她 20261117：素材分类写进 category，前台据此分区
       else if (_cat) body.category = _cat;
       if (_nen) body.name_en = _nen;
       var av = window.smAddVarCollect ? window.smAddVarCollect() : []; // 上架时一并提交规格（她 2026-10-25 要求上架页也能加规格）
       if (av.length) {
-        if (_code && window.ykVarSkuOf) av.forEach(function (v, i) { if (!v.sku || !/^SY-P/.test(v.sku)) v.sku = window.ykVarSkuOf(_code, i); });
+        // 多规格商品只给实际存在的规格分配独立 SKU，父商品不另发 SKU。
+        av.forEach(function (v) { if (!v.sku && window.ykNextProdCode) v.sku = window.ykNextProdCode(); });
         body.variants = av;
+      } else {
+        // 无规格的普通商品只生成一个商品级 SKU。
+        var _code = _sku || (window.ykNextProdCode ? window.ykNextProdCode() : '');
+        if (_code) body.sku = _code;
       }
       if (urls.length > 1) body.images = urls; // 多图：images 列还没建时下面会自动降级为只存主图
       (function () { var _lx = window.__lxCollectFields ? window.__lxCollectFields() : {}; Object.keys(_lx).forEach(function (k) { body[k] = _lx[k]; }); })(); // 她 20261117 §8.7：保留原始输入与识别结果（列没建自动降级）
@@ -7576,7 +7578,7 @@ function loadEmailLog() {
 </script>
 
 
-<script src="js/admin-shop.js?v=20261112T"></script>
+<script src="js/admin-shop.js?v=20261122B"></script>
 <script src="js/foodie-coord.js?v=20261116B"></script>
 <script src="js/foodie-map-engine.js?v=20261117A"></script>
 <script src="js/admin-foodie.js?v=20261117E"></script>
