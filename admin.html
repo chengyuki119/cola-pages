@@ -2974,8 +2974,13 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
             ? '<img src="' + esc(p.image_url) + '">'
             : '';
           var off = isShopHidden(p.id);
-          var st = off ? ['已下架', 'st-off'] : p.display_only ? ['仅展示', 'st-display'] : (p.sold || !(p.stock > 0)) ? ['售尽', 'st-out'] : ['在售', 'st-on'];
-          var vsum = (Array.isArray(p.variants) && p.variants.length) ? p.variants.filter(function (v) { return v && v.frozen !== true; }).reduce(function (a, v) { return a + (parseInt(v.stock, 10) || 0); }, 0) : null; // 她 20261102：总库存=规格库存和
+          var variants = Array.isArray(p.variants) ? p.variants.filter(function (v) { return v && v.frozen !== true; }) : [];
+          var vsum = variants.length ? variants.reduce(function (a, v) {
+            var raw = v.stock == null || v.stock === '' ? p.stock : v.stock;
+            return a + (parseInt(raw, 10) || 0);
+          }, 0) : null; // 有可售规格时，父商品状态按可售规格库存汇总
+          var availableStock = vsum != null ? vsum : (parseInt(p.stock, 10) || 0);
+          var st = off ? ['已下架', 'st-off'] : p.display_only ? ['仅展示', 'st-display'] : (p.sold || availableStock <= 0) ? ['售尽', 'st-out'] : ['在售', 'st-on'];
           var stockInfo = vsum != null ? '库存 ' + vsum + '（按规格自动汇总）' : '库存 ' + (p.stock == null ? '-' : p.stock);
           var costInfo = p.cost == null ? '未填成本' : '成本 ¥' + p.cost;
           return '<div class="card shop-item" data-id="' + p.id + '" data-stock="' + (p.stock == null ? 0 : p.stock) + '">' +
@@ -3305,13 +3310,30 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       var pnm = cachedP.name || (nmEl ? nmEl.textContent.trim() : '') || '这件商品';
       // 她 21:44 §五.2：确认框里带商品名，避免误删
       uiConfirm('确定删除「' + pnm + '」吗？删了就找不回来了。想从店里拿掉的话，用「下架」就好。', function () {
-        api('products?id=eq.' + id, { method: 'DELETE', headers: { 'Prefer': 'return=representation' } })
-          .then(function (r) { if (!r.ok) throw new Error(); return r.json(); })
-          .then(function (rows) {
-            if (!Array.isArray(rows) || !rows.length) throw new Error(); // 没真删到行，不能报「已删除」
-            toast('已删除'); loadProducts();
+        api('products?id=eq.' + encodeURIComponent(id), { method: 'DELETE', headers: { 'Prefer': 'return=representation' } })
+          .then(function (r) {
+            if (!r.ok) return r.text().then(function (body) {
+              var err = null; try { err = JSON.parse(body); } catch (e) {}
+              var msg = r.status === 401 ? '登录已过期，请重新登录后再删除' : r.status === 403 ? '当前账号没有删除商品的管理员权限' :
+                (err && err.code === '23503') ? '商品仍被关联数据引用，数据库已阻止删除；请先检查关联记录' :
+                r.status === 409 ? '商品仍被关联数据引用，数据库已阻止删除' : '删除请求失败（HTTP ' + r.status + '），商品未确认删除';
+              throw new Error(msg);
+            });
+            return r.text().then(function (body) {
+              var rows = []; try { rows = body ? JSON.parse(body) : []; } catch (e) {}
+              if (Array.isArray(rows) && rows.length) return true;
+              // PostgREST/RLS 可能返回空响应；只有确认记录已不存在才提示成功
+              return api('products?id=eq.' + encodeURIComponent(id) + '&select=id', { method: 'GET' }).then(function (check) {
+                if (!check.ok) throw new Error('删除请求已发送，但无法核实结果；请刷新商品列表确认');
+                return check.json().then(function (remaining) {
+                  if (Array.isArray(remaining) && remaining.length === 0) return true;
+                  throw new Error('商品仍然存在，可能是权限策略或关联记录阻止了删除');
+                });
+              });
+            });
           })
-          .catch(function () { toast('删除失败：没有真的删掉，请重新登录后再试'); });
+          .then(function () { toast('已删除「' + pnm + '」'); loadProducts(); })
+          .catch(function (err) { toast(err && err.message ? err.message : '删除未完成，请刷新列表确认商品状态'); });
       });
     }
   });
