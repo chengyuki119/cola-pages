@@ -377,7 +377,7 @@
     thanks: { zh: '不客气呀！能帮到你就好～希望你在 Snow Yuzu 玩得开心 ♡', en: "You're very welcome! I'm happy I could help~ Hope you enjoy your time at Snow Yuzu ♡" },
     bye: { zh: '拜拜～欢迎下次再来玩！桓桓会在这里等你 ♡', en: 'Bye bye~ Come visit us again anytime! Huanhuan will be here waiting ♡' },
     who: { zh: '我是桓桓，Snow Yuzu 的小助手！可以帮你了解网站、寻找商品、查看 BJD 和色卡展示，还有解答购物方面的一些问题哦～', en: "I'm Huanhuan, Snow Yuzu's little assistant! I can help you explore the website, find products, browse BJD and color card collections, and answer shopping-related questions~" },
-    piggy: { zh: '我是小柚最喜欢的小宝宝猪呀！🐷♡', en: "I'm Yuki's favorite little piggy baby! 🐷♡" },
+    piggy: { zh: '桓桓是小柚最喜欢的小宝宝猪呀！🐷♡', en: "Huanhuan is Yuki's favorite little piggy baby! 🐷♡" },
     features: {
       zh: 'Snow Yuzu 有很多可以逛的地方哦 ♡\n- 日历：查看重要日子和生日展示。\n- 照片墙：看看日常照片。\n- BJD：浏览娃娃档案和私人收藏。\n- 稿件展示：查看绘画和委托作品。\n- 色卡：浏览色卡私人收藏及相关信息。\n- 小铺：挑选喜欢的手作键帽。\n- 提问箱：可以匿名留下问题。\n欢迎慢慢探索每一个页面～',
       en: "There's lots to explore at Snow Yuzu ♡\n- Calendar: Browse important dates and birthday displays.\n- Photo Gallery: Explore everyday photos.\n- BJD: Browse doll profiles and private collections.\n- Commissions: View commissioned illustrations and artwork.\n- Color Cards: Explore private color card collections.\n- My Shop: Browse handmade keycaps.\n- Ask Box: Leave an anonymous message.\nTake your time and enjoy exploring~"
@@ -481,7 +481,7 @@
     /use (the |any |your |her )?(image|photo|picture|artwork|card|doll)s?\b/i
   ];
   /* 身份问答（她 01:26：桓桓是谁/你是谁 → 固定回复，优先于自我介绍与兜底） */
-  var PIGGY_RE = /桓桓是谁|介绍一下桓桓|桓桓是什么|你是谁|你叫什么|自我介绍|介绍一下你自己|who is huanhuan|who are you|what are you/i;
+  var PIGGY_RE = /李卓桓|李猪桓|桓桓|你是谁|你叫什么|自我介绍|介绍一下你自己|who is huanhuan|who are you|what are you/i;
   /* 意图词库（任务书 §四 18 类 + 补充：退款/网站问题/继续提问/身份；数字小者优先级高） */
   var INTENTS = [
     { id: 'order',     pri: 2,  res: [/订单/, /\border ?(status|number)\b/i] },
