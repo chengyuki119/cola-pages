@@ -78,7 +78,9 @@
     if (!adapter) return;
     try { // 引擎异常时不拖累列表与搜索（她 §三：搜索失败不能让页面无响应）
       adapter.clearMarkers();
-      adapter.addMarkers(rows, {
+      adapter.addMarkers(rows.map(function (r) {
+        return Object.assign({}, r, { name: F.rName(r) });
+      }), {
         // 她 20261117 §九：点击地图标记直接进入该餐厅详情页（与列表点击同一目标）
         onMarkerClick: function (r) {
           location.href = F.detailUrl(r);

@@ -207,7 +207,12 @@
     if (lang === 'zh-Hans' && obj['zh-Hant']) return obj['zh-Hant'];
     return '';
   }
-  function rName(r) { return i18nPick(r.name_i18n, curLang()) || r.name || ''; }
+  function rName(r) {
+    var names = [r.name, r.name_zh, r.slug].concat(Object.keys(r.name_i18n || {}).map(function (k) { return r.name_i18n[k]; })).join(' ').toLowerCase();
+    // Texas Roadhouse 是品牌专名，中英文界面均保留官方英文写法。
+    if (/texas[\s-]*roadhouse|德(?:克萨斯|州)牛排(?:屋|馆)/i.test(names)) return 'Texas Roadhouse';
+    return i18nPick(r.name_i18n, curLang()) || r.name || '';
+  }
   function rDesc(r) { return i18nPick(r.description_i18n, curLang()) || r.description || ''; }
   function rCity(r) { return r.city || r.region || r.country_name || ''; }
 

@@ -1000,6 +1000,12 @@
     (function () {
       var grid = document.getElementById('foodie-home-grid');
       if (!grid) return;
+      function homeRestaurantName(r) {
+        var rawNames = [r.name, r.name_en, r.name_zh, r.slug].concat(Object.keys(r.name_i18n || {}).map(function (k) { return r.name_i18n[k]; })).join(' ').toLowerCase();
+        return /texas[\s-]*roadhouse|德(?:克萨斯|州)牛排(?:屋|馆)/i.test(rawNames)
+          ? 'Texas Roadhouse'
+          : ((LANG === 'en') ? (r.name || '') : ((r.name_i18n && r.name_i18n['zh-Hans']) || r.name || ''));
+      }
       var YUZU = '<svg viewBox="0 0 24 24" fill="none" style="width:16px;height:16px;flex-shrink:0;" aria-hidden="true"><circle cx="12" cy="13.2" r="8.2" fill="#FCECF2" stroke="#F48FB1" stroke-width="1.6"/><circle cx="9.2" cy="11" r="1" fill="#F6C5D7"/><circle cx="13.6" cy="12.4" r="1" fill="#F6C5D7"/><circle cx="11" cy="15.6" r="1" fill="#F6C5D7"/><path d="M12 5c0-1.8 1.2-3 3-3" stroke="#B98598" stroke-width="1.5" stroke-linecap="round"/><path d="M15 2c2.6.4 4.4 2 4.6 4.4-2.5.3-4.5-1.4-4.6-4.4z" fill="#F6C5D7" stroke="#B98598" stroke-width="1.1"/></svg>';
       dbFetch('food_restaurants?status=eq.published&yuzu_rating=not.is.null&select=*&order=yuzu_rating.desc.nullslast,created_at.desc&limit=5').then(function (rows) {
         rows = rows || [];
@@ -1012,7 +1018,7 @@
         grid.style.display = 'grid';
         grid.innerHTML = rows.map(function (r) {
           var img = r.cover_image || (Array.isArray(r.images) && r.images[0]) || '';
-          var name = (LANG === 'en') ? (r.name || '') : ((r.name_i18n && r.name_i18n['zh-Hans']) || r.name || '');
+          var name = homeRestaurantName(r);
           var reg = (window.FOODIE_REGIONS || {})[r.country_code];
           var loc = [r.city, r.country_name].filter(Boolean).join(', ');
           var yz = '';
@@ -1039,7 +1045,7 @@
       if (el._leaflet_id != null) delete el._leaflet_id; // Leaflet 降级路径判重标记（教训【58】）
       window.FoodieMapEngine.load({ el: el, center: [20, 0], zoom: 2, country: '' }).then(function (a) {
         a.addMarkers(rows.map(function (r) {
-          return { id: r.id, slug: r.slug, latitude: r.latitude, longitude: r.longitude, yuzu_rating: r.yuzu_rating, name: (LANG === 'en') ? (r.name || '') : ((r.name_i18n && r.name_i18n['zh-Hans']) || r.name || '') };
+          return { id: r.id, slug: r.slug, latitude: r.latitude, longitude: r.longitude, yuzu_rating: r.yuzu_rating, name: homeRestaurantName(r) };
         }), {
           onMarkerClick: function (r) {
             location.href = ykLink('/foodie/restaurant/?slug=' + encodeURIComponent(r.slug || r.id));
