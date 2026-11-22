@@ -39,7 +39,8 @@
     '/invite/',
     '/foodie/',
     '/foodie/map/',
-    '/foodie/restaurant/'
+    '/foodie/restaurant/',
+    '/what-to-eat/'
   ];
 
   var path = location.pathname || '/';

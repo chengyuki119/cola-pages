@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script src="/js/lang-path.js?v=20261122A"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>What To Eat Today · Snow Yuzu</title>
+  <meta name="description" content="Let Snow Yuzu's food wheel help you decide what to eat today.">
+  <link rel="canonical" href="https://yukicheng.com/what-to-eat/">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icon-yuki2-32.png">
+  <link rel="stylesheet" href="/css/site.css?v=20261117N">
+  <link rel="stylesheet" href="/site-menu.css?v=20261117M">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261117H">
+  <link rel="stylesheet" href="/css/food-wheel.css?v=20261122A">
+  <script src="/js/site-common.js?v=20261117C"></script>
+  <script src="/site-menu.js?v=20261122A" defer></script>
+  <script src="/js/food-wheel.js?v=20261122A" defer></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="lang-switch"><button class="lang-btn" data-lang="zh">简体中文</button><button class="lang-btn active" data-lang="en">English</button></div>
+  <a class="site-logo" href="/" aria-label="Back to home"><img src="/logo.png" alt="Snow Yuzu"></a>
+  <div class="topbar-right">
+    <a class="topbar-cart" id="topbar-cart" href="/shop/?sec=cart" aria-label="Cart"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3.5h2.2l2.3 11.2a1.8 1.8 0 0 0 1.8 1.4h8.5a1.8 1.8 0 0 0 1.8-1.4l1.5-8.2H6"/></svg><span class="topbar-cart-badge" id="topbar-cart-badge" style="display:none">0</span></a>
+    <button class="topbar-acct" id="topbar-acct" aria-label="Account"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.2" r="3.4"/><path d="M5 20c.8-3.6 3.6-5.6 7-5.6s6.2 2 7 5.6"/></svg><span class="topbar-acct-dot"></span></button>
+    <button class="burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</header>
+<div class="menu-mask" id="menu-mask"></div><nav class="menu" id="menu"></nav>
+<div class="subpage-header"><h1 class="subpage-title" data-zh="今天吃什么" data-en="What To Eat Today">What To Eat Today</h1></div>
+<div class="page-body fw-page">
+  <p class="fw-intro" data-zh="把选择交给小转盘，看看今天会抽到什么美味吧 ♡" data-en="Let the little wheel choose something tasty for you today ♡">Let the little wheel choose something tasty for you today ♡</p>
+  <div class="fw-wheel-wrap" aria-label="Food choice wheel"><div class="fw-pointer" aria-hidden="true"></div><canvas id="food-wheel-canvas" width="640" height="640"></canvas><div class="fw-hub" aria-hidden="true"></div></div>
+  <button class="fw-spin" id="food-wheel-spin" type="button" data-zh="开始抽选" data-en="Spin">Spin</button>
+  <p class="fw-status" id="food-wheel-status" role="status" aria-live="polite"></p>
+  <section class="fw-result" id="food-wheel-result" aria-live="polite" hidden><div class="fw-result-label" data-zh="今日结果" data-en="Today's Pick">Today's Pick</div><div class="fw-result-name" id="food-wheel-result-name"></div></section>
+  <div class="fw-legend" id="food-wheel-legend" aria-label="Available options"></div>
+</div>
+<script src="/js/site-footer.js?v=20261114B" defer></script>
+</body>
+</html>
