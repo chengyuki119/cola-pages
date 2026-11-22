@@ -92,6 +92,8 @@
   function varLabel(v) { // 当前语言下，一条规格该显示的名字
     if (!v) return '';
     if (v.dims && typeof v.dims === 'object' && Object.keys(v.dims).length) return dimsText(v.dims);
+    // Mikko 是系列专名，保留店主指定的拉丁字母拼写，不走自动翻译。
+    if (/^Mikko\d+$/i.test(String(v.name || ''))) return String(v.name);
     // 她 20261117 23:14：规格名要双语——有手写的 name_en 就优先用它（避免机翻把人名译成 Wet Nurse 之类）
     if (window.LANG === 'en') {
       if (v.name_en) return String(v.name_en);
