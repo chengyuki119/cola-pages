@@ -1035,7 +1035,9 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       <style>
         .lx-wrap { max-width: none; } /* 她 20261117 01:25：后台按显示器自适应 */
         .lx-card { background:#fff; border:1.5px solid #F9E5ED; border-radius:16px; padding:18px 20px; margin-bottom:14px; }
-        .lx-row { display:grid; grid-template-columns: 200px 160px 1fr 40px; gap:8px; align-items:center; margin-bottom:8px; }
+        .lx-row { display:grid; grid-template-columns: minmax(130px,1fr) minmax(120px,.8fr) minmax(130px,.8fr) minmax(200px,1.5fr) auto 40px; gap:8px; align-items:center; margin-bottom:8px; }
+        .lx-audit-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:8px 0; border-top:1px solid #F9E5ED; } .lx-audit-row small { display:block; margin-top:4px; color:#897783; overflow-wrap:anywhere; }
+        .lx-tools { display:flex; gap:8px; margin:8px 0 12px; } .lx-tools input,.lx-tools select { border:1.5px solid #F9E5ED; border-radius:10px; padding:8px 12px; color:#65515D; font:inherit; } .lx-tools input { flex:1; } .lx-enabled { display:flex; gap:5px; align-items:center; white-space:nowrap; color:#897783; font-size:13px; }
         .lx-head { font-size:14px; color:#897783; margin-bottom:6px; }
         .lx-row input { border:1.5px solid #F9E5ED; border-radius:10px; padding:8px 12px; font-family:inherit; font-size:15px; color:#65515D; background:#fff; outline:none; width:100%; box-sizing:border-box; }
         .lx-row input:focus { border-color:#F6C5D7; }
@@ -1043,7 +1045,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         .lx-btn { border:1.5px solid #F8DDE8; background:#FCECF2; color:#65515D; font-family:inherit; font-size:15px; cursor:pointer; } /* 几何统一走 button-theme.css */
         .lx-btn.primary { background:#F6C5D7; border-color:#F8DDE8; font-weight:600; }
         .lx-x { border:none; background:none; color:#C4636E; font-size:18px; cursor:pointer; }
-        @media (max-width: 760px) { .lx-row { grid-template-columns: 1fr 1fr; } .lx-row .lx-alias { grid-column: 1 / -1; } }
+        @media (max-width: 760px) { .lx-row { grid-template-columns: 1fr 1fr; } .lx-row .lx-alias-in { grid-column: 1 / -1; } .lx-tools { flex-direction:column; } .lx-audit-row { grid-template-columns:1fr; } }
       </style>
       <div class="lx-wrap">
         <div class="lx-card">
@@ -1052,6 +1054,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         </div>
         <div class="lx-card" id="lx-chars"></div>
         <div class="lx-card" id="lx-types"></div>
+        <div class="lx-card" id="lx-audit"><b>商品名称识别记录</b><p class="lx-head">加载中…</p></div>
         <div style="display:flex;gap:10px;position:sticky;bottom:10px;">
           <button class="lx-btn primary" id="lx-save">保存词库</button>
           <button class="lx-btn" id="lx-addchar">＋ 添加角色</button>
@@ -7581,9 +7584,9 @@ function loadEmailLog() {
 <script src="js/admin-shop.js?v=20261122B"></script>
 <script src="js/foodie-coord.js?v=20261116B"></script>
 <script src="js/foodie-map-engine.js?v=20261117A"></script>
-<script src="js/admin-foodie.js?v=20261117E"></script>
-<script src="js/name-lexicon.js?v=20261118A"></script>
-<script src="js/admin-lexicon.js?v=20261117B"></script>
+<script src="js/admin-foodie.js?v=20261122A"></script>
+<script src="js/name-lexicon.js?v=20261122A"></script>
+<script src="js/admin-lexicon.js?v=20261122A"></script>
 <script src="js/admin-covers.js?v=20261117A"></script>
 <script src="vendor/leaflet/leaflet.js?v=20261114A"></script>
 <script src="js/admin-import.js?v=20261105C"></script>

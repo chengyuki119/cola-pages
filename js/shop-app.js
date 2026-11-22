@@ -89,9 +89,22 @@
       return raw ? (window.LANG === 'en' ? (VAL_EN[raw] || Y18(raw, 'en')) : (VAL_ZH[raw] || Y18(raw, 'zh'))) : w;
     }).join('').replace(/\s+/g, ' ').trim();
   }
+  var SERIES_EN = { '三丽鸥': 'Sanrio', '瓦罗兰特': 'Valorant', '轻松熊': 'Rilakkuma', '角落生物': 'Corner Creatures', '暴力熊': 'Violent Bear', '装饰品': 'Decoration', '其他转印贴': 'Other Transfer Stickers', '吉伊卡哇': 'Chiikawa', '哆啦A梦': 'Doraemon', '兔丸': 'Usamaru', 'Mikko': 'Mikko' };
+  var SERIES_ZH = { 'Sanrio': '三丽鸥', 'Valorant': '瓦罗兰特', 'Rilakkuma': '轻松熊', 'Corner Creatures': '角落生物', 'Sumikko Gurashi': '角落生物', 'Violent Bear': '暴力熊', 'Decoration': '装饰品', 'Other Transfer Stickers': '其他转印贴', 'Chiikawa': '吉伊卡哇', 'Doraemon': '哆啦A梦', 'Usamaru': '兔丸', 'Mikko': 'Mikko' };
+  function localizedSeriesName(name) {
+    var raw = String(name || '').trim();
+    if (window.LANG !== 'en') return SERIES_ZH[raw] || raw;
+    return SERIES_EN[raw] || (raw === 'Sanrio' || raw === 'Valorant' || raw === 'Rilakkuma' || raw === 'Mikko' ? raw : Y18(raw, 'en'));
+  }
   function varLabel(v) { // 当前语言下，一条规格该显示的名字
     if (!v) return '';
     if (v.dims && typeof v.dims === 'object' && Object.keys(v.dims).length) return dimsText(v.dims);
+    var rawVariantName = String(v.name || v.sku || '');
+    var seriesName = String(v.series || '').trim();
+    if (seriesName) {
+      var suffix = rawVariantName.match(/\d+$/);
+      return localizedSeriesName(seriesName) + (suffix ? suffix[0] : '');
+    }
     // Mikko 是系列专名，保留店主指定的拉丁字母拼写，不走自动翻译。
     if (/^Mikko\d+$/i.test(String(v.name || ''))) return String(v.name);
     // 她 20261117 23:14：规格名要双语——有手写的 name_en 就优先用它（避免机翻把人名译成 Wet Nurse 之类）
@@ -397,7 +410,7 @@
           var heading = '';
           if (series && series !== activeSeries) {
             activeSeries = series;
-            heading = '<span class="sku-series-heading" style="flex:0 0 100%;font-size:13px;font-weight:600;color:var(--muted,#8d7f87);margin-top:6px;">' + esc(series) + '</span>';
+            heading = '<span class="sku-series-heading" style="flex:0 0 100%;font-size:13px;font-weight:600;color:var(--muted,#8d7f87);margin-top:6px;">' + esc(localizedSeriesName(series)) + '</span>';
           }
           var out = variantStock(x) <= 0 || x.frozen === true;
           return heading + '<button type="button" class="sku-chip' + (varKey(x) === curSku ? ' on' : '') + (out ? ' dis' : '') + '" data-sku="' + escAttr(varKey(x)) + '">' + esc(varLabel(x)) + '</button>';
@@ -513,7 +526,7 @@
     if (!ns.length) return null;
     return { min: Math.min.apply(null, ns), max: Math.max.apply(null, ns) };
   }
-  var TAG_EN = { '手作': 'Handmade', '黏土': 'Clay', '毛线': 'Yarn', '贴纸': 'Sticker', '键帽': 'Keycap', '现货': 'In Stock', '定制款': 'Made to Order', '瑕疵款': 'Imperfect', '专拍补价': 'Extra Payment', '整套款': 'Full Set', '新品': 'New', '限定': 'Limited', '色卡': 'Color Card', '稿件': 'Artwork', 'BJD': 'BJD' }; // 标签英文展示（后台可在标签管理里为每个标签配英文名，远端优先）
+  var TAG_EN = { '转印贴': 'Transfer Stickers', '三丽鸥': 'Sanrio', '瓦罗兰特': 'Valorant', '轻松熊': 'Rilakkuma', '角落生物': 'Corner Creatures', '暴力熊': 'Violent Bear', '装饰品': 'Decoration', '其他转印贴': 'Other Transfer Stickers', '手作': 'Handmade', '黏土': 'Clay', '毛线': 'Yarn', '贴纸': 'Sticker', '键帽': 'Keycap', '现货': 'In Stock', '定制款': 'Made to Order', '瑕疵款': 'Imperfect', '专拍补价': 'Extra Payment', '整套款': 'Full Set', '新品': 'New', '限定': 'Limited', '色卡': 'Color Card', '稿件': 'Artwork', 'BJD': 'BJD' }; // 标签英文展示（后台可在标签管理里为每个标签配英文名，远端优先）
   var TAG_EN_REMOTE = null; // site_settings.shop_tag_en：{中文标签: English 名}
   (function () {
     try {
@@ -554,7 +567,7 @@
     el.innerHTML =
       '<a class="back-link page-back" href="' + ykLink('/shop/') + '" style="margin:8px 0 24px 2px;">← ' + t('回小铺', 'Back to shop') + '</a>' +
       '<div class="pdp">' +
-        '<div class="d-pager" id="d-pager">' + pagerWrapHtml(imgs, dispName(p), { meta: metas }) + '</div>' +
+        '<div class="d-left"><div class="d-pager" id="d-pager">' + pagerWrapHtml(imgs, dispName(p), { meta: metas }) + '</div>' +
         // 她 20261112 01:51 §二：电脑端——商品图片在左上方，商品消息 / 商品类型 / 商品详情全部排在图片正下方；
         // 右侧只留：名称价格 + 规格选择 + 数量 + 库存 + 加购 + 立即购买 + 购买须知（紧贴按钮下方）。
         // 手机端不动：.d-notes 在窄屏下 display:contents，原来的上下顺序/间距完全保持。
@@ -565,7 +578,7 @@
         '<div class="d-desc card" style="padding:12px 14px;margin:12px 0 0;background:var(--card,#FFFFFF);border:1.5px solid var(--card-border,#F9E5ED);border-radius:16px;">' +
           '<b style="font-size:15px;">' + t('商品详情 ♡', 'Product Description ♡') + '</b>' +
           '<p style="color:var(--muted);font-size:16px;line-height:1.8;margin:6px 0 0;white-space:pre-line;">' + escBr(Y18pick(p.description, p.description_en)) + '</p></div>' +
-        '</div>' +
+        '</div></div>' +
         '<div class="d-info">' +
         '<div class="d-head" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">' +
           '<h2 style="font-size:24px;margin:0;">' + esc(dispName(p)) + '</h2>' +
@@ -685,6 +698,8 @@
         chip.classList.toggle('dis', dimChipOut(vs, chip.getAttribute('data-dim'), chip.getAttribute('data-val'), d.selDims));
       });
     }
+    if (v) d.qty = Math.max(1, Math.min(d.qty || 1, Math.max(1, variantStock(v))));
+    var qtyEl = document.getElementById('d-qty'); if (qtyEl) qtyEl.textContent = d.qty;
     var num = document.getElementById('d-price-num');
     if (num) num.textContent = (isRefPrice(p) ? t('参考价 ', 'Ref. ') : '') + priceText(p, v, rng);
     var line = document.getElementById('d-sku-line');
@@ -694,6 +709,8 @@
     }
     var stock = document.getElementById('d-stock');
     if (stock) stock.textContent = t('库存', 'Stock') + ' ' + (v ? variantStock(v) : (totalStock(p) != null ? totalStock(p) : (p.stock || 0)));
+    var selected = document.querySelector('#d-variants .sku-chip.on');
+    if (selected && typeof selected.scrollIntoView === 'function') selected.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
   }
   function bindDetail() {
     var d = DETAIL, p = d.p, vs = variantsOf(p);
@@ -802,6 +819,17 @@
     var wrap = document.querySelector('#d-pager .pg-wrap');
     if (wrap) wrap.addEventListener('pg-change', function () {
       d.i = parseInt(wrap.getAttribute('data-i') || '0', 10) || 0;
+      var image = d.gallery[d.i];
+      // 规格图变更时同步当前规格、价格、库存、购物车状态；普通详情图保留当前选择。
+      if (image && image.kind === 'sku' && image.sku) {
+        var imageVariant = currentVariant(p, image.sku);
+        if (imageVariant) {
+          d.sku = image.sku;
+          d.selDims = imageVariant.dims ? Object.assign({}, imageVariant.dims) : {};
+          syncVariantUI();
+          try { history.replaceState(null, '', '?id=' + encodeURIComponent(p.id) + '&sku=' + encodeURIComponent(d.sku)); } catch (e) {}
+        }
+      }
       updateSkuBadge(wrap);
     });
     document.querySelectorAll('.qty-btn').forEach(function (b) {
@@ -1976,7 +2004,7 @@
   });
   // ===== 列表增强：排序/筛选已按她 20261103 要求删掉；她 20261117 第二任务书：商品/手作素材双区块 + 分类 + 搜索 + 瀑布流 =====
   var SHOP_MAT_CATS = ['转印贴', '3D模具', '布料'];
-  var SHOP_MAT_EN = { '转印贴': 'Transfer Stickers', '3D模具': '3D Molds', '布料': 'Fabrics' };
+  var SHOP_MAT_EN = { '转印贴': 'Transfer Stickers', '三丽鸥': 'Sanrio', '瓦罗兰特': 'Valorant', '轻松熊': 'Rilakkuma', '角落生物': 'Corner Creatures', '暴力熊': 'Violent Bear', '装饰品': 'Decoration', '其他转印贴': 'Other Transfer Stickers', '3D模具': '3D Molds', '布料': 'Fabrics' };
   var SHOP_SECTION_KEY = 'yuki-shop-section';
   var SHOP_MAT_KEY = 'yuki-shop-matcat';
   window.__shopQ = '';

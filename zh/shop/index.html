@@ -377,13 +377,16 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
    左栏：商品图片 → 图片正下方依次是 商品消息 / 商品类型 / 商品详情
    右栏：名称价格 → 规格选择 → 数量 → 库存 → 加入购物车 / 立即购买 → 购买须知（紧贴按钮下方） */
 @media (min-width: 640px) {
-  .pdp { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; gap: 0 22px; align-items: start; }
-  .pdp .d-pager { grid-column: 1; grid-row: 1; }
-  .pdp .d-notes { grid-column: 1; grid-row: 2; align-self: start; min-width: 0; }
-  .pdp .d-info { grid-column: 2; grid-row: 1 / span 2; align-self: start; min-width: 0; }
+  .pdp { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 22px; align-items: start; }
+  .pdp .d-left { grid-column: 1; grid-row: 1; position: sticky; top: 92px; align-self: start; min-width: 0; }
+  .pdp .d-info { grid-column: 2; grid-row: 1; align-self: start; min-width: 0; }
+  .pdp .d-pager { grid-column: auto; grid-row: auto; }
+  .pdp .d-notes { grid-column: auto; grid-row: auto; align-self: start; min-width: 0; }
+  .pdp .pg-img { object-fit: contain !important; }
   .pdp .d-notes > .d-contact, .pdp .d-notes > .d-type, .pdp .d-notes > .d-desc { margin: 12px 0 0; }
 }
 @media (max-width: 639px) {
+  .pdp .d-left { display: contents; }
   .pdp .d-notes { display: contents; }
 }
 </style>
@@ -741,9 +744,9 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
     }, 300);
   }
 </script>
-<script src="/js/name-lexicon.js?v=20261118A"></script>
+<script src="/js/name-lexicon.js?v=20261122A"></script>
   <script src="/js/yk-lightbox.js?v=20261117A"></script>
-<script src="/js/shop-app.js?v=20261122C"></script>
+<script src="/js/shop-app.js?v=20261122D"></script>
 <script src="/js/site-footer.js?v=20261114A"></script>
 <script>
   // 统一 Footer（已有 <footer> 则替换其内容，不新建第二个）

@@ -101,17 +101,17 @@
     var base = []
       .concat(VALORANT.map(function (c) { return Object.assign({ ip: 'VALORANT' }, c); }))
       .concat(SANRIO.map(function (c) { return Object.assign({ ip: 'Sanrio' }, c); }))
-      .concat(OTHERS.map(function (c) { return Object.assign({ ip: 'Other' }, c); }));
+      .concat(OTHERS.map(function (c) { return Object.assign({ ip: 'Other', enabled: true }, c); }));
     // 她 §8：后台保存的完整词库（含种子行+新增行）优先——管理页保存后以远端为准
     if (OVERRIDE && Array.isArray(OVERRIDE.chars) && OVERRIDE.chars.length) {
-      return OVERRIDE.chars.map(function (c) { return { en: c.en || '', zh: c.zh || '', aliases: (c.aliases || []).slice(), ip: c.ip || 'Other' }; });
+      return OVERRIDE.chars.map(function (c) { return { en: c.en || '', zh: c.zh || '', aliases: (c.aliases || []).slice(), ip: c.ip || 'Other', enabled: c.enabled !== false }; });
     }
     return base;
   }
   function allTypes() {
     var base = TYPES.slice();
     if (OVERRIDE && Array.isArray(OVERRIDE.types) && OVERRIDE.types.length) {
-      return OVERRIDE.types.map(function (t) { return { zh: t.zh || '', en: t.en || '', aliases: (t.aliases || []).slice() }; });
+      return OVERRIDE.types.map(function (t) { return { zh: t.zh || '', en: t.en || '', aliases: (t.aliases || []).slice(), enabled: t.enabled !== false }; });
     }
     (OVERRIDE && OVERRIDE.types || []).forEach(function (t) {
       var hit = base.filter(function (x) { return x.zh === t.zh; })[0];
@@ -133,7 +133,7 @@
     var hit = null;
     // 最长优先：先把「亚克力挂件」这类长词拆走，再把「挂件」这类短词算进去
     types.slice().sort(function (a, b) { return b.zh.length - a.zh.length; }).forEach(function (t) {
-      if (hit) return;
+      if (hit || t.enabled === false) return;
       var list = [t.zh].concat(t.aliases || []);
       list.sort(function (a, b) { return b.length - a.length; }).some(function (a) {
         if (a && input.toLowerCase().indexOf(a.toLowerCase()) > -1) { hit = t; return true; }
@@ -156,6 +156,7 @@
     var chars = allChars();
     var scored = [];
     chars.forEach(function (c) {
+      if (c.enabled === false) return;
       var list = (c.aliases || []).slice();
       if (c.zh) list.push(c.zh);
       if (c.en) list.push(c.en);
@@ -210,7 +211,7 @@
     var typeZh = type ? type.zh : '';
     var typeEn = type ? type.en : '';
     if (c) {
-      res.titleZh = typeZh ? (zhName + '主题' + typeZh) : zhName;
+      res.titleZh = typeZh ? (zhName + typeZh) : zhName;
       res.titleEn = typeEn ? (enName ? enName + ' Style ' + typeEn : (res.pending ? zhName + ' Style ' + typeEn : '')) : (enName || zhName);
     } else {
       // 普通商品：不强制 Style
@@ -234,7 +235,7 @@
       char: { en: c.en, zh: c.zh, ip: c.ip },
       pending: !enName,
       nameZh: zhName, nameEn: enName,
-      titleZh: typeZh ? (zhName + '主题' + typeZh) : zhName,
+      titleZh: typeZh ? (zhName + typeZh) : zhName,
       titleEn: typeEn ? (enName ? enName + ' Style ' + typeEn : zhName + ' Style ' + typeEn) : (enName || zhName)
     };
   }
@@ -245,6 +246,7 @@
     if (!input) return [q];
     var terms = [q];
     allChars().forEach(function (c) {
+      if (c.enabled === false) return;
       var list = (c.aliases || []).concat(c.zh ? [c.zh] : [], c.en ? [c.en] : []);
       var hit = list.some(function (a) { return a && input.indexOf(a.toLowerCase()) > -1; });
       if (hit) list.forEach(function (a) { if (a && terms.indexOf(a) === -1) terms.push(a); });
@@ -277,6 +279,6 @@
     types: allTypes,
     loadRemote: loadRemote,
     saveRemote: saveRemote,
-    ips: function () { return ['VALORANT', 'Sanrio', 'Other']; }
+    ips: function () { var list = allChars().map(function (c) { return c.ip || 'Other'; }); return list.filter(function (x, i) { return list.indexOf(x) === i; }); }
   };
 })();

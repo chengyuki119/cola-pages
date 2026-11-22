@@ -41,46 +41,83 @@
 
   /* ═══ 词库管理页签 ═══ */
   var LX_TMP = null; // 本地编辑副本 {chars:[], types:[]}（保存后远端为准）
+  var LX_FILTER = { q: '', ip: '' };
   function renderLexicon() {
     ensureRemote().then(function () {
-      LX_TMP = { chars: LX.chars().map(function (c) { return { en: c.en || '', zh: c.zh || '', aliases: (c.aliases || []).slice(), ip: c.ip || 'Other' }; }),
-                 types: LX.types().map(function (t) { return { zh: t.zh || '', en: t.en || '', aliases: (t.aliases || []).slice() }; }) };
+      LX_TMP = { chars: LX.chars().map(function (c) { return { en: c.en || '', zh: c.zh || '', aliases: (c.aliases || []).slice(), ip: c.ip || 'Other', enabled: c.enabled !== false }; }),
+                 types: LX.types().map(function (t) { return { zh: t.zh || '', en: t.en || '', aliases: (t.aliases || []).slice(), enabled: t.enabled !== false }; }) };
       paintLexicon();
+      renderRecognitionAudit();
+    });
+  }
+  function renderRecognitionAudit() {
+    var box = document.getElementById('lx-audit');
+    if (!box) return;
+    api('products?select=id,name,name_en,name_raw,name_match,created_at&order=created_at.desc&limit=50').then(function (r) {
+      if (!r.ok) throw new Error('识别记录字段不可读取');
+      return r.json();
+    }).then(function (rows) {
+      if (!rows.length) { box.innerHTML = '<b>商品名称识别记录</b><p class="lx-head">还没有商品记录。</p>'; return; }
+      box.innerHTML = '<b>商品名称识别记录（最近 50 件）</b><p class="lx-head">查看原始输入与标准化结果。</p>' + rows.map(function (p) {
+        var m = p.name_match || {};
+        var finalZh = p.name || m.titleZh || '—', finalEn = p.name_en || m.titleEn || '';
+        var matched = m.charEn ? ' · 识别角色：' + m.charEn : '';
+        return '<div class="lx-audit-row"><div><b>' + escAttr(p.name || '未命名商品') + '</b><small>原始输入：' + escAttr(p.name_raw || '未记录') + '</small></div><div><b>标准化</b><small>' + escAttr(finalZh) + (finalEn ? ' / ' + escAttr(finalEn) : '') + '</small></div></div>';
+      }).join('');
+    }).catch(function () {
+      box.innerHTML = '<b>商品名称识别记录</b><p class="lx-head">当前数据库未能读取识别记录；词库管理和商品表单自动识别仍可使用。</p>';
     });
   }
   function paintLexicon() {
     var boxC = document.getElementById('lx-chars');
     var boxT = document.getElementById('lx-types');
     if (!boxC || !LX_TMP) return;
-    var ips = ['VALORANT', 'Sanrio', 'Other'];
-    var html = '<div class="lx-head">角色（标准英文名 · 标准中文名 · 别名，逗号分隔）</div>';
+    var ips = LX_TMP.chars.map(function (c) { return c.ip || 'Other'; }).filter(function (x, i, a) { return a.indexOf(x) === i; }).sort();
+    if (ips.indexOf('Other') < 0) ips.push('Other');
+    var html = '<div class="lx-head">角色词条：标准英文名、标准中文名、所属 IP、别名及启用状态</div>' +
+      '<div class="lx-tools"><input id="lx-search" type="search" value="' + escAttr(LX_FILTER.q) + '" placeholder="搜索名称或别名">' +
+      '<select id="lx-ip-filter"><option value="">全部 IP</option>' + ips.map(function (ip) { return '<option value="' + escAttr(ip) + '"' + (LX_FILTER.ip === ip ? ' selected' : '') + '>' + escAttr(ip) + '</option>'; }).join('') + '</select></div>';
+    var q = LX_FILTER.q.trim().toLowerCase();
+    var visible = LX_TMP.chars.map(function (c, i) { return { c: c, i: i }; }).filter(function (x) {
+      var c = x.c;
+      if (LX_FILTER.ip && (c.ip || 'Other') !== LX_FILTER.ip) return false;
+      return !q || [c.en, c.zh, c.ip].concat(c.aliases || []).join(' ').toLowerCase().indexOf(q) > -1;
+    });
     ips.forEach(function (ip) {
-      var idxs = LX_TMP.chars.map(function (c, i) { return { c: c, i: i }; }).filter(function (x) { return (x.c.ip || 'Other') === ip; });
+      var idxs = visible.filter(function (x) { return (x.c.ip || 'Other') === ip; });
       if (!idxs.length) return;
-      html += '<div class="lx-ip">' + ip + '</div>';
+      html += '<div class="lx-ip">' + escAttr(ip) + '</div>';
       idxs.forEach(function (x) {
         html += '<div class="lx-row" data-i="' + x.i + '">' +
           '<input class="lx-en" value="' + escAttr(x.c.en) + '" placeholder="标准英文名">' +
           '<input class="lx-zh" value="' + escAttr(x.c.zh) + '" placeholder="标准中文名">' +
-          '<input class="lx-alias-in" value="' + escAttr((x.c.aliases || []).join(', ')) + '" placeholder="别名（逗号分隔）">' +
-          '<button type="button" class="lx-x" title="删除该角色">✕</button>' +
+          '<input class="lx-ip-in" value="' + escAttr(x.c.ip || 'Other') + '" placeholder="IP / 品牌分类">' +
+          '<input class="lx-alias-in" value="' + escAttr((x.c.aliases || []).join(', ')) + '" placeholder="别名、错别字、语音输入错误（逗号分隔）">' +
+          '<label class="lx-enabled"><input type="checkbox" class="lx-enabled-in"' + (x.c.enabled === false ? '' : ' checked') + '> 启用</label>' +
+          '<button type="button" class="lx-x" title="删除该词条">✕</button>' +
         '</div>';
       });
     });
     boxC.innerHTML = html;
+    var search = boxC.querySelector('#lx-search'), ipFilter = boxC.querySelector('#lx-ip-filter');
+    if (search) search.addEventListener('input', function () { LX_FILTER.q = this.value; paintLexicon(); var el = document.getElementById('lx-search'); if (el) { el.focus(); el.setSelectionRange(el.value.length,el.value.length); } });
+    if (ipFilter) ipFilter.addEventListener('change', function () { LX_FILTER.ip = this.value; paintLexicon(); });
     boxC.querySelectorAll('.lx-row').forEach(function (row) {
       var i = parseInt(row.getAttribute('data-i'), 10);
       row.querySelector('.lx-en').addEventListener('input', function () { LX_TMP.chars[i].en = this.value.trim(); });
       row.querySelector('.lx-zh').addEventListener('input', function () { LX_TMP.chars[i].zh = this.value.trim(); });
+      row.querySelector('.lx-ip-in').addEventListener('input', function () { LX_TMP.chars[i].ip = this.value.trim() || 'Other'; });
       row.querySelector('.lx-alias-in').addEventListener('input', function () { LX_TMP.chars[i].aliases = this.value.split(/[,，]/).map(function (x) { return x.trim(); }).filter(Boolean); });
-      row.querySelector('.lx-x').addEventListener('click', function () { LX_TMP.chars.splice(i, 1); paintLexicon(); });
+      row.querySelector('.lx-enabled-in').addEventListener('change', function () { LX_TMP.chars[i].enabled = this.checked; });
+      row.querySelector('.lx-x').addEventListener('click', function () { if (!window.confirm('删除这条词库记录？保存后才会生效。')) return; LX_TMP.chars.splice(i, 1); paintLexicon(); });
     });
-    var thtml = '<div class="lx-head">商品类型（标准中文 · 标准英文 · 别名）</div>';
+    var thtml = '<div class="lx-head">商品类型（标准中文、标准英文、别名）</div>';
     LX_TMP.types.forEach(function (t, i) {
       thtml += '<div class="lx-row" data-ti="' + i + '">' +
         '<input class="lx-tzh" value="' + escAttr(t.zh) + '" placeholder="标准中文">' +
         '<input class="lx-ten" value="' + escAttr(t.en) + '" placeholder="标准英文">' +
         '<input class="lx-talias-in" value="' + escAttr((t.aliases || []).join(', ')) + '" placeholder="别名（逗号分隔）">' +
+        '<label class="lx-enabled"><input type="checkbox" class="lx-type-enabled"' + (t.enabled === false ? '' : ' checked') + '> 启用</label>' +
         '<button type="button" class="lx-x" title="删除该类型">✕</button>' +
       '</div>';
     });
@@ -90,7 +127,8 @@
       row.querySelector('.lx-tzh').addEventListener('input', function () { LX_TMP.types[i].zh = this.value.trim(); });
       row.querySelector('.lx-ten').addEventListener('input', function () { LX_TMP.types[i].en = this.value.trim(); });
       row.querySelector('.lx-talias-in').addEventListener('input', function () { LX_TMP.types[i].aliases = this.value.split(/[,，]/).map(function (x) { return x.trim(); }).filter(Boolean); });
-      row.querySelector('.lx-x').addEventListener('click', function () { LX_TMP.types.splice(i, 1); paintLexicon(); });
+      row.querySelector('.lx-type-enabled').addEventListener('change', function () { LX_TMP.types[i].enabled = this.checked; });
+      row.querySelector('.lx-x').addEventListener('click', function () { if (!window.confirm('删除这条商品类型？保存后才会生效。')) return; LX_TMP.types.splice(i, 1); paintLexicon(); });
     });
   }
   function bindLexiconButtons() {
@@ -99,14 +137,14 @@
     a.dataset.bound = b.dataset.bound = c.dataset.bound = '1';
     a.addEventListener('click', function () {
       if (!LX_TMP) return;
-      LX_TMP.chars.push({ en: '', zh: '', aliases: [], ip: 'Other' });
+      LX_TMP.chars.push({ en: '', zh: '', aliases: [], ip: 'Other', enabled: true });
       paintLexicon();
       var rows = document.querySelectorAll('#lx-chars .lx-row');
       if (rows.length) rows[rows.length - 1].querySelector('.lx-en').focus();
     });
     b.addEventListener('click', function () {
       if (!LX_TMP) return;
-      LX_TMP.types.push({ zh: '', en: '', aliases: [] });
+      LX_TMP.types.push({ zh: '', en: '', aliases: [], enabled: true });
       paintLexicon();
       var rows = document.querySelectorAll('#lx-types .lx-row');
       if (rows.length) rows[rows.length - 1].querySelector('.lx-tzh').focus();
@@ -144,11 +182,11 @@
     nameEl.closest('.pf-row').appendChild(hint);
     var debounce = null;
     nameEl.addEventListener('input', function () {
-      LX_DIRTY.name = true;
+      delete hint.dataset.match;
       clearTimeout(debounce);
       debounce = setTimeout(function () { runRecognize(); }, 400);
     });
-    if (nameEnEl) nameEnEl.addEventListener('input', function () { LX_DIRTY.nameEn = true; });
+
     function runRecognize(pickEn) {
       var raw = nameEl.value.trim();
       hint.style.display = raw ? 'block' : 'none';
@@ -175,8 +213,8 @@
       if (res.type) parts.push('商品类型：' + escAttr(res.type.zh) + ' / ' + escAttr(res.type.en));
       if (res.titleZh) parts.push('标题：' + escAttr(res.titleZh) + (res.titleEn ? ' / ' + escAttr(res.titleEn) : ''));
       hint.innerHTML = parts.join('<br>');
-      if (res.nameZh && !LX_DIRTY.name) nameEl.value = res.nameZh;
-      if (res.nameEn && nameEnEl && !LX_DIRTY.nameEn) nameEnEl.value = res.nameEn;
+      if (res.titleZh) nameEl.value = res.titleZh;
+      if (res.titleEn && nameEnEl) nameEnEl.value = res.titleEn;
       hint.dataset.match = JSON.stringify({ raw: raw, nameZh: res.nameZh, nameEn: res.nameEn, titleZh: res.titleZh, titleEn: res.titleEn, charEn: res.char ? res.char.en : '', typeZh: res.type ? res.type.zh : '', ambiguousPick: pickEn || '' });
     }
     window.__lxRunRecognize = runRecognize;
@@ -184,6 +222,7 @@
   /* 保存时由 admin.html 合并 window.__lxCollectFields() 的 name_raw/name_match（列没建时走现有降级链） */
   window.__lxCollectFields = function () {
     var hint = document.getElementById('lx-hint');
+    if (hint && !hint.dataset.match && window.__lxRunRecognize) window.__lxRunRecognize();
     var nameEl = document.getElementById('p-name');
     if (!hint || !hint.dataset.match) return {};
     try {

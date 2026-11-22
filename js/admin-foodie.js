@@ -28,11 +28,11 @@
   }
   function db() { return fetch(REST + 'food_restaurants?select=*&order=created_at.desc', { headers: HDRS() }).then(function (r) { return r.ok ? r.json() : []; }); }
 
-  var S = { regions: [], cats: [], rests: [], subs: [], sub: 'dash', editing: null, subView: null, map: null, marker: null, cfgRow: null, mapAdapter: null };
+  var S = { regions: [], cats: [], rests: [], subs: [], sub: 'rests', editing: null, subView: null, map: null, marker: null, cfgRow: null, mapAdapter: null };
 
   var SUBS = [
-    ['dash', '总览'], ['subs', '投稿审核'], ['rests', '餐厅管理'], ['settings', '地图与分类设置'], ['data', '数据管理']
-  ]; // 她 20261117 16:26 任务书 §八：地区/分类/地图服务合并为一个设置区，CSV 归入数据管理，导航 7→5
+    ['rests', '餐厅管理'], ['dash', '总览'], ['subs', '投稿审核'], ['mapcfg', '地图'], ['covers', '封面图管理'], ['settings', '设置：地区与分类'], ['data', '数据管理']
+  ]; // 餐厅管理默认入口；设置与 CSV 作为次级入口保留
 
   /* ── 小件 ── */
   function h(tag, attrs, html) { return '<' + tag + (attrs ? ' ' + attrs : '') + '>' + (html == null ? '' : html) + '</' + tag.split(' ')[0] + '>'; }
@@ -47,16 +47,17 @@
     return c ? (c.label_zh || c.label_en) : key;
   }
   function subBar() {
+    var main = SUBS.slice(0, 5), secondary = SUBS.slice(5);
     return '<div class="fdm-subs" style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px;">' +
-      SUBS.map(function (x) {
-        return '<button type="button" class="fdm-sub" data-sub="' + x[0] + '">' + x[1] + '</button>';
-      }).join('') + '</div>';
+      main.map(function (x) { return '<button type="button" class="fdm-sub" data-sub="' + x[0] + '">' + x[1] + '</button>'; }).join('') +
+      (secondary.length ? '<details class="fdm-secondary"><summary>更多管理</summary><div>' + secondary.map(function (x) { return '<button type="button" class="fdm-sub" data-sub="' + x[0] + '">' + x[1] + '</button>'; }).join('') + '</div></details>' : '') + '</div>';
   }
   function fdmSubStyle() {
     if (document.getElementById('fdm-style')) return;
     var st = document.createElement('style'); st.id = 'fdm-style';
     st.textContent = '.fdm-sub{border:1.5px solid #F9E5ED;background:#fff;color:#65515D;border-radius:999px;padding:7px 18px;font-size:15px;cursor:pointer;font-family:inherit;}' +
       '.fdm-sub:hover{background:#FCECF2;}' +
+      '.fdm-secondary{position:relative;align-self:center;margin-left:auto;color:#897783;font-size:14px;cursor:pointer;}.fdm-secondary summary{padding:8px 12px;border:1px solid #F9E5ED;border-radius:999px;list-style:none;background:#fff;}.fdm-secondary>div{position:absolute;right:0;top:38px;z-index:20;display:flex;gap:8px;flex-wrap:wrap;min-width:220px;padding:10px;background:#fff;border:1px solid #F9E5ED;border-radius:14px;box-shadow:0 6px 20px rgba(180,120,150,.15);}.fdm-secondary:not([open])>div{display:none;}' +
       '.fdm-sub.on{background:#F6C5D7;border-color:#F6C5D7;color:#B98598;font-weight:600;}' +
       '.fdm-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 12px;}' +
       '.fdm-field{display:flex;flex-direction:column;gap:4px;min-width:0;}' +
@@ -106,25 +107,27 @@
     document.getElementById('fdm-root').innerHTML = subBar() +
       '<div id="fdm-sub-dash"></div><div id="fdm-sub-rests" style="display:none;"></div>' +
       '<div id="fdm-sub-subs" style="display:none;"></div>' +
-      '<div id="fdm-sub-settings" style="display:none;"></div>' +
-      '<div id="fdm-sub-regions" style="display:none;"></div><div id="fdm-sub-cats" style="display:none;"></div>' +
+      '<div id="fdm-sub-settings" style="display:none;"><div id="fdm-sub-regions"></div><div id="fdm-sub-cats"></div></div>' +
       '<div id="fdm-sub-mapcfg" style="display:none;"></div>' +
+      '<div id="fdm-sub-covers" style="display:none;"><div class="card" style="max-width:none;"><h3>封面图管理</h3><p>前往现有全站封面图管理入口操作，沿用同一管理界面。</p><button type="button" class="fdm-btn" id="fd-covers-open">打开封面图管理</button></div></div>' +
       '<div id="fdm-sub-data" style="display:none;"></div>';
     fdmSubStyle();
     document.getElementById('fdm-root').addEventListener('click', function (e) {
       var b = e.target.closest('.fdm-sub');
       if (!b) return;
+      if (b.getAttribute('data-sub') === 'covers') { var globalCoverTab = document.querySelector('.tab-btn[data-tab="covers"]'); if (globalCoverTab) globalCoverTab.click(); return; }
+      if (b.getAttribute('data-sub') === 'mapcfg') { showSub('mapcfg'); return; }
       showSub(b.getAttribute('data-sub'));
     });
     loadAll().then(function () {
-      render();
+      showSub(S.sub);
       if (typeof enhanceSelects === 'function') enhanceSelects();
     });
   }
 
   function showSub(name) {
     S.sub = name;
-    document.querySelectorAll('#fdm-root .fdm-subs > .fdm-sub').forEach(function (x) { x.classList.toggle('on', x.getAttribute('data-sub') === name); });
+    document.querySelectorAll('#fdm-root .fdm-sub').forEach(function (x) { x.classList.toggle('on', x.getAttribute('data-sub') === name); });
     var wrap = null;
     SUBS.forEach(function (x) {
       var el = document.getElementById('fdm-sub-' + x[0]);
@@ -132,7 +135,7 @@
       if (x[0] === name) wrap = x[0];
     });
     // 设置区内嵌三个原始容器（地区/分类/地图服务）：选中设置区时一并展开
-    ['regions', 'cats', 'mapcfg'].forEach(function (k) {
+    ['regions', 'cats'].forEach(function (k) {
       var el = document.getElementById('fdm-sub-' + k);
       if (el) el.style.display = (name === 'settings') ? '' : 'none';
     });
@@ -144,7 +147,8 @@
     if (S.sub === 'dash') renderDash();
     else if (S.sub === 'subs') renderSubs();
     else if (S.sub === 'rests') renderRests();
-    else if (S.sub === 'settings') { renderRegions(); renderCats(); renderMapCfg(); } // 一个设置区内三段连排，数据与逻辑不动
+    else if (S.sub === 'settings') { renderRegions(); renderCats(); } // 地区/分类保留在次级设置区
+    else if (S.sub === 'mapcfg') renderMapCfg();
     else if (S.sub === 'data') renderData();
   }
 
