@@ -25,6 +25,7 @@
     box.innerHTML =
       '<button type="button" class="yk-lb-nav yk-lb-prev" aria-label="Previous">‹</button>' +
       '<div class="yk-lb-stage" id="yk-lb-stage"><img id="yk-lb-img" alt=""></div>' +
+      '<div class="yk-lb-name" id="yk-lb-name"></div>' +
       '<div class="lightbox-bar">' +
         '<a class="lightbox-btn" id="yk-lb-download" download="photo.jpg">Download</a>' +
         '<button type="button" class="lightbox-btn" id="yk-lb-close">Close</button>' +
@@ -122,6 +123,10 @@
     document.getElementById('yk-lb-download').textContent = labels.download || 'Download';
     document.getElementById('yk-lb-close').textContent = labels.close || 'Close';
     document.getElementById('yk-lb-hint').textContent = labels.hint || '';
+    // 她 20261123 §四：大图预览里显示当前商品名（无名称时隐藏，餐厅页用餐厅名）
+    var nmEl = document.getElementById('yk-lb-name');
+    nmEl.textContent = labels.name || '';
+    nmEl.style.display = labels.name ? '' : 'none';
     imgEl().setAttribute('data-alt', labels.alt || '');
     show(index || 0);
     EL.classList.add('open');

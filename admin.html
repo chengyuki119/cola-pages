@@ -777,7 +777,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     /* 后台菜单已随全站改为顶部下拉（她 20261117 PART B），旧手机抽屉宽度覆盖已删 */
     /* 登录视图旧规则（460 窄列居中）已删——她 20261108 16:58 改按前台子页面 1200 版式，见上方 body:not(.adm-in) 区块 */
   </style>
-  <script src="site-menu.js?v=20261122C" defer></script>
+  <script src="site-menu.js?v=20261123A" defer></script>
   <link rel="stylesheet" href="/css/button-theme.css?v=20261117H">
   <style>
     /* ═══ 她 20261030 §5：后台字体统一加深（三档，仅后台生效）═══
@@ -3355,7 +3355,12 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       var pnm = cachedP.name || (nmEl ? nmEl.textContent.trim() : '') || '这件商品';
       // 她 21:44 §五.2：确认框里带商品名，避免误删
       uiConfirm('确定删除「' + pnm + '」吗？删了就找不回来了。想从店里拿掉的话，用「下架」就好。', function () {
-        api('products?id=eq.' + encodeURIComponent(id), { method: 'DELETE', headers: { 'Prefer': 'return=representation' } })
+        // 【75】20261123 根因修复：①products 已列级授权（cost 列不对 authenticated 开放），DELETE 带 Prefer:return=representation 会生成 RETURNING → 42501 permission denied，最高管理员也删不掉；改普通 DELETE；
+        // ②shop_variant_costs / shop_variant_private_notes 对 products 有 on delete restrict 外键，先清这条商品的关联记录再删（都是管理员专属表，只删本行关联，不碰其他商品）
+        var cleanRef = api('shop_variant_costs?product_id=eq.' + encodeURIComponent(id), { method: 'DELETE' }).catch(function () { return null; })
+          .then(function () { return api('shop_variant_private_notes?product_id=eq.' + encodeURIComponent(id), { method: 'DELETE' }).catch(function () { return null; }); });
+        cleanRef
+          .then(function () { return api('products?id=eq.' + encodeURIComponent(id), { method: 'DELETE' }); })
           .then(function (r) {
             if (!r.ok) return r.text().then(function (body) {
               var err = null; try { err = JSON.parse(body); } catch (e) {}
@@ -3364,16 +3369,12 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
                 r.status === 409 ? '商品仍被关联数据引用，数据库已阻止删除' : '删除请求失败（HTTP ' + r.status + '），商品未确认删除';
               throw new Error(msg);
             });
-            return r.text().then(function (body) {
-              var rows = []; try { rows = body ? JSON.parse(body) : []; } catch (e) {}
-              if (Array.isArray(rows) && rows.length) return true;
-              // PostgREST/RLS 可能返回空响应；只有确认记录已不存在才提示成功
-              return api('products?id=eq.' + encodeURIComponent(id) + '&select=id', { method: 'GET' }).then(function (check) {
-                if (!check.ok) throw new Error('删除请求已发送，但无法核实结果；请刷新商品列表确认');
-                return check.json().then(function (remaining) {
-                  if (Array.isArray(remaining) && remaining.length === 0) return true;
-                  throw new Error('商品仍然存在，可能是权限策略或关联记录阻止了删除');
-                });
+            // PostgREST 可能返回空响应；只有确认记录已不存在才提示成功
+            return api('products?id=eq.' + encodeURIComponent(id) + '&select=id', { method: 'GET' }).then(function (check) {
+              if (!check.ok) throw new Error('删除请求已发送，但无法核实结果；请刷新商品列表确认');
+              return check.json().then(function (remaining) {
+                if (Array.isArray(remaining) && remaining.length === 0) return true;
+                throw new Error('商品仍然存在，可能是权限策略或关联记录阻止了删除');
               });
             });
           })

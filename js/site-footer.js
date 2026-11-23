@@ -60,7 +60,7 @@
     /* §4.1（她 20261026 总任务书）：账户栏只保留「登录」「订单」两个直接入口，不再重复设置独立「账户中心」入口；购物车走 Header 购物车图标 */
     account: [['login', '/account/', 'login'], ['orders', '/account/?sec=orders']],
     service: [['contact', '/askbox/'], ['faq', '/faq/'], ['howto', '/how-to-order/'], ['return-policy', '/return-policy/'], ['shipping-policy', '/shipping-policy/']],
-    about: [['brand', '/brand/'], ['findme', '/about/'], ['foodie', '/foodie/']],
+    about: [['brand', '/brand/'], ['findme', '/about/'], ['foodie', '/foodie/map/']], // 她 20261123 指令 §一：美食地图唯一主页面
     policies: [['privacy-policy', '/privacy-policy/'], ['terms-of-service', '/terms-of-service/']]
   };
   var TITLE_HREF = { account: '/account/', service: '/service/', about: '/brand/', policies: '/policies/' }; /* 账户栏标题 → Profile 编辑对应页面（/account/ 登录后默认即 Profile） */

@@ -13,7 +13,7 @@
     { key: 'bjd',        zh: 'BJD',                    route: '/bjd/' },
     { key: 'color-card', zh: '色卡 · Color Cards',      route: '/color-card/' },
     { key: 'about',      zh: '关于 · About',            route: '/about/' },
-    { key: 'foodie',     zh: '美食地图 · Foodie Map',   route: '/foodie/' }
+    { key: 'foodie',     zh: '美食地图 · Foodie Map',   route: '/foodie/map/' }
   ];
   var POSITIONS = [
     { v: 'center', label: '居中（默认）' },

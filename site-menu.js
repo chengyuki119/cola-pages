@@ -28,16 +28,16 @@
       { key: 'cart', zh: '购物车', en: 'Cart', page: 'shop', url: '/shop/?sec=cart', sec: 'cart', area: 'shop' }
       // 她 20261117 23:14 §三-5：「我的订单」已从小铺移到账号栏（见 account 栏第二位）
     ]},
-    { key: 'gallery', num: '03', zh: '收藏展示', en: 'Collection', nav: 'gallery', url: '/bjd/', items: [
+    { key: 'gallery', num: '03', zh: '收藏展示', en: 'Collection Display', nav: 'gallery', url: '/bjd/', items: [ // 她 20261123 指令 §五.2：03 Collection → Collection Display
       { key: 'bjd', zh: 'BJD', en: 'BJD', page: 'bjd', url: '/bjd/', area: 'bjd' },
       { key: 'cards', zh: '色卡', en: 'Color Cards', page: 'cards', url: '/color-card/', area: 'cards' },
       { key: 'photos', zh: '照片展示', en: 'Photo Gallery', page: 'photos', url: '/photos/', area: 'gallery' },
       { key: 'works-all', zh: '稿件展示', en: 'All Commissions', page: 'works', url: '/works/', area: 'works' }
     ]},
-    { key: 'explore', num: '04', zh: '探索', en: 'Explore', nav: 'foodie', url: '/foodie/', items: [
-      { key: 'foodie', zh: '美食地图', en: 'Food Map', page: 'foodie', url: '/foodie/', path: '/foodie/', area: 'foodie' },
-      { key: 'yuzurec', zh: '柚子推荐', en: 'Yuki\'s Picks', page: 'foodie', url: '/foodie/?sec=yuzu', sec: 'yuzu', path: '/foodie/', area: 'foodie' }
-      // 她 20261117 23:14 §三-4：「地图找餐厅」入口删除，探索只留美食地图 + 柚子推荐
+    { key: 'explore', num: '04', zh: '探索', en: 'Explore', nav: 'foodie', url: '/foodie/map/', items: [ // 她 20261123 指令 §一：/foodie/map/ 是唯一主页面
+      { key: 'foodie', zh: '美食地图', en: 'Food Map', page: 'foodie', url: '/foodie/map/', path: '/foodie/map/', area: 'foodie' },
+      { key: 'roulette', zh: '食物转盘', en: 'Food Roulette', page: 'what-to-eat', url: '/what-to-eat/' },
+      { key: 'yuzurec', zh: '柚子推荐', en: 'Yuki\'s Picks', page: 'foodie', url: '/foodie/map/', path: '/foodie/map/', area: 'foodie' }
     ]},
     { key: 'account', num: '05', zh: '账号', en: 'Account', url: '/account/', items: [
       { key: 'acct-profile', zh: '我的账号', en: 'My Account', page: 'account', url: '/account/' },

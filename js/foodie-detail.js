@@ -170,7 +170,8 @@
       download: F.t('download'),
       close: F.t('close'),
       hint: lbHint(),
-      alt: R ? F.rName(R) : ''
+      alt: R ? F.rName(R) : '',
+      name: R ? F.rName(R) : '' // 她 20261123 §四：大图预览里显示餐厅名
     });
   }
 

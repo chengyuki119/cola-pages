@@ -14,12 +14,12 @@
 <link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki2-180.png">
   <link rel="stylesheet" href="/css/site.css?v=20261117N">
   <link rel="stylesheet" href="/site-menu.css?v=20261117M">
-  <link rel="stylesheet" href="/css/foodie.css?v=20261117J">
+  <link rel="stylesheet" href="/css/foodie.css?v=20261123A">
   <link rel="stylesheet" href="/vendor/leaflet/leaflet.css?v=20261114B">
   <link rel="stylesheet" href="/vendor/leaflet/MarkerCluster.css?v=20261114B">
   <link rel="stylesheet" href="/vendor/leaflet/MarkerCluster.Default.css?v=20261114B">
   <script src="/js/site-common.js?v=20261117C"></script>
-  <script src="/site-menu.js?v=20261122C" defer></script>
+  <script src="/site-menu.js?v=20261123A" defer></script>
   <script src="/js/foodie-app.js?v=20261117D" defer></script>
   <script src="/js/foodie-coord.js?v=20261116B"></script>
   <script src="/vendor/leaflet/leaflet.js?v=20261114B"></script>
@@ -29,6 +29,12 @@
   <script src="/js/foodie-map.js?v=20261122D" defer></script>
   <link rel="stylesheet" href="/css/button-theme.css?v=20261117H">
   <style>
+    /* 她 20261123 指令 §二：食物转盘入口——大号方形卡片，放在餐厅推荐内容上方 */
+    .fd-roulette-card { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; width:168px; height:168px; border:1.5px solid var(--card-border,#F9E5ED); border-radius:20px; background:#fff; color:var(--text,#65515D); text-decoration:none; box-shadow:0 5px 18px rgba(180,120,150,.08); transition:transform .18s,border-color .18s,background .18s; }
+    .fd-roulette-card:hover { transform:translateY(-2px); border-color:#E79EC0; background:var(--accent-soft,#FCECF2); }
+    .fd-roulette-icon { display:flex; color:#F48FB1; }
+    .fd-roulette-label { font-size:17px; font-weight:700; }
+    @media (max-width:640px){ .fd-roulette-card { width:132px; height:132px; } .fd-roulette-label { font-size:15px; } }
     .fd-hero { margin: 4px 0 14px; }
     .fd-hero h1 { font-size: 25px; font-weight: 700; color: var(--text,#65515D); margin: 0; }
     .fd-map-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
@@ -37,6 +43,7 @@
     .fd-q-clear { border: none; background: none; color: var(--muted,#897783); cursor: pointer; font-size: 15px; line-height: 1; padding: 2px 4px; flex-shrink: 0; font-family: inherit; }
     .fd-q-clear:hover { color: var(--accent-strong,#B98598); }
     .fd-map-cta[disabled] { opacity: .6; cursor: wait; }
+    .page-body.fd-page-wide { max-width:1400px; }
     .fd-map-embed body { margin:0; }
     .fd-map-embed .topbar,.fd-map-embed .menu-mask,.fd-map-embed .menu,.fd-map-embed .subpage-header,.fd-map-embed .page-back,
     .fd-map-embed .fd-map-toolbar,.fd-map-embed .fd-regions,.fd-map-embed .fd-map-side,.fd-map-embed footer { display:none !important; }
@@ -93,10 +100,14 @@
   <h1 class="subpage-title" data-zh="美食地图" data-en="Foodie Map">Foodie Map</h1>
   <p class="subpage-sub" data-zh="拖动地图找好吃的" data-en="Drag the map, find something delicious">Drag the map, find something delicious</p>
 </div>
-<a class="back-link page-back" href="/foodie/" style="margin:8px 0 20px 2px;"><span data-zh="← 美食地图" data-en="← Foodie Map">← Foodie Map</span></a>
+<a class="back-link page-back" href="/" style="margin:8px 0 20px 2px;"><span data-zh="← 返回主页" data-en="← Back to Home">← Back to Home</span></a>
 
 <div class="page-body fd-page-wide" style="padding-top:4px;">
   <div class="fd-wrap fd-wrap-wide">
+    <a class="fd-roulette-card" href="/what-to-eat/">
+      <span class="fd-roulette-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none"/><path d="M12 3v6.8M12 14.2V21M3 12h6.8M14.2 12H21M5.6 5.6l4.8 4.8M13.6 13.6l4.8 4.8M18.4 5.6l-4.8 4.8M10.4 13.6l-4.8 4.8"/></svg></span>
+      <span class="fd-roulette-label" data-zh="食物转盘" data-en="Food Roulette">Food Roulette</span>
+    </a>
     <div class="fd-map-toolbar">
       <form class="fd-search" id="fd-search-form" style="flex:1;min-width:170px;margin:0;" action="#">
         <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
@@ -107,7 +118,6 @@
       <button type="button" class="fd-icon-btn" id="fd-locate" title="My location" aria-label="My location">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/><circle cx="12" cy="12" r="8"/></svg>
       </button>
-      <a class="fd-map-cta" href="/what-to-eat/" data-zh="今天吃什么" data-en="What To Eat Today">What To Eat Today</a>
     </div>
     <div class="fd-regions" id="fd-regions"></div>
 
@@ -130,6 +140,6 @@
   </div>
 </div>
 
-<script src="/js/site-footer.js?v=20261114B" defer></script>
+<script src="/js/site-footer.js?v=20261123A" defer></script>
 </body>
 </html>

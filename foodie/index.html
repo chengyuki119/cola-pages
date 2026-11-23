@@ -1,48 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <script src="/js/lang-path.js?v=20261114B"></script>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Foodie Map · Snow Yuzu</title>
-  <meta name="description" content="Explore the Snow Yuzu Foodie Map and find Yuki’s restaurant picks or spin for nearby food.">
-  <link rel="canonical" href="https://yukicheng.com/foodie/">
-  <link rel="icon" type="image/png" sizes="32x32" href="/icon-yuki2-32.png">
-  <link rel="stylesheet" href="/css/site.css?v=20261117N">
-  <link rel="stylesheet" href="/site-menu.css?v=20261117M">
-  <link rel="stylesheet" href="/css/foodie.css?v=20261117J">
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261117H">
-  <script src="/js/site-common.js?v=20261117C"></script>
-  <script src="/site-menu.js?v=20261122C" defer></script>
-  <style>
-    .fd-home-map{width:100%;height:min(68vh,690px);min-height:390px;border:1.5px solid var(--card-border,#F9E5ED);border-radius:20px;overflow:hidden;background:var(--accent-soft,#FCECF2)}
-    .fd-home-map iframe{display:block;width:100%;height:100%;border:0}
-    .fd-home-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:18px 0 28px}
-    .fd-home-link{min-height:94px;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;border:1.5px solid var(--card-border,#F9E5ED);border-radius:20px;background:#fff;color:var(--text,#65515D);text-decoration:none;font-size:20px;font-weight:700;box-shadow:0 5px 18px rgba(180,120,150,.08);transition:transform .18s,border-color .18s}
-    .fd-home-link:hover{transform:translateY(-2px);border-color:#E79EC0;background:var(--accent-soft,#FCECF2)}
-    @media(max-width:640px){.fd-home-map{height:56vh;min-height:340px}.fd-home-links{grid-template-columns:1fr;gap:12px}.fd-home-link{min-height:72px;font-size:18px}}
-  </style>
+<meta charset="utf-8">
+<script src="/js/lang-path.js?v=20261114B"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foodie Map · Snow Yuzu</title>
+<link rel="canonical" href="https://yukicheng.com/foodie/map/">
+<meta http-equiv="refresh" content="0;url=/foodie/map/">
+<script>/* 她 20261123 指令 §一：/foodie/map/ 是 Foodie Map 唯一主页面，旧 /foodie/ 直接重定向，不再保留旧主页面（消除地图画中画） */
+(function(){var m=/^\/zh\b/.test(location.pathname)||location.pathname.indexOf('/zh/')===0;location.replace((m?'/zh/foodie/map/':'/foodie/map/')+location.search);})();
+</script>
 </head>
 <body>
-<header class="topbar">
-  <div class="lang-switch"><button class="lang-btn" data-lang="zh">简体中文</button><button class="lang-btn" data-lang="en">English</button></div>
-  <a class="site-logo" href="/" aria-label="Back to home"><img src="/logo.png" alt="Snow Yuzu"></a>
-  <div class="topbar-right">
-    <a class="topbar-cart" id="topbar-cart" href="/shop/?sec=cart" aria-label="Cart"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3.5h2.2l2.3 11.2a1.8 1.8 0 0 0 1.8 1.4h8.5a1.8 1.8 0 0 0 1.8-1.4l1.5-8.2H6"/></svg></a>
-    <button class="topbar-acct" id="topbar-acct" aria-label="Account"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8.2" r="3.4"/><path d="M5 20c.8-3.6 3.6-5.6 7-5.6s6.2 2 7 5.6"/></svg><span class="topbar-acct-dot"></span></button>
-    <button class="burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
-  </div>
-</header>
-<div class="menu-mask" id="menu-mask"></div><nav class="menu" id="menu"></nav>
-<div class="subpage-header"><h1 class="subpage-title" data-zh="美食地图" data-en="Foodie Map">Foodie Map</h1><p class="subpage-sub" data-zh="先看看地图，再选你想去的方式" data-en="Start with the map, then choose where to go">Start with the map, then choose where to go</p></div>
-<div class="page-body" style="padding-top:8px">
-  <div class="fd-home-map"><iframe title="Foodie Map" src="/foodie/map/?embed=1" loading="eager" allow="geolocation"></iframe></div>
-  <div class="fd-home-links">
-    <a class="fd-home-link" href="/foodie/map/" data-zh="柚子推荐地图" data-en="Yuki's Recommendation Map">Yuki's Recommendation Map</a>
-    <a class="fd-home-link" href="/what-to-eat/" data-zh="食物转盘" data-en="Food Wheel">Food Wheel</a>
-  </div>
-</div>
-<script src="/js/site-footer.js?v=20261114B" defer></script>
-<script>document.addEventListener('DOMContentLoaded',function(){var l=window.LANG==='zh'?'/zh/foodie/map/?embed=1':'/foodie/map/?embed=1';var f=document.querySelector('.fd-home-map iframe');if(f)f.src=l;var a=document.querySelectorAll('.fd-home-link');if(a.length>1&&window.LANG==='zh')a[1].href='/zh/what-to-eat/';if(a.length&&window.LANG==='zh')a[0].href='/zh/foodie/map/';});</script>
+<a href="/foodie/map/" style="display:block;margin:40vh auto 0;text-align:center;color:#897783;font-family:inherit;">Foodie Map →</a>
 </body>
 </html>

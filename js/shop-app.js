@@ -868,7 +868,8 @@
       download: t('下载原图', 'Download'),
       close: t('关闭', 'Close'),
       hint: t('双指放大看细节', 'Pinch to zoom'),
-      alt: (DETAIL && DETAIL.p) ? dispName(DETAIL.p) : ''
+      alt: (DETAIL && DETAIL.p) ? dispName(DETAIL.p) : '',
+      name: (DETAIL && DETAIL.p) ? dispName(DETAIL.p) : '' // 她 20261123 §四：大图预览里清楚显示商品名
     });
   }
 
@@ -2037,6 +2038,11 @@
     ];
     var SHOP_FABRIC_CATS = ['布艺手工', '布艺', '挂件', '摆设']; // 预留：以后按标签分类用，当前不参与分区
     var SHOP_STYLE_CATS = SHOP_MAT_CATS.concat(['贴纸', '模具', '键帽款式', '款式选择']);
+    // 她 20261123 任务书 §二：转印贴分 IP / 装饰素材 两大一级分类，IP 按具体 IP 独立分组（以 Excel 实际分类为准，不凭空添加）
+    var TRANSFER_IP_TAGS = ['三丽鸥', '吉伊卡哇', 'Valorant', '角落生物', '哆啦A梦', '轻松熊', 'Mikko', '暴力熊', '兔丸'];
+    var TRANSFER_MAT_TAGS = ['配件', '展示柜', '装饰素材', '键帽', '小动物', '猫咪', '其他'];
+    var TRANSFER_TAG_EN = { '三丽鸥': 'Sanrio', '吉伊卡哇': 'Chiikawa', 'Valorant': 'Valorant', '角落生物': 'Sumikko Gurashi', '哆啦A梦': 'Doraemon', '轻松熊': 'Rilakkuma', 'Mikko': 'Mikko', '暴力熊': 'Violent Bear', '兔丸': 'Usamaru', '配件': 'Accessories', '展示柜': 'Display Cases', '装饰素材': 'Decorations', '键帽': 'Keycaps', '小动物': 'Little Animals', '猫咪': 'Cats', '其他': 'Others' };
+    function transferTagLabel(tg) { return (window.LANG === 'en' && TRANSFER_TAG_EN[tg]) ? TRANSFER_TAG_EN[tg] : tg; }
     function zoneOf(p) { // 归属：仅供展示（已停售）优先，其次按商品分类落到款式选择，其余都算建帽
       if (p.display_only) return 'display';
       var c = String(p.category || '');
@@ -2059,12 +2065,40 @@
         var list = groups[z.key].filter(function (p) { return z.key === 'display' || statusOfG(p) !== 'out'; });
         if (z.key === 'style') {
           var canon = function (p) { return ({ '3D模具': '硅胶模具', '转印贴': 'UV转印贴', '布料': '布料与面料' })[p.category] || p.category || ''; };
-          var sections = ['硅胶模具', 'UV转印贴', '布料与面料', '拉链、纽扣及其他配件'].map(function (c) {
+          var h3 = function (c) { return '<div style="grid-column:1/-1;margin:8px 0 10px;"><h3 style="margin:0 0 5px;font-size:19px;">' + esc(SHOP_MAT_EN[c] && window.LANG === 'en' ? SHOP_MAT_EN[c] : c) + '</h3></div>'; };
+          var h4 = function (label, n) { return '<div style="grid-column:1/-1;margin:10px 0 6px;"><h4 style="margin:0;font-size:16px;font-weight:600;color:var(--text,#65515D);">' + esc(label) + (n ? '<span style="margin-left:8px;font-size:13px;font-weight:400;color:var(--muted,#897783);">' + n + '</span>' : '') + '</h4></div>'; };
+          // UV转印贴：两级分组（IP 按具体 IP 独立分组，装饰素材按细分类），不混在一个平铺列表里
+          var transfer = list.filter(function (p) { return canon(p) === 'UV转印贴'; });
+          var transferHtml = '';
+          if (transfer.length) {
+            var ipList = transfer.filter(function (p) { return TRANSFER_IP_TAGS.indexOf(p.tag || '') > -1; });
+            var matList = transfer.filter(function (p) { return TRANSFER_MAT_TAGS.indexOf(p.tag || '') > -1; });
+            var otherList = transfer.filter(function (p) { return TRANSFER_IP_TAGS.indexOf(p.tag || '') < 0 && TRANSFER_MAT_TAGS.indexOf(p.tag || '') < 0; });
+            transferHtml += h3('UV转印贴');
+            if (ipList.length) {
+              transferHtml += '<div style="grid-column:1/-1;margin:2px 0 4px;"><h4 style="margin:0;font-size:15px;font-weight:600;color:var(--muted,#897783);">' + esc(t('IP 系列', 'IP Series')) + '</h4></div>';
+              TRANSFER_IP_TAGS.forEach(function (tg) {
+                var g = ipList.filter(function (p) { return (p.tag || '') === tg; });
+                if (!g.length) return;
+                transferHtml += h4(transferTagLabel(tg), g.length) + '<div style="display:contents">' + g.map(productCardShop).join('') + '</div>';
+              });
+            }
+            if (matList.length) {
+              transferHtml += '<div style="grid-column:1/-1;margin:14px 0 4px;"><h4 style="margin:0;font-size:15px;font-weight:600;color:var(--muted,#897783);">' + esc(t('装饰素材', 'Decorations')) + '</h4></div>';
+              TRANSFER_MAT_TAGS.forEach(function (tg) {
+                var g = matList.filter(function (p) { return (p.tag || '') === tg; });
+                if (!g.length) return;
+                transferHtml += h4(transferTagLabel(tg), g.length) + '<div style="display:contents">' + g.map(productCardShop).join('') + '</div>';
+              });
+            }
+            if (otherList.length) transferHtml += h4(t('其他转印贴', 'Other Transfer Stickers'), otherList.length) + '<div style="display:contents">' + otherList.map(productCardShop).join('') + '</div>';
+          }
+          var sections = ['硅胶模具', '布料与面料', '拉链、纽扣及其他配件'].map(function (c) {
             var match = list.filter(function (p) { return canon(p) === c; });
-            return '<div style="grid-column:1/-1;margin:8px 0 10px;"><h3 style="margin:0 0 5px;font-size:19px;">' + esc(SHOP_MAT_EN[c] && window.LANG === 'en' ? SHOP_MAT_EN[c] : c) + '</h3></div>' + (match.length ? '<div style="display:contents">' + match.map(productCardShop).join('') + '</div>' : '');
+            return h3(c) + (match.length ? '<div style="display:contents">' + match.map(productCardShop).join('') + '</div>' : '');
           }).join('');
           var legacy = list.filter(function (p) { return ['硅胶模具', 'UV转印贴', '布料与面料', '拉链、纽扣及其他配件'].indexOf(canon(p)) < 0; });
-          return head(z) + sections + (legacy.length ? '<div style="grid-column:1/-1;margin:12px 0 4px;"><h3 style="margin:0;">' + t('其他款式', 'Other Styles') + '</h3></div><div style="display:contents">' + legacy.map(productCardShop).join('') + '</div>' : '');
+          return head(z) + sections + transferHtml + (legacy.length ? '<div style="grid-column:1/-1;margin:12px 0 4px;"><h3 style="margin:0;">' + t('其他款式', 'Other Styles') + '</h3></div><div style="display:contents">' + legacy.map(productCardShop).join('') + '</div>' : '');
         }
         return head(z) + (list.length
           ? '<div style="display:contents">' + list.map(productCardShop).join('') + '</div>'

@@ -76,7 +76,7 @@
 .fd-map-list .fd-card { display: flex; }
 .fd-map-list .fd-card-img { width: 96px; padding-top: 0; height: 96px; flex-shrink: 0; border-radius: 0; }
 .fd-map-list .fd-card-body { padding: 8px 10px; min-width: 0; flex: 1; }
-#fd-map { flex: 1; min-width: 0; height: 560px; border-radius: 18px; border: 1.5px solid var(--card-border,#F9E5ED); background: var(--accent-soft,#FCECF2); z-index: 1; }
+#fd-map { flex: 1; min-width: 0; height: min(72vh, 780px); min-height: 560px; border-radius: 18px; border: 1.5px solid var(--card-border,#F9E5ED); background: var(--accent-soft,#FCECF2); z-index: 1; }
 .fd-map-status { font-size: 14px; color: var(--muted,#897783); }
 
 /* Leaflet 弹出卡片品牌化 */

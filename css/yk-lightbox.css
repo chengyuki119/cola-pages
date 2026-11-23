@@ -18,6 +18,17 @@
 }
 #yk-lightbox.open { display: flex; }
 
+/* 她 20261123 §四：大图下方显示当前商品名/餐厅名 */
+#yk-lightbox .yk-lb-name {
+  max-width: 92vw;
+  text-align: center;
+  color: var(--text, #65515D);
+  font-size: 18px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: default;
+}
+
 #yk-lightbox .lightbox-bar {
   display: flex;
   gap: 12px;
