@@ -2029,7 +2029,7 @@
         var name = en ? c.en : c.zh, image = en ? c.imageEn : c.imageZh;
         return '<button type="button" class="shop-cover-card' + (SHOP_CATEGORY_COVER === c.key ? ' on' : '') + '" data-shop-cover="' + c.key + '" aria-pressed="' + (SHOP_CATEGORY_COVER === c.key) + '"><img src="/assets/category-covers/' + image + '.png" alt="' + name + '" loading="lazy"><span>' + name + '</span></button>';
       }).join('') + '</div>';
-    box.onclick = function (e) { var b = e.target.closest('[data-shop-cover]'); if (!b) return; SHOP_CATEGORY_COVER = b.getAttribute('data-shop-cover') || ''; categoryCoverRender(); paint(); };
+    box.onclick = function (e) { var b = e.target.closest('[data-shop-cover]'); if (!b) return; SHOP_CATEGORY_COVER = b.getAttribute('data-shop-cover') || ''; categoryCoverRender(); if (window.__shopPaint) window.__shopPaint(); };
   }
   function matchesCoverCategory(p, category) {
     if (!category) return true;
