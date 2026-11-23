@@ -499,7 +499,7 @@
     var x = document.getElementById('stock-notice-x'), ok = document.getElementById('stock-notice-ok');
     if (x) x.addEventListener('click', close);
     if (ok) ok.addEventListener('click', close);
-  }  function dispName(p) { return Y18pick(p.name, p.name_en); } // 她 20261102 双语名称；她 20261112 01:51：缺一种语言时自动生成另一种
+  }  function dispName(p) { return (LANG === 'en' ? (p.name_en || p.name || '') : (p.name || p.name_en || '')); } // 商品英文缺省时保留原文，不机器翻译
   function dispCover(p) { return (LANG === 'en' ? (p.cover_en || p.cover_zh) : (p.cover_zh || p.cover_en)) || ''; } // 双语封面：卡片与详情同图
   function fullGallery(p) { // 她 20261103 淘宝式：详情图集=封面+详情图+所有规格图，全集常驻——选规格只改选中状态与定位，从不过滤图集
     var covSrc = dispCover(p) || p.image_url || ''; // 无独立封面时商品主图即封面
@@ -507,6 +507,7 @@
     var out = cov ? [{ u: cov, sku: '', kind: 'cover' }] : [];
     var seen = {};
     out.forEach(function (g) { seen[g.u] = 1; });
+    if (p.video_url) out.push({ u: String(p.video_url), sku: '', kind: 'video' });
     pagerImgsOf({ images: p.images, image_url: p.image_url }).forEach(function (u) {
       if (seen[u]) return; seen[u] = 1;
       out.push({ u: u, sku: '', kind: 'detail' });
@@ -561,13 +562,15 @@
     var metas = d.gallery.map(function (g) {
       var nv = g.sku ? currentVariant(p, g.sku) : null;
       if (g.kind === 'sku') return { t: (nv && varLabel(nv)) || g.sku };
+      if (g.kind === 'video') return { t: t('商品视频', 'Product video') };
       return { t: g.kind === 'cover' ? t('封面', 'Cover') : t('详情图', 'Photo') };
     });
+    var media = d.gallery.map(function (g) { return { type: g.kind === 'video' ? 'video' : 'image', url: g.u }; });
     var el = document.createElement('div');
     el.innerHTML =
       '<a class="back-link page-back" href="' + ykLink('/shop/') + '" style="margin:8px 0 24px 2px;">← ' + t('回小铺', 'Back to shop') + '</a>' +
       '<div class="pdp">' +
-        '<div class="d-left"><div class="d-pager" id="d-pager">' + pagerWrapHtml(imgs, dispName(p), { meta: metas }) + '</div>' +
+        '<div class="d-left"><div class="d-pager" id="d-pager">' + pagerWrapHtml(imgs, dispName(p), { meta: metas, media: media }) + '</div>' +
         // 她 20261112 01:51 §二：电脑端——商品图片在左上方，商品消息 / 商品类型 / 商品详情全部排在图片正下方；
         // 右侧只留：名称价格 + 规格选择 + 数量 + 库存 + 加购 + 立即购买 + 购买须知（紧贴按钮下方）。
         // 手机端不动：.d-notes 在窄屏下 display:contents，原来的上下顺序/间距完全保持。
@@ -577,7 +580,7 @@
         (function () { var k = typeKey(p); if (!k || !TYPE_NOTE[k]) return ''; return '<div class="d-type card" style="padding:12px 14px;margin:12px 0 0;background:var(--card,#FFFFFF);border:1.5px solid var(--card-border,#F9E5ED);border-radius:16px;"><b style="font-size:15px;">' + t('商品类型 ♡', 'Product Type ♡') + '</b><p style="font-size:15px;line-height:1.7;color:var(--text,#65515D);margin:6px 0 0;">' + t(TYPE_NOTE[k][0], TYPE_NOTE[k][1]) + '</p></div>'; })() +
         '<div class="d-desc card" style="padding:12px 14px;margin:12px 0 0;background:var(--card,#FFFFFF);border:1.5px solid var(--card-border,#F9E5ED);border-radius:16px;">' +
           '<b style="font-size:15px;">' + t('商品详情 ♡', 'Product Description ♡') + '</b>' +
-          '<p style="color:var(--muted);font-size:16px;line-height:1.8;margin:6px 0 0;white-space:pre-line;">' + escBr(Y18pick(p.description, p.description_en)) + '</p></div>' +
+          '<p style="color:var(--muted);font-size:16px;line-height:1.8;margin:6px 0 0;white-space:pre-line;">' + escBr(LANG === 'en' ? (p.description_en || p.description || '') : (p.description || p.description_en || '')) + '</p></div>' +
         '</div></div>' +
         '<div class="d-info">' +
         '<div class="d-head" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">' +
@@ -799,8 +802,9 @@
     // 她 20261103 淘宝式：点大图选规格——点中某规格的图→自动选中该规格；点封面/普通详情图不改变规格状态
     // 她 20261117：点大图看大图（与照片展示页同一套灯箱 + 双指缩放）；属于别的规格的图先按老规矩切规格，
     // 再点一次就是看大图（双击也可以直接放大）
-    var pgImg = document.querySelector('#d-pager .pg-img');
-    if (pgImg) pgImg.addEventListener('click', function () {
+    var wrap = document.querySelector('#d-pager .pg-wrap');
+    if (wrap) wrap.addEventListener('click', function (ev) {
+      if (!(ev.target && ev.target.closest && ev.target.closest('.pg-img'))) return;
       var wrap2 = document.querySelector('#d-pager .pg-wrap'); if (!wrap2) return;
       var gi = parseInt(wrap2.getAttribute('data-i') || '0', 10) || 0;
       var g = (d.gallery || [])[gi];
@@ -814,9 +818,8 @@
       }
       openProductLightbox();
     });
-    if (pgImg) pgImg.addEventListener('dblclick', function (e) { e.preventDefault(); openProductLightbox(); });
+    if (wrap) wrap.addEventListener('dblclick', function (e) { if (e.target && e.target.closest && e.target.closest('.pg-img')) { e.preventDefault(); openProductLightbox(); } });
     // 翻图（箭头/缩略图/手机滑动）后记住位置 + 更新归属角标；切图不取消已选中的规格
-    var wrap = document.querySelector('#d-pager .pg-wrap');
     if (wrap) wrap.addEventListener('pg-change', function () {
       d.i = parseInt(wrap.getAttribute('data-i') || '0', 10) || 0;
       var image = d.gallery[d.i];
@@ -855,7 +858,10 @@
     try { urls = JSON.parse(img.getAttribute('data-urls') || '[]'); } catch (err) {}
     if (!urls.length) urls = [img.src];
     var i = parseInt(wrap.getAttribute('data-i') || '0', 10) || 0;
-    window.YK_LB.open(urls, i, {
+    var gallery = (DETAIL && DETAIL.gallery) || [], images = gallery.filter(function (g) { return g.kind !== 'video'; }).map(function (g) { return g.u; });
+    if (!images.length) images = [img.src];
+    var gi = gallery.slice(0, i + 1).filter(function (g) { return g.kind !== 'video'; }).length - 1;
+    window.YK_LB.open(images, Math.max(0, gi), {
       download: t('下载原图', 'Download'),
       close: t('关闭', 'Close'),
       hint: t('双指放大看细节', 'Pinch to zoom'),
@@ -2003,16 +2009,22 @@
     if (e.persisted) { try { location.reload(); } catch (err) {} }
   });
   // ===== 列表增强：排序/筛选已按她 20261103 要求删掉；她 20261117 第二任务书：商品/手作素材双区块 + 分类 + 搜索 + 瀑布流 =====
-  var SHOP_MAT_CATS = ['转印贴', '3D模具', '布料'];
-  var SHOP_MAT_EN = { '转印贴': 'Transfer Stickers', '三丽鸥': 'Sanrio', '瓦罗兰特': 'Valorant', '轻松熊': 'Rilakkuma', '角落生物': 'Corner Creatures', '暴力熊': 'Violent Bear', '装饰品': 'Decoration', '其他转印贴': 'Other Transfer Stickers', '3D模具': '3D Molds', '布料': 'Fabrics' };
+  var SHOP_MAT_CATS = ['硅胶模具', 'UV转印贴', '布料与面料', '拉链、纽扣及其他配件', '转印贴', '3D模具', '布料'];
+  var SHOP_MAT_EN = { '硅胶模具': 'Silicone Molds', 'UV转印贴': 'UV Transfer Stickers', '布料与面料': 'Fabric & Textiles', '拉链、纽扣及其他配件': 'Zippers, Buttons & Accessories', '转印贴': 'Transfer Stickers', '三丽鸥': 'Sanrio', '瓦罗兰特': 'Valorant', '轻松熊': 'Rilakkuma', '角落生物': 'Corner Creatures', '暴力熊': 'Violent Bear', '装饰品': 'Decoration', '其他转印贴': 'Other Transfer Stickers', '3D模具': '3D Molds', '布料': 'Fabrics' };
+  var SHOP_MAT_INFO = {
+    '硅胶模具': ['DIY 手工硅胶模具，提供多种造型与款式选择，适合手工制作及创意 DIY 项目。具体款式和尺寸请参考商品展示图片。', 'DIY silicone molds available in a variety of designs and styles. Perfect for handmade crafts and creative DIY projects. Please refer to the product photos for available designs and dimensions.'],
+    'UV转印贴': ['UV 转印贴，提供多种图案与不同款式，适合手工装饰及 DIY 创作。具体图案和尺寸请参考商品展示图片。', 'UV transfer stickers featuring a variety of designs and patterns. Perfect for handmade decorations and DIY projects. Please refer to the product photos for available designs and sizes.'],
+    '布料与面料': ['提供多种材质、厚度和颜色的手工布料，包括纯棉布、帆布及其他面料，适用于各种 DIY 和手工制作项目。具体材质、尺寸和颜色请参考商品规格。', 'A selection of fabrics in different materials, weights, and colors, including cotton, canvas, and other textiles. Suitable for various DIY and handmade projects. Please refer to the product specifications for material details, dimensions, and colors.'],
+    '拉链、纽扣及其他配件': ['提供各种手工制作所需的配件，包括拉链、纽扣及其他装饰材料，适用于不同 DIY 和手工作品。', 'A selection of accessories for handmade projects, including zippers, buttons, and decorative components. Suitable for various DIY and crafting needs.']
+  };
   var SHOP_SECTION_KEY = 'yuki-shop-section';
   var SHOP_MAT_KEY = 'yuki-shop-matcat';
   window.__shopQ = '';
   function isMat(p) { return SHOP_MAT_CATS.indexOf(p.category) > -1; }
   function dispCat(p) {
     var c = p.category || '';
-    if (window.LANG === 'en') return SHOP_MAT_EN[c] || Y18(c, 'en');
-    return Y18(c, 'zh');
+    if (window.LANG === 'en') return SHOP_MAT_EN[c] || c;
+    return c;
   }
   function enhanceList() {
     if (window.__ACCOUNT_DEFAULT_SEC) return; // 独立账号页：不拉商品列表
@@ -2027,7 +2039,7 @@
       { key: 'display', zh: '仅供展示', en: 'Display Only' }
     ];
     var SHOP_FABRIC_CATS = ['布艺手工', '布艺', '挂件', '摆设']; // 预留：以后按标签分类用，当前不参与分区
-    var SHOP_STYLE_CATS = ['布料', '转印贴', '3D模具', '贴纸', '模具', '键帽款式', '款式选择'];
+    var SHOP_STYLE_CATS = SHOP_MAT_CATS.concat(['贴纸', '模具', '键帽款式', '款式选择']);
     function zoneOf(p) { // 归属：仅供展示（已停售）优先，其次按商品分类落到款式选择，其余都算建帽
       if (p.display_only) return 'display';
       var c = String(p.category || '');
@@ -2048,6 +2060,15 @@
       var empty = '<p style="grid-column:1/-1;margin:0 0 18px;font-size:16px;color:var(--muted);">' + t('这一区还在准备中～', 'Nothing here yet~') + '</p>';
       g.innerHTML = SHOP_ZONES.map(function (z) {
         var list = groups[z.key].filter(function (p) { return z.key === 'display' || statusOfG(p) !== 'out'; });
+        if (z.key === 'style') {
+          var canon = function (p) { return ({ '3D模具': '硅胶模具', '转印贴': 'UV转印贴', '布料': '布料与面料' })[p.category] || p.category || ''; };
+          var sections = ['硅胶模具', 'UV转印贴', '布料与面料', '拉链、纽扣及其他配件'].map(function (c) {
+            var match = list.filter(function (p) { return canon(p) === c; }), info = SHOP_MAT_INFO[c];
+            return '<div style="grid-column:1/-1;margin:8px 0 10px;"><h3 style="margin:0 0 5px;font-size:19px;">' + esc(SHOP_MAT_EN[c] && window.LANG === 'en' ? SHOP_MAT_EN[c] : c) + '</h3><p style="margin:0;color:var(--muted);line-height:1.7;">' + esc(info[window.LANG === 'en' ? 1 : 0]) + '</p></div>' + (match.length ? '<div style="display:contents">' + match.map(productCardShop).join('') + '</div>' : '');
+          }).join('');
+          var legacy = list.filter(function (p) { return ['硅胶模具', 'UV转印贴', '布料与面料', '拉链、纽扣及其他配件'].indexOf(canon(p)) < 0; });
+          return head(z) + sections + (legacy.length ? '<div style="grid-column:1/-1;margin:12px 0 4px;"><h3 style="margin:0;">' + t('其他款式', 'Other Styles') + '</h3></div><div style="display:contents">' + legacy.map(productCardShop).join('') + '</div>' : '');
+        }
         return head(z) + (list.length
           ? '<div style="display:contents">' + list.map(productCardShop).join('') + '</div>'
           : empty);
@@ -2074,7 +2095,7 @@
   }
   function productCardShop(p) {
     var cov = dispCover(p) || (Array.isArray(p.images) && p.images[0]) || p.image_url || ''; // 她 20261103：列表页不做任何切换照片的行为——卡片只显示一张封面静态图
-    var img = cov ? '<img class="pg-img" src="' + escAttr(normImg(cov)) + '" style="width:100%;height:100%;object-fit:cover;display:block;" alt="' + escAttr(dispName(p)) + '" loading="lazy">' : '';
+    var img = cov ? '<img class="pg-img" src="' + escAttr(normImg(cov)) + '" style="width:100%;height:100%;object-fit:contain;display:block;" alt="' + escAttr(dispName(p)) + '" loading="lazy">' : '';
     var st = statusOf(p);
     var stText = st === 'on' ? t('在售', 'On sale') : st === 'display' ? t('仅展示', 'Display only') : t('售尽', 'Sold out');
     var stCls = st === 'on' ? 'st-on' : st === 'display' ? 'st-display' : 'st-out';

@@ -693,6 +693,7 @@
 .pg-thumbs::-webkit-scrollbar { display: none; }
 .pg-thumb { width: 30px; height: 30px; border-radius: 8px; object-fit: cover; flex-shrink: 0; border: 2px solid rgba(255,255,255,.9); cursor: pointer; opacity: .85; transition: opacity .2s, border-color .2s; box-sizing: border-box; background: var(--card); display: block; }
 .pg-thumb.on { border-color: var(--card-hover, #FCECF2); opacity: 1; }
+.pg-video-thumb { padding: 0; color: var(--text, #65515D); font-size: 12px; line-height: 26px; }
 
 /* ═══ 商品详情页（.pdp：桌面双栏网格 / 手机纵向单栏）═══ */
 .pdp {

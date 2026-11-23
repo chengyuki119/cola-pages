@@ -1251,7 +1251,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
             <input id="p-cost" type="number" min="0" step="0.01" placeholder="商品成本（只有你自己看得到）">
             <input id="p-sku" placeholder="商品条码（选填，唯一编号）">
             <div class="cur-line" style="grid-column:1/-1;"><span style="font-size:15px;color:var(--muted);">所属区域</span><div id="p-sec-row" style="display:flex;gap:8px;flex-wrap:wrap;"><button type="button" class="cur-chip on" data-psec="product">普通商品</button><button type="button" class="cur-chip" data-psec="material">手作素材</button></div></div>
-            <div id="p-mat-row" style="grid-column:1/-1;display:none;"><div class="cur-line"><span style="font-size:15px;color:var(--muted);">素材分类</span><div style="display:flex;gap:8px;" id="p-mcat-row"><button type="button" class="cur-chip" data-mcat="转印贴">转印贴</button><button type="button" class="cur-chip" data-mcat="3D模具">3D 模具</button><button type="button" class="cur-chip" data-mcat="布料">布料</button></div><p class="cur-hint">素材与普通商品同库存/购物车/订单体系，只是在前台单独展示</p></div></div>
+            <div id="p-mat-row" style="grid-column:1/-1;display:none;"><div class="cur-line"><span style="font-size:15px;color:var(--muted);">素材分类</span><div style="display:flex;gap:8px;flex-wrap:wrap;" id="p-mcat-row"><button type="button" class="cur-chip" data-mcat="硅胶模具">01 硅胶模具</button><button type="button" class="cur-chip" data-mcat="UV转印贴">02 UV 转印贴</button><button type="button" class="cur-chip" data-mcat="布料与面料">03 布料与面料</button><button type="button" class="cur-chip" data-mcat="拉链、纽扣及其他配件">04 拉链、纽扣及其他配件</button><button type="button" class="cur-chip" data-mcat="转印贴">旧分类：转印贴</button><button type="button" class="cur-chip" data-mcat="3D模具">旧分类：3D 模具</button><button type="button" class="cur-chip" data-mcat="布料">旧分类：布料</button></div><p class="cur-hint">素材与普通商品同库存/购物车/订单体系</p></div></div>
             <input id="p-cat" placeholder="商品分类（点一下可选已有分类）">
             <input id="p-tag" placeholder="商品标签，如 手作 / 毛线 / 黏土">
           </div>
@@ -1263,6 +1263,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
             <textarea id="p-desc-en" style="min-height:64px;" placeholder="英文介绍 Description in English（切到 English 时显示，可留空）"></textarea>
           </div>
         </div>
+        <div class="pf-sec" data-sec="video"><div class="pf-h"><b>商品视频</b><span class="pf-tip">可选，保留原视频画质</span></div><div class="pf-row one"><label class="btn-mini" style="cursor:pointer;">选择视频<input id="p-video-file" type="file" accept="video/*" hidden></label><span id="p-video-name" class="hm-file-name">尚未选择视频</span><video id="p-video-preview" controls playsinline preload="metadata" style="display:none;max-width:240px;max-height:180px;border-radius:12px;"></video><button type="button" id="p-video-clear" class="btn-mini" style="display:none;">移除</button></div></div>
         </div>
         <div class="actions" style="margin-top:14px;">
           <button class="btn-save" id="btn-add-product">发布商品</button>
@@ -2580,20 +2581,34 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
   });
   function uploadShopFiles(files) {
     return Promise.all(files.map(function (f) {
-      // 她 20261104：手机上传前先压一下（>1.5MB 的长边缩到 2000px；PNG 保持 PNG 不丢透明）
-      var pre = (window.ykShrinkImage ? window.ykShrinkImage(f) : Promise.resolve(f));
-      return Promise.resolve(pre).catch(function () { return f; }).then(function (bf) {
-        var name = f.name || 'image';
-        if (bf && bf !== f && /image\/jpe?g/i.test(bf.type || '')) name = name.replace(/\.[^.]+$/, '') + '.jpg';
-        return authedFetch(SUPABASE_URL + '/storage/v1/object/shop/' + Date.now() + '-' + Math.random().toString(36).slice(2, 6) + '-' + name.replace(/[^\w.\-]/g, '_'), {
-          method: 'POST',
-          headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + ACCESS, 'Content-Type': (bf && bf.type) || f.type || 'application/octet-stream' },
-          body: bf || f
-        }).then(function (r) { if (!r.ok) throw new Error('upload failed'); return r.json(); })
-          .then(function (res) { return SUPABASE_URL + '/storage/v1/object/public/shop/' + res.Key.split('/').slice(1).join('/'); });
-      });
+      // 保留原始像素和文件内容；商品图不在客户端压缩或裁切。
+      var name = f.name || 'image';
+      return authedFetch(SUPABASE_URL + '/storage/v1/object/shop/' + Date.now() + '-' + Math.random().toString(36).slice(2, 6) + '-' + name.replace(/[^\w.\-]/g, '_'), {
+        method: 'POST',
+        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + ACCESS, 'Content-Type': f.type || 'application/octet-stream' },
+        body: f
+      }).then(function (r) { if (!r.ok) throw new Error('upload failed'); return r.json(); })
+        .then(function (res) { return SUPABASE_URL + '/storage/v1/object/public/shop/' + res.Key.split('/').slice(1).join('/'); });
     }));
   }
+  function uploadShopVideo(file) {
+    if (!file) return Promise.resolve('');
+    if (!/^video\//i.test(file.type || '')) return Promise.reject(new Error('请选择视频文件'));
+    var name = (file.name || 'product-video').replace(/[^\w.\-]/g, '_');
+    return authedFetch(SUPABASE_URL + '/storage/v1/object/shop/' + Date.now() + '-' + Math.random().toString(36).slice(2, 7) + '-' + name, {
+      method: 'POST', headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + ACCESS, 'Content-Type': file.type || 'video/mp4' }, body: file
+    }).then(function (r) { if (!r.ok) throw new Error('video upload failed'); return r.json(); })
+      .then(function (res) { return SUPABASE_URL + '/storage/v1/object/public/shop/' + res.Key.split('/').slice(1).join('/'); });
+  }
+  var pendingVideo = null;
+  document.getElementById('p-video-file').addEventListener('change', function () {
+    pendingVideo = (this.files || [])[0] || null; this.value = '';
+    var v = document.getElementById('p-video-preview'), clear = document.getElementById('p-video-clear');
+    document.getElementById('p-video-name').textContent = pendingVideo ? pendingVideo.name : '尚未选择视频';
+    if (v) { if (v.src) URL.revokeObjectURL(v.src); v.src = pendingVideo ? URL.createObjectURL(pendingVideo) : ''; v.style.display = pendingVideo ? 'block' : 'none'; }
+    if (clear) clear.style.display = pendingVideo ? 'inline-flex' : 'none';
+  });
+  document.getElementById('p-video-clear').addEventListener('click', function () { pendingVideo = null; document.getElementById('p-video-file').dispatchEvent(new Event('change')); document.getElementById('p-video-name').textContent = '尚未选择视频'; });
   var pCur = 'USD'; // 新增商品的货币选择（每件商品独立，不换算）
   document.getElementById('tab-shop').addEventListener('click', function (e) {
     var chip = e.target.closest('.cur-chip');
@@ -2709,9 +2724,12 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     if (pendingCoverZh) covJobs.push(uploadShopFiles([pendingCoverZh]).then(function (u) { return ['cover_zh', u[0]]; }));
     if (pendingCoverEn) covJobs.push(uploadShopFiles([pendingCoverEn]).then(function (u) { return ['cover_en', u[0]]; }));
     Promise.all(covJobs).then(function (covPairs) {
-    uploadShopFiles(pendingFiles).then(function (urls) {
+    var videoJob = pendingVideo ? uploadShopVideo(pendingVideo).then(function (u) { return u; }) : Promise.resolve('');
+    return videoJob.then(function (videoUrl) {
+    return uploadShopFiles(pendingFiles).then(function (urls) {
       var body = { name: name, price: price, description: desc, description_en: document.getElementById('p-desc-en').value.trim(), tag: tag, image_url: urls[0] || null, stock: stock === '' ? 1 : parseInt(stock, 10), cost: cost === '' ? null : parseFloat(cost), currency: pCur };
       covPairs.forEach(function (cp) { body[cp[0]] = cp[1]; });
+      if (videoUrl) body.video_url = videoUrl;
       // 她 20261030 §3.1：新增单位 / 编码 / 分类——列还没建时下面会自动降级，不丢其他字段
       var _unit = document.getElementById('p-unit') ? document.getElementById('p-unit').value.trim() : '';
       var _sku = document.getElementById('p-sku') ? document.getElementById('p-sku').value.trim() : '';
@@ -2781,11 +2799,16 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       if (_cz) { _cz.innerHTML = '♡'; _cz.style.borderStyle = 'dashed'; }
       if (_ce) { _ce.innerHTML = '♡'; _ce.style.borderStyle = 'dashed'; }
       document.getElementById('p-file-name').textContent = '未选择图片';
+      pendingVideo = null;
+      var _pv = document.getElementById('p-video-preview'); if (_pv) { _pv.pause(); _pv.removeAttribute('src'); _pv.load(); _pv.style.display = 'none'; }
+      document.getElementById('p-video-name').textContent = '尚未选择视频';
+      document.getElementById('p-video-clear').style.display = 'none';
       rememberTag(tag); // 新标签存起来，下次直接选
       if (window.smAddVarReset) window.smAddVarReset();
       loadProducts();
     }).catch(function () { toast('上架失败，重试一下'); })
       .finally(function () { btn.disabled = false; btn.textContent = '上架这个商品'; });
+    }).catch(function () { toast('视频上传失败，请确认视频格式和大小'); btn.disabled = false; btn.textContent = '上架商品'; }); // video upload
     }); // Promise.all(covJobs)
   });
 
@@ -2938,8 +2961,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     prodMenuClose(); // 重渲列表前先收起开着的小菜单
     var tryLoad = function (withImages, withCur, noDescEn) {
       var _desc = ',description' + (noDescEn ? '' : ',description_en');
-      var _sel = 'id,name,name_en,cover_zh,cover_en,price,sku' + (withCur ? ',currency' : '') + _desc + ',tag,image_url' + (withImages ? ',images' : '') + ',variants,weight_oz' + ',sold,stock,display_only,created_at&order=created_at.desc&limit=200'; // 20261104 21:55：补上 variants——列表要靠它分辨「有规格/无规格」，规格商品不能直接改总库存
-      var _selOld = 'id,name,price,sku,variants,weight_oz' + (withCur ? ',currency' : '') + _desc + ',tag,image_url' + (withImages ? ',images' : '') + ',sold,stock,display_only,created_at&order=created_at.desc&limit=200'; // variants/weight_oz 列已存在，必须带上（规格总库存依赖它）
+      var _sel = 'id,name,name_en,cover_zh,cover_en,category,video_url,price,sku' + (withCur ? ',currency' : '') + _desc + ',tag,image_url' + (withImages ? ',images' : '') + ',variants,weight_oz' + ',sold,stock,display_only,created_at&order=created_at.desc&limit=200'; // variants/weight_oz 列已存在，必须带上（规格总库存依赖它）
+      var _selOld = 'id,name,name_en,cover_zh,cover_en,category,price,sku,variants,weight_oz' + (withCur ? ',currency' : '') + _desc + ',tag,image_url' + (withImages ? ',images' : '') + ',sold,stock,display_only,created_at&order=created_at.desc&limit=200';
       return api('products?select=' + _sel).then(function (r) {
         if (r.ok) return r;
         return api('products?select=' + _selOld); // 新列还没建：退回旧列（name_en/封面暂不可编）
@@ -3186,6 +3209,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         '</div>' +
         '<input class="e-name" value="' + escAttr(p.name) + '" placeholder="商品名称">' +
         '<input class="e-name-en" value="' + escAttr(p.name_en || '') + '" placeholder="商品名称 English（选填，英文页显示）">' +
+        '<select class="e-category"><option value="">普通商品 / 无分类</option>' + ['硅胶模具','UV转印贴','布料与面料','拉链、纽扣及其他配件','转印贴','3D模具','布料'].map(function (c) { return '<option value="' + escAttr(c) + '"' + (p.category === c ? ' selected' : '') + '>' + esc(c) + '</option>'; }).join('') + (p.category && ['硅胶模具','UV转印贴','布料与面料','拉链、纽扣及其他配件','转印贴','3D模具','布料'].indexOf(p.category) < 0 ? '<option selected value="' + escAttr(p.category) + '">' + esc(p.category) + '</option>' : '') + '</select>' +
         '<input class="e-price" value="' + escAttr(p.price) + '" placeholder="价格">' +
         '<input class="e-stock" type="number" min="0" value="' + (p.stock == null ? '' : p.stock) + '" placeholder="库存">' +
         '<div style="grid-column:1/-1;" class="cur-row"><div class="cur-line"><span style="font-size:14px;color:var(--muted);">货币</span>' +
@@ -3196,6 +3220,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         '<input class="e-cost" type="number" step="0.01" value="' + (p.cost == null ? '' : p.cost) + '" placeholder="成本（仅自己可见）">' +
         '<textarea class="e-desc" placeholder="商品描述">' + esc(p.description) + '</textarea>' +
         '<textarea class="e-desc-en" placeholder="英文描述 Description in English（切到 English 时显示，可留空）">' + esc(p.description_en || '') + '</textarea>' +
+        '<div class="e-video-box" style="grid-column:1/-1;display:flex;gap:10px;align-items:center;flex-wrap:wrap;"><label class="btn-mini" style="cursor:pointer;">' + (p.video_url ? '替换视频' : '上传视频') + '<input type="file" accept="video/*" hidden class="e-video-file"></label><span class="e-video-name" style="color:var(--muted);">' + (p.video_url ? '已保存视频' : '尚未上传视频') + '</span>' + (p.video_url ? '<video class="e-video-preview" src="' + escAttr(p.video_url) + '" controls playsinline preload="metadata" style="max-width:240px;max-height:160px;border-radius:10px;"></video>' : '<video class="e-video-preview" controls playsinline preload="metadata" style="display:none;max-width:240px;max-height:160px;border-radius:10px;"></video>') + '<button type="button" class="btn-mini e-video-remove"' + (p.video_url ? '' : ' style="display:none;"') + '>删除视频</button></div>' +
         '<div class="e-var-slot" style="grid-column:1/-1;"></div>' +
         '</div>' +
         '<div class="private-line">原图会保留；选了新图会自动替换</div>' +
@@ -3240,6 +3265,13 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     if (e.target.classList.contains('btn-cancel-edit')) {
       loadProducts();
     }
+    if (e.target.classList.contains('e-video-remove')) {
+      var vbox = e.target.closest('.e-video-box'), pv = vbox && vbox.querySelector('video');
+      card.__videoUrl = ''; card.__videoRemoved = true; card.__pendingVideo = null;
+      if (pv) { pv.pause(); pv.removeAttribute('src'); pv.load(); pv.style.display = 'none'; }
+      var vn = vbox && vbox.querySelector('.e-video-name'); if (vn) vn.textContent = '视频已移除';
+      e.target.style.display = 'none';
+    }
     if (e.target.classList.contains('btn-save-edit')) {
       var body = {
         name: card.querySelector('.e-name').value.trim(),
@@ -3252,6 +3284,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
         cost: card.querySelector('.e-cost').value === '' ? null : parseFloat(card.querySelector('.e-cost').value),
         description: card.querySelector('.e-desc').value.trim(),
         description_en: (card.querySelector('.e-desc-en') || { value: '' }).value.trim(),
+        category: (card.querySelector('.e-category') || { value: '' }).value,
+        video_url: card.__videoRemoved ? null : (card.__videoUrl !== undefined ? card.__videoUrl : ((PRODUCT_CACHE[id] || {}).video_url || null)),
         currency: card.__cur || 'CNY'
       };
       if (!body.name) { toast('名称不能为空'); return; }
@@ -3268,8 +3302,8 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
             delete b.images;
             return tryPatch(b, true);
           }
-          if (b.name_en || b.cover_zh !== undefined || b.cover_en !== undefined) { // name_en/cover 列还没建：去掉重试，其余照常保存
-            var b3 = Object.assign({}, b); delete b3.name_en; delete b3.cover_zh; delete b3.cover_en;
+          if (b.name_en || b.cover_zh !== undefined || b.cover_en !== undefined || b.category !== undefined || b.video_url !== undefined) {
+            var b3 = Object.assign({}, b); delete b3.name_en; delete b3.cover_zh; delete b3.cover_en; delete b3.category; delete b3.video_url;
             return tryPatch(b3, true);
           }
           if (b.description_en) { // description_en 列还没建：去掉它重试，其余字段照常保存
@@ -3284,6 +3318,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           toast('已保存'); rememberTag(body.tag); loadProducts();
         }).catch(function () { toast('保存失败，重试一下'); e.target.disabled = false; e.target.textContent = '保存修改'; });
       };
+      var uploadImgsThenFinish = function () {
       if (items2 && card.__imgsChanged) { // 图片条被拖动过或加过图：按顺序重建 images（第一张=封面）
         e.target.disabled = true;
         var final = [];
@@ -3301,6 +3336,11 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           finish();
         }).catch(function () { toast('图片上传失败'); e.target.disabled = false; e.target.textContent = '保存修改'; });
       } else { finish(); }
+      };
+      if (card.__pendingVideo) {
+        e.target.disabled = true; e.target.textContent = '上传视频…';
+        uploadShopVideo(card.__pendingVideo).then(function (url) { body.video_url = url; uploadImgsThenFinish(); }).catch(function () { toast('视频上传失败'); e.target.disabled = false; e.target.textContent = '保存修改'; });
+      } else uploadImgsThenFinish();
     }
     if (e.target.classList.contains('btn-off')) { // 下架 / 重新上架：改的是店内显隐，不删数据
       var oact = e.target.getAttribute('data-act');
@@ -3345,6 +3385,16 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
 
   // ── 编辑卡双语封面上传（她 20261103：复活此前被 if(false) 毙掉的上传链路）──
   document.getElementById('tab-shop').addEventListener('change', function (e) {
+    if (e.target.classList && e.target.classList.contains('e-video-file')) {
+      var vf = (e.target.files || [])[0], vcard = e.target.closest('.shop-item'); e.target.value = '';
+      if (!vf || !vcard || !/^video\//i.test(vf.type || '')) return;
+      vcard.__pendingVideo = vf; vcard.__videoRemoved = false;
+      var vb = e.target.closest('.e-video-box'), vp = vb && vb.querySelector('video');
+      if (vp) { if (vp.src && vp.src.indexOf('blob:') === 0) URL.revokeObjectURL(vp.src); vp.src = URL.createObjectURL(vf); vp.style.display = 'block'; }
+      var vname = vb && vb.querySelector('.e-video-name'); if (vname) vname.textContent = vf.name;
+      var vr = vb && vb.querySelector('.e-video-remove'); if (vr) vr.style.display = 'inline-flex';
+      toast('视频已选，保存修改后上传'); return;
+    }
     if (!e.target.classList || !e.target.classList.contains('e-cov-file')) return;
     var cf = e.target, card = cf.closest('.shop-item');
     var f = (cf.files || [])[0];
