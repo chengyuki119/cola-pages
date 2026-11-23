@@ -89,8 +89,8 @@
       return raw ? (window.LANG === 'en' ? (VAL_EN[raw] || Y18(raw, 'en')) : (VAL_ZH[raw] || Y18(raw, 'zh'))) : w;
     }).join('').replace(/\s+/g, ' ').trim();
   }
-  var SERIES_EN = { '三丽鸥': 'Sanrio', '瓦罗兰特': 'Valorant', '轻松熊': 'Rilakkuma', '角落生物': 'Corner Creatures', '暴力熊': 'Violent Bear', '装饰品': 'Decoration', '其他转印贴': 'Other Transfer Stickers', '吉伊卡哇': 'Chiikawa', '哆啦A梦': 'Doraemon', '兔丸': 'Usamaru', 'Mikko': 'Mikko' };
-  var SERIES_ZH = { 'Sanrio': '三丽鸥', 'Valorant': '瓦罗兰特', 'Rilakkuma': '轻松熊', 'Corner Creatures': '角落生物', 'Sumikko Gurashi': '角落生物', 'Violent Bear': '暴力熊', 'Decoration': '装饰品', 'Other Transfer Stickers': '其他转印贴', 'Chiikawa': '吉伊卡哇', 'Doraemon': '哆啦A梦', 'Usamaru': '兔丸', 'Mikko': 'Mikko' };
+  var SERIES_EN = { '三丽鸥': 'Sanrio', '瓦罗兰特': 'Valorant', '轻松熊': 'Rilakkuma', '角落生物': 'Corner Creatures', '暴力熊': 'Violent Bear', '装饰品': 'Decoration', '字母': 'Letters', '配色': 'Color Options', '豆芝麻': 'Sesame Bean', '其他转印贴': 'Other Transfer Stickers', '吉伊卡哇': 'Chiikawa', '哆啦A梦': 'Doraemon', '兔丸': 'Usamaru', 'Mikko': 'Mikko' };
+  var SERIES_ZH = { 'Sanrio': '三丽鸥', 'Valorant': '瓦罗兰特', 'Rilakkuma': '轻松熊', 'Corner Creatures': '角落生物', 'Sumikko Gurashi': '角落生物', 'Violent Bear': '暴力熊', 'Decoration': '装饰品', 'Letters': '字母', 'Color Options': '配色', 'Sesame Bean': '豆芝麻', 'Other Transfer Stickers': '其他转印贴', 'Chiikawa': '吉伊卡哇', 'Doraemon': '哆啦A梦', 'Usamaru': '兔丸', 'Mikko': 'Mikko' };
   function localizedSeriesName(name) {
     var raw = String(name || '').trim();
     if (window.LANG !== 'en') return SERIES_ZH[raw] || raw;
@@ -510,7 +510,11 @@
     if (p.video_url) out.push({ u: String(p.video_url), sku: '', kind: 'video' });
     pagerImgsOf({ images: p.images, image_url: p.image_url }).forEach(function (u) {
       if (seen[u]) return; seen[u] = 1;
-      out.push({ u: u, sku: '', kind: 'detail' });
+      var path = String(u).split('?')[0].split('/').pop();
+      var slugSeries = { sanrio: '三丽鸥', valorant: '瓦罗兰特', rilakkuma: '轻松熊', decorations: '装饰品', letters: '字母', other: '其他转印贴', 'color-options': '配色', chiikawa: '吉伊卡哇', 'sesame-bean': '豆芝麻' };
+      var match = path.match(/^uv\d+_([^_]+(?:-[^_]+)*)_/);
+      var series = match ? slugSeries[match[1]] : '';
+      out.push({ u: u, sku: '', kind: 'detail', series: series, name: decodeURIComponent(path) });
     });
     (variantsOf(p) || []).forEach(function (v) {
       (Array.isArray(v.images) ? v.images : []).forEach(function (iu) {
@@ -563,6 +567,7 @@
       var nv = g.sku ? currentVariant(p, g.sku) : null;
       if (g.kind === 'sku') return { t: (nv && varLabel(nv)) || g.sku };
       if (g.kind === 'video') return { t: t('商品视频', 'Product video') };
+      if (g.series) return { t: localizedSeriesName(g.series) + (g.name ? ' · ' + g.name : '') };
       return { t: g.kind === 'cover' ? t('封面', 'Cover') : t('详情图', 'Photo') };
     });
     var media = d.gallery.map(function (g) { return { type: g.kind === 'video' ? 'video' : 'image', url: g.u }; });
@@ -684,6 +689,7 @@
     if (g) {
       if (g.kind === 'sku') { var nv = currentVariant(d.p, g.sku); label = (nv && varLabel(nv)) || g.sku; }
       else if (g.kind === 'cover') label = t('封面', 'Cover');
+      else if (g.series) label = localizedSeriesName(g.series);
     }
     if (!label) { b.style.display = 'none'; return; }
     b.style.display = ''; b.textContent = label;
@@ -2011,12 +2017,6 @@
   // ===== 列表增强：排序/筛选已按她 20261103 要求删掉；她 20261117 第二任务书：商品/手作素材双区块 + 分类 + 搜索 + 瀑布流 =====
   var SHOP_MAT_CATS = ['硅胶模具', 'UV转印贴', '布料与面料', '拉链、纽扣及其他配件', '转印贴', '3D模具', '布料'];
   var SHOP_MAT_EN = { '硅胶模具': 'Silicone Molds', 'UV转印贴': 'UV Transfer Stickers', '布料与面料': 'Fabric & Textiles', '拉链、纽扣及其他配件': 'Zippers, Buttons & Accessories', '转印贴': 'Transfer Stickers', '三丽鸥': 'Sanrio', '瓦罗兰特': 'Valorant', '轻松熊': 'Rilakkuma', '角落生物': 'Corner Creatures', '暴力熊': 'Violent Bear', '装饰品': 'Decoration', '其他转印贴': 'Other Transfer Stickers', '3D模具': '3D Molds', '布料': 'Fabrics' };
-  var SHOP_MAT_INFO = {
-    '硅胶模具': ['DIY 手工硅胶模具，提供多种造型与款式选择，适合手工制作及创意 DIY 项目。具体款式和尺寸请参考商品展示图片。', 'DIY silicone molds available in a variety of designs and styles. Perfect for handmade crafts and creative DIY projects. Please refer to the product photos for available designs and dimensions.'],
-    'UV转印贴': ['UV 转印贴，提供多种图案与不同款式，适合手工装饰及 DIY 创作。具体图案和尺寸请参考商品展示图片。', 'UV transfer stickers featuring a variety of designs and patterns. Perfect for handmade decorations and DIY projects. Please refer to the product photos for available designs and sizes.'],
-    '布料与面料': ['提供多种材质、厚度和颜色的手工布料，包括纯棉布、帆布及其他面料，适用于各种 DIY 和手工制作项目。具体材质、尺寸和颜色请参考商品规格。', 'A selection of fabrics in different materials, weights, and colors, including cotton, canvas, and other textiles. Suitable for various DIY and handmade projects. Please refer to the product specifications for material details, dimensions, and colors.'],
-    '拉链、纽扣及其他配件': ['提供各种手工制作所需的配件，包括拉链、纽扣及其他装饰材料，适用于不同 DIY 和手工作品。', 'A selection of accessories for handmade projects, including zippers, buttons, and decorative components. Suitable for various DIY and crafting needs.']
-  };
   var SHOP_SECTION_KEY = 'yuki-shop-section';
   var SHOP_MAT_KEY = 'yuki-shop-matcat';
   window.__shopQ = '';
@@ -2063,8 +2063,8 @@
         if (z.key === 'style') {
           var canon = function (p) { return ({ '3D模具': '硅胶模具', '转印贴': 'UV转印贴', '布料': '布料与面料' })[p.category] || p.category || ''; };
           var sections = ['硅胶模具', 'UV转印贴', '布料与面料', '拉链、纽扣及其他配件'].map(function (c) {
-            var match = list.filter(function (p) { return canon(p) === c; }), info = SHOP_MAT_INFO[c];
-            return '<div style="grid-column:1/-1;margin:8px 0 10px;"><h3 style="margin:0 0 5px;font-size:19px;">' + esc(SHOP_MAT_EN[c] && window.LANG === 'en' ? SHOP_MAT_EN[c] : c) + '</h3><p style="margin:0;color:var(--muted);line-height:1.7;">' + esc(info[window.LANG === 'en' ? 1 : 0]) + '</p></div>' + (match.length ? '<div style="display:contents">' + match.map(productCardShop).join('') + '</div>' : '');
+            var match = list.filter(function (p) { return canon(p) === c; });
+            return '<div style="grid-column:1/-1;margin:8px 0 10px;"><h3 style="margin:0 0 5px;font-size:19px;">' + esc(SHOP_MAT_EN[c] && window.LANG === 'en' ? SHOP_MAT_EN[c] : c) + '</h3></div>' + (match.length ? '<div style="display:contents">' + match.map(productCardShop).join('') + '</div>' : '');
           }).join('');
           var legacy = list.filter(function (p) { return ['硅胶模具', 'UV转印贴', '布料与面料', '拉链、纽扣及其他配件'].indexOf(canon(p)) < 0; });
           return head(z) + sections + (legacy.length ? '<div style="grid-column:1/-1;margin:12px 0 4px;"><h3 style="margin:0;">' + t('其他款式', 'Other Styles') + '</h3></div><div style="display:contents">' + legacy.map(productCardShop).join('') + '</div>' : '');

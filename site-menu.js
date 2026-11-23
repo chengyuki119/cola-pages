@@ -293,8 +293,6 @@
         // （不再把照片分区动态塞进这栏；拍立得 / 胶卷分区仍在 /photos/ 页内的分区里）
         var statics = gal.items.filter(function (it) { return it.key === 'bjd' || it.key === 'cards' || it.key === 'photos' || it.key === 'works-all'; });
         gal.items = statics;
-        var ga = areas.gallery;
-        if (ga && ga.title_zh) { gal.zh = ga.title_zh; gal.en = ga.title_en || ga.title_zh; }
       }
       // BJD/色卡（她 20261027 02:16：只要一个按钮，点进去就是列表页）——保持单链接直达
       render(nav);
