@@ -26,7 +26,7 @@
   <script src="/vendor/leaflet/leaflet.markercluster.js?v=20261114B"></script>
   <script src="/vendor/google/markerclusterer.umd.js?v=20261116B"></script>
   <script src="/js/foodie-map-engine.js?v=20261117C"></script>
-  <script src="/js/foodie-map.js?v=20261117C" defer></script>
+  <script src="/js/foodie-map.js?v=20261122D" defer></script>
   <link rel="stylesheet" href="/css/button-theme.css?v=20261117H">
   <style>
     .fd-hero { margin: 4px 0 14px; }
@@ -50,6 +50,17 @@
     .leaflet-container { font-family: inherit; }
     .fd-pin { background: none; border: none; }
     .fd-pop .leaflet-popup-content-wrapper { border-radius: 14px; box-shadow: 0 8px 24px rgba(180,120,150,.2); }
+    .fd-map-detail { position:fixed; inset:0; z-index:1200; display:flex; justify-content:flex-end; background:rgba(40,28,36,.28); padding:16px; }
+    .fd-map-detail[hidden] { display:none; }
+    .fd-map-detail-card { position:relative; width:min(440px,100%); max-height:100%; overflow:auto; padding:20px; border-radius:22px; background:var(--card,#fff); box-shadow:0 16px 50px rgba(70,35,55,.22); color:var(--text,#65515D); }
+    .fd-map-detail-card h2 { margin:12px 36px 8px 0; font-size:23px; }
+    .fd-map-detail-card p { line-height:1.65; white-space:pre-line; }
+    .fd-map-detail-cover { width:100%; max-height:260px; object-fit:contain; border-radius:16px; background:#fff8fb; }
+    .fd-map-detail-close { position:absolute; right:24px; top:24px; z-index:2; width:38px; height:38px; border:0; border-radius:50%; background:#fff; color:#65515D; font-size:26px; cursor:pointer; box-shadow:0 2px 10px #0002; }
+    .fd-map-detail-gallery { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+    .fd-map-detail-gallery img { width:100%; aspect-ratio:1; object-fit:cover; border-radius:12px; }
+    .fd-map-detail-actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:18px; }
+    @media(max-width:560px) { .fd-map-detail { align-items:flex-end; padding:8px; } .fd-map-detail-card { max-height:82vh; border-radius:22px 22px 16px 16px; } }
   </style>
 </head>
 <body>
@@ -115,6 +126,7 @@
       </div>
       <div id="fd-map"></div>
     </div>
+    <div id="fd-map-detail" class="fd-map-detail" hidden></div>
   </div>
 </div>
 

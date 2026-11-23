@@ -19,6 +19,44 @@
   var FILTER = { country: '', q: '', cuisine: '', food: '', price: 0, yuzu: 0 };
   var GEO_BUSY = false;
   var USER_LOC = null; // [lat,lng]（仅本页内存用于定位/附近排序，不上传不存储）
+  var DETAIL_PANEL = null;
+
+  function navUrl(r) {
+    if (r.latitude == null || r.longitude == null) return '';
+    if (r.country_code === 'CN' && window.FoodieCoord && window.FoodieCoord.wgs84ToGcj02) {
+      var g = window.FoodieCoord.wgs84ToGcj02(Number(r.latitude), Number(r.longitude));
+      return 'https://uri.amap.com/navigation?to=' + g[1].toFixed(6) + ',' + g[0].toFixed(6) + ',' + encodeURIComponent(F.rName(r)) + '&mode=car&coordinate=gaode&callnative=1';
+    }
+    return 'https://www.google.com/maps/dir/?api=1&destination=' + r.latitude + ',' + r.longitude;
+  }
+
+  function showRestaurant(r) {
+    if (!DETAIL_PANEL) return;
+    var image = F.imgOf(r), address = F.lang() === 'en' && r.address_en ? r.address_en : r.address;
+    var location = [r.district, r.city, r.region, r.state_or_province, r.postal_code, r.country_name].filter(Boolean).join(', ');
+    var gallery = Array.isArray(r.images) ? r.images.filter(function (u) { return u && u !== image; }) : [];
+    var nav = navUrl(r);
+    DETAIL_PANEL.innerHTML = '<div class="fd-map-detail-card" role="dialog" aria-modal="true" aria-label="' + F.esc(F.rName(r)) + '">' +
+      '<button type="button" class="fd-map-detail-close" aria-label="' + F.esc(F.t('back')) + '">×</button>' +
+      (image ? '<img class="fd-map-detail-cover" src="' + F.esc(image) + '" alt="' + F.esc(F.rName(r)) + '">' : '') +
+      '<h2>' + F.esc(F.rName(r)) + '</h2><div class="fd-card-meta">' + F.yuzuHtml(r.yuzu_rating, true) + F.priceHtml(r) + '</div>' +
+      (F.rDesc(r) ? '<p>' + F.esc(F.rDesc(r)) + '</p>' : '') +
+      (address || location ? '<p><b>' + F.esc(F.t('address')) + ':</b> ' + F.esc(address || '') + (location ? '<br>' + F.esc(location) : '') + '</p>' : '') +
+      (r.phone ? '<p><b>' + F.esc(F.t('phone')) + ':</b> <a href="tel:' + F.esc(r.phone) + '">' + F.esc(r.phone) + '</a></p>' : '') +
+      (r.website ? '<p><a href="' + F.esc(r.website) + '" target="_blank" rel="noopener">' + F.esc(r.website) + '</a></p>' : '') +
+      (gallery.length ? '<div class="fd-map-detail-gallery">' + gallery.map(function (u) { return '<img loading="lazy" src="' + F.esc(u) + '" alt="">'; }).join('') + '</div>' : '') +
+      '<div class="fd-map-detail-actions">' + (nav ? '<a class="fd-map-cta" href="' + F.esc(nav) + '" target="_blank" rel="noopener">' + F.esc(F.t('navigate')) + ' →</a>' : '') +
+      '<button type="button" class="fd-map-cta" data-fd-share>' + F.esc(F.t('share')) + '</button></div></div>';
+    DETAIL_PANEL.hidden = false;
+    DETAIL_PANEL.querySelector('.fd-map-detail-close').onclick = closeRestaurant;
+    DETAIL_PANEL.onclick = function (e) { if (e.target === DETAIL_PANEL) closeRestaurant(); };
+    DETAIL_PANEL.querySelector('[data-fd-share]').onclick = function () {
+      var url = location.origin + F.detailUrl(r);
+      if (navigator.share) navigator.share({ title: F.rName(r), url: url }).catch(function () {});
+      else if (navigator.clipboard) navigator.clipboard.writeText(url).catch(function () {});
+    };
+  }
+  function closeRestaurant() { if (DETAIL_PANEL) { DETAIL_PANEL.hidden = true; DETAIL_PANEL.innerHTML = ''; } }
 
   function passFilter(r) {
     if (FILTER.country && r.country_code !== FILTER.country) return false;
@@ -83,7 +121,8 @@
       }), {
         // 她 20261117 §九：点击地图标记直接进入该餐厅详情页（与列表点击同一目标）
         onMarkerClick: function (r) {
-          location.href = F.detailUrl(r);
+          if (new URLSearchParams(location.search).get('embed') === '1' && window.parent !== window) window.parent.location.href = F.detailUrl(r);
+          else showRestaurant(ALL.filter(function (item) { return item.id === r.id; })[0] || r);
         }
       });
     } catch (e) { /* 标记失败不阻塞 */ }
@@ -244,7 +283,7 @@
         (cs || []).forEach(function (c) { (CATS[c.kind] = CATS[c.kind] || []).push(c); });
       }),
       F.restQuery('status=eq.published&select=' + encodeURIComponent(
-        'id,slug,name,name_i18n,description,city,region,state_or_province,country_code,country_name,district,postal_code,address,address_en,latitude,longitude,cuisine,food_categories,price_level,average_price,currency_code,yuzu_rating,yuzu_note,cover_image,images'
+        'id,slug,name,name_i18n,description,description_i18n,city,region,state_or_province,country_code,country_name,district,postal_code,address,address_en,phone,website,menu_url,parking,reservation,hours,timezone,latitude,longitude,cuisine,food_categories,price_level,average_price,currency_code,yuzu_rating,yuzu_note,cover_image,images'
       )).then(function (rows) { ALL = rows || []; }),
       E.fetchConfig().then(function (cfg) { E._cfg = cfg; }) // 地图服务配置（Google/高德 key）
     ]).then(function () {
@@ -284,8 +323,10 @@
         if (!a) return;
         e.preventDefault();
         var r = ALL.filter(function (x) { return x.id === a.getAttribute('data-rid'); })[0];
-        if (r) location.href = F.detailUrl(r); // 她 20261117 §九：列表点击直接进详情页
+        if (r) showRestaurant(r);
       });
+      DETAIL_PANEL = document.getElementById('fd-map-detail');
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeRestaurant(); });
       applyRegion(true);
       refresh();
       if (FILTER.q) doSearch(FILTER.q);

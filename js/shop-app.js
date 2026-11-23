@@ -576,16 +576,11 @@
       '<a class="back-link page-back" href="' + ykLink('/shop/') + '" style="margin:8px 0 24px 2px;">← ' + t('回小铺', 'Back to shop') + '</a>' +
       '<div class="pdp">' +
         '<div class="d-left"><div class="d-pager" id="d-pager">' + pagerWrapHtml(imgs, dispName(p), { meta: metas, media: media }) + '</div>' +
-        // 她 20261112 01:51 §二：电脑端——商品图片在左上方，商品消息 / 商品类型 / 商品详情全部排在图片正下方；
-        // 右侧只留：名称价格 + 规格选择 + 数量 + 库存 + 加购 + 立即购买 + 购买须知（紧贴按钮下方）。
-        // 手机端不动：.d-notes 在窄屏下 display:contents，原来的上下顺序/间距完全保持。
+        // 商品类型/联系提示保留在图片说明区；商品介绍单独放在购买操作与须知之后。
         '<div class="d-notes">' +
         (needContactType(p) ? '<div class="d-contact card" style="padding:12px 14px;margin:12px 0 0;background:var(--card,#FFFFFF);border:1.5px solid var(--card-border,#F9E5ED);border-radius:16px;">' +
           '<p style="font-size:15px;line-height:1.7;color:var(--text,#65515D);margin:0;">' + t('请联系小柚沟通具体需求和价格。', 'Please contact Yuki to discuss your custom requirements and pricing.') + '</p></div>' : '') +
         (function () { var k = typeKey(p); if (!k || !TYPE_NOTE[k]) return ''; return '<div class="d-type card" style="padding:12px 14px;margin:12px 0 0;background:var(--card,#FFFFFF);border:1.5px solid var(--card-border,#F9E5ED);border-radius:16px;"><b style="font-size:15px;">' + t('商品类型 ♡', 'Product Type ♡') + '</b><p style="font-size:15px;line-height:1.7;color:var(--text,#65515D);margin:6px 0 0;">' + t(TYPE_NOTE[k][0], TYPE_NOTE[k][1]) + '</p></div>'; })() +
-        '<div class="d-desc card" style="padding:12px 14px;margin:12px 0 0;background:var(--card,#FFFFFF);border:1.5px solid var(--card-border,#F9E5ED);border-radius:16px;">' +
-          '<b style="font-size:15px;">' + t('商品详情 ♡', 'Product Description ♡') + '</b>' +
-          '<p style="color:var(--muted);font-size:16px;line-height:1.8;margin:6px 0 0;white-space:pre-line;">' + escBr(LANG === 'en' ? (p.description_en || p.description || '') : (p.description || p.description_en || '')) + '</p></div>' +
         '</div></div>' +
         '<div class="d-info">' +
         '<div class="d-head" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">' +
@@ -619,7 +614,9 @@
               t('下单前请仔细阅读商品描述与图片。手工制品与键帽可能存在轻微瑕疵或正常工艺差异，与描述一致的轻微差异不构成退款理由。详细规则见', 'Please review the description and photos carefully. Handmade items and keycaps may have minor imperfections or variations; minor variations consistent with the description are not grounds for refund. See our ') +
               '<a href="' + ykLink('/return-policy/') + '" style="color:var(--price,#F48FB1);text-decoration:underline;">' + t('《退货与退款政策》', 'Return & Refund Policy') + '</a>' + t('。', '.') + '</p>' +
           '</div>' : '') +
-      // 她 20261108：商品类型卡 + 商品详情卡已经挪到图片下方（见 .d-notes）
+      '<div class="d-desc card" style="padding:12px 14px;margin:16px 0 0;background:var(--card,#FFFFFF);border:1.5px solid var(--card-border,#F9E5ED);border-radius:16px;">' +
+        '<b style="font-size:15px;">' + t('商品详情 ♡', 'Product Description ♡') + '</b>' +
+        '<p style="color:var(--muted);font-size:16px;line-height:1.8;margin:6px 0 0;white-space:pre-line;">' + escBr(LANG === 'en' ? (p.description_en || p.description || '') : (p.description || p.description_en || '')) + '</p></div>' +
       '<div id="d-group-form" style="display:none;margin-top:16px;" class="card"></div>' +
         '</div>' +
       '</div>';
