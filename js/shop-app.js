@@ -352,9 +352,10 @@
     var vs = variantsOf(p);
     if (!vs) return null;
     // 兼容历史空 SKU 数据：sku 为空时按规格名匹配（她 20261102 建规格没填 SKU）
-    return vs.filter(function (v) { return (v.sku || v.name || '') === sku; })[0] || vs.filter(function (v) { return v.sku === sku; })[0] || null;
+    // 她 20261123 转印贴父商品：规格 key 优先（重复 SKU 的款式靠唯一 key 区分，订单里也能分清买的哪款）
+    return vs.filter(function (v) { return (v.key || v.sku || v.name || '') === sku; })[0] || vs.filter(function (v) { return v.sku === sku; })[0] || null;
   }
-  function varKey(v) { return (v && (v.sku || v.name)) || ''; }
+  function varKey(v) { return (v && (v.key || v.sku || v.name)) || ''; }
   /* ── 她 20261104 §五：多维度规格（款式 / 尺寸 / 键盘高度）───────────
      维度直接存在每个规格对象的 dims 上：{款式:'现货款', 尺寸:'1U'}，不新增数据库表。
      一旦所有规格都带 dims 且维度一致，前台就切成「逐维选」；否则维持原来的单层规格胶囊。 */
@@ -402,6 +403,10 @@
     return true;
   }
   function variantsHtml(p, vs, curSku, selIn) {
+    // 她 20261123 任务书 §二/§三：转印贴父商品 —— 一个商品、98 款规格卡片，按 IP/装饰素材两级筛选
+    if (isTransferParent(p)) {
+      return '<div id="d-transfer" style="margin:10px 0;">' + transferBrowserInner(p, vs, curSku) + '</div>';
+    }
     var order = dimsOrder(p);
     if (!order) {
       var activeSeries = '';
@@ -614,9 +619,10 @@
               t('下单前请仔细阅读商品描述与图片。手工制品与键帽可能存在轻微瑕疵或正常工艺差异，与描述一致的轻微差异不构成退款理由。详细规则见', 'Please review the description and photos carefully. Handmade items and keycaps may have minor imperfections or variations; minor variations consistent with the description are not grounds for refund. See our ') +
               '<a href="' + ykLink('/return-policy/') + '" style="color:var(--price,#F48FB1);text-decoration:underline;">' + t('《退货与退款政策》', 'Return & Refund Policy') + '</a>' + t('。', '.') + '</p>' +
           '</div>' : '') +
+      (function () { var dd = LANG === 'en' ? (p.description_en || p.description || '') : (p.description || p.description_en || ''); return dd ? (
       '<div class="d-desc card" style="padding:12px 14px;margin:16px 0 0;background:var(--card,#FFFFFF);border:1.5px solid var(--card-border,#F9E5ED);border-radius:16px;">' +
         '<b style="font-size:15px;">' + t('商品详情 ♡', 'Product Description ♡') + '</b>' +
-        '<p style="color:var(--muted);font-size:16px;line-height:1.8;margin:6px 0 0;white-space:pre-line;">' + escBr(LANG === 'en' ? (p.description_en || p.description || '') : (p.description || p.description_en || '')) + '</p></div>' +
+        '<p style="color:var(--muted);font-size:16px;line-height:1.8;margin:6px 0 0;white-space:pre-line;">' + escBr(dd) + '</p></div>') : ''; })() +
       '<div id="d-group-form" style="display:none;margin-top:16px;" class="card"></div>' +
         '</div>' +
       '</div>';
@@ -697,6 +703,10 @@
     document.querySelectorAll('#d-variants .sku-chip').forEach(function (chip) {
       chip.classList.toggle('on', chip.getAttribute('data-sku') === d.sku);
     });
+    // 她 20261123：转印贴规格卡片的选中态同步（点大图选规格时不重建页面）
+    document.querySelectorAll('#d-transfer .tvar-card').forEach(function (c) {
+      c.classList.toggle('on', c.getAttribute('data-tkey') === d.sku);
+    });
     // 多维度：按已选维度点亮/熄灭
     if (d.selDims) {
       document.querySelectorAll('#d-dims .dim-chip').forEach(function (chip) {
@@ -720,6 +730,8 @@
   }
   function bindDetail() {
     var d = DETAIL, p = d.p, vs = variantsOf(p);
+    // 她 20261123：转印贴父商品的规格浏览器（分类筛选 + 规格卡片）
+    if (isTransferParent(p)) bindTransfer(d, p, vs);
     document.querySelectorAll('#d-variants .sku-chip').forEach(function (chip) {
       chip.addEventListener('click', function () {
         if (chip.classList.contains('dis')) { toast(t('这个规格缺货啦，选一个有货的吧', 'This option is out of stock')); return; }
@@ -2024,6 +2036,95 @@
     if (window.LANG === 'en') return SHOP_MAT_EN[c] || c;
     return c;
   }
+  // 她 20261123 任务书 §二/§三：转印贴分类体系与父商品规格浏览器 ——
+  // 定义在 IIFE 顶层（详情页与列表页两个作用域共用；之前放在 enhanceList 里跨作用域取不到，【74】同款坑）
+  // 她 20261123 任务书 §二：转印贴分 IP / 装饰素材 两大一级分类，IP 按具体 IP 独立分组（以 Excel 实际分类为准，不凭空添加）
+  var TRANSFER_IP_TAGS = ['三丽鸥', '吉伊卡哇', 'Valorant', '角落生物', '哆啦A梦', '轻松熊', 'Mikko', '暴力熊', '兔丸'];
+  var TRANSFER_MAT_TAGS = ['配件', '展示柜', '装饰素材', '键帽', '小动物', '猫咪', '其他'];
+  var TRANSFER_TAG_EN = { '三丽鸥': 'Sanrio', '吉伊卡哇': 'Chiikawa', 'Valorant': 'Valorant', '角落生物': 'Sumikko Gurashi', '哆啦A梦': 'Doraemon', '轻松熊': 'Rilakkuma', 'Mikko': 'Mikko', '暴力熊': 'Violent Bear', '兔丸': 'Usamaru', '配件': 'Accessories', '展示柜': 'Display Cases', '装饰素材': 'Decorations', '键帽': 'Keycaps', '小动物': 'Little Animals', '猫咪': 'Cats', '其他': 'Others' };
+  function transferTagLabel(tg) { return (window.LANG === 'en' && TRANSFER_TAG_EN[tg]) ? TRANSFER_TAG_EN[tg] : tg; }
+  // 她 20261123 任务书 §二：转印贴只有一个父商品（98 款都在它下面的规格里），不再是一堆独立商品
+  function isTransferParent(p) {
+    return String(p.category || '') === '转印贴' && Array.isArray(p.variants) && p.variants.filter(function (v) { return v && v.frozen !== true; }).length > 20;
+  }
+  function transferBrowserInner(p, vs, curSku) {
+    var d = DETAIL;
+    if (!d.vf) d.vf = { g: '', tag: '' };
+    var vf = d.vf;
+    var has = function (list, tg) { return list.indexOf(tg) > -1; };
+    var ipTags = TRANSFER_IP_TAGS.filter(function (tg) { return vs.some(function (v) { return (v.tag || '') === tg; }); });
+    var matTags = TRANSFER_MAT_TAGS.filter(function (tg) { return vs.some(function (v) { return (v.tag || '') === tg; }); });
+    var chip = function (label, attr, on) {
+      return '<button type="button" class="sku-chip' + (on ? ' on' : '') + '" ' + attr + '>' + esc(label) + '</button>';
+    };
+    var row1 = chip(t('全部', 'All'), 'data-tf-g=""', !vf.g) +
+      (ipTags.length ? chip(t('IP 系列', 'IP Series'), 'data-tf-g="ip"', vf.g === 'ip') : '') +
+      (matTags.length ? chip(t('装饰素材', 'Decorations'), 'data-tf-g="mat"', vf.g === 'mat') : '');
+    var subTags = vf.g === 'ip' ? ipTags : (vf.g === 'mat' ? matTags : []);
+    var row2 = subTags.length ? '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">' +
+      subTags.map(function (tg) { return chip(transferTagLabel(tg), 'data-tf-tag="' + escAttr(tg) + '"', vf.tag === tg); }).join('') + '</div>' : '';
+    var list = vs.filter(function (v) {
+      var tg = v.tag || '';
+      if (!vf.g) return true;
+      var inG = vf.g === 'ip' ? has(TRANSFER_IP_TAGS, tg) : has(TRANSFER_MAT_TAGS, tg);
+      return inG && (!vf.tag || tg === vf.tag);
+    });
+    var card = function (v) {
+      var out = variantStock(v) <= 0;
+      var img = (Array.isArray(v.images) && v.images[0])
+        ? '<div style="width:100%;aspect-ratio:1/1;overflow:hidden;border-radius:10px 10px 0 0;background:#FFF8FA;">' +
+          '<img src="' + escAttr(normImg(v.images[0])) + '" alt="' + escAttr(varLabel(v)) + '" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"></div>' : '';
+      var desc = String(v.desc || '');
+      return '<button type="button" class="tvar-card' + (varKey(v) === curSku ? ' on' : '') + (out ? ' dis' : '') + '" data-tkey="' + escAttr(varKey(v)) + '" style="' +
+        'position:relative;text-align:left;padding:0 0 8px;border:1.5px solid ' + (varKey(v) === curSku ? 'var(--accent,#F6C5D7)' : 'var(--card-border,#F9E5ED)') + ';' +
+        'border-radius:12px;background:' + (varKey(v) === curSku ? 'var(--accent-soft,#FCECF2)' : '#FFFFFF') + ';cursor:pointer;font-family:inherit;overflow:hidden;' + (out ? 'opacity:.55;' : '') + '">' +
+        img +
+        '<div style="padding:7px 9px 0;">' +
+          '<div style="font-size:14px;font-weight:600;color:var(--text,#65515D);line-height:1.35;">' + esc(varLabel(v)) + '</div>' +
+          '<div style="font-size:13px;color:var(--price,#F48FB1);font-weight:700;margin-top:3px;">' + priceText(p, v, null) + '</div>' +
+          (desc ? '<div style="font-size:12px;color:var(--muted,#897783);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(desc) + '</div>' : '') +
+        '</div>' +
+        (out ? '<span style="position:absolute;top:6px;right:6px;background:rgba(255,255,255,.92);border:1px solid var(--card-border,#F9E5ED);border-radius:999px;padding:1px 8px;font-size:11px;color:var(--muted,#897783);">' + t('售罄', 'Sold out') + '</span>' : '') +
+      '</button>';
+    };
+    return '<div style="font-size:16px;margin-bottom:6px;">' + t('款式选择 ♡', 'Style Options ♡') +
+        '<span style="margin-left:8px;font-size:13px;color:var(--muted,#897783);">' + t(list.length + ' 款可选', list.length + ' options') + '</span></div>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;">' + row1 + '</div>' + row2 +
+      (list.length
+        ? '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px;margin-top:10px;">' + list.map(card).join('') + '</div>'
+        : '<p style="font-size:14px;color:var(--muted,#897783);margin:12px 0 0;">' + t('这个分类下暂时没有款式～', 'Nothing under this category yet~') + '</p>');
+  }
+  function bindTransfer(d, p, vs) {
+    var box = document.getElementById('d-transfer');
+    if (!box) return;
+    box.querySelectorAll('[data-tf-g]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        d.vf = { g: b.getAttribute('data-tf-g') || '', tag: '' };
+        box.innerHTML = transferBrowserInner(p, vs, d.sku);
+        bindTransfer(d, p, vs);
+      });
+    });
+    box.querySelectorAll('[data-tf-tag]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var tg = b.getAttribute('data-tf-tag') || '';
+        d.vf = { g: d.vf && d.vf.g ? d.vf.g : 'ip', tag: d.vf && d.vf.tag === tg ? '' : tg }; // 再点一次已选二级分类 = 取消筛选
+        box.innerHTML = transferBrowserInner(p, vs, d.sku);
+        bindTransfer(d, p, vs);
+      });
+    });
+    box.querySelectorAll('[data-tkey]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        if (b.classList.contains('dis')) { toast(t('这个款式缺货啦，选一个有货的吧', 'This option is out of stock')); return; }
+        var key = b.getAttribute('data-tkey');
+        if (key === d.sku) return;
+        d.sku = key;
+        var j = galleryIndexOfSku(p, key);
+        d.i = j > -1 ? j : d.i; // 选规格自动定位到该款第一张图（淘宝式，不重建图集）
+        paintDetail();
+        try { history.replaceState(null, '', '?id=' + encodeURIComponent(p.id) + '&sku=' + encodeURIComponent(d.sku)); } catch (err) {}
+      });
+    });
+  }
   function enhanceList() {
     if (window.__ACCOUNT_DEFAULT_SEC) return; // 独立账号页：不拉商品列表
     var grid = document.getElementById('product-grid');
@@ -2032,17 +2133,12 @@
     // 四个区域共用同一套商品卡模板（不另做 UI）；搜索、怎么买、评价返图已按要求删除。
     // 她 20261118 00:25 §三：布艺手工不再单独成区（以后用标签分类，先不管理），只剩建帽 / 款式选择 / 仅供展示
     var SHOP_ZONES = [
-      { key: 'keycap', zh: '建帽', en: 'Keycaps' },
+      { key: 'keycap', zh: '键帽', en: 'Keycaps' },
       { key: 'style', zh: '款式选择', en: 'Style Options' },
       { key: 'display', zh: '仅供展示', en: 'Display Only' }
     ];
     var SHOP_FABRIC_CATS = ['布艺手工', '布艺', '挂件', '摆设']; // 预留：以后按标签分类用，当前不参与分区
     var SHOP_STYLE_CATS = SHOP_MAT_CATS.concat(['贴纸', '模具', '键帽款式', '款式选择']);
-    // 她 20261123 任务书 §二：转印贴分 IP / 装饰素材 两大一级分类，IP 按具体 IP 独立分组（以 Excel 实际分类为准，不凭空添加）
-    var TRANSFER_IP_TAGS = ['三丽鸥', '吉伊卡哇', 'Valorant', '角落生物', '哆啦A梦', '轻松熊', 'Mikko', '暴力熊', '兔丸'];
-    var TRANSFER_MAT_TAGS = ['配件', '展示柜', '装饰素材', '键帽', '小动物', '猫咪', '其他'];
-    var TRANSFER_TAG_EN = { '三丽鸥': 'Sanrio', '吉伊卡哇': 'Chiikawa', 'Valorant': 'Valorant', '角落生物': 'Sumikko Gurashi', '哆啦A梦': 'Doraemon', '轻松熊': 'Rilakkuma', 'Mikko': 'Mikko', '暴力熊': 'Violent Bear', '兔丸': 'Usamaru', '配件': 'Accessories', '展示柜': 'Display Cases', '装饰素材': 'Decorations', '键帽': 'Keycaps', '小动物': 'Little Animals', '猫咪': 'Cats', '其他': 'Others' };
-    function transferTagLabel(tg) { return (window.LANG === 'en' && TRANSFER_TAG_EN[tg]) ? TRANSFER_TAG_EN[tg] : tg; }
     function zoneOf(p) { // 归属：仅供展示（已停售）优先，其次按商品分类落到款式选择，其余都算建帽
       if (p.display_only) return 'display';
       var c = String(p.category || '');
@@ -2067,14 +2163,17 @@
           var canon = function (p) { return ({ '3D模具': '硅胶模具', '转印贴': 'UV转印贴', '布料': '布料与面料' })[p.category] || p.category || ''; };
           var h3 = function (c) { return '<div style="grid-column:1/-1;margin:8px 0 10px;"><h3 style="margin:0 0 5px;font-size:19px;">' + esc(SHOP_MAT_EN[c] && window.LANG === 'en' ? SHOP_MAT_EN[c] : c) + '</h3></div>'; };
           var h4 = function (label, n) { return '<div style="grid-column:1/-1;margin:10px 0 6px;"><h4 style="margin:0;font-size:16px;font-weight:600;color:var(--text,#65515D);">' + esc(label) + (n ? '<span style="margin-left:8px;font-size:13px;font-weight:400;color:var(--muted,#897783);">' + n + '</span>' : '') + '</h4></div>'; };
-          // UV转印贴：两级分组（IP 按具体 IP 独立分组，装饰素材按细分类），不混在一个平铺列表里
+          // UV转印贴：她 20261123 任务书 §二 —— 只有一个父商品「转印贴」，98 款全在它的规格里；父商品直接出卡，不再按 IP 拆独立商品
           var transfer = list.filter(function (p) { return canon(p) === 'UV转印贴'; });
           var transferHtml = '';
           if (transfer.length) {
-            var ipList = transfer.filter(function (p) { return TRANSFER_IP_TAGS.indexOf(p.tag || '') > -1; });
-            var matList = transfer.filter(function (p) { return TRANSFER_MAT_TAGS.indexOf(p.tag || '') > -1; });
-            var otherList = transfer.filter(function (p) { return TRANSFER_IP_TAGS.indexOf(p.tag || '') < 0 && TRANSFER_MAT_TAGS.indexOf(p.tag || '') < 0; });
+            var parents = transfer.filter(function (p) { return isTransferParent(p); });
+            var kids = transfer.filter(function (p) { return !isTransferParent(p); });
             transferHtml += h3('UV转印贴');
+            if (parents.length) transferHtml += '<div style="display:contents">' + parents.map(productCardShop).join('') + '</div>';
+            var ipList = kids.filter(function (p) { return TRANSFER_IP_TAGS.indexOf(p.tag || '') > -1; });
+            var matList = kids.filter(function (p) { return TRANSFER_MAT_TAGS.indexOf(p.tag || '') > -1; });
+            var otherList = kids.filter(function (p) { return TRANSFER_IP_TAGS.indexOf(p.tag || '') < 0 && TRANSFER_MAT_TAGS.indexOf(p.tag || '') < 0; });
             if (ipList.length) {
               transferHtml += '<div style="grid-column:1/-1;margin:2px 0 4px;"><h4 style="margin:0;font-size:15px;font-weight:600;color:var(--muted,#897783);">' + esc(t('IP 系列', 'IP Series')) + '</h4></div>';
               TRANSFER_IP_TAGS.forEach(function (tg) {
@@ -2153,7 +2252,12 @@
       '</div>' +
       '<h3 style="margin-top:6px;">' + esc(dispName(p)) + '</h3>' +
       '<div class="product-row" style="margin-top:auto;">' +
-      '<span class="price">' + priceHtml(curOf(p), p.price === '' ? null : fmtPriceShop(p.price)) + '</span>' +
+      '<span class="price">' + priceHtml(curOf(p), (function () { // 她 20261123：有规格且本价留空的父商品，卡片显示规格价格区间（min-max）而非面议
+        if (p.price !== '' && p.price != null) return fmtPriceShop(p.price);
+        var rng = priceRangeOf(p);
+        if (!rng) return null;
+        return rng.min === rng.max ? fmtPriceShop(rng.min) : fmtPriceShop(rng.min) + t(' 起', '+');
+      })()) + '</span>' +
       '<span class="card-buywrap">' +
       (st === 'on' ? '<button class="buy-btn cart-quick">' + t('加入购物车', 'Add to cart') + '</button>' : '<span class="no-buy">' + (st === 'display' ? t('仅展示，不能下单', 'Not for sale') : '') + '</span>') +
       '</span>' +
