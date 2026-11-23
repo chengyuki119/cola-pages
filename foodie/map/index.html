@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <script src="/js/lang-path.js?v=20261114B"></script>
+  <script>if(new URLSearchParams(location.search).get('embed')==='1')document.documentElement.classList.add('fd-map-embed');</script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Foodie Map · Snow Yuzu</title>
   <meta name="description" content="Explore restaurants around the world on the Snow Yuzu Foodie Map.">
@@ -36,6 +37,13 @@
     .fd-q-clear { border: none; background: none; color: var(--muted,#897783); cursor: pointer; font-size: 15px; line-height: 1; padding: 2px 4px; flex-shrink: 0; font-family: inherit; }
     .fd-q-clear:hover { color: var(--accent-strong,#B98598); }
     .fd-map-cta[disabled] { opacity: .6; cursor: wait; }
+    .fd-map-embed body { margin:0; }
+    .fd-map-embed .topbar,.fd-map-embed .menu-mask,.fd-map-embed .menu,.fd-map-embed .subpage-header,.fd-map-embed .page-back,
+    .fd-map-embed .fd-map-toolbar,.fd-map-embed .fd-regions,.fd-map-embed .fd-map-side,.fd-map-embed footer { display:none !important; }
+    .fd-map-embed .page-body.fd-page-wide { max-width:none !important; width:100% !important; padding:0 !important; margin:0 !important; }
+    .fd-map-embed .fd-wrap,.fd-map-embed .fd-wrap-wide { max-width:none !important; width:100% !important; margin:0 !important; padding:0 !important; }
+    .fd-map-embed .fd-map-page { display:block !important; }
+    .fd-map-embed #fd-map { width:100% !important; height:68vh !important; min-height:390px; border:0; border-radius:0; }
     @media (max-width: 560px) { .fd-map-toolbar { gap: 8px; } .fd-map-cta { padding: 9px 14px; font-size: 15px; } }
     .fd-icon-btn { width: 42px; height: 42px; border-radius: 50%; border: 1.5px solid var(--card-border,#F9E5ED); background: var(--card,#FFFFFF); color: var(--muted,#897783); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
     .fd-icon-btn:hover { background: var(--opt-bg-h,#F6C5D7); }

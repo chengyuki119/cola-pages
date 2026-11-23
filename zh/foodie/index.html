@@ -1,324 +1,48 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-Hans">
 <head>
   <meta charset="utf-8">
   <script src="/js/lang-path.js?v=20261114B"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Foodie Map · Snow Yuzu</title>
-  <meta name="description" content="Snow Yuzu Foodie Map — a global food map: find restaurants across the US, Japan, Taiwan, Mainland China and Canada, with Yuki's own yuzu-rated picks.">
-  <link rel="canonical" href="https://yukicheng.com/foodie/">
-  <meta property="og:title" content="Foodie Map · Snow Yuzu">
-  <meta property="og:description" content="A global food map with yuzu-rated restaurant picks.">
-  <meta property="og:url" content="https://yukicheng.com/foodie/">
-  <meta property="og:image" content="https://yukicheng.com/og-image.jpg">
+  <title>美食地图 · Snow Yuzu</title>
+  <meta name="description" content="Explore the Snow Yuzu Foodie Map and find Yuki’s restaurant picks or spin for nearby food.">
+  <link rel="canonical" href="https://yukicheng.com/zh/foodie/">
   <link rel="icon" type="image/png" sizes="32x32" href="/icon-yuki2-32.png">
-<link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki2-180.png">
   <link rel="stylesheet" href="/css/site.css?v=20261117N">
   <link rel="stylesheet" href="/site-menu.css?v=20261117M">
-  <link rel="stylesheet" href="/css/foodie.css?v=20261117F">
+  <link rel="stylesheet" href="/css/foodie.css?v=20261117J">
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261117H">
   <script src="/js/site-common.js?v=20261117C"></script>
   <script src="/site-menu.js?v=20261117R" defer></script>
-<script src="/js/page-covers.js?v=20261117A" defer></script>
-  <script src="/js/foodie-app.js?v=20261117B" defer></script>
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261117H">
   <style>
-    .fd-hero { margin: 4px 0 18px; }
-    .fd-hero h1 { font-size: 25px; font-weight: 700; color: var(--text,#65515D); margin: 0; }
-    .fd-hero p { font-size: 16px; color: var(--muted,#897783); margin: 6px 0 0; line-height: 1.7; }
-    /* .fd-map-cta 几何/配色统一走 css/foodie.css + css/button-theme.css（她 20261117 15:32），页内不再重复定义 */
+    .fd-home-map{width:100%;height:min(68vh,690px);min-height:390px;border:1.5px solid var(--card-border,#F9E5ED);border-radius:20px;overflow:hidden;background:var(--accent-soft,#FCECF2)}
+    .fd-home-map iframe{display:block;width:100%;height:100%;border:0}
+    .fd-home-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:18px 0 28px}
+    .fd-home-link{min-height:94px;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;border:1.5px solid var(--card-border,#F9E5ED);border-radius:20px;background:#fff;color:var(--text,#65515D);text-decoration:none;font-size:20px;font-weight:700;box-shadow:0 5px 18px rgba(180,120,150,.08);transition:transform .18s,border-color .18s}
+    .fd-home-link:hover{transform:translateY(-2px);border-color:#E79EC0;background:var(--accent-soft,#FCECF2)}
+    @media(max-width:640px){.fd-home-map{height:56vh;min-height:340px}.fd-home-links{grid-template-columns:1fr;gap:12px}.fd-home-link{min-height:72px;font-size:18px}}
   </style>
 </head>
 <body>
-
 <header class="topbar">
-    <div class="lang-switch">
-    <button class="lang-btn" data-lang="zh">简体中文</button>
-    <button class="lang-btn" data-lang="en">English</button>
-  </div>
-  <a class="site-logo" href="/" aria-label="Back to home"><img src="/logo.png" alt="logo"></a>
+  <div class="lang-switch"><button class="lang-btn" data-lang="zh">简体中文</button><button class="lang-btn" data-lang="en">English</button></div>
+  <a class="site-logo" href="/" aria-label="Back to home"><img src="/logo.png" alt="Snow Yuzu"></a>
   <div class="topbar-right">
-    <a class="topbar-cart" id="topbar-cart" href="/shop/?sec=cart" aria-label="Cart">
-      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3.5h2.2l2.3 11.2a1.8 1.8 0 0 0 1.8 1.4h8.5a1.8 1.8 0 0 0 1.8-1.4l1.5-8.2H6"/></svg>
-      <span class="topbar-cart-badge" id="topbar-cart-badge" style="display:none;">0</span>
-    </a>
-    <button class="topbar-acct" id="topbar-acct" aria-label="账号">
-      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8.2" r="3.4"/><path d="M5 20c.8-3.6 3.6-5.6 7-5.6s6.2 2 7 5.6"/></svg>
-      <span class="topbar-acct-dot"></span>
-    </button>
-
-    <button class="burger" id="burger" aria-label="Menu">
-      <span></span><span></span><span></span>
-    </button>
+    <a class="topbar-cart" id="topbar-cart" href="/shop/?sec=cart" aria-label="Cart"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3.5h2.2l2.3 11.2a1.8 1.8 0 0 0 1.8 1.4h8.5a1.8 1.8 0 0 0 1.8-1.4l1.5-8.2H6"/></svg></a>
+    <button class="topbar-acct" id="topbar-acct" aria-label="Account"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8.2" r="3.4"/><path d="M5 20c.8-3.6 3.6-5.6 7-5.6s6.2 2 7 5.6"/></svg><span class="topbar-acct-dot"></span></button>
+    <button class="burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
   </div>
 </header>
-<div class="menu-mask" id="menu-mask"></div>
-<nav class="menu" id="menu"></nav>
-
-<div class="subpage-header">
-  <h1 class="subpage-title" data-zh="美食地图" data-en="Foodie Map">Foodie Map</h1>
-</div>
-<a class="back-link page-back" href="/" style="margin:8px 0 24px 2px;"><span data-zh="← 返回主页" data-en="← Back to Home">← Back to Home</span></a>
-
-<div class="page-body" style="padding-top:6px;">
-  <div class="fd-wrap">
-    <div class="fd-hero">
-      <p id="fd-sub"></p>
-      <button type="button" class="fd-map-cta" id="fd-suggest-btn" style="margin-top:14px;"></button>
-      <a class="fd-map-cta" id="fd-eat-btn" href="/zh/what-to-eat/" style="margin:14px 0 0 8px;" data-zh="今天吃什么" data-en="What To Eat Today">今天吃什么</a>
-    </div>
-
-    <div class="fd-sec">
-      <form class="fd-search" id="fd-search-form" action="#">
-        <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-        <input type="search" id="fd-q" autocomplete="off">
-        <button class="fd-map-cta" type="submit" style="" id="fd-search-go">Go</button>
-      </form>
-      <div class="fd-regions" id="fd-regions"></div>
-    </div>
-
-    <div class="fd-sec" id="sec-yuzu">
-      <h2 class="fd-sec-title"><span id="t-yuzu"></span><a class="fd-more" id="more-yuzu" href="#"></a></h2>
-      <div class="fd-scroll" id="list-yuzu"></div>
-    </div>
-
-</div>
-
-</div>
-
-    <div class="fd-sec" style="text-align:center;">
-      <a class="fd-map-cta" id="fd-map-link" href="/foodie/map/">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3.5 6v14L9 18l6 2 5.5-2V4L15 6z"/><path d="M9 4v14"/><path d="M15 6v14"/></svg>
-        <span id="t-mapcta"></span>
-      </a>
-    </div>
+<div class="menu-mask" id="menu-mask"></div><nav class="menu" id="menu"></nav>
+<div class="subpage-header"><h1 class="subpage-title" data-zh="美食地图" data-en="Foodie Map">Foodie Map</h1><p class="subpage-sub" data-zh="先看看地图，再选你想去的方式" data-en="Start with the map, then choose where to go">Start with the map, then choose where to go</p></div>
+<div class="page-body" style="padding-top:8px">
+  <div class="fd-home-map"><iframe title="Foodie Map" src="/zh/foodie/map/?embed=1" loading="eager" allow="geolocation"></iframe></div>
+  <div class="fd-home-links">
+    <a class="fd-home-link" href="/foodie/map/" data-zh="柚子推荐地图" data-en="Yuki's Recommendation Map">Yuki's Recommendation Map</a>
+    <a class="fd-home-link" href="/what-to-eat/" data-zh="食物转盘" data-en="Food Wheel">Food Wheel</a>
   </div>
 </div>
-
 <script src="/js/site-footer.js?v=20261114B" defer></script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  var F = window.FOODIE;
-  if (!F) return;
-  var REGION = ''; // '' = Global
-
-  function applyStaticText() {
-    document.getElementById('fd-q').placeholder = F.t('searchPh');
-    document.getElementById('fd-search-go').textContent = F.t('map');
-    document.getElementById('t-yuzu').textContent = F.t('yuzuPicks');
-    document.getElementById('t-mapcta').textContent = F.t('openMap');
-    document.getElementById('fd-suggest-btn').textContent = F.t('suggest');
-    document.getElementById('fd-eat-btn').href = '/zh/what-to-eat/';
-    var qs = REGION ? '?country=' + REGION : '';
-    document.getElementById('more-yuzu').textContent = F.t('seeAll');
-    document.getElementById('more-yuzu').href = '/foodie/map/' + qs;
-    document.getElementById('fd-map-link').href = '/foodie/map/' + qs;
-    document.title = 'Foodie Map · Snow Yuzu';
-  }
-
-  function renderRegions(regions) {
-    var box = document.getElementById('fd-regions');
-    var chips = ['<button type="button" class="fd-region-chip' + (REGION === '' ? ' on' : '') + '" data-rc="">' + F.esc(F.t('global')) + '</button>'];
-    regions.forEach(function (r) {
-      var label = F.lang() === 'en' ? r.name : (r.name_zh || r.name);
-      chips.push('<button type="button" class="fd-region-chip' + (REGION === r.code ? ' on' : '') + '" data-rc="' + F.esc(r.code) + '">' + F.esc(label) + '</button>');
-    });
-    box.innerHTML = chips.join('');
-    box.onclick = function (e) {
-      var b = e.target.closest('[data-rc]');
-      if (!b) return;
-      REGION = b.getAttribute('data-rc') || '';
-      renderRegions(regions);
-      applyStaticText();
-      load();
-    };
-  }
-
-  function fillList(id, rows, horiz) {
-    var el = document.getElementById(id);
-    if (!rows.length) { el.innerHTML = '<div class="fd-empty" style="width:100%;">' + F.esc(F.t('empty')) + '</div>'; return; }
-    el.innerHTML = rows.map(F.cardHtml).join('');
-  }
-
-  function restFilter(extra) {
-    var base = 'status=eq.published&select=*&';
-    if (REGION) base += 'country_code=eq.' + encodeURIComponent(REGION) + '&';
-    return base + (extra || '');
-  }
-
-  function load() {
-    var countrySel = REGION ? '&country_code=eq.' + encodeURIComponent(REGION) : '';
-    F.restQuery('status=eq.published&select=*&yuzu_rating=not.is.null' + countrySel + '&order=yuzu_rating.desc.nullslast,created_at.desc&limit=10')
-      .then(function (rows) { fillList('list-yuzu', rows); });
-  }
-
-  F.loadRegions().then(function (regions) { renderRegions(regions || []); });
-  F.loadCats();
-  applyStaticText();
-  load();
-
-  document.getElementById('fd-search-form').addEventListener('submit', function (e) {
-    e.preventDefault();
-    var q = (document.getElementById('fd-q').value || '').trim();
-    location.href = (window.ykLink || function (x) { return x; })('/foodie/map/') + (q ? '?q=' + encodeURIComponent(q) : '') + (REGION ? (q ? '&' : '?') + 'country=' + REGION : '');
-  });
-
-  /* ── Phase 2 投稿弹层（她 20261115）： anon 可提交，守卫触发器强制 pending ── */
-  var REGIONS_L = [], CATS_L = [];
-  F.loadRegions().then(function (rs) { REGIONS_L = rs || []; });
-  F.loadCats().then(function (cs) { CATS_L = cs || []; });
-
-  // 她 20261117 §十：添加餐厅需登录——未登录提示并带 next 跳登录页；后端 guard/policy 同步拦截
-  function sessInfo() {
-    var s = null;
-    try { s = JSON.parse(localStorage.getItem('yuki-user-session') || 'null') || JSON.parse(localStorage.getItem('yuki-admin-session') || 'null'); } catch (e) {}
-    return (s && (s.a || s.r)) ? s : null;
-  }
-  document.getElementById('fd-suggest-btn').addEventListener('click', function () {
-    if (!sessInfo()) {
-      toastish(F.t('loginFirst'));
-      setTimeout(function () {
-        var lk = (typeof window.ykLink === 'function') ? window.ykLink('/account/') : '/account/';
-        location.href = lk + '?next=' + encodeURIComponent(location.pathname + location.search);
-      }, 1200);
-      return;
-    }
-    openSuggest();
-  });
-
-  function closeSuggest() {
-    var ov = document.getElementById('fd-suggest');
-    if (ov) ov.remove();
-    document.body.style.overflow = '';
-    document.removeEventListener('keydown', escClose);
-  }
-  function escClose(e) { if (e.key === 'Escape') closeSuggest(); }
-
-  function openSuggest() {
-    closeSuggest();
-    var fld = function (id, label, type) {
-      return '<div class="fd-field"><label for="' + id + '">' + F.esc(label) + '</label><input id="' + id + '" type="' + (type || 'text') + '"></div>';
-    };
-    var priceChips = [1, 2, 3, 4].map(function (n) {
-      return '<button type="button" class="fd-s-chip" data-pv="' + n + '">' + '$'.repeat(n) + '</button>';
-    }).join('');
-    var catChips = function (kind, domId, label) {
-      return '<div class="fd-field"><label>' + F.esc(label) + '</label><div class="fd-chips" id="' + domId + '">' +
-        CATS_L.filter(function (c) { return c.kind === kind; }).map(function (c) {
-          return '<button type="button" class="fd-s-chip" data-ck="' + F.esc(c.key) + '">' + F.esc(F.lang() === 'en' ? c.label_en : (c.label_zh || c.label_en)) + '</button>';
-        }).join('') + '</div></div>';
-    };
-    var ov = document.createElement('div');
-    ov.id = 'fd-suggest'; ov.className = 'fd-modal';
-    ov.innerHTML =
-      '<div class="fd-modal-card" role="dialog" aria-modal="true">' +
-      '<button type="button" class="fd-modal-x" aria-label="Close">✕</button>' +
-      '<h3 class="fd-modal-title">' + F.esc(F.t('sTitle')) + '</h3>' +
-      '<p class="fd-modal-sub">' + F.esc(F.t('sIntro')) + '</p>' +
-      '<div class="fd-frow">' + fld('fs-name', F.t('sName')) + '</div>' +
-      '<div class="fd-frow">' + fld('fs-name-zh', F.t('sNameZh')) + '</div>' +
-      '<div class="fd-frow fd-2col">' +
-      '<div class="fd-field"><label for="fs-region">' + F.esc(F.t('sRegion')) + '</label><select id="fs-region"><option value="">' + F.esc(F.t('sSelect')) + '</option>' +
-      REGIONS_L.map(function (r) { return '<option value="' + F.esc(r.code) + '">' + F.esc(F.lang() === 'en' ? r.name : (r.name_zh || r.name)) + '</option>'; }).join('') +
-      '</select></div>' + fld('fs-city', F.t('sCity')) + '</div>' +
-      '<div class="fd-frow">' + fld('fs-addr', F.t('sAddr')) + '</div>' +
-      '<div class="fd-frow fd-2col">' + catChips('cuisine', 'fs-cuisine', F.t('sCuisine')) + catChips('food_type', 'fs-food', F.t('sFood')) + '</div>' +
-      '<div class="fd-frow fd-2col">' +
-      '<div class="fd-field"><label>' + F.esc(F.t('sPrice')) + '</label><div class="fd-chips" id="fs-price">' + priceChips + '</div></div>' +
-      fld('fs-avg', F.t('sAvg'), 'number') + '</div>' +
-      '<div class="fd-frow">' + fld('fs-photo', F.t('sPhoto'), 'url') + '</div>' +
-      '<div class="fd-frow"><div class="fd-field"><label for="fs-why">' + F.esc(F.t('sWhy')) + '</label><textarea id="fs-why" rows="3"></textarea></div></div>' +
-      '<div class="fd-frow">' + fld('fs-email', F.t('sEmail'), 'email') + '</div>' +
-      '<input type="text" id="fs-hp" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;">' +
-      '<div class="fd-frow" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">' +
-      '<button type="button" class="fd-map-cta" id="fs-send">' + F.esc(F.t('sSend')) + '</button>' +
-      '<span class="fd-smsg" id="fs-msg"></span></div>' +
-      '</div>';
-    var sess = sessInfo();
-    if (sess && sess.email) { // 已登录：邮箱自动带出（后端按登录身份记录），不再要求手填
-      var eRow = ov.querySelector('#fs-email').closest('.fd-frow');
-      if (eRow) eRow.style.display = 'none';
-      ov.querySelector('#fs-email').value = sess.email;
-    }
-    document.body.appendChild(ov);
-    document.body.style.overflow = 'hidden';
-    document.addEventListener('keydown', escClose);
-    ov.addEventListener('click', function (e) { if (e.target === ov) closeSuggest(); });
-    ov.querySelector('.fd-modal-x').addEventListener('click', closeSuggest);
-    ov.querySelector('#fs-cuisine').addEventListener('click', chipToggle);
-    ov.querySelector('#fs-food').addEventListener('click', chipToggle);
-    ov.querySelector('#fs-price').addEventListener('click', function (e) {
-      var b = e.target.closest('.fd-s-chip'); if (!b) return;
-      var on = b.classList.contains('on');
-      ov.querySelectorAll('#fs-price .fd-s-chip').forEach(function (x) { x.classList.remove('on'); });
-      if (!on) b.classList.add('on');
-    });
-    ov.querySelector('#fs-send').addEventListener('click', submitSuggest);
-  }
-  function chipToggle(e) {
-    var b = e.target.closest('.fd-s-chip');
-    if (b) b.classList.toggle('on');
-  }
-  function chipsOn(id) {
-    return Array.prototype.slice.call(document.querySelectorAll('#' + id + ' .fd-s-chip.on')).map(function (b) { return b.getAttribute('data-ck'); });
-  }
-  function submitSuggest() {
-    var v = function (id) { return (document.getElementById(id).value || '').trim(); };
-    var msg = document.getElementById('fs-msg');
-    var fail = function (t) { msg.textContent = t; msg.style.color = '#C4636E'; };
-    var name = v('fs-name');
-    var cc = v('fs-region');
-    var city = v('fs-city');
-    var addr = v('fs-addr');
-    var why = v('fs-why');
-    var email = v('fs-email') || (sessInfo() && sessInfo().email) || '';
-    if (!name) return fail(F.t('sErrName'));
-    if (!cc) return fail(F.t('sErrRegion'));
-    if (!city) return fail(F.t('sErrCity'));
-    if (!addr) return fail(F.t('sErrAddr'));
-    if (!why) return fail(F.t('sErrWhy'));
-    if (!email || email.indexOf('@') < 1) return fail(F.t('sErrEmail'));
-    var hp = document.getElementById('fs-hp');
-    if (hp && hp.value) { closeSuggest(); return; } // 蜜罐字段：机器人填了就静默丢弃
-    var reg = REGIONS_L.filter(function (x) { return x.code === cc; })[0];
-    var avg = v('fs-avg');
-    var photo = v('fs-photo');
-    var payload = {
-      name: name,
-      name_i18n: v('fs-name-zh') ? { 'zh-Hans': v('fs-name-zh') } : {},
-      country_code: cc, country_name: reg ? reg.name : '',
-      city: city, address: addr,
-      cuisine: chipsOn('fs-cuisine'), food_categories: chipsOn('fs-food'),
-      price_level: Number((document.querySelector('#fs-price .fd-s-chip.on') || {}).getAttribute && (document.querySelector('#fs-price .fd-s-chip.on').getAttribute('data-pv')) || 0) || null,
-      average_price: avg ? Number(avg) : null,
-      currency_code: reg ? reg.currency_code : '',
-      images: photo ? [photo] : []
-    };
-    var btn = document.getElementById('fs-send');
-    btn.disabled = true; btn.textContent = F.t('sSending');
-    F.post('food_restaurant_submissions', { user_email: email, note: why, payload: payload }).then(function (res) {
-      btn.disabled = false; btn.textContent = F.t('sSend');
-      if (res && res.ok) {
-        closeSuggest();
-        toastish(F.t('sDone'));
-        return;
-      }
-      var m = (res && res.message) || '';
-      if (m.indexOf('联系邮箱') > -1) m = F.t('sErrEmail');
-      else if (m.indexOf('满 3 条') > -1) m = F.t('sTooMany');
-      else if (F.lang() !== 'zh-Hans') m = m || F.t('sNetErr');
-      else m = m || F.t('sNetErr');
-      fail(m);
-    });
-  }
-  function toastish(text) {
-    var el = document.createElement('div');
-    el.className = 'fd-toast';
-    el.textContent = text;
-    document.body.appendChild(el);
-    setTimeout(function () { el.classList.add('show'); }, 20);
-    setTimeout(function () { el.classList.remove('show'); setTimeout(function () { el.remove(); }, 400); }, 3400);
-  }
-});
-</script>
+<script>document.addEventListener('DOMContentLoaded',function(){var l=window.LANG==='zh'?'/zh/foodie/map/?embed=1':'/foodie/map/?embed=1';var f=document.querySelector('.fd-home-map iframe');if(f)f.src=l;var a=document.querySelectorAll('.fd-home-link');if(a.length>1&&window.LANG==='zh')a[1].href='/zh/what-to-eat/';if(a.length&&window.LANG==='zh')a[0].href='/zh/foodie/map/';});</script>
 </body>
 </html>
