@@ -2111,6 +2111,17 @@
     paint();
     // 接管旧脚本的 renderProducts：商品异步加载完成后仍走增强列表
     window.renderProducts = function () { paint(); };
+    // 她 20261123 实测竞态兑底：老脚本加载链若在接管前调用过旧 renderProducts（或中途抛错被 catch），
+    // 接管后不会再有人补画 —— PRODUCTS 有货但网格为空时短轮询补画（线上偶发空列表的根因）
+    (function repaintWatch(n) {
+      if (n > 20) return;
+      setTimeout(function () {
+        try {
+          if (PRODUCTS.length && !document.querySelectorAll('#product-grid .product').length) paint();
+        } catch (e) {}
+        repaintWatch(n + 1);
+      }, 300);
+    })(0);
   }
   // 增强版商品卡：整卡进详情 + 加入购物车 + 保留「找我下单」
   function galleryImgs(p) { // 她 20261103：一个商品在一个语言页只显示一张对应语言封面——
