@@ -2007,36 +2007,6 @@
   var SHOP_MAT_EN = { '转印贴': 'Transfer Stickers', '三丽鸥': 'Sanrio', '瓦罗兰特': 'Valorant', '轻松熊': 'Rilakkuma', '角落生物': 'Corner Creatures', '暴力熊': 'Violent Bear', '装饰品': 'Decoration', '其他转印贴': 'Other Transfer Stickers', '3D模具': '3D Molds', '布料': 'Fabrics' };
   var SHOP_SECTION_KEY = 'yuki-shop-section';
   var SHOP_MAT_KEY = 'yuki-shop-matcat';
-  var SHOP_CATEGORY_COVER = '';
-  var SHOP_COVER_CATEGORIES = [
-    { key: 'ready', zh: '现货', en: 'Ready To Ship', imageZh: 2, imageEn: 1, terms: ['现货', 'ready to ship', 'in stock'] },
-    { key: 'price', zh: '价格表', en: 'Price List', imageZh: 4, imageEn: 3, terms: ['价格表', 'price list'] },
-    { key: 'sticker', zh: '转印贴', en: 'Sticker Styles', imageZh: 6, imageEn: 5, terms: ['转印贴', 'transfer stickers', 'sticker'] },
-    { key: 'mold', zh: '模具款', en: '3D Styles', imageZh: 8, imageEn: 7, terms: ['模具款', '3d模具', '3d mold', '3d style'] },
-    { key: 'fabric', zh: '布料', en: 'Fabrics', imageZh: 10, imageEn: 9, terms: ['布料', 'fabrics', 'fabric'] }
-  ];
-  if (!document.getElementById('shop-category-covers-style')) {
-    var coverStyle = document.createElement('style'); coverStyle.id = 'shop-category-covers-style';
-    coverStyle.textContent = '#shop-category-covers{margin:0 0 20px}.shop-cover-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 12px}.shop-cover-head h2{font-size:22px;margin:0;color:var(--text,#65515D)}.shop-cover-all{border:1px solid #F6C5D7;background:#fff;color:var(--text,#65515D);border-radius:999px;padding:8px 14px;font:inherit;cursor:pointer}.shop-cover-all.on{background:#F9E5ED}.shop-cover-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}.shop-cover-card{padding:0;overflow:hidden;border:1.5px solid #F9E5ED;border-radius:16px;background:#fff;color:var(--text,#65515D);font:inherit;cursor:pointer;text-align:center;transition:transform .15s,border-color .15s}.shop-cover-card:hover{transform:translateY(-2px);border-color:#E79EC0}.shop-cover-card.on{border:2px solid #E79EC0;box-shadow:0 3px 12px rgba(180,120,150,.16)}.shop-cover-card img{display:block;width:100%;aspect-ratio:1;object-fit:contain;background:#51301F}.shop-cover-card span{display:block;padding:9px 6px;font-weight:600}@media(max-width:760px){.shop-cover-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.shop-cover-head h2{font-size:19px}}';
-    document.head.appendChild(coverStyle);
-  }
-  function categoryCoverRender() {
-    var box = document.getElementById('shop-category-covers'); if (!box) return;
-    var en = window.LANG === 'en';
-    box.innerHTML = '<div class="shop-cover-head"><h2>' + (en ? 'Browse Categories' : '按分类浏览') + '</h2>' +
-      '<button type="button" data-shop-cover="" class="shop-cover-all' + (!SHOP_CATEGORY_COVER ? ' on' : '') + '">' + (en ? 'All Items' : '全部商品') + '</button></div>' +
-      '<div class="shop-cover-grid">' + SHOP_COVER_CATEGORIES.map(function (c) {
-        var name = en ? c.en : c.zh, image = en ? c.imageEn : c.imageZh;
-        return '<button type="button" class="shop-cover-card' + (SHOP_CATEGORY_COVER === c.key ? ' on' : '') + '" data-shop-cover="' + c.key + '" aria-pressed="' + (SHOP_CATEGORY_COVER === c.key) + '"><img src="/assets/category-covers/' + image + '.png" alt="' + name + '" loading="lazy"><span>' + name + '</span></button>';
-      }).join('') + '</div>';
-    box.onclick = function (e) { var b = e.target.closest('[data-shop-cover]'); if (!b) return; SHOP_CATEGORY_COVER = b.getAttribute('data-shop-cover') || ''; categoryCoverRender(); if (window.__shopPaint) window.__shopPaint(); };
-  }
-  function matchesCoverCategory(p, category) {
-    if (!category) return true;
-    var spec = SHOP_COVER_CATEGORIES.filter(function (c) { return c.key === category; })[0]; if (!spec) return true;
-    var hay = [p.category, p.tag, p.name, p.name_en].concat((p.variants || []).map(function (v) { return v && v.name; })).join(' ').toLowerCase();
-    return spec.terms.some(function (term) { return hay.indexOf(term.toLowerCase()) !== -1; });
-  }
   window.__shopQ = '';
   function isMat(p) { return SHOP_MAT_CATS.indexOf(p.category) > -1; }
   function dispCat(p) {
@@ -2068,7 +2038,7 @@
       var g = document.getElementById('product-grid');
       if (!g) return;
       var groups = { keycap: [], style: [], display: [] };
-      PRODUCTS.filter(function (p) { return matchesCoverCategory(p, SHOP_CATEGORY_COVER); }).forEach(function (p) { groups[zoneOf(p)].push(p); });
+      PRODUCTS.forEach(function (p) { groups[zoneOf(p)].push(p); });
       var head = function (z) {
         return '<div style="grid-column:1/-1;margin:6px 0 -2px;">' +
           '<h2 style="font-size:23px;margin:0 0 12px;display:flex;align-items:center;gap:8px;">' +
@@ -2086,7 +2056,6 @@
     }
     function statusOfG(p) { if (p.display_only) return 'display'; if (p.sold) return 'out'; var ts = totalStock(p); if (ts != null) return ts > 0 ? 'on' : 'out'; if (!(p.stock > 0)) return 'out'; return 'on'; }
     window.__shopPaint = paint;
-    categoryCoverRender();
     paint();
     // 接管旧脚本的 renderProducts：商品异步加载完成后仍走增强列表
     window.renderProducts = function () { paint(); };
