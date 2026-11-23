@@ -36,8 +36,7 @@
     ]},
     { key: 'explore', num: '04', zh: '探索', en: 'Explore', nav: 'foodie', url: '/foodie/', items: [
       { key: 'foodie', zh: '美食地图', en: 'Food Map', page: 'foodie', url: '/foodie/', path: '/foodie/', area: 'foodie' },
-      { key: 'yuzurec', zh: '柚子推荐', en: 'Yuki\'s Picks', page: 'foodie', url: '/foodie/?sec=yuzu', sec: 'yuzu', path: '/foodie/', area: 'foodie' },
-      { key: 'food-wheel', zh: '今天吃什么', en: 'What To Eat Today', page: 'food-wheel', url: '/what-to-eat/' }
+      { key: 'yuzurec', zh: '柚子推荐', en: 'Yuki\'s Picks', page: 'foodie', url: '/foodie/?sec=yuzu', sec: 'yuzu', path: '/foodie/', area: 'foodie' }
       // 她 20261117 23:14 §三-4：「地图找餐厅」入口删除，探索只留美食地图 + 柚子推荐
     ]},
     { key: 'account', num: '05', zh: '账号', en: 'Account', url: '/account/', items: [
@@ -64,7 +63,7 @@
     if (p.indexOf('/works/') === 0) return 'works';
     if (p.indexOf('/shop/') === 0 || p.indexOf('/shop.html') === 0) return 'shop';
     if (p.indexOf('/foodie/') === 0) return 'foodie';
-    if (p.indexOf('/what-to-eat/') === 0) return 'food-wheel';
+    if (p.indexOf('/what-to-eat/') === 0) return 'what-to-eat';
     if (p.indexOf('/askbox/') === 0) return 'askbox';
     if (p.indexOf('/about/') === 0) return 'about';
     if (p.indexOf('/account/') === 0) return 'account';

@@ -2,40 +2,31 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
-  <script src="/js/lang-path.js?v=20261122A"></script>
+  <script src="/js/lang-path.js?v=20261122B"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>今天吃什么 · Snow Yuzu</title>
-  <meta name="description" content="让 Snow Yuzu 食物转盘帮你决定今天吃什么。">
+  <title>今天吃什么 · 美食地图 · Snow Yuzu</title>
+  <meta name="description" content="根据真实定位搜索附近美食，让转盘帮你决定今天吃什么。">
   <link rel="canonical" href="https://yukicheng.com/zh/what-to-eat/">
   <link rel="icon" type="image/png" sizes="32x32" href="/icon-yuki2-32.png">
-  <link rel="stylesheet" href="/css/site.css?v=20261117N">
-  <link rel="stylesheet" href="/site-menu.css?v=20261117M">
-  <link rel="stylesheet" href="/css/button-theme.css?v=20261117H">
-  <link rel="stylesheet" href="/css/food-wheel.css?v=20261122A">
-  <script src="/js/site-common.js?v=20261117C"></script>
-  <script src="/site-menu.js?v=20261122A" defer></script>
-  <script src="/js/food-wheel.js?v=20261122A" defer></script>
+  <link rel="stylesheet" href="/css/site.css?v=20261117N"><link rel="stylesheet" href="/site-menu.css?v=20261117M"><link rel="stylesheet" href="/css/foodie.css?v=20261117J"><link rel="stylesheet" href="/css/button-theme.css?v=20261117H">
+  <link rel="stylesheet" href="/vendor/leaflet/leaflet.css?v=20261114B"><link rel="stylesheet" href="/vendor/leaflet/MarkerCluster.css?v=20261114B"><link rel="stylesheet" href="/vendor/leaflet/MarkerCluster.Default.css?v=20261114B"><link rel="stylesheet" href="/css/food-wheel.css?v=20261122B">
+  <script src="/js/site-common.js?v=20261117C"></script><script src="/site-menu.js?v=20261122B" defer></script><script src="/js/foodie-coord.js?v=20261116B"></script><script src="/vendor/leaflet/leaflet.js?v=20261114B"></script><script src="/vendor/leaflet/leaflet.markercluster.js?v=20261114B"></script><script src="/vendor/google/markerclusterer.umd.js?v=20261116B"></script><script src="/js/foodie-map-engine.js?v=20261122B"></script><script src="/js/foodie-today.js?v=20261122B" defer></script>
 </head>
 <body>
-<header class="topbar">
-  <div class="lang-switch"><button class="lang-btn active" data-lang="zh">简体中文</button><button class="lang-btn" data-lang="en">English</button></div>
-  <a class="site-logo" href="/zh/" aria-label="返回首页"><img src="/logo.png" alt="Snow Yuzu"></a>
-  <div class="topbar-right">
-    <a class="topbar-cart" id="topbar-cart" href="/zh/shop/?sec=cart" aria-label="购物车"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3.5h2.2l2.3 11.2a1.8 1.8 0 0 0 1.8 1.4h8.5a1.8 1.8 0 0 0 1.8-1.4l1.5-8.2H6"/></svg><span class="topbar-cart-badge" id="topbar-cart-badge" style="display:none">0</span></a>
-    <button class="topbar-acct" id="topbar-acct" aria-label="账号"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.2" r="3.4"/><path d="M5 20c.8-3.6 3.6-5.6 7-5.6s6.2 2 7 5.6"/></svg><span class="topbar-acct-dot"></span></button>
-    <button class="burger" id="burger" aria-label="菜单"><span></span><span></span><span></span></button>
-  </div>
-</header>
+<header class="topbar"><div class="lang-switch"><button class="lang-btn active" data-lang="zh">简体中文</button><button class="lang-btn" data-lang="en">English</button></div><a class="site-logo" href="/zh/" aria-label="返回首页"><img src="/logo.png" alt="Snow Yuzu"></a><div class="topbar-right"><a class="topbar-cart" id="topbar-cart" href="/zh/shop/?sec=cart" aria-label="购物车"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3.5h2.2l2.3 11.2a1.8 1.8 0 0 0 1.8 1.4h8.5a1.8 1.8 0 0 0 1.8-1.4l1.5-8.2H6"/></svg><span class="topbar-cart-badge" id="topbar-cart-badge" style="display:none">0</span></a><button class="topbar-acct" id="topbar-acct" aria-label="账号"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.2" r="3.4"/><path d="M5 20c.8-3.6 3.6-5.6 7-5.6s6.2 2 7 5.6"/></svg><span class="topbar-acct-dot"></span></button><button class="burger" id="burger" aria-label="菜单"><span></span><span></span><span></span></button></div></header>
 <div class="menu-mask" id="menu-mask"></div><nav class="menu" id="menu"></nav>
-<div class="subpage-header"><h1 class="subpage-title" data-zh="今天吃什么" data-en="What To Eat Today">今天吃什么</h1></div>
-<div class="page-body fw-page">
-  <p class="fw-intro" data-zh="把选择交给小转盘，看看今天会抽到什么美味吧 ♡" data-en="Let the little wheel choose something tasty for you today ♡">把选择交给小转盘，看看今天会抽到什么美味吧 ♡</p>
-  <div class="fw-wheel-wrap" aria-label="食物选择转盘"><div class="fw-pointer" aria-hidden="true"></div><canvas id="food-wheel-canvas" width="640" height="640"></canvas><div class="fw-hub" aria-hidden="true"></div></div>
-  <button class="fw-spin" id="food-wheel-spin" type="button" data-zh="开始抽选" data-en="Spin">开始抽选</button>
-  <p class="fw-status" id="food-wheel-status" role="status" aria-live="polite"></p>
-  <section class="fw-result" id="food-wheel-result" aria-live="polite" hidden><div class="fw-result-label" data-zh="今日结果" data-en="Today's Pick">今日结果</div><div class="fw-result-name" id="food-wheel-result-name"></div></section>
-  <div class="fw-legend" id="food-wheel-legend" aria-label="可选项目"></div>
-</div>
+<div class="subpage-header"><h1 class="subpage-title" data-zh="今天吃什么" data-en="What To Eat Today">今天吃什么</h1><p class="subpage-sub" data-zh="美食地图 · 根据你附近真实餐厅抽选" data-en="Foodie Map · A wheel based on real nearby restaurants">美食地图 · 根据你附近真实餐厅抽选</p></div>
+<a class="back-link page-back" href="/zh/foodie/" style="margin:8px 0 18px 2px;"><span data-zh="← 返回美食地图" data-en="← Back to Foodie Map">← 返回美食地图</span></a>
+<main class="page-body fwt-page">
+  <section class="fwt-location card"><div class="fwt-location-head"><div><h2 data-zh="附近美食" data-en="Nearby Food">附近美食</h2><p id="fwt-location-state" role="status" aria-live="polite" data-zh="正在获取你的位置……" data-en="Getting your location…">正在获取你的位置……</p></div><button id="fwt-retry-location" class="fd-map-cta ghost" type="button" data-zh="重新定位" data-en="Use My Current Location">重新定位</button></div>
+    <div class="fwt-location-tools"><form id="fwt-place-form" class="fwt-place-form"><label class="sr-only" for="fwt-place" data-zh="输入城市、地址或地点" data-en="Enter a city, address, or place">输入城市、地址或地点</label><input id="fwt-place" type="search" autocomplete="street-address" placeholder="城市、地址或地点"><button class="fd-map-cta" type="submit" data-zh="搜索地点" data-en="Search Place">搜索地点</button></form><label class="fwt-region-label"><span data-zh="地区" data-en="Region">地区</span><select id="fwt-region"><option value="auto" data-zh="自动识别" data-en="Auto Detect">自动识别</option><option value="US">United States</option><option value="CA">Canada</option><option value="JP">Japan</option><option value="TW">Taiwan</option><option value="CN">中国大陆 / Mainland China</option><option value="OTHER" data-zh="其他地区（Google Maps）" data-en="Other Regions (Google Maps)">其他地区（Google Maps）</option></select></label><label class="fwt-region-label"><span data-zh="搜索半径" data-en="Search Radius">搜索半径</span><select id="fwt-radius"><option value="1">1 km</option><option value="3">3 km</option><option value="5" selected>5 km</option><option value="10">10 km</option><option value="20">20 km</option></select></label></div>
+    <p class="fwt-privacy" data-zh="你的位置或手动输入的地点只用于本次搜索，不会写入 Snow Yuzu 数据库；搜索会将其发送至所选地图服务商。" data-en="Your location or manually entered place is used only for this search, is not saved to Snow Yuzu, and is sent to the selected map provider.">你的位置或手动输入的地点只用于本次搜索，不会写入 Snow Yuzu 数据库；搜索会将其发送至所选地图服务商。</p>
+  </section>
+  <div id="fwt-error" class="fwt-message" role="alert" hidden></div>
+  <section class="fwt-categories-section card"><div class="fwt-section-head"><div><h2 data-zh="附近有哪些美食" data-en="Nearby Food Categories">附近有哪些美食</h2><p id="fwt-category-status" data-zh="等待定位后搜索附近餐厅。" data-en="Waiting to search after location is available.">等待定位后搜索附近餐厅。</p></div><button type="button" id="fwt-search-again" class="fd-map-cta ghost" data-zh="重新搜索" data-en="Search Again">重新搜索</button></div><div id="fwt-categories" class="fwt-category-list"><div class="fd-empty" data-zh="获取位置后会显示附近实际存在的美食类型。" data-en="Real nearby food categories will appear after location is available.">获取位置后会显示附近实际存在的美食类型。</div></div></section>
+  <section class="fwt-wheel-section card"><div class="fwt-section-head"><div><h2 data-zh="让转盘帮你决定" data-en="Let The Wheel Decide">让转盘帮你决定</h2><p id="fwt-wheel-hint" data-zh="转盘只包含当前搜索范围内实际找到的类型；每种类型概率相同。" data-en="The wheel uses only types actually found nearby. Every type has equal odds.">转盘只包含当前搜索范围内实际找到的类型；每种类型概率相同。</p></div><div class="fwt-view-toggle"><button type="button" class="fwt-view-btn active" data-view="list" data-zh="列表" data-en="List">列表</button><button type="button" class="fwt-view-btn" data-view="map" data-zh="地图" data-en="Map">地图</button></div></div><div class="fwt-wheel-row"><div class="fwt-wheel-wrap"><div class="fwt-pointer" aria-hidden="true"></div><canvas id="fwt-wheel" width="640" height="640" aria-label="附近美食类型转盘"></canvas><div class="fwt-hub" aria-hidden="true"></div></div><div class="fwt-spin-side"><button class="fw-spin" id="fwt-spin" type="button" disabled data-zh="开始抽选" data-en="Spin">开始抽选</button><p id="fwt-result" class="fwt-result" aria-live="polite" hidden></p><p id="fwt-spin-status" class="fwt-spin-status" role="status" aria-live="polite"></p></div></div></section>
+  <section class="fwt-results-section card" id="fwt-results-section" hidden><div class="fwt-section-head fwt-result-head"><div><h2 id="fwt-results-title"></h2><p id="fwt-results-summary"></p></div><button type="button" id="fwt-back-categories" class="fd-map-cta ghost" data-zh="返回美食类型" data-en="Back To Categories">返回美食类型</button></div><div id="fwt-filters" class="fwt-filters"></div><div id="fwt-limit-note" class="fwt-limit-note" hidden></div><div class="fwt-map-list"><div class="fwt-rest-list" id="fwt-rest-list"></div><div class="fwt-map-wrap"><div id="fwt-map" role="application" aria-label="附近餐厅地图"></div><small class="fwt-attribution" id="fwt-attribution"></small></div></div></section>
+</main>
 <script src="/js/site-footer.js?v=20261114B" defer></script>
 </body>
 </html>

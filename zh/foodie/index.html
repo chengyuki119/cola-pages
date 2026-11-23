@@ -64,6 +64,7 @@
     <div class="fd-hero">
       <p id="fd-sub"></p>
       <button type="button" class="fd-map-cta" id="fd-suggest-btn" style="margin-top:14px;"></button>
+      <a class="fd-map-cta" id="fd-eat-btn" href="/zh/what-to-eat/" style="margin:14px 0 0 8px;" data-zh="今天吃什么" data-en="What To Eat Today">今天吃什么</a>
     </div>
 
     <div class="fd-sec">
@@ -106,6 +107,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('t-yuzu').textContent = F.t('yuzuPicks');
     document.getElementById('t-mapcta').textContent = F.t('openMap');
     document.getElementById('fd-suggest-btn').textContent = F.t('suggest');
+    document.getElementById('fd-eat-btn').href = '/zh/what-to-eat/';
     var qs = REGION ? '?country=' + REGION : '';
     document.getElementById('more-yuzu').textContent = F.t('seeAll');
     document.getElementById('more-yuzu').href = '/foodie/map/' + qs;
