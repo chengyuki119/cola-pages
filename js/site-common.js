@@ -196,7 +196,7 @@ function pagerWrapHtml(urls, alt, opts) { // 她 20261103：opts.noThumbs=true �
       '<div class="pg-dots">' + urls.map(function (_, k) { return '<span class="pg-dot' + (k === 0 ? ' on' : '') + '"></span>'; }).join('') + '</div>' +
       (opts.noThumbs ? '' : '<div class="pg-thumbs">' + urls.map(function (u, k) {
         var mt = (opts.meta && opts.meta[k]) || {};
-        return media && media[k] && media[k].type === 'video' ? '<button type="button" class="pg-thumb pg-video-thumb' + (k === 0 ? ' on' : '') + '" data-k="' + k + '" aria-label="商品视频" title="商品视频">▶</button>' : '<img class="pg-thumb' + (k === 0 ? ' on' : '') + '" src="' + escAttrDb(u) + '" data-k="' + k + '" alt="" loading="lazy"' + (mt.t ? ' title="' + escAttrDb(mt.t) + '"' : '') + '>';
+        return media && media[k] && media[k].type === 'video' ? '<button type="button" class="pg-thumb pg-video-thumb' + (k === 0 ? ' on' : '') + '" style="padding:0;color:var(--text,#65515D);font-size:12px;line-height:26px;" data-k="' + k + '" aria-label="商品视频" title="商品视频">▶</button>' : '<img class="pg-thumb' + (k === 0 ? ' on' : '') + '" src="' + escAttrDb(u) + '" data-k="' + k + '" alt="" loading="lazy"' + (mt.t ? ' title="' + escAttrDb(mt.t) + '"' : '') + '>';
       }).join('') + '</div>')
       : '') +
     '</div>';
