@@ -44,7 +44,7 @@
   var LX_FILTER = { q: '', ip: '' };
   function renderLexicon() {
     ensureRemote().then(function () {
-      LX_TMP = { chars: LX.chars().map(function (c) { return { en: c.en || '', zh: c.zh || '', aliases: (c.aliases || []).slice(), ip: c.ip || 'Other', enabled: c.enabled !== false }; }),
+      LX_TMP = { chars: LX.chars().map(function (c) { return { en: c.en || '', zh: c.zh || '', aliases: (c.aliases || []).slice(), ip: c.ip || 'Other', role: c.role || '', enabled: c.enabled !== false }; }),
                  types: LX.types().map(function (t) { return { zh: t.zh || '', en: t.en || '', aliases: (t.aliases || []).slice(), enabled: t.enabled !== false }; }) };
       paintLexicon();
       renderRecognitionAudit();

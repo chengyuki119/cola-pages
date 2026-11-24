@@ -9,25 +9,43 @@
 (function () {
   'use strict';
 
-  /* ── 种子：VALORANT（她 20261117 词库表 + 官方 30 人）── */
+  /* ── 种子：VALORANT（她 20261123 18:18 全角色标准名称表：27 名分四职补齐，中英文与角色分类均为官方口径）── */
   var VALORANT_ALL = ['Astra','Breach','Brimstone','Chamber','Clove','Cypher','Deadlock','Fade','Gekko','Harbor','Hush','Iso','Jett','KAY/O','Killjoy','Miks','Neon','Omen','Phoenix','Raze','Reyna','Sage','Skye','Sova','Tejo','Veto','Viper','Vyse','Waylay','Yoru'];
   var VALORANT = [
-    { en: 'Hush',   zh: '遐思', aliases: ['遐思', 'Hush'] },
-    { en: 'Waylay', zh: '幻棱', aliases: ['幻棱', 'Waylay', '威蕾', '威蕾键宝'] },
-    { en: 'Tejo',   zh: '钛狐', aliases: ['钛狐', 'Tejo'] },
-    { en: 'Sage',   zh: '贤者', aliases: ['贤者', 'Sage', '奶妈', '鼠尾草'] },
-    { en: 'Jett',   zh: '捷风', aliases: ['捷风', 'Jett', '杰峰', '杰特', '杰奇'] },
-    /* 她 20261123 18:03 任务书 §一：Clove 官方中文定为「暮蝶」，不再识别成齐乐；Iso 官方中文「壹绝」 */
-    { en: 'Clove',  zh: '暮蝶', aliases: ['暮蝶', 'Clove'] },
-    { en: 'Iso',    zh: '壹绝', aliases: ['壹绝', 'Iso'] },
-    /* 她 20261117 23:51 任务书 §一：补充别名（只加别名与标准名，不新建角色）
-       她 20261118 00:14 §一：Killjoy 中文名定为「奇乐」、Phoenix 定为「不死鸟」、KAY/O 不设中文名 */
-    { en: 'Chamber', zh: '尚博勒', aliases: ['尚博勒', 'Chamber', '钱包'] },
-    { en: 'Cypher',  zh: '零',     aliases: ['零', 'Cypher', '保安'] },
-    { en: 'Veto',    zh: '禁灭',   aliases: ['禁灭', 'Veto'] },
-    { en: 'Killjoy', zh: '奇乐',   aliases: ['奇乐', 'Killjoy', 'KJ', 'kj'] },
-    { en: 'Phoenix', zh: '不死鸟', aliases: ['不死鸟', 'Phoenix', '火男', '菲尼克斯'] },
-    { en: 'KAY/O',   zh: '',       aliases: ['KAY/O', 'Kayo', 'KO', 'K/O', 'KAYO', 'Ko'] }
+    /* 决斗者 Duelist */
+    { en: 'Phoenix', zh: '不死鸟', role: '决斗者', aliases: ['不死鸟', 'Phoenix', '火男', '菲尼克斯'] },
+    { en: 'Jett',    zh: '捷风',   role: '决斗者', aliases: ['捷风', 'Jett', '杰峰', '杰特', '杰奇'] },
+    { en: 'Raze',    zh: '雷兹',   role: '决斗者', aliases: ['雷兹', 'Raze'] },
+    { en: 'Reyna',   zh: '芮娜',   role: '决斗者', aliases: ['芮娜', 'Reyna'] },
+    { en: 'Neon',    zh: '霓虹',   role: '决斗者', aliases: ['霓虹', 'Neon'] },
+    { en: 'Yoru',    zh: '夜露',   role: '决斗者', aliases: ['夜露', 'Yoru'] },
+    { en: 'Iso',     zh: '壹决',   role: '决斗者', aliases: ['壹决', 'Iso'] }, /* 她 20261123 18:18 官方表：壹决（取代上一轮任务书的「壹绝」） */
+    { en: 'Waylay',  zh: '幻棱',   role: '决斗者', aliases: ['幻棱', 'Waylay', '威蕾', '威蕾键宝'] },
+    { en: 'Clove',   zh: '暮蝶',   role: '决斗者', aliases: ['暮蝶', 'Clove'] },
+    /* 先锋 Initiator */
+    { en: 'Sova',    zh: '猎枭', role: '先锋', aliases: ['猎枭', 'Sova'] },
+    { en: 'Breach',  zh: '铁臂', role: '先锋', aliases: ['铁臂', 'Breach'] },
+    { en: 'KAY/O',   zh: '',     role: '先锋', aliases: ['KAY/O', 'Kayo', 'KO', 'K/O', 'KAYO', 'Ko'] }, /* 官方无中文名 */
+    { en: 'Fade',    zh: '黑梦', role: '先锋', aliases: ['黑梦', 'Fade'] },
+    { en: 'Skye',    zh: '斯凯', role: '先锋', aliases: ['斯凯', 'Skye'] },
+    { en: 'Gekko',   zh: '盖可', role: '先锋', aliases: ['盖可', 'Gekko'] },
+    { en: 'Tejo',    zh: '钛狐', role: '先锋', aliases: ['钛狐', 'Tejo'] },
+    /* 控场 Controller */
+    { en: 'Brimstone', zh: '炼狱', role: '控场', aliases: ['炼狱', 'Brimstone'] },
+    { en: 'Viper',     zh: '蝰蛇', role: '控场', aliases: ['蝰蛇', 'Viper'] },
+    { en: 'Omen',      zh: '幽影', role: '控场', aliases: ['幽影', 'Omen'] },
+    { en: 'Astra',     zh: '星礈', role: '控场', aliases: ['星礈', 'Astra'] },
+    { en: 'Harbor',    zh: '海神', role: '控场', aliases: ['海神', 'Harbor'] },
+    { en: 'Miks',      zh: '迷核', role: '控场', aliases: ['迷核', 'Miks'] }, /* 她 20261123 §3：新增迷核，中英文都要能识别 */
+    /* 哨卫 Sentinel */
+    { en: 'Sage',    zh: '贤者',   role: '哨卫', aliases: ['贤者', 'Sage', '奶妈', '鼠尾草'] },
+    { en: 'Cypher',  zh: '零',     role: '哨卫', aliases: ['零', 'Cypher', '保安'] },
+    { en: 'Killjoy', zh: '奇乐',   role: '哨卫', aliases: ['奇乐', 'Killjoy', 'KJ', 'kj'] },
+    { en: 'Chamber', zh: '尚博勒', role: '哨卫', aliases: ['尚博勒', 'Chamber', '钱包'] },
+    { en: 'Deadlock', zh: '钢索',  role: '哨卫', aliases: ['钢索', 'Deadlock'] },
+    /* 此前三名（她 20261117/20261123 任务书单独给的，不在本次 27 名名单内）：保持原状，无官方職介不编 */
+    { en: 'Hush', zh: '遐思', aliases: ['遐思', 'Hush'] },
+    { en: 'Veto', zh: '禁灭', aliases: ['禁灭', 'Veto'] }
   ];
   // 官方名单里没有确认中文名的：只挂英文名本身做识别，不编中文名
   VALORANT_ALL.forEach(function (en) {
@@ -49,7 +67,7 @@
     { en: 'Gudetama',       zh: '蛋黄哥',   aliases: ['Gudetama', '蛋黄哥'] },
     { en: 'Tuxedosam',      zh: '',         aliases: ['Tuxedosam', 'Tuxedo Sam'] },
     { en: 'U*SA*HA*NA',     zh: '兔兔',     aliases: ['U*SA*HA*NA', 'Usahana', '兔兔', 'USAHANA'] },
-    { en: 'Piano',          zh: '',         aliases: ['Piano', '必安诺', '必安娜', 'My Sweet Piano'] }, /* 她 20261123 §三：必安娜/必安诺都是错误输入，标准名直接用英文 Piano，不编中文 */
+    { en: 'Piano',          zh: '必安娜',   aliases: ['Piano', '必安诺', '必安娜', 'My Sweet Piano'] }, /* 她 20261123 18:18：必安娜 WASD 保持原样写，中文名用必安娜 */
     { en: 'Charmmy Kitty',  zh: '甜心凯蒂', aliases: ['Charmmy Kitty', 'Charmmy', '甜心凯蒂'] },
     { en: 'Chococat',       zh: '巧克力猫', aliases: ['Chococat', '巧克力猫'] },
     { en: 'Wish Me Mell',   zh: '许愿兔',   aliases: ['Wish Me Mell', 'WishMeMell', '许愿兔'] },
@@ -111,7 +129,7 @@
       .concat(OTHERS.map(function (c) { return Object.assign({ ip: 'Other', enabled: true }, c); }));
     // 她 §8：后台保存的完整词库（含种子行+新增行）优先——管理页保存后以远端为准
     if (OVERRIDE && Array.isArray(OVERRIDE.chars) && OVERRIDE.chars.length) {
-      return OVERRIDE.chars.map(function (c) { return { en: c.en || '', zh: c.zh || '', aliases: (c.aliases || []).slice(), ip: c.ip || 'Other', enabled: c.enabled !== false }; });
+      return OVERRIDE.chars.map(function (c) { return { en: c.en || '', zh: c.zh || '', aliases: (c.aliases || []).slice(), ip: c.ip || 'Other', role: c.role || '', enabled: c.enabled !== false }; });
     }
     return base;
   }
@@ -264,7 +282,7 @@
     var seq = [];
     m.seq.forEach(function (s) { if (!seq.some(function (x) { return x.char.en === s.char.en; })) seq.push(s); });
     var c = seq.length ? seq[0].char : null;
-    res.char = c ? { en: c.en, zh: c.zh, ip: c.ip } : null;
+    res.char = c ? { en: c.en, zh: c.zh, ip: c.ip, role: c.role || '' } : null;
     var out = compose(sp, type, seq, rest, m.seq);
     res.pending = out.pending;
     res.nameZh = out.nameZh || norm(rest);
@@ -288,7 +306,7 @@
     var out = compose(sp, type, seq, rest, m.seq);
     return {
       ok: true, input: input, spec: sp.spec, type: type, ambiguous: [],
-      char: { en: c.en, zh: c.zh, ip: c.ip },
+      char: { en: c.en, zh: c.zh, ip: c.ip, role: c.role || '' },
       pending: out.pending,
       nameZh: out.nameZh, nameEn: out.nameEn,
       titleZh: out.titleZh, titleEn: out.titleEn
