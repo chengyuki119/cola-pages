@@ -120,7 +120,9 @@
     CUR = (urls || []).filter(Boolean);
     if (!CUR.length) return false;
     labels = labels || {};
-    document.getElementById('yk-lb-download').textContent = labels.download || 'Download';
+    var dlBtn = document.getElementById('yk-lb-download');
+    dlBtn.textContent = labels.download || 'Download';
+    dlBtn.style.display = labels.download === '' ? 'none' : ''; // 她 20261123 17:40：传空字符串 = 显式不提供下载（小铺商品图），其他调用方不受影响
     document.getElementById('yk-lb-close').textContent = labels.close || 'Close';
     document.getElementById('yk-lb-hint').textContent = labels.hint || '';
     // 她 20261123 §四：大图预览里显示当前商品名（无名称时隐藏，餐厅页用餐厅名）

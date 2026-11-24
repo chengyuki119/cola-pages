@@ -581,11 +581,15 @@
       '<a class="back-link page-back" href="' + ykLink('/shop/') + '" style="margin:8px 0 24px 2px;">← ' + t('回小铺', 'Back to shop') + '</a>' +
       '<div class="pdp">' +
         '<div class="d-left"><div class="d-pager" id="d-pager">' + pagerWrapHtml(imgs, dispName(p), { meta: metas, media: media }) + '</div>' +
-        // 商品类型/联系提示保留在图片说明区；商品介绍单独放在购买操作与须知之后。
+        // 商品类型/联系提示保留在图片说明区；她 20261123 17:40：商品详情恢复到图片正下方（她 20261112 01:51 布局，a8745a1 曾误挪到右栏底部）
         '<div class="d-notes">' +
         (needContactType(p) ? '<div class="d-contact card" style="padding:12px 14px;margin:12px 0 0;background:var(--card,#FFFFFF);border:1.5px solid var(--card-border,#F9E5ED);border-radius:16px;">' +
           '<p style="font-size:15px;line-height:1.7;color:var(--text,#65515D);margin:0;">' + t('请联系小柚沟通具体需求和价格。', 'Please contact Yuki to discuss your custom requirements and pricing.') + '</p></div>' : '') +
         (function () { var k = typeKey(p); if (!k || !TYPE_NOTE[k]) return ''; return '<div class="d-type card" style="padding:12px 14px;margin:12px 0 0;background:var(--card,#FFFFFF);border:1.5px solid var(--card-border,#F9E5ED);border-radius:16px;"><b style="font-size:15px;">' + t('商品类型 ♡', 'Product Type ♡') + '</b><p style="font-size:15px;line-height:1.7;color:var(--text,#65515D);margin:6px 0 0;">' + t(TYPE_NOTE[k][0], TYPE_NOTE[k][1]) + '</p></div>'; })() +
+        (function () { var dd = LANG === 'en' ? (p.description_en || p.description || '') : (p.description || p.description_en || ''); return dd ? (
+        '<div class="d-desc card" style="padding:12px 14px;margin:12px 0 0;background:var(--card,#FFFFFF);border:1.5px solid var(--card-border,#F9E5ED);border-radius:16px;">' +
+          '<b style="font-size:15px;">' + t('商品详情 ♡', 'Product Description ♡') + '</b>' +
+          '<p style="color:var(--muted);font-size:16px;line-height:1.8;margin:6px 0 0;white-space:pre-line;">' + escBr(dd) + '</p></div>') : ''; })() +
         '</div></div>' +
         '<div class="d-info">' +
         '<div class="d-head" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">' +
@@ -619,10 +623,6 @@
               t('下单前请仔细阅读商品描述与图片。手工制品与键帽可能存在轻微瑕疵或正常工艺差异，与描述一致的轻微差异不构成退款理由。详细规则见', 'Please review the description and photos carefully. Handmade items and keycaps may have minor imperfections or variations; minor variations consistent with the description are not grounds for refund. See our ') +
               '<a href="' + ykLink('/return-policy/') + '" style="color:var(--price,#F48FB1);text-decoration:underline;">' + t('《退货与退款政策》', 'Return & Refund Policy') + '</a>' + t('。', '.') + '</p>' +
           '</div>' : '') +
-      (function () { var dd = LANG === 'en' ? (p.description_en || p.description || '') : (p.description || p.description_en || ''); return dd ? (
-      '<div class="d-desc card" style="padding:12px 14px;margin:16px 0 0;background:var(--card,#FFFFFF);border:1.5px solid var(--card-border,#F9E5ED);border-radius:16px;">' +
-        '<b style="font-size:15px;">' + t('商品详情 ♡', 'Product Description ♡') + '</b>' +
-        '<p style="color:var(--muted);font-size:16px;line-height:1.8;margin:6px 0 0;white-space:pre-line;">' + escBr(dd) + '</p></div>') : ''; })() +
       '<div id="d-group-form" style="display:none;margin-top:16px;" class="card"></div>' +
         '</div>' +
       '</div>';
@@ -877,7 +877,7 @@
     if (!images.length) images = [img.src];
     var gi = gallery.slice(0, i + 1).filter(function (g) { return g.kind !== 'video'; }).length - 1;
     window.YK_LB.open(images, Math.max(0, gi), {
-      download: t('下载原图', 'Download'),
+      download: '', // 她 20261123 17:40：商品图不再提供下载源图入口（空字符串=yk-lightbox 隐藏下载按钮，不影响放大预览/关闭/翻页）
       close: t('关闭', 'Close'),
       hint: t('双指放大看细节', 'Pinch to zoom'),
       alt: (DETAIL && DETAIL.p) ? dispName(DETAIL.p) : '',
@@ -2054,19 +2054,15 @@
     var has = function (list, tg) { return list.indexOf(tg) > -1; };
     var ipTags = TRANSFER_IP_TAGS.filter(function (tg) { return vs.some(function (v) { return (v.tag || '') === tg; }); });
     var matTags = TRANSFER_MAT_TAGS.filter(function (tg) { return vs.some(function (v) { return (v.tag || '') === tg; }); });
-    var chip = function (label, attr, on, lvl) {
-      return '<button type="button" class="' + (lvl === 2 ? 'tf-chip2' : 'tf-chip1') + (on ? ' on' : '') + '" ' + attr + '>' + esc(label) + '</button>';
+    var chip = function (label, attr, on) {
+      return '<button type="button" class="sku-chip' + (on ? ' on' : '') + '" ' + attr + '>' + esc(label) + '</button>';
     };
-    var row1 = chip(t('全部', 'All'), 'data-tf-g=""', !vf.g, 1) +
-      (ipTags.length ? chip(t('IP 系列', 'IP Series'), 'data-tf-g="ip"', vf.g === 'ip', 1) : '') +
-      (matTags.length ? chip(t('装饰素材', 'Decorations'), 'data-tf-g="mat"', vf.g === 'mat', 1) : '');
+    var row1 = chip(t('全部', 'All'), 'data-tf-g=""', !vf.g) +
+      (ipTags.length ? chip(t('IP 系列', 'IP Series'), 'data-tf-g="ip"', vf.g === 'ip') : '') +
+      (matTags.length ? chip(t('装饰素材', 'Decorations'), 'data-tf-g="mat"', vf.g === 'mat') : '');
     var subTags = vf.g === 'ip' ? ipTags : (vf.g === 'mat' ? matTags : []);
-    // 她 20261123 17:24 任务书：一级/二级按钮明确视觉层级，两级之间淡粉分隔线 + 小标题（细粉装饰条）
-    var row2 = subTags.length ?
-      '<div class="tf-divider"></div>' +
-      '<div class="tf-subtitle"><span class="tf-subtitle-mark"></span>' + esc(vf.g === 'ip' ? t('IP 分类', 'IP Categories') : t('装饰分类', 'Decoration Types')) + '</div>' +
-      '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
-      subTags.map(function (tg) { return chip(transferTagLabel(tg), 'data-tf-tag="' + escAttr(tg) + '"', vf.tag === tg, 2); }).join('') + '</div>' : '';
+    var row2 = subTags.length ? '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">' +
+      subTags.map(function (tg) { return chip(transferTagLabel(tg), 'data-tf-tag="' + escAttr(tg) + '"', vf.tag === tg); }).join('') + '</div>' : '';
     var list = vs.filter(function (v) {
       var tg = v.tag || '';
       if (!vf.g) return true;
@@ -2093,7 +2089,7 @@
     };
     return '<div style="font-size:16px;margin-bottom:6px;">' + t('款式选择 ♡', 'Style Options ♡') +
         '<span style="margin-left:8px;font-size:13px;color:var(--muted,#897783);">' + t(list.length + ' 款可选', list.length + ' options') + '</span></div>' +
-      '<div style="display:flex;gap:10px;flex-wrap:wrap;">' + row1 + '</div>' + row2 +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;">' + row1 + '</div>' + row2 +
       (list.length
         ? '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px;margin-top:10px;">' + list.map(card).join('') + '</div>'
         : '<p style="font-size:14px;color:var(--muted,#897783);margin:12px 0 0;">' + t('这个分类下暂时没有款式～', 'Nothing under this category yet~') + '</p>');
