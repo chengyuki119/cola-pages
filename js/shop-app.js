@@ -2054,15 +2054,19 @@
     var has = function (list, tg) { return list.indexOf(tg) > -1; };
     var ipTags = TRANSFER_IP_TAGS.filter(function (tg) { return vs.some(function (v) { return (v.tag || '') === tg; }); });
     var matTags = TRANSFER_MAT_TAGS.filter(function (tg) { return vs.some(function (v) { return (v.tag || '') === tg; }); });
-    var chip = function (label, attr, on) {
-      return '<button type="button" class="sku-chip' + (on ? ' on' : '') + '" ' + attr + '>' + esc(label) + '</button>';
+    var chip = function (label, attr, on, lvl) {
+      return '<button type="button" class="' + (lvl === 2 ? 'tf-chip2' : 'tf-chip1') + (on ? ' on' : '') + '" ' + attr + '>' + esc(label) + '</button>';
     };
-    var row1 = chip(t('全部', 'All'), 'data-tf-g=""', !vf.g) +
-      (ipTags.length ? chip(t('IP 系列', 'IP Series'), 'data-tf-g="ip"', vf.g === 'ip') : '') +
-      (matTags.length ? chip(t('装饰素材', 'Decorations'), 'data-tf-g="mat"', vf.g === 'mat') : '');
+    var row1 = chip(t('全部', 'All'), 'data-tf-g=""', !vf.g, 1) +
+      (ipTags.length ? chip(t('IP 系列', 'IP Series'), 'data-tf-g="ip"', vf.g === 'ip', 1) : '') +
+      (matTags.length ? chip(t('装饰素材', 'Decorations'), 'data-tf-g="mat"', vf.g === 'mat', 1) : '');
     var subTags = vf.g === 'ip' ? ipTags : (vf.g === 'mat' ? matTags : []);
-    var row2 = subTags.length ? '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">' +
-      subTags.map(function (tg) { return chip(transferTagLabel(tg), 'data-tf-tag="' + escAttr(tg) + '"', vf.tag === tg); }).join('') + '</div>' : '';
+    // 她 20261123 17:24 任务书：一级/二级按钮明确视觉层级，两级之间淡粉分隔线 + 小标题（细粉装饰条）
+    var row2 = subTags.length ?
+      '<div class="tf-divider"></div>' +
+      '<div class="tf-subtitle"><span class="tf-subtitle-mark"></span>' + esc(vf.g === 'ip' ? t('IP 分类', 'IP Categories') : t('装饰分类', 'Decoration Types')) + '</div>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+      subTags.map(function (tg) { return chip(transferTagLabel(tg), 'data-tf-tag="' + escAttr(tg) + '"', vf.tag === tg, 2); }).join('') + '</div>' : '';
     var list = vs.filter(function (v) {
       var tg = v.tag || '';
       if (!vf.g) return true;
@@ -2089,7 +2093,7 @@
     };
     return '<div style="font-size:16px;margin-bottom:6px;">' + t('款式选择 ♡', 'Style Options ♡') +
         '<span style="margin-left:8px;font-size:13px;color:var(--muted,#897783);">' + t(list.length + ' 款可选', list.length + ' options') + '</span></div>' +
-      '<div style="display:flex;gap:8px;flex-wrap:wrap;">' + row1 + '</div>' + row2 +
+      '<div style="display:flex;gap:10px;flex-wrap:wrap;">' + row1 + '</div>' + row2 +
       (list.length
         ? '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px;margin-top:10px;">' + list.map(card).join('') + '</div>'
         : '<p style="font-size:14px;color:var(--muted,#897783);margin:12px 0 0;">' + t('这个分类下暂时没有款式～', 'Nothing under this category yet~') + '</p>');

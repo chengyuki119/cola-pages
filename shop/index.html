@@ -332,6 +332,18 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
   .pdp .sku-chip.on { background:var(--accent,#F9E5ED) !important; border-color:#F6C5D7 !important; color:var(--text,#65515D) !important; font-weight:600; }
   .pdp .sku-chip:hover { border-color:#E79EC0 !important; }
   .sku-chip.dis { opacity: .45; cursor: not-allowed; }
+  /* 转印贴款式选择两级层级（她 20261123 17:24 任务书）：独立类名不碰 .sku-chip（现货规格胶囊不变）
+     一级：52px/17px Semibold，未选中淡粉底柔和粉描边，选中实心粉；二级：40px/14px Medium，白底浅粉描边，选中浅粉不实心 */
+  .tf-chip1, .tf-chip2 { border-radius: 999px; font-family: inherit; cursor: pointer; transition: all .2s; display: inline-flex; align-items: center; line-height: 1; box-sizing: border-box; }
+  .tf-chip1 { height: 52px; padding: 0 24px; font-size: 17px; font-weight: 600; background: #FCECF2 !important; border: 1.6px solid #F8DDE8 !important; color: var(--text,#65515D) !important; }
+  .tf-chip1:hover { background: #F9E2EA !important; border-color: #F6C5D7 !important; }
+  .tf-chip1.on { background: #F6C5D7 !important; border-color: #F6C5D7 !important; color: #65515D !important; }
+  .tf-chip2 { height: 40px; padding: 0 14px; font-size: 14px; font-weight: 500; background: #FFFFFF !important; border: 1.5px solid #F9E5ED !important; color: var(--muted,#897783) !important; }
+  .tf-chip2:hover { background: #FFF8FA !important; border-color: #F8DDE8 !important; color: var(--text,#65515D) !important; }
+  .tf-chip2.on { background: #FCECF2 !important; border-color: #F8DDE8 !important; color: var(--text,#65515D) !important; font-weight: 600; }
+  .tf-divider { height: 1px; background: #F9E5ED; border: none; margin: 14px 0 0; }
+  .tf-subtitle { display: flex; align-items: center; gap: 6px; margin: 10px 0; font-size: 13px; color: var(--muted,#897783); letter-spacing: .5px; }
+  .tf-subtitle-mark { width: 3px; height: 12px; border-radius: 999px; background: #F6C5D7; display: inline-block; flex: none; }
   .qty-btn { border: none; background: var(--card-hover); color: var(--text); width: 30px; height: 30px; border-radius: 50%; font-size: 16px; cursor: pointer; font-family: inherit; }
   .card { background: #fff; border-radius: var(--radius); box-shadow: 0 2px 14px rgba(255,143,171,.12); }
   #view-detail, #view-cart, #view-checkout, #view-orders, #view-account, #view-groups { display: none; }
@@ -732,7 +744,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
 </script>
 <script src="/js/name-lexicon.js?v=20261122A"></script>
   <script src="/js/yk-lightbox.js?v=20261123A"></script>
-<script src="/js/shop-app.js?v=20261123D"></script>
+<script src="/js/shop-app.js?v=20261123E"></script>
 <script src="/js/site-footer.js?v=20261114A"></script>
 <script>
   // 统一 Footer（已有 <footer> 则替换其内容，不新建第二个）
