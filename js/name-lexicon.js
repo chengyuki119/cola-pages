@@ -15,9 +15,11 @@
     { en: 'Hush',   zh: '遐思', aliases: ['遐思', 'Hush'] },
     { en: 'Waylay', zh: '幻棱', aliases: ['幻棱', 'Waylay', '威蕾', '威蕾键宝'] },
     { en: 'Tejo',   zh: '钛狐', aliases: ['钛狐', 'Tejo'] },
-    { en: 'Sage',   zh: '贤者', aliases: ['贤者', 'Sage', '奶妈'] },
+    { en: 'Sage',   zh: '贤者', aliases: ['贤者', 'Sage', '奶妈', '鼠尾草'] },
     { en: 'Jett',   zh: '捷风', aliases: ['捷风', 'Jett', '杰峰', '杰特', '杰奇'] },
-    { en: 'Clove',  zh: '齐乐', aliases: ['齐乐', 'Clove'] },
+    /* 她 20261123 18:03 任务书 §一：Clove 官方中文定为「暮蝶」，不再识别成齐乐；Iso 官方中文「壹绝」 */
+    { en: 'Clove',  zh: '暮蝶', aliases: ['暮蝶', 'Clove'] },
+    { en: 'Iso',    zh: '壹绝', aliases: ['壹绝', 'Iso'] },
     /* 她 20261117 23:51 任务书 §一：补充别名（只加别名与标准名，不新建角色）
        她 20261118 00:14 §一：Killjoy 中文名定为「奇乐」、Phoenix 定为「不死鸟」、KAY/O 不设中文名 */
     { en: 'Chamber', zh: '尚博勒', aliases: ['尚博勒', 'Chamber', '钱包'] },
@@ -47,7 +49,7 @@
     { en: 'Gudetama',       zh: '蛋黄哥',   aliases: ['Gudetama', '蛋黄哥'] },
     { en: 'Tuxedosam',      zh: '',         aliases: ['Tuxedosam', 'Tuxedo Sam'] },
     { en: 'U*SA*HA*NA',     zh: '兔兔',     aliases: ['U*SA*HA*NA', 'Usahana', '兔兔', 'USAHANA'] },
-    { en: 'Piano',          zh: '必安诺',   aliases: ['Piano', '必安诺', 'My Sweet Piano'] },
+    { en: 'Piano',          zh: '',         aliases: ['Piano', '必安诺', '必安娜', 'My Sweet Piano'] }, /* 她 20261123 §三：必安娜/必安诺都是错误输入，标准名直接用英文 Piano，不编中文 */
     { en: 'Charmmy Kitty',  zh: '甜心凯蒂', aliases: ['Charmmy Kitty', 'Charmmy', '甜心凯蒂'] },
     { en: 'Chococat',       zh: '巧克力猫', aliases: ['Chococat', '巧克力猫'] },
     { en: 'Wish Me Mell',   zh: '许愿兔',   aliases: ['Wish Me Mell', 'WishMeMell', '许愿兔'] },
@@ -93,6 +95,11 @@
     { zh: '手工饰品',   en: 'Handmade Accessory', aliases: ['手工饰品', '饰品', 'handmade accessory', 'Handmade Accessory'] }
   ];
 
+  /* ── 组合别名：一个语音/识别错误输入 → 多个角色（她 20261123 §二：异丁香杰特 = 暮蝶+壹绝+捷风）── */
+  var COMBOS = [
+    { from: '异丁香', chars: ['Clove', 'Iso'] }
+  ];
+
   /* ── 远端覆盖层（后台词库管理写入 site_settings.key='name_lexicon'）──
      结构：{ chars: [{en,zh,aliases,ip}], types: [{zh,en,aliases}], removedAlias: {alias:true} } */
   var OVERRIDE = null;
@@ -128,6 +135,12 @@
   function norm(s) {
     return String(s || '').replace(/\s+/g, ' ').trim();
   }
+  /* 她 20261123 §三：键帽规格统一大写 U（1u/1.25u → 1U/1.25U），前缀拆出来单独拼 */
+  function splitSpec(s) {
+    var m = String(s || '').match(/^\s*(\d+(?:\.\d+)?)\s*[uU](?![a-zA-Z0-9])/);
+    if (!m) return { spec: '', rest: norm(String(s || '')) };
+    return { spec: m[1] + 'U', rest: norm(String(s || '').slice(m[0].length)) };
+  }
   function findType(input) {
     var types = allTypes();
     var hit = null;
@@ -151,10 +164,13 @@
     });
     return norm(s.replace(/^[\/\-·、,，\s]+|[\/\-·、,，\s]+$/g, ''));
   }
-  function findChars(rest) {
-    if (!rest) return [];
+  /* 她 20261123 §四：多角色组合必须完整保留所有角色——
+     按位置顺序找全部非重叠命中（最长优先），同位同长不同角色才算歧义；不再只取一个最高分 */
+  function findCharsSeq(rest) {
+    if (!rest) return { seq: [], ambiguous: [] };
     var chars = allChars();
-    var scored = [];
+    var low = rest.toLowerCase();
+    var cands = [];
     chars.forEach(function (c) {
       if (c.enabled === false) return;
       var list = (c.aliases || []).slice();
@@ -162,81 +178,120 @@
       if (c.en) list.push(c.en);
       list.forEach(function (a) {
         if (!a || removed(a)) return;
-        var idx = rest.toLowerCase().indexOf(a.toLowerCase());
-        if (idx === -1) return;
-        // 她 20261117 23:51 §一：单字别名（如「零」）只在整段输入就是它时才算命中，避免误伤其他商品名
+        var idx = 0;
         var exact = norm(rest).toLowerCase() === a.toLowerCase();
-        if (exact || a.length >= (c.en === 'Neko' ? 4 : 2)) scored.push({ c: c, a: a, len: a.length });
+        while ((idx = low.indexOf(a.toLowerCase(), idx)) > -1) {
+          if (exact || a.length >= (c.en === 'Neko' ? 4 : 2)) cands.push({ start: idx, len: a.length, char: c, alias: a });
+          idx += 1;
+        }
       });
     });
-    scored.sort(function (x, y) { return y.len - x.len; });
-    var winners = [];
-    scored.forEach(function (s) {
-      if (!winners.some(function (w) { return w.c.en === s.c.en; })) winners.push(s); // 同角色去重
+    cands.sort(function (x, y) { return y.len - x.len || x.start - y.start; });
+    var taken = [], ambiguous = [];
+    cands.forEach(function (cd) {
+      var overlap = taken.some(function (t) { return cd.start < t.start + t.len && t.start < cd.start + t.len; });
+      if (overlap) {
+        var sameSpot = taken.some(function (t) { return t.start === cd.start && t.len === cd.len && t.char.en !== cd.char.en; });
+        if (sameSpot && !ambiguous.some(function (x) { return x.char.en === cd.char.en && x.start === cd.start; })) ambiguous.push(cd);
+        return;
+      }
+      taken.push(cd);
     });
-    // 互不重叠的最高分候选：取第一个，再检查是否有「不同角色且长度相同」的并列 → 歧义
-    if (!winners.length) return [];
-    var best = winners[0];
-    var tie = winners.filter(function (w) { return w.c.en !== best.c.en && w.len === best.len; });
-    return [best].concat(tie);
+    taken.sort(function (x, y) { return x.start - y.start; });
+    return { seq: taken, ambiguous: ambiguous };
+  }
+  /* 组合别名替换成当前词库的标准中文名，再走常规识别（保证多角色顺序与输入一致） */
+  function applyCombos(rest) {
+    COMBOS.forEach(function (cb) {
+      var rep = cb.chars.map(function (en) {
+        var c = allChars().filter(function (x) { return x.en === en; })[0];
+        return c ? (c.zh || c.en) : en;
+      }).join('');
+      rest = rest.split(cb.from).join(rep);
+    });
+    return rest;
+  }
+  /* 拼 标题 = [规格前缀] + [角色标准名（中文名直接连，英文名空格连）] + [类型] + [款式描述]
+     她 20261123：款式描述里 (瑕疵) → （瑕疵），英文瑕疵统一 Imperfect */
+  function compose(sp, type, seq, rest, matched) {
+    var zhNames = seq.map(function (s) { return s.char.zh || s.char.en; });
+    var enNames = seq.map(function (s) { return s.char.en; });
+    // 款式描述 = 输入去掉角色命中区段后的剩余部分（保留原顺序），括号规范化
+    var spans = (matched || seq).slice().sort(function (a, b) { return a.start - b.start; });
+    var suffix = '';
+    var pos = 0;
+    spans.forEach(function (s) { if (s.start > pos) suffix += rest.slice(pos, s.start); pos = Math.max(pos, s.start + s.len); });
+    suffix += rest.slice(pos);
+    suffix = norm(suffix.replace(/\(\s*瑕疵\s*\)/g, '（瑕疵）'));
+    var pending = seq.some(function (s) { return !s.char.en; });
+    var nameZh = zhNames.join(''), nameEn = enNames.filter(Boolean).join(' ');
+    var sepSuf = /^[A-Za-z0-9]/.test(suffix) ? ' ' : '';
+    var typeZh = type ? type.zh : '', typeEn = type ? type.en : '';
+    var head = sp.spec ? sp.spec + ' ' : '';
+    var sufEn = suffix.replace(/（瑕疵）/g, ' Imperfect ').replace(/\s+/g, ' ').trim();
+    var titleZh = seq.length
+      ? (head + zhNames.join('') + typeZh + sepSuf + suffix)
+      : (head + suffix + typeZh); /* 无角色：保持旧行为——描述在前、类型在后 */
+    var titleEn = enNames.length
+      ? (head + enNames.join(' ') + (typeEn ? ' Style ' + typeEn : '') + (sufEn ? (sepSuf || ' ') + sufEn : ''))
+      : (head + suffix + (typeEn ? ' ' + typeEn : ''));
+    return { pending: pending, nameZh: nameZh, nameEn: nameEn, titleZh: titleZh, titleEn: titleEn };
   }
 
-  /* 对外：识别一个商品名输入 */
+  /* 对外：识别一个商品名输入（她 20261123：规格前缀/多角色组合/款式描述分别识别，标准名完整拼接） */
   function match(raw) {
     var input = norm(raw);
     if (!input) return { ok: false, empty: true };
-    var type = findType(input);
-    var rest = stripType(input, type);
-    var cand = findChars(rest);
+    var sp = splitSpec(input);
+    var type = findType(sp.rest);
+    var rest = applyCombos(stripType(sp.rest, type));
+    var m = findCharsSeq(rest);
     var res = {
       ok: true,
       input: input,
+      spec: sp.spec,
       type: type,
       char: null,
       ambiguous: [],
-      pending: false, // 英文标准名待确认
+      pending: false,
       nameZh: '', nameEn: '', titleZh: '', titleEn: ''
     };
-    if (cand.length > 1) {
-      res.ambiguous = cand.map(function (x) { return { en: x.c.en, zh: x.c.zh, alias: x.a, ip: x.c.ip }; });
-      return res; // 多角色歧义：不猜，提示管理员选择
+    if (m.ambiguous.length) {
+      res.ambiguous = m.ambiguous.map(function (x) { return { en: x.char.en, zh: x.char.zh, alias: x.alias, ip: x.char.ip }; });
+      return res; // 同位同长不同角色：不猜，提示管理员选择
     }
-    var c = cand.length ? cand[0].c : null;
+    // 同角色重复出现只保留一个（如「Iso 壹绝」→ 壹绝）
+    var seq = [];
+    m.seq.forEach(function (s) { if (!seq.some(function (x) { return x.char.en === s.char.en; })) seq.push(s); });
+    var c = seq.length ? seq[0].char : null;
     res.char = c ? { en: c.en, zh: c.zh, ip: c.ip } : null;
-    var zhName = c ? (c.zh || rest) : rest;          // 有角色无中文名：回填原始输入；无角色：商品本身名称
-    var enName = c ? (c.en || '') : '';
-    res.nameZh = zhName;
-    res.nameEn = enName;
-    if (c && !enName) res.pending = true;          // 角色存在但英文名待确认（如 暴力熊）
-    var typeZh = type ? type.zh : '';
-    var typeEn = type ? type.en : '';
-    if (c) {
-      res.titleZh = typeZh ? (zhName + typeZh) : zhName;
-      res.titleEn = typeEn ? (enName ? enName + ' Style ' + typeEn : (res.pending ? zhName + ' Style ' + typeEn : '')) : (enName || zhName);
-    } else {
-      // 普通商品：不强制 Style
-      res.titleZh = typeZh ? (rest + typeZh) : rest;
-      res.titleEn = typeEn ? (rest + ' ' + typeEn) : rest;
-    }
+    var out = compose(sp, type, seq, rest, m.seq);
+    res.pending = out.pending;
+    res.nameZh = out.nameZh || norm(rest);
+    res.nameEn = out.nameEn;
+    res.titleZh = out.titleZh;
+    res.titleEn = out.titleEn;
     return res;
   }
 
-  /* 管理员选定歧义项后重出结果 */
+  /* 管理员选定歧义项后重出结果（只保留选中角色，其余逻辑同 match） */
   function matchPick(raw, pickEn) {
     var input = norm(raw);
-    var type = findType(input);
-    var rest = stripType(input, type);
-    var c = allChars().filter(function (x) { return x.en === pickEn; })[0];
-    if (!c) return match(raw);
-    var typeZh = type ? type.zh : '', typeEn = type ? type.en : '';
-    var zhName = c.zh || '', enName = c.en || '';
+    var sp = splitSpec(input);
+    var type = findType(sp.rest);
+    var rest = applyCombos(stripType(sp.rest, type));
+    var m = findCharsSeq(rest);
+    var pick = m.seq.concat(m.ambiguous).filter(function (x) { return x.char.en === pickEn; })[0];
+    if (!pick) return match(raw);
+    var seq = [pick];
+    var c = pick.char;
+    var out = compose(sp, type, seq, rest, m.seq);
     return {
-      ok: true, input: input, type: type, ambiguous: [],
+      ok: true, input: input, spec: sp.spec, type: type, ambiguous: [],
       char: { en: c.en, zh: c.zh, ip: c.ip },
-      pending: !enName,
-      nameZh: zhName, nameEn: enName,
-      titleZh: typeZh ? (zhName + typeZh) : zhName,
-      titleEn: typeEn ? (enName ? enName + ' Style ' + typeEn : zhName + ' Style ' + typeEn) : (enName || zhName)
+      pending: out.pending,
+      nameZh: out.nameZh, nameEn: out.nameEn,
+      titleZh: out.titleZh, titleEn: out.titleEn
     };
   }
 

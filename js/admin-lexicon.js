@@ -181,16 +181,29 @@
     hint.style.cssText = 'grid-column:1/-1;font-size:14px;color:#897783;background:#FCECF2;border:1.5px solid #F9E5ED;border-radius:12px;padding:10px 14px;display:none;line-height:1.8;';
     nameEl.closest('.pf-row').appendChild(hint);
     var debounce = null;
+    var lastAuto = '', lastAutoEn = '';
     nameEl.addEventListener('input', function () {
-      delete hint.dataset.match;
       clearTimeout(debounce);
+      // 她 20261123 §四：管理员手动修改后的名称不得被自动识别覆盖——
+      // 自动填过之后管理员又改了内容 → 标记手动态，后续识别只提示不再覆写；清空字段重新输入则恢复正常
+      if (lastAuto && nameEl.value.trim() && nameEl.value.trim() !== lastAuto) nameEl.dataset.lxManual = '1';
+      if (!nameEl.value.trim()) delete nameEl.dataset.lxManual;
       debounce = setTimeout(function () { runRecognize(); }, 400);
     });
+    if (nameEnEl && !nameEnEl.dataset.lxBound) {
+      nameEnEl.dataset.lxBound = '1';
+      nameEnEl.addEventListener('input', function () {
+        if (lastAutoEn && nameEnEl.value.trim() && nameEnEl.value.trim() !== lastAutoEn) nameEnEl.dataset.lxManual = '1';
+        if (!nameEnEl.value.trim()) delete nameEnEl.dataset.lxManual;
+      });
+    }
 
     function runRecognize(pickEn) {
       var raw = nameEl.value.trim();
       hint.style.display = raw ? 'block' : 'none';
       if (!raw) { delete hint.dataset.match; return; }
+      // 管理员点歧义选择按钮 = 明确意图，解除手动态后正常填入
+      if (pickEn) { delete nameEl.dataset.lxManual; if (nameEnEl) delete nameEnEl.dataset.lxManual; }
       var res = pickEn ? LX.matchPick(raw, pickEn) : LX.match(raw);
       if (res.ambiguous && res.ambiguous.length) {
         hint.innerHTML = '「' + escAttr(raw) + '」可能对应多个角色，不会替你猜——选一个：<br>' +
@@ -213,8 +226,8 @@
       if (res.type) parts.push('商品类型：' + escAttr(res.type.zh) + ' / ' + escAttr(res.type.en));
       if (res.titleZh) parts.push('标题：' + escAttr(res.titleZh) + (res.titleEn ? ' / ' + escAttr(res.titleEn) : ''));
       hint.innerHTML = parts.join('<br>');
-      if (res.titleZh) nameEl.value = res.titleZh;
-      if (res.titleEn && nameEnEl) nameEnEl.value = res.titleEn;
+      if (res.titleZh && !nameEl.dataset.lxManual) { nameEl.value = res.titleZh; lastAuto = res.titleZh; }
+      if (res.titleEn && nameEnEl && !nameEnEl.dataset.lxManual) { nameEnEl.value = res.titleEn; lastAutoEn = res.titleEn; }
       hint.dataset.match = JSON.stringify({ raw: raw, nameZh: res.nameZh, nameEn: res.nameEn, titleZh: res.titleZh, titleEn: res.titleEn, charEn: res.char ? res.char.en : '', typeZh: res.type ? res.type.zh : '', ambiguousPick: pickEn || '' });
     }
     window.__lxRunRecognize = runRecognize;
