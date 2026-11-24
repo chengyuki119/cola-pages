@@ -332,6 +332,10 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
   .pdp .sku-chip.on { background:var(--accent,#F9E5ED) !important; border-color:#F6C5D7 !important; color:var(--text,#65515D) !important; font-weight:600; }
   .pdp .sku-chip:hover { border-color:#E79EC0 !important; }
   .sku-chip.dis { opacity: .45; cursor: not-allowed; }
+  /* 她 20261123 17:57：款式选择二级 IP 分类按钮用新紧凑样式（一级保持 sku-chip 原样式不动） */
+  .tf-chip2 { height: 40px; padding: 0 14px; font-size: 14px; font-weight: 500; background: #FFFFFF !important; border: 1.5px solid #F9E5ED !important; color: var(--muted,#897783) !important; border-radius: 999px; font-family: inherit; cursor: pointer; transition: all .2s; display: inline-flex; align-items: center; line-height: 1; box-sizing: border-box; }
+  .tf-chip2:hover { background: #FFF8FA !important; border-color: #F8DDE8 !important; color: var(--text,#65515D) !important; }
+  .tf-chip2.on { background: #FCECF2 !important; border-color: #F8DDE8 !important; color: var(--text,#65515D) !important; font-weight: 600; }
   .qty-btn { border: none; background: var(--card-hover); color: var(--text); width: 30px; height: 30px; border-radius: 50%; font-size: 16px; cursor: pointer; font-family: inherit; }
   .card { background: #fff; border-radius: var(--radius); box-shadow: 0 2px 14px rgba(255,143,171,.12); }
   #view-detail, #view-cart, #view-checkout, #view-orders, #view-account, #view-groups { display: none; }
@@ -732,7 +736,7 @@ h2 span[data-zh]::after { content: " ☆"; font-size: .85em; }
 </script>
 <script src="/js/name-lexicon.js?v=20261122A"></script>
   <script src="/js/yk-lightbox.js?v=20261123B"></script>
-<script src="/js/shop-app.js?v=20261123F"></script>
+<script src="/js/shop-app.js?v=20261123G"></script>
 <script src="/js/site-footer.js?v=20261114A"></script>
 <script>
   // 统一 Footer（已有 <footer> 则替换其内容，不新建第二个）

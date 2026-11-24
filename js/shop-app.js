@@ -2054,15 +2054,16 @@
     var has = function (list, tg) { return list.indexOf(tg) > -1; };
     var ipTags = TRANSFER_IP_TAGS.filter(function (tg) { return vs.some(function (v) { return (v.tag || '') === tg; }); });
     var matTags = TRANSFER_MAT_TAGS.filter(function (tg) { return vs.some(function (v) { return (v.tag || '') === tg; }); });
-    var chip = function (label, attr, on) {
-      return '<button type="button" class="sku-chip' + (on ? ' on' : '') + '" ' + attr + '>' + esc(label) + '</button>';
+    var chip = function (label, attr, on, lvl) {
+      return '<button type="button" class="' + (lvl === 2 ? 'tf-chip2' : 'sku-chip') + (on ? ' on' : '') + '" ' + attr + '>' + esc(label) + '</button>';
     };
     var row1 = chip(t('全部', 'All'), 'data-tf-g=""', !vf.g) +
       (ipTags.length ? chip(t('IP 系列', 'IP Series'), 'data-tf-g="ip"', vf.g === 'ip') : '') +
       (matTags.length ? chip(t('装饰素材', 'Decorations'), 'data-tf-g="mat"', vf.g === 'mat') : '');
     var subTags = vf.g === 'ip' ? ipTags : (vf.g === 'mat' ? matTags : []);
+    // 她 20261123 17:57：一级保持原样式（sku-chip），二级 IP 分类按钮用新紧凑样式（tf-chip2）
     var row2 = subTags.length ? '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">' +
-      subTags.map(function (tg) { return chip(transferTagLabel(tg), 'data-tf-tag="' + escAttr(tg) + '"', vf.tag === tg); }).join('') + '</div>' : '';
+      subTags.map(function (tg) { return chip(transferTagLabel(tg), 'data-tf-tag="' + escAttr(tg) + '"', vf.tag === tg, 2); }).join('') + '</div>' : '';
     var list = vs.filter(function (v) {
       var tg = v.tag || '';
       if (!vf.g) return true;
