@@ -17,7 +17,7 @@
 (function () {
   if (window.YK18N) return;
 
-  var LS_KEY = 'yk-i18n-cache:v2';
+  var LS_KEY = 'yk-i18n-cache:v3'; // 她 20261124 §四：v2 缓存里有旧机翻的错误角色名（如 Sage Jett→「塞奇·杰特」），升版全量作废重翻
   var MAX_ENTRIES = 3000;
   var CJK_ONE = /[\u3400-\u9fff\uf900-\ufaff]/;
   var CJK_ALL = /[\u3400-\u9fff\uf900-\ufaff]/g;
@@ -81,6 +81,93 @@
     var ks = Object.keys(cache);
     if (ks.length <= MAX_ENTRIES) return;
     ks.slice(0, ks.length - MAX_ENTRIES).forEach(function (k) { delete cache[k]; });
+  }
+
+  /* ══ 她 20261124 §四：商品名称词库优先于机翻 ══
+     1) 把 NameLexicon（种子+后台覆盖层）的角色名并入词典：贤者↔Sage、捷风↔Jett…
+     2) lxName()：显示层把词库里的别名/旧名替换为当前语言的官方标准名（奶妈→贤者/Sage，不重新排序、不动其他文字）
+     3) lxHits()：命中词库的字符串不再送 Google 机翻，避免官方名被机器改写（外星人款等无官方译名的保留原文） */
+  var LX_ALIAS = null; // [{s: 别名/旧名, zh: 标准中文名, en: 标准英文名}]，长词优先
+  var LX_FETCHED = false;
+  function buildLxAlias() {
+    var list = [];
+    var chars = (window.NameLexicon && window.NameLexicon.chars) ? window.NameLexicon.chars() : [];
+    chars.forEach(function (c) {
+      if (c && c.enabled === false) return;
+      var zh = String((c && c.zh) || '').trim(), en = String((c && c.en) || '').trim();
+      if (!zh && !en) return;
+      var seen = {};
+      ((c && c.aliases) || []).concat([zh, en]).forEach(function (a) {
+        a = String(a || '').trim();
+        if (!a || seen[a]) return;
+        seen[a] = 1;
+        list.push({ s: a, zh: zh, en: en });
+      });
+    });
+    try {
+      var combos = (window.NameLexicon && window.NameLexicon.combos) ? window.NameLexicon.combos() : [];
+      (combos || []).forEach(function (cb) {
+        var cs = (cb.chars || []).map(function (en) { return chars.filter(function (c) { return c.en === en; })[0]; }).filter(Boolean);
+        if (!cs.length) return;
+        list.push({ s: cb.from, zh: cs.map(function (c) { return c.zh; }).join(''), en: cs.map(function (c) { return c.en || c.zh; }).join(' ') });
+      });
+    } catch (e) {}
+    list.sort(function (a, b) { return b.s.length - a.s.length; });
+    return list;
+  }
+  function mergeNameLexicon() {
+    if (!window.NameLexicon) return; // name-lexicon.js 尚未加载：不建立空表，下次调用再试
+    if (!LX_ALIAS) LX_ALIAS = buildLxAlias(); // 先用种子词库立即可用
+    if (!LX_FETCHED) { // 后台覆盖层异步并入（覆盖层优先于种子）
+      LX_FETCHED = true;
+      var anon = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVreHJ2Y3B0d2hsd3ZkYW5vdmdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyMzgyNDcsImV4cCI6MjEwODgxNDI0N30.Grdi23yToGPFF8e_kxFjf37JOOf51j-FW_FYQTUVu8E';
+      try {
+        fetch('https://ukxrvcptwhlwvdanovgd.supabase.co/rest/v1/site_settings?select=value&key=eq.name_lexicon', { headers: { apikey: anon } })
+          .then(function (r) { return r.ok ? r.json() : []; }).then(function (rows) {
+            var v = rows && rows[0] && rows[0].value;
+            if (!v) return;
+            try { window.__YK_LX_OVERRIDE = typeof v === 'string' ? JSON.parse(v) : v; } catch (e) { return; }
+            // 把覆盖层直接喂给 NameLexicon（与后台 loadRemote 同一结构），再重建别名表
+            try {
+              if (window.NameLexicon.loadRemote) {
+                window.NameLexicon.loadRemote(function () { return Promise.resolve(rows); });
+              }
+            } catch (e) {}
+            LX_ALIAS = buildLxAlias();
+          }).catch(function () {});
+      } catch (e) {}
+    }
+  }
+  function lxName(text, target) {
+    mergeNameLexicon();
+    if (!LX_ALIAS || !LX_ALIAS.length) return null;
+    var s = String(text == null ? '' : text);
+    if (!s.trim()) return null;
+    var out = s, hitFlag = false;
+    LX_ALIAS.forEach(function (a) {
+      if (!a.s || out.indexOf(a.s) === -1) return;
+      var rep = target === 'en' ? (a.en || a.zh) : (a.zh || a.en);
+      if (!rep) return;
+      if (rep !== a.s) out = out.split(a.s).join(rep);
+      hitFlag = true; // 命中词库角色名（即使输入已是标准名，也做规格/括号归一）
+    });
+    var specFix = /(\d+(?:\.\d+)?)\s*u(?![a-zA-Z0-9])/i.test(s);
+    if (!hitFlag && !specFix) return null;
+    out = out.replace(/(\d+(?:\.\d+)?)\s*u(?![a-zA-Z0-9])/g, '$1U'); // 规格 1u→1U
+    if (target === 'en') out = out.split('（瑕疵）').join(' (Imperfect)').split('(瑕疵)').join(' (Imperfect)');
+    else out = out.split('(瑕疵)').join('（瑕疵）');
+    // 拼写梳理：汉字之间的空格去掉，拉丁字符与汉字之间补一个空格（全角标点保持紧贴）
+    out = out.replace(/([\u3400-\u9fff\uf900-\ufaff）」』])\s+([\u3400-\u9fff\uf900-\ufaff（「『])/g, '$1$2');
+    out = out.replace(/([A-Za-z0-9%)])\s*([\u3400-\u9fff\uf900-\ufaff（「『])/g, '$1 $2');
+    out = out.replace(/([\u3400-\u9fff\uf900-\ufaff）」』])\s*([A-Za-z0-9%(])/g, '$1 $2');
+    return out.replace(/\s{2,}/g, ' ').trim();
+  }
+  function lxHits(s) {
+    mergeNameLexicon();
+    if (!LX_ALIAS || !LX_ALIAS.length) return false;
+    s = String(s == null ? '' : s);
+    for (var i = 0; i < LX_ALIAS.length; i++) if (LX_ALIAS[i].s && s.indexOf(LX_ALIAS[i].s) > -1) return true;
+    return false;
   }
 
   function hash(s) { var h = 5381, i = s.length; while (i) { h = (h * 33) ^ s.charCodeAt(--i); } return (h >>> 0).toString(36); }
@@ -207,6 +294,9 @@
       var k = ck(from, to, s);
       if (cache[k] != null || inflight[k]) return;
       var lexed = lex(s, from, to);
+      // 她 20261124 §四：命中词库（含官方角色名）的字符串不再送 Google——机翻会把 Sage 译成「圣人/塞奇」这类错误名称；
+      // 词库没盖住的剩余部分（如「外星人款」）保留原文，不为了填满语言乱编翻译
+      if (lxHits(s)) { cache[k] = from === 'zh' ? tidyZhToEn(lexed) : lexed; return; }
       // 词典已经完整覆盖（中文翻完不留汉字 / 英文翻完不留拉丁字母）→ 直接用，不必联网
       if (from === 'zh' && !hasCJK(lexed)) { cache[k] = lexed; return; }
       if (from === 'en' && lexed !== s && !/[A-Za-z]/.test(lexed)) { cache[k] = lexed; return; }
@@ -243,6 +333,7 @@
     need: need,
     en: function (s) { return t(s, 'en'); },
     zh: function (s) { return t(s, 'zh'); },
+    lxName: lxName, // 她 20261124：商品名显示层词库替换（别名/旧名 → 官方标准名）
     detect: detect,
     lang: curLang,
     hasCJK: hasCJK,

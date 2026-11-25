@@ -100,6 +100,9 @@
     if (!v) return '';
     if (v.dims && typeof v.dims === 'object' && Object.keys(v.dims).length) return dimsText(v.dims);
     var rawVariantName = String(v.name || v.sku || '');
+    // 她 20261124 §四：词库命中的规格名（角色别名/旧名）先替换为官方标准名，双语同源不同再走机翻
+    var lx = (window.YK18N && window.YK18N.lxName) ? window.YK18N.lxName(rawVariantName, window.LANG) : null;
+    if (lx) return lx;
     var seriesName = String(v.series || '').trim();
     if (seriesName) {
       var suffix = rawVariantName.match(/\d+$/);
@@ -118,6 +121,9 @@
   function cartItemLabel(it) { // 购物车行：有 dims 就用 dims 重拼，没 dims 退回逐词翻译
     if (window.LANG !== 'en') return it.name || '';
     var base = String(it.name || '');
+    // 她 20261124 §四：购物车行同样先过词库（官方角色名优先于机翻）
+    var lx = (window.YK18N && window.YK18N.lxName) ? window.YK18N.lxName(base, 'en') : null;
+    if (lx) return lx;
     if (it.dims && typeof it.dims === 'object' && Object.keys(it.dims).length) {
       var cut = base.indexOf(' · ');
       var head = cut > 0 ? base.slice(0, cut) : base;
@@ -321,6 +327,9 @@
       var el = document.getElementById('view-' + v);
       if (el) el.style.display = (v === name) ? 'block' : 'none';
     });
+    // 她 20261124：快速导航只在商品列表视图出现，详情/购物车等视图自动隐藏（不遮挡商品图和购买按钮）
+    var qn = document.getElementById('shop-quicknav');
+    if (qn) qn.style.display = (name === 'list') ? '' : 'none';
     window.scrollTo(0, 0);
   }
 
@@ -451,6 +460,9 @@
     var box = document.getElementById('view-detail');
     if (!p) { box.innerHTML = '<p style="text-align:center;color:var(--muted);padding:40px 0;">' + t('商品不存在或已下架', 'Item not found') + '</p>'; showView('detail'); return; }
     var vs = variantsOf(p);
+    // 她 20261124 §五.3：进详情瞬间先捕获 tf（IP 快速定位参数），此刻 URL 还没被重写
+    var tfq0 = null;
+    try { tfq0 = new URLSearchParams(location.search).get('tf'); } catch (e) {}
     // 她 20261103 淘宝式：默认不选任何规格——URL 带了 sku 才恢复选中；不自动选中第一个
     if (vs && sku) { if (!currentVariant(p, sku)) sku = ''; } else if (!vs) sku = '';
     DETAIL = { p: p, sku: sku || '', qty: 1, i: 0, gallery: fullGallery(p) };
@@ -466,6 +478,14 @@
     box.appendChild(detailEl());
     showView('detail');
     paintDetail();
+    // 她 20261124 §五.3：快速导航点 IP → /shop/?id=转印贴&tf=三丽鸥 直接打开筛后状态（不靠访客滚动找 IP 分类）
+    // 注意：上面 replaceState 已把 URL 重写成 ?id=&sku=，tf 必须用进函数时捕获的 tfq0
+    try {
+      if (typeof tfq0 === 'string' && tfq0 && isTransferParent(p) && TRANSFER_IP_TAGS.indexOf(tfq0) > -1 && DETAIL && (!DETAIL.vf || !DETAIL.vf.g)) {
+        DETAIL.vf = { g: 'ip', tag: tfq0 };
+        applyTransferFilter(DETAIL, p, variantsOf(p));
+      }
+    } catch (e) {}
     showStockNotice(); // 她 20261103 18:53：不管从哪个页面点进商品，都弹一次「现货说明」
     // 她 20261103：详情页刷新/切语言后停在原来看的位置，不从头开始——离开前记的位置 + URL 一致才恢复；点进别的商品照常回顶
     try {
@@ -2095,22 +2115,53 @@
         ? '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px;margin-top:10px;">' + list.map(card).join('') + '</div>'
         : '<p style="font-size:14px;color:var(--muted,#897783);margin:12px 0 0;">' + t('这个分类下暂时没有款式～', 'Nothing under this category yet~') + '</p>');
   }
+  // 她 20261124 任务书 §三：图片轮播必须用当前筛选后的商品数组——筛选态下左侧大图/箭头/缩略图只在筛后款式的图里转，
+  // 双向同步：点卡→定位到那张图；点箭头/缩略图→pg-change 同步选中卡片（淘宝式不重建，不丢筛选）
+  function transferFilteredVariants(p, vf) {
+    var vs = variantsOf(p) || [];
+    var has = function (list, tg) { return list.indexOf(tg) > -1; };
+    return vs.filter(function (v) {
+      if (v && v.frozen === true) return false;
+      var tg = v.tag || '';
+      if (!vf || !vf.g) return true;
+      var inG = vf.g === 'ip' ? has(TRANSFER_IP_TAGS, tg) : has(TRANSFER_MAT_TAGS, tg);
+      return inG && (!vf.tag || tg === vf.tag);
+    });
+  }
+  // 筛选态↔全集态图集切换：筛后款式的首图作为轮播数组；当前款不在筛后名单里则选中第一款
+  function applyTransferFilter(d, p, vs) {
+    var vf = d.vf || { g: '', tag: '' };
+    if (vf.g) {
+      var imgs = transferFilteredVariants(p, vf).filter(function (v) { return Array.isArray(v.images) && v.images.length; });
+      d.gallery = imgs.map(function (v) { return { u: normImg(v.images[0]), sku: varKey(v), kind: 'sku' }; });
+      var j = -1;
+      for (var i = 0; i < d.gallery.length; i++) if (d.gallery[i].sku === d.sku) { j = i; break; }
+      if (j < 0) { d.sku = d.gallery.length ? d.gallery[0].sku : ''; d.i = 0; } // 筛选后当前款不在名单：自动选中筛后第一款
+      else d.i = j;
+    } else {
+      d.gallery = fullGallery(p); // 回到「全部」：恢复封面+详情图+全部规格图的全集
+      var j2 = d.sku ? galleryIndexOfSku(p, d.sku) : -1;
+      d.i = j2 > -1 ? j2 : 0;
+    }
+    paintDetail();
+    try { history.replaceState(null, '', '?id=' + encodeURIComponent(p.id) + (d.sku ? '&sku=' + encodeURIComponent(d.sku) : '') + (vf.g && vf.tag ? '&tf=' + encodeURIComponent(vf.tag) : '')); } catch (err) {}
+  }
   function bindTransfer(d, p, vs) {
     var box = document.getElementById('d-transfer');
     if (!box) return;
     box.querySelectorAll('[data-tf-g]').forEach(function (b) {
       b.addEventListener('click', function () {
         d.vf = { g: b.getAttribute('data-tf-g') || '', tag: '' };
-        box.innerHTML = transferBrowserInner(p, vs, d.sku);
-        bindTransfer(d, p, vs);
+        // 她 20261124：筛选切换后左侧大图/箭头/缩略图改用筛后商品数组（保留筛选状态，不重建规格浏览器本身）
+        if (d.vf.g || d.sku) applyTransferFilter(d, p, vs);
+        else { box.innerHTML = transferBrowserInner(p, vs, d.sku); bindTransfer(d, p, vs); }
       });
     });
     box.querySelectorAll('[data-tf-tag]').forEach(function (b) {
       b.addEventListener('click', function () {
         var tg = b.getAttribute('data-tf-tag') || '';
         d.vf = { g: d.vf && d.vf.g ? d.vf.g : 'ip', tag: d.vf && d.vf.tag === tg ? '' : tg }; // 再点一次已选二级分类 = 取消筛选
-        box.innerHTML = transferBrowserInner(p, vs, d.sku);
-        bindTransfer(d, p, vs);
+        applyTransferFilter(d, p, vs); // 她 20261124：筛后数组即轮播数组；当前款不在名单里自动选中筛后第一款
       });
     });
     box.querySelectorAll('[data-tkey]').forEach(function (b) {
@@ -2125,6 +2176,127 @@
         try { history.replaceState(null, '', '?id=' + encodeURIComponent(p.id) + '&sku=' + encodeURIComponent(d.sku)); } catch (err) {}
       });
     });
+  }
+  // ── 她 20261124 任务书 §五：小铺快速导航（右下角悬浮胶囊按钮 + 面板）──
+  // 分区/商品类型从实际商品动态生成，点分区/类型滚动定位；IP 系列直接打开转印贴详情的筛后状态；搜索直达商品详情
+  function buildShopQuickNav() {
+    if (window.__ACCOUNT_DEFAULT_SEC) return;
+    if (!document.getElementById('product-grid')) return;
+    var nav = document.getElementById('shop-quicknav');
+    if (!nav) {
+      nav = document.createElement('div');
+      nav.id = 'shop-quicknav';
+      document.body.appendChild(nav);
+      var css = document.createElement('style');
+      css.id = 'shop-quicknav-css';
+      css.textContent =
+        '#shop-quicknav{position:fixed;right:max(16px, env(safe-area-inset-right));bottom:max(18px, env(safe-area-inset-bottom));z-index:1200;font-family:inherit;}' +
+        '#shop-quicknav .qn-btn{display:inline-flex;align-items:center;gap:6px;height:42px;padding:0 18px;border-radius:999px;border:1.5px solid #F8DDE8;background:#FFFFFF;color:#65515D;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;box-shadow:0 6px 18px rgba(190,140,160,.18);transition:background .2s,transform .2s;}' +
+        '#shop-quicknav .qn-btn:hover{background:#FCECF2;transform:translateY(-2px);}' +
+        '#shop-quicknav .qn-panel{display:none;position:absolute;right:0;bottom:52px;width:min(300px, calc(100vw - 32px));max-height:min(480px, 72vh);overflow:auto;background:#FFFFFF;border:1.5px solid #F9E5ED;border-radius:16px;box-shadow:0 12px 34px rgba(190,140,160,.20);padding:12px;}' +
+        '#shop-quicknav.open .qn-panel{display:block;}' +
+        '#shop-quicknav .qn-search{width:100%;box-sizing:border-box;border:1.5px solid #F9E5ED;border-radius:999px;padding:8px 14px;font-size:14px;font-family:inherit;color:#65515D;background:#FFF8FA;outline:none;margin-bottom:8px;}' +
+        '#shop-quicknav .qn-search:focus{border-color:#F6C5D7;}' +
+        '#shop-quicknav .qn-sec{font-size:12px;color:#897783;margin:8px 2px 4px;}' +
+        '#shop-quicknav .qn-item{display:block;width:100%;text-align:left;border:0;background:transparent;font-family:inherit;font-size:14px;color:#65515D;padding:8px 10px;border-radius:10px;cursor:pointer;}' +
+        '#shop-quicknav .qn-item:hover{background:#FFF8FA;}' +
+        '#shop-quicknav .qn-item b{font-weight:600;}' +
+        '#shop-quicknav .qn-item .qn-n{color:#897783;font-size:12px;margin-left:6px;}' +
+        '#shop-quicknav .qn-result .qn-p{color:#F48FB1;font-size:13px;font-weight:700;margin-left:6px;}' +
+        '#shop-quicknav .qn-empty{font-size:13px;color:#897783;padding:8px 10px;}';
+      document.head.appendChild(css);
+    }
+    // 她 20261124 实测修正：zones/cats/IP 每次打开面板时实时采集（首次绑定时的闭包是空数据，商品是异步加载的）
+    var typeLabel = function (c) { return (window.LANG === 'en' && SHOP_MAT_EN[c]) ? SHOP_MAT_EN[c] : c; };
+    var panelHtml = function (q) {
+      q = (q || '').trim().toLowerCase();
+      var hit = function (s) { return s && String(s).toLowerCase().indexOf(q) > -1; };
+      var zones = [
+        { key: 'keycap', zh: '键帽', en: 'Keycaps' },
+        { key: 'style', zh: '款式选择', en: 'Style Options' },
+        { key: 'display', zh: '仅供展示', en: 'Display Only' }
+      ].filter(function (z) { return document.querySelector('#product-grid [data-zone="' + z.key + '"]'); });
+      var cats = [];
+      document.querySelectorAll('#product-grid [data-cat]').forEach(function (el) {
+        var c = el.getAttribute('data-cat');
+        if (cats.indexOf(c) < 0) cats.push(c);
+      });
+      // IP 系列：转印贴父商品里实际存在的 tag
+      var parent = PRODUCTS.filter(function (p) { return isTransferParent(p); })[0] || null;
+      var ipTags = parent ? TRANSFER_IP_TAGS.filter(function (tg) {
+        return (variantsOf(parent) || []).some(function (v) { return (v.tag || '') === tg; });
+      }) : [];
+      var html = '<input type="text" class="qn-search" placeholder="' + t('搜商品名 / IP / 类型…', 'Search name / IP / type…') + '">';
+      if (q) {
+        // 搜索：中英文名 / IP / 类型命中 → 直接列商品，点击进详情
+        var res = PRODUCTS.filter(function (p) {
+          return hit(p.name) || hit(p.name_en) || hit(p.tag) || hit(p.category) || (p.variants || []).some(function (v) { return hit(v.name) || hit(v.name_en) || hit(v.tag); });
+        }).slice(0, 30);
+        html += res.length ? res.map(function (p) {
+          var nm = dispName(p);
+          var pr = (p.price !== '' && p.price != null) ? fmtPriceShop(p.price) : '';
+          return '<button type="button" class="qn-item qn-result" data-pid="' + escAttr(p.id) + '"><b>' + esc(nm) + '</b>' + (pr ? '<span class="qn-p">' + esc(pr) + '</span>' : '') + '<span class="qn-n">' + esc((isMat(p) ? dispCat(p) : dispTag(p)) || '') + '</span></button>';
+        }).join('') : '<div class="qn-empty">' + t('没有找到匹配的商品～', 'Nothing matched~') + '</div>';
+        return html;
+      }
+      html += '<div class="qn-sec">' + t('分区', 'Sections') + '</div>';
+      zones.forEach(function (z) { html += '<button type="button" class="qn-item" data-zone="' + z.key + '">' + t(z.zh, z.en) + '</button>'; });
+      if (cats.length) {
+        html += '<div class="qn-sec">' + t('商品类型', 'Types') + '</div>';
+        cats.forEach(function (c) { html += '<button type="button" class="qn-item" data-cat="' + escAttr(c) + '">' + esc(typeLabel(c)) + '</button>'; });
+      }
+      if (ipTags.length) {
+        html += '<div class="qn-sec">' + t('IP 系列 · 转印贴', 'IP Series · Stickers') + '</div>';
+        ipTags.forEach(function (tg) { html += '<button type="button" class="qn-item" data-ip="' + escAttr(tg) + '" data-tid="' + escAttr(parent.id) + '">' + esc(transferTagLabel(tg)) + '</button>'; });
+      }
+      return html;
+    };
+    var open = false;
+    function paintPanel(q) {
+      var panel = nav.querySelector('.qn-panel');
+      panel.innerHTML = panelHtml(q);
+      var s = panel.querySelector('.qn-search');
+      if (s) {
+        s.addEventListener('input', function () { paintPanel(this.value); var s2 = nav.querySelector('.qn-search'); if (s2) { s2.focus(); s2.setSelectionRange(s2.value.length, s2.value.length); } });
+        s.addEventListener('click', function (e) { e.stopPropagation(); });
+      }
+      panel.querySelectorAll('.qn-item').forEach(function (it) {
+        it.addEventListener('click', function (e) {
+          e.stopPropagation();
+          var zone = it.getAttribute('data-zone'), cat = it.getAttribute('data-cat'), ip = it.getAttribute('data-ip'), pid = it.getAttribute('data-pid'), tid = it.getAttribute('data-tid');
+          close();
+          if (zone) {
+            var el = document.querySelector('#product-grid [data-zone="' + zone + '"]');
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          } else if (cat) {
+            var el2 = document.querySelector('#product-grid [data-cat="' + cat.replace(/"/g, '\\"') + '"]');
+            if (el2) el2.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          } else if (ip && tid) {
+            location.href = ykLink('/shop/?id=' + encodeURIComponent(tid) + '&tf=' + encodeURIComponent(ip));
+          } else if (pid) {
+            openDetail(pid);
+          }
+        });
+      });
+    }
+    function close() { open = false; nav.classList.remove('open'); }
+    if (!nav.dataset.bound) {
+      nav.dataset.bound = '1';
+      nav.innerHTML = '<button type="button" class="qn-btn" aria-expanded="false">' + t('快速导航 ♡', 'Quick Nav ♡') + '</button><div class="qn-panel"></div>';
+      nav.querySelector('.qn-btn').addEventListener('click', function (e) {
+        e.stopPropagation();
+        open = !open;
+        nav.classList.toggle('open', open);
+        this.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (open) paintPanel('');
+      });
+      document.addEventListener('click', function (e) {
+        if (open && !nav.contains(e.target)) close();
+      });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+    } else {
+      paintPanel('');
+    }
   }
   function enhanceList() {
     if (window.__ACCOUNT_DEFAULT_SEC) return; // 独立账号页：不拉商品列表
@@ -2152,7 +2324,7 @@
       var groups = { keycap: [], style: [], display: [] };
       PRODUCTS.forEach(function (p) { groups[zoneOf(p)].push(p); });
       var head = function (z) {
-        return '<div style="grid-column:1/-1;margin:6px 0 -2px;">' +
+        return '<div data-zone="' + escAttr(z.key) + '" style="grid-column:1/-1;margin:6px 0 -2px;">' +
           '<h2 style="font-size:23px;margin:0 0 12px;display:flex;align-items:center;gap:8px;">' +
           '<span style="width:4px;height:18px;background:var(--accent,#F9E5ED);border-radius:2px;display:inline-block;"></span>' +
           t(z.zh, z.en) + '</h2></div>';
@@ -2162,7 +2334,7 @@
         var list = groups[z.key].filter(function (p) { return z.key === 'display' || statusOfG(p) !== 'out'; });
         if (z.key === 'style') {
           var canon = function (p) { return ({ '3D模具': '硅胶模具', '转印贴': 'UV转印贴', '布料': '布料与面料' })[p.category] || p.category || ''; };
-          var h3 = function (c) { return '<div style="grid-column:1/-1;margin:8px 0 10px;"><h3 style="margin:0 0 5px;font-size:19px;">' + esc(SHOP_MAT_EN[c] && window.LANG === 'en' ? SHOP_MAT_EN[c] : c) + '</h3></div>'; };
+          var h3 = function (c) { return '<div data-cat="' + escAttr(c) + '" style="grid-column:1/-1;margin:8px 0 10px;"><h3 style="margin:0 0 5px;font-size:19px;">' + esc(SHOP_MAT_EN[c] && window.LANG === 'en' ? SHOP_MAT_EN[c] : c) + '</h3></div>'; };
           var h4 = function (label, n) { return '<div style="grid-column:1/-1;margin:10px 0 6px;"><h4 style="margin:0;font-size:16px;font-weight:600;color:var(--text,#65515D);">' + esc(label) + (n ? '<span style="margin-left:8px;font-size:13px;font-weight:400;color:var(--muted,#897783);">' + n + '</span>' : '') + '</h4></div>'; };
           // UV转印贴：她 20261123 任务书 §二 —— 只有一个父商品「转印贴」，98 款全在它的规格里；父商品直接出卡，不再按 IP 拆独立商品
           var transfer = list.filter(function (p) { return canon(p) === 'UV转印贴'; });
@@ -2205,6 +2377,7 @@
           : empty);
       }).join('');
       bindCards(g);
+      buildShopQuickNav(); // 她 20261124 §五：每次重绘后同步快速导航（分区/分类/IP 动态生成）
     }
     function statusOfG(p) { if (p.display_only) return 'display'; if (p.sold) return 'out'; var ts = totalStock(p); if (ts != null) return ts > 0 ? 'on' : 'out'; if (!(p.stock > 0)) return 'out'; return 'on'; }
     window.__shopPaint = paint;

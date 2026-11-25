@@ -28,7 +28,7 @@
       { key: 'cart', zh: '购物车', en: 'Cart', page: 'shop', url: '/shop/?sec=cart', sec: 'cart', area: 'shop' }
       // 她 20261117 23:14 §三-5：「我的订单」已从小铺移到账号栏（见 account 栏第二位）
     ]},
-    { key: 'gallery', num: '03', zh: '收藏展示', en: 'Collection Display', nav: 'gallery', url: '/bjd/', items: [ // 她 20261123 指令 §五.2：03 Collection → Collection Display
+    { key: 'gallery', num: '03', zh: '收藏展示', en: 'Collection Display', nav: 'gallery', url: '/collection/', items: [ // 她 20261124 指令 §一：点「收藏展示」先进主页面 /collection/（不再直接进 BJD）；四个子页原地址不动
       { key: 'bjd', zh: 'BJD', en: 'BJD', page: 'bjd', url: '/bjd/', area: 'bjd' },
       { key: 'cards', zh: '色卡', en: 'Color Cards', page: 'cards', url: '/color-card/', area: 'cards' },
       { key: 'photos', zh: '照片展示', en: 'Photo Gallery', page: 'photos', url: '/photos/', area: 'gallery' },
@@ -58,6 +58,7 @@
   var curPage = (function () {
     var p = normPath(location.pathname);
     if (p.indexOf('/photos/') === 0) return 'photos';
+    if (p.indexOf('/collection/') === 0) return 'collection'; // 她 20261124：收藏展示主页面
     if (p.indexOf('/bjd/') === 0) return 'bjd';
     if (p.indexOf('/color-card/') === 0) return 'cards';
     if (p.indexOf('/works/') === 0) return 'works';
@@ -175,6 +176,120 @@
 
   // ── 语言切换行（已按她 20261117 03:38 指示撤出菜单：原本顶栏的切换器保留原位，这里不再重复渲染）──
 
+  // ── 语言下拉选择器（她 20261124 任务书 §四.4：并排按钮改圆角下拉菜单）──
+  // 全站每个顶栏都有 .lang-switch，这里把两个并排按钮替换为带搜索的下拉菜单；点击行为仍走 lang-path.js 的 switchUrl
+  var YK_LANGS = [
+    { code: 'en',   name: 'English',    zh: '英语',     ready: true },
+    { code: 'zh',   name: '简体中文',   zh: '简体中文', ready: true },
+    { code: 'zh-TW',name: '繁體中文',   zh: '繁體中文', ready: false },
+    { code: 'ja',   name: '日本語',     zh: '日语',     ready: false },
+    { code: 'ko',   name: '한국어',      zh: '韩语',     ready: false },
+    { code: 'es',   name: 'Español',    zh: '西班牙语', ready: false },
+    { code: 'fr',   name: 'Français',   zh: '法语',     ready: false },
+    { code: 'de',   name: 'Deutsch',    zh: '德语',     ready: false },
+    { code: 'pt',   name: 'Português',  zh: '葡萄牙语', ready: false },
+    { code: 'th',   name: 'ไทย',        zh: '泰语',     ready: false }
+  ];
+  function buildLangSwitch() {
+    var boxes = document.querySelectorAll('.lang-switch');
+    if (!boxes.length) return;
+    var cur = (window.YK && window.YK.lang) || 'en';
+    var curName = cur === 'zh' ? '简体中文' : 'English';
+    var css = document.getElementById('yk-lang-dd-css');
+    if (!css) {
+      css = document.createElement('style');
+      css.id = 'yk-lang-dd-css';
+      css.textContent =
+        '.yk-dd{position:relative;display:inline-block;}' +
+        '.yk-dd-btn{display:inline-flex;align-items:center;gap:6px;border:1.5px solid #F9E5ED;background:#FFFFFF;color:#65515D;font-family:inherit;font-size:14px;font-weight:600;padding:5px 12px;border-radius:999px;cursor:pointer;transition:background .2s,border-color .2s;}' +
+        '.yk-dd-btn:hover{background:#FCECF2;}' +
+        '.yk-dd-btn .yk-dd-arrow{transition:transform .2s;font-size:11px;color:#897783;}' +
+        '.yk-dd.open .yk-dd-arrow{transform:rotate(180deg);}' +
+        '.yk-dd-panel{position:absolute;top:calc(100% + 6px);left:0;min-width:210px;max-width:calc(100vw - 32px);background:#FFFFFF;border:1.5px solid #F9E5ED;border-radius:14px;box-shadow:0 10px 30px rgba(190,140,160,.18);padding:8px;display:none;z-index:1300;}' +
+        '.yk-dd.open .yk-dd-panel{display:block;}' +
+        '.yk-dd-search{width:100%;box-sizing:border-box;border:1.5px solid #F9E5ED;border-radius:999px;padding:6px 12px;font-size:13px;font-family:inherit;color:#65515D;background:#FFF8FA;outline:none;margin-bottom:6px;}' +
+        '.yk-dd-search:focus{border-color:#F6C5D7;}' +
+        '.yk-dd-list{max-height:260px;overflow:auto;}' +
+        '.yk-dd-item{display:flex;align-items:center;gap:8px;width:100%;border:0;background:transparent;font-family:inherit;font-size:14px;color:#65515D;padding:8px 10px;border-radius:10px;cursor:pointer;text-align:left;}' +
+        '.yk-dd-item:hover{background:#FFF8FA;}' +
+        '.yk-dd-item.on{background:#FCECF2;font-weight:700;}' +
+        '.yk-dd-item .yk-dd-native{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}' +
+        '.yk-dd-item .yk-dd-sub{font-size:11px;color:#897783;flex-shrink:0;}' +
+        '.yk-dd-item .yk-dd-soon{font-size:10px;color:#897783;background:#FFF8FA;border:1px solid #F9E5ED;border-radius:999px;padding:1px 7px;flex-shrink:0;}' +
+        '.yk-dd-none{font-size:13px;color:#897783;padding:10px;text-align:center;}';
+      document.head.appendChild(css);
+    }
+    boxes.forEach(function (box) {
+      if (box.querySelector('.yk-dd')) return; // 已升级过：不重复渲染
+      box.innerHTML = '';
+      var dd = document.createElement('div');
+      dd.className = 'yk-dd';
+      dd.innerHTML =
+        '<button type="button" class="yk-dd-btn" aria-haspopup="listbox" aria-expanded="false"><span class="yk-dd-cur">' + curName + '</span><span class="yk-dd-arrow">▾</span></button>' +
+        '<div class="yk-dd-panel" role="listbox">' +
+          '<input type="text" class="yk-dd-search" placeholder="' + (cur === 'zh' ? '搜索语言…' : 'Search language…') + '">' +
+          '<div class="yk-dd-list"></div>' +
+        '</div>';
+      box.appendChild(dd);
+      var btn = dd.querySelector('.yk-dd-btn'), panel = dd.querySelector('.yk-dd-panel');
+      var list = dd.querySelector('.yk-dd-list'), search = dd.querySelector('.yk-dd-search');
+      function paintList(q) {
+        q = (q || '').trim().toLowerCase();
+        var rows = YK_LANGS.filter(function (l) {
+          if (!q) return true;
+          return (l.name + ' ' + l.zh + ' ' + l.code).toLowerCase().indexOf(q) > -1;
+        });
+        list.innerHTML = rows.length ? rows.map(function (l) {
+          var on = (cur === l.code) || (cur === 'zh' && l.code === 'zh') || (cur === 'en' && l.code === 'en');
+          return '<button type="button" class="yk-dd-item' + (on ? ' on' : '') + '" data-code="' + l.code + '" role="option">' +
+            '<span class="yk-dd-native">' + l.name + '</span>' +
+            '<span class="yk-dd-sub">' + l.zh + '</span>' +
+            (l.ready ? '' : '<span class="yk-dd-soon">' + (cur === 'zh' ? '准备中' : 'Soon') + '</span>') +
+          '</button>';
+        }).join('') : '<div class="yk-dd-none">' + (cur === 'zh' ? '没有匹配的语言' : 'No language found') + '</div>';
+      }
+      paintList('');
+      function close() { dd.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); }
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var willOpen = !dd.classList.contains('open');
+        document.querySelectorAll('.yk-dd.open').forEach(function (o) { o.classList.remove('open'); });
+        if (willOpen) { dd.classList.add('open'); btn.setAttribute('aria-expanded', 'true'); paintList(search.value); search.value = ''; paintList(''); try { search.focus(); } catch (err) {} }
+      });
+      search.addEventListener('input', function () { paintList(this.value); });
+      search.addEventListener('click', function (e) { e.stopPropagation(); });
+      panel.addEventListener('click', function (e) { e.stopPropagation(); });
+      list.addEventListener('click', function (e) {
+        var it = e.target.closest ? e.target.closest('.yk-dd-item') : null;
+        if (!it) return;
+        var code = it.getAttribute('data-code');
+        var lang = YK_LANGS.filter(function (l) { return l.code === code; })[0];
+        if (!lang) return;
+        if (!lang.ready) {
+          close();
+          if (typeof window.toast === 'function') window.toast(cur === 'zh' ? '这个语言的版本还在准备中，先看简体中文/English 吧 ♡' : 'This language is coming soon — enjoy 简体中文 / English for now ♡');
+          else if (window.YK18N) { /* toast 不存在就安静收起，不报错 */ }
+          return;
+        }
+        if ((cur === 'zh' && code === 'zh') || (cur === 'en' && code === 'en')) { close(); return; }
+        close();
+        try { sessionStorage.setItem('yuki-lang-switched', '1'); } catch (err) {}
+        location.href = window.YK && window.YK.switchUrl ? window.YK.switchUrl(code === 'zh' ? 'zh' : 'en') : location.href;
+      });
+      dd._ykClose = close;
+    });
+    // 外部点击 / Esc 关闭（全站同一套交互习惯）
+    if (!buildLangSwitch._outside) {
+      buildLangSwitch._outside = true;
+      document.addEventListener('click', function (e) {
+        document.querySelectorAll('.yk-dd.open').forEach(function (dd) { if (!dd.contains(e.target) && dd._ykClose) dd._ykClose(); });
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') document.querySelectorAll('.yk-dd.open').forEach(function (dd) { if (dd._ykClose) dd._ykClose(); });
+      });
+    }
+  }
+
   // ── 五栏渲染（她 20261117 15:15：一级标题改为可点链接——桌面直接跳转，手机仍作手风琴展开）──
   function titleCurrent(col) { // 栏头高亮：目标页就是当前页（含 sec）
     // 她 20261117 18:13：首页时高亮的是 Home 这一栏，不能把「日历」（它只是首页里的一个区块）当成当前页
@@ -265,6 +380,7 @@
       if (!(st && (st.a || st.r))) { window.__YK_ADMIN_OK = false; window.__YK_ADMIN_CHECKED = false; } // 登出后重置，避免残留管理员入口
     } catch (e) {}
     render();
+    buildLangSwitch(); // 她 20261124：顶栏并排语言按钮 → 下拉菜单（全站 .lang-switch 统一替换）
     Promise.all([
       dbFetch('photo_sections?select=id,key,name_zh,name_en,sort&order=sort.asc,created_at.asc&limit=100'),
       (typeof window.ykAuthFetch === 'function' ? window.ykAuthFetch : dbFetch)('site_settings?select=key,value&key=in.(areas,bjds,cards)&limit=10') /* 私有键走登录态（无 site-common 的页面回退匿名）*/

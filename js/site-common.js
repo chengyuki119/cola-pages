@@ -712,6 +712,7 @@ var TITLE_MAP = {
   '服务条款 · Snow Yuzu': { zh: '服务条款 · Snow Yuzu', en: 'Terms of Service · Snow Yuzu' },
   '物流查询 · Snow Yuzu': { zh: '物流查询 · Snow Yuzu', en: 'Track Your Order · Snow Yuzu' },
   '稿件展示 · Yuki / 柚子': { zh: '稿件展示 · Yuki / 柚子', en: 'Commissions · Yuki' },
+  '收藏展示 · Yuki / 柚子': { zh: '收藏展示 · Yuki / 柚子', en: 'Collection Display · Yuki' },
   '页面走丢了 · Yuki / 柚子': { zh: '页面走丢了 · Yuki / 柚子', en: 'Page not found · Yuki' },
   '小柚的小世界': { zh: '小柚的小世界', en: 'My Little World · Yuki' }
 };

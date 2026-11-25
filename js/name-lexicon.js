@@ -350,6 +350,7 @@
     searchTerms: searchTerms,
     chars: allChars,
     types: allTypes,
+    combos: function () { return COMBOS; }, // 她 20261124：组合别名供显示层词库替换使用（异丁香→暮蝶+壹决）
     loadRemote: loadRemote,
     saveRemote: saveRemote,
     ips: function () { var list = allChars().map(function (c) { return c.ip || 'Other'; }); return list.filter(function (x, i) { return list.indexOf(x) === i; }); }

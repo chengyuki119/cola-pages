@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <link rel="preload" href="/fonts/Millo-RiceSoyMilk80.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/Millo-RiceSoyMilk90.woff2" as="font" type="font/woff2" crossorigin>
+<meta charset="UTF-8">
+  <script src="/js/lang-path.js?v=20261114A"></script>
+  <script src="/js/yk-i18n.js?v=20261124A"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>收藏展示 · Yuki / 柚子</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" sizes="180x180" href="/icon-yuki2-180.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/icon-yuki2-32.png">
+<link rel="icon" type="image/png" sizes="180x180" href="/icon-yuki2-180.png">
+<meta name="apple-mobile-web-app-title" content="小柚的小世界">
+<link rel="stylesheet" href="/css/site.css?v=20261117N">
+<link rel="stylesheet" href="/site-menu.css?v=20261117M">
+<script src="/site-menu.js?v=20261124A" defer></script>
+<script src="/js/page-covers.js?v=20261117A" defer></script>
+  <link rel="stylesheet" href="/css/button-theme.css?v=20261117H">
+<style>
+  /* 收藏展示主页面（她 20261124 任务书 §一）：四个入口卡片，沿用全站浅粉视觉 */
+  .col-hub-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 16px; margin: 4px 0 28px; }
+  @media (max-width: 760px) { .col-hub-grid { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; } }
+  .col-hub-card {
+    display: block; border: 1.5px solid #F9E5ED; border-radius: 16px; overflow: hidden;
+    background: #FFFFFF; text-decoration: none; color: inherit;
+    transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+  }
+  .col-hub-card:hover { transform: translateY(-3px); box-shadow: 0 10px 26px rgba(190,140,160,.16); border-color: #F6C5D7; }
+  .col-hub-img { width: 100%; aspect-ratio: 1/1; overflow: hidden; background: #FCECF2; position: relative; }
+  .col-hub-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s ease; }
+  .col-hub-card:hover .col-hub-img img { transform: scale(1.05); }
+  .col-hub-img .col-hub-fallback {
+    width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+    font-size: 40px; color: #F6C5D7; background: linear-gradient(160deg, #FFF8FA 0%, #FCECF2 100%);
+  }
+  .col-hub-info { padding: 12px 14px 14px; }
+  .col-hub-name { font-size: 17px; font-weight: 700; color: #65515D; display: flex; align-items: center; gap: 6px; }
+  .col-hub-sub { font-size: 13px; color: #897783; margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .col-hub-empty { font-size: 16px; color: var(--muted,#897783); padding: 26px 0 10px; text-align: center; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+    <div class="lang-switch">
+    <button class="lang-btn" data-lang="zh">简体中文</button>
+    <button class="lang-btn" data-lang="en">English</button>
+  </div>
+  <a class="site-logo" href="/" aria-label="回主页"><img src="/logo.png" alt="logo"></a>
+  <div class="topbar-right">
+    <a class="topbar-cart" id="topbar-cart" href="/shop/?sec=cart" aria-label="购物车">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3.5h2.2l2.3 11.2a1.8 1.8 0 0 0 1.8 1.4h8.5a1.8 1.8 0 0 0 1.8-1.4l1.5-8.2H6"/></svg>
+      <span class="topbar-cart-badge" id="topbar-cart-badge" style="display:none;">0</span>
+    </a>
+        <button class="topbar-acct" id="topbar-acct" aria-label="Account">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8.2" r="3.4"/><path d="M5 20c.8-3.6 3.6-5.6 7-5.6s6.2 2 7 5.6"/></svg>
+          <span class="topbar-acct-dot"></span>
+        </button>
+    <button class="burger" id="burger" aria-label="菜单">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+<div class="menu-mask" id="menu-mask"></div>
+<nav class="menu" id="menu"></nav>
+
+<div class="page active" id="page-collection">
+  <div class="subpage-header">
+    <h1 class="subpage-title" data-zh="收藏展示" data-en="Collection Display">收藏展示</h1>
+    <p class="subpage-sub" data-zh="BJD · 色卡 · 照片 · 稿件 · 点进去逛逛" data-en="BJD · Color Cards · Photos · Artwork · pick one to explore">BJD · 色卡 · 照片 · 稿件 · 点进去逛逛</p>
+  </div>
+  <a class="back-link page-back" href="/" style="margin:8px 0 24px 2px;"><span data-zh="← 返回主页" data-en="← Back to Home">← 返回主页</span></a>
+  <div class="page-body" style="padding-top:0;">
+    <div class="col-hub-grid" id="col-hub-grid"></div>
+    <p class="col-hub-empty" id="col-hub-empty" style="display:none;"></p>
+  </div>
+</div>
+
+<script src="/js/site-common.js?v=20261117C"></script>
+<script>
+(function () {
+  var LANG = (window.YK && window.YK.lang) || 'en';
+  function t(zh, en) { return LANG === 'en' ? en : zh; }
+  // 权限口径与全站菜单一致（site-menu.js permFilter）：照片=任意登录可见；BJD/色卡/稿件=柚子专属确认后出现
+  function session() {
+    try { return JSON.parse(localStorage.getItem('yuki-user-session') || 'null') || JSON.parse(localStorage.getItem('yuki-admin-session') || 'null'); } catch (e) { return null; }
+  }
+  var logged = !!(session() && (session().a || session().r));
+  var ENTRIES = [
+    { key: 'bjd',    page: 'bjd',    zh: 'BJD',  en: 'BJD',                subZh: '娃娃们的家',   subEn: 'Doll family',   url: '/bjd/',         coverKey: 'bjd',        fb: '/photos/bjd1.jpg', exclusive: true },
+    { key: 'cards',  page: 'cards',  zh: '色卡', en: 'Color Cards',        subZh: '色彩搭配卡',   subEn: 'Palette cards', url: '/color-card/',  coverKey: 'color-card', fb: '',                 exclusive: true },
+    { key: 'photos', page: 'photos', zh: '照片', en: 'Photo Gallery',      subZh: '拍立得与胶卷', subEn: 'Instax & film', url: '/photos/',      coverKey: 'photos',     fb: '/photos/vct1.jpg', exclusive: false },
+    { key: 'works',  page: 'works',  zh: '稿件', en: 'Artwork',            subZh: '和画师的稿件', subEn: 'Commissioned art', url: '/works/',  coverKey: 'works',      fb: '',                 exclusive: true }
+  ];
+  // 柚子专属确认（与全站菜单同一套异步确认，确认后 BJD/色卡/稿件入口自动出现）
+  var exclusiveOK = window.__YK_MENU_OK === true;
+  var DB_BASE = 'https://ukxrvcptwhlwvdanovgd.supabase.co/rest/v1/';
+  var DB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVreHJ2Y3B0d2hsd3ZkYW5vdmdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyMzgyNDcsImV4cCI6MjEwODgxNDI0N30.Grdi23yToGPFF8e_kxFjf37JOOf51j-FW_FYQTUVu8E';
+  function visible(e) { if (e.exclusive) return exclusiveOK; return logged; } // 照片=登录即可；其余=柚子专属
+  function paint() {
+    var grid = document.getElementById('col-hub-grid');
+    var empty = document.getElementById('col-hub-empty');
+    var list = ENTRIES.filter(visible);
+    if (!list.length) {
+      grid.innerHTML = '';
+      empty.style.display = '';
+      empty.textContent = logged ? t('这里的内容整理中 ♡', 'Still tidying up here ♡') : t('登录后可以逛收藏展示 ♡', 'Log in to browse the collection ♡');
+      return;
+    }
+    empty.style.display = 'none';
+    grid.innerHTML = list.map(function (e) {
+      var imgTag = e.fb
+        ? '<img src="' + e.fb + '" alt="" loading="lazy" data-covkey="' + e.coverKey + '">'
+        : '<div class="col-hub-fallback">♡</div>';
+      return '<a class="col-hub-card" href="' + (window.ykLink ? ykLink(e.url) : e.url) + '">' +
+        '<div class="col-hub-img">' + imgTag + '</div>' +
+        '<div class="col-hub-info">' +
+          '<div class="col-hub-name">' + t(e.zh, e.en) + ' <span style="color:#F6C5D7;font-size:14px;">♡</span></div>' +
+          '<div class="col-hub-sub">' + t(e.subZh, e.subEn) + '</div>' +
+        '</div></a>';
+    }).join('');
+    // 用后台设置的页面封面图替换占位图（page_covers 表，匿名只读 is_active=true）
+    fetch(DB_BASE + 'page_covers?page_key=in.(' + list.map(function (e) { return e.coverKey; }).join(',') + ')&is_active=eq.true&select=image_url,page_key', { headers: { apikey: DB_KEY } })
+      .then(function (r) { return r.ok ? r.json() : []; }).then(function (rows) {
+        (rows || []).forEach(function (row) {
+          if (!row.image_url) return;
+          var img = grid.querySelector('img[data-covkey="' + row.page_key + '"]');
+          if (img) img.src = row.image_url; // 没封面的入口保持占位图，不注入空图
+        });
+      }).catch(function () {});
+  }
+  paint();
+  if (window.ykExclusiveCheck && !exclusiveOK) {
+    window.ykExclusiveCheck().then(function (res) {
+      if (res && res.ok === true) { exclusiveOK = true; paint(); }
+    }).catch(function () {});
+  }
+  if (window.SiteMenu) SiteMenu.notify('gallery');
+  if (window.applyLang) applyLang(LANG);
+})();
+</script>
+
+<script src="/js/site-footer.js?v=20261114A"></script>
+<script>
+  function initSiteFooter() { renderSiteFooter(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initSiteFooter);
+  else initSiteFooter();
+</script>
+
+</body>
+</html>

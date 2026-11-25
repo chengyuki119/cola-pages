@@ -21,7 +21,7 @@
     <link rel="preload" href="/fonts/Millo-RiceSoyMilk90.woff2" as="font" type="font/woff2" crossorigin>
 <meta charset="UTF-8">
   <script src="/js/lang-path.js?v=20261114A"></script>
-  <script src="/js/yk-i18n.js?v=20261112D"></script>
+  <script src="/js/yk-i18n.js?v=20261124A"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>小柚的小世界</title>
 <link rel="manifest" href="/manifest.json">
@@ -40,7 +40,7 @@
 <meta name="twitter:image" content="https://yukicheng.com/og-image.jpg">
 <link rel="stylesheet" href="/css/site.css?v=20261117N">
   <link rel="stylesheet" href="/site-menu.css?v=20261117M">
-    <script src="/site-menu.js?v=20261123A" defer></script>
+    <script src="/site-menu.js?v=20261124A" defer></script>
   <link rel="stylesheet" href="/css/button-theme.css?v=20261117H">
   <!-- 她 20261104：英文版手机端「重要日子明细」固定两行（分类 / 重复+周年），中文版不动 -->
   <style id="en-cal-sub-2lines">
@@ -181,6 +181,7 @@
         <div class="tile" data-sec="instax"><a class="photo" href="/photos/?sec=instax" data-img="/photos/vct1.jpg"><span>photos/vct1.jpg</span></a><span class="tile-label" data-zh="拍立得展示" data-en="Instax Display">拍立得展示</span></div>
         <div class="tile" data-sec="film"><a class="photo" href="/photos/?sec=film" data-img="/photos/film1.jpg"><span>photos/film1.jpg</span></a><span class="tile-label" data-zh="胶卷相机照片展示" data-en="Film Camera Pictures">胶卷相机照片展示</span></div>
       </div>
+      <a class="home-long-btn" href="/photos/" style="margin-top:16px;"><span data-zh="看全部照片" data-en="See all photos">看全部照片</span></a>
     </section>
 
     <!-- 稿件展示 -->
@@ -1929,7 +1930,7 @@
     var list = (rows || []).filter(function (p) {
       var pid = String(p.id);
       return HIDE.indexOf(pid) === -1 && HOME_ON.indexOf(pid) > -1;
-    });
+    }).slice(0, 4); // 她 20261124 首页精简：主页小铺最多四张精选，更多进小铺看
     if (!list.length) return; // 没有可展示的商品：只保留原入口卡，不放假数据
     var _hpt = [];
     list.forEach(function (p) { _hpt.push(p.name, p.name_en, p.tag); });

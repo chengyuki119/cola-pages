@@ -40,7 +40,8 @@
     '/foodie/',
     '/foodie/map/',
     '/foodie/restaurant/',
-    '/what-to-eat/'
+    '/what-to-eat/',
+    '/collection/' // 她 20261124：收藏展示主页面（中英双路径）
   ];
 
   var path = location.pathname || '/';
