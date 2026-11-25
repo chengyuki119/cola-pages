@@ -148,11 +148,14 @@
       if (!a.s || out.indexOf(a.s) === -1) return;
       var rep = target === 'en' ? (a.en || a.zh) : (a.zh || a.en);
       if (!rep) return;
-      if (rep !== a.s) out = out.split(a.s).join(rep);
-      hitFlag = true; // 命中词库角色名（即使输入已是标准名，也做规格/括号归一）
+      if (rep !== a.s) {
+        out = out.split(a.s).join(rep);
+        // 同一个标准名被拼两次（如 DB 名「Iso 壹决」替换后变「壹决 壹决」）：紧邻重复合并
+        out = out.split(rep + ' ' + rep).join(rep).split(rep + '　' + rep).join(rep);
+      }
+      hitFlag = true; // 命中词库角色名（即使输入已是标准名，也做括号归一）
     });
-    var specFix = /(\d+(?:\.\d+)?)\s*u(?![a-zA-Z0-9])/i.test(s);
-    if (!hitFlag && !specFix) return null;
+    if (!hitFlag) return null; // 没命中词库：不吞字符串，交回词典/机翻正常流程
     out = out.replace(/(\d+(?:\.\d+)?)\s*u(?![a-zA-Z0-9])/g, '$1U'); // 规格 1u→1U
     if (target === 'en') out = out.split('（瑕疵）').join(' (Imperfect)').split('(瑕疵)').join(' (Imperfect)');
     else out = out.split('(瑕疵)').join('（瑕疵）');
