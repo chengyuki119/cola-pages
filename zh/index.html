@@ -1161,10 +1161,20 @@
     var wkGrid = document.getElementById('works-home-grid');
     if (wkGrid) {
       var worksRaw = parseSetting('works', []);
-      var worksList = (Array.isArray(worksRaw) ? worksRaw : []).map(function (w, i) { return { w: w, i: i }; }).filter(function (x) { return x.w && x.w.visible !== false; }).slice(0, 4); // 与 /works/ 同样过滤，序号一致，主页最多四张
+      // 她 20261128：主页稿件=后台手动指定白名单 site_settings.works_home_on（顺序即排列顺序），
+      // 不随机不轮换不自动选取；未指定的稿件一律不出现在主页
+      var _allW = (Array.isArray(worksRaw) ? worksRaw : []);
+      var _homeOn = parseSetting('works_home_on', []);
+      if (!Array.isArray(_homeOn)) _homeOn = [];
+      var worksList = [];
+      for (var _hi = 0; _hi < _homeOn.length; _hi++) {
+        for (var _hj = 0; _hj < _allW.length; _hj++) {
+          if (_allW[_hj] && String(_allW[_hj].id) === String(_homeOn[_hi]) && _allW[_hj].visible !== false) { worksList.push({ w: _allW[_hj], i: _hj }); break; }
+        }
+      }
       if (!worksList.length) {
         wkGrid.style.display = 'block';
-        wkGrid.innerHTML = '<p style="color:var(--muted);text-align:center;padding:30px 0;font-size:17px;">' + t('还没有稿件，去后台「稿件管理」上传吧', 'No commissions yet — upload one in the admin panel') + '</p>';
+        wkGrid.innerHTML = '<p style="color:var(--muted);text-align:center;padding:30px 0;font-size:17px;">' + (_allW.length ? t('暂未指定主页展示的稿件', 'No featured commissions yet') : t('还没有稿件，去后台「稿件管理」上传吧', 'No commissions yet — upload one in the admin panel')) + '</p>';
       } else {
         wkGrid.style.display = 'grid';
         /* 稿件预览固定 4 列（CSS 硬编码） */
