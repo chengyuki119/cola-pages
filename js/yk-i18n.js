@@ -54,7 +54,9 @@
     '前任': 'Ex', '包天': 'Full Day', '加急': 'Rush', '商用': 'Commercial', '自用': 'Personal',
     /* 站内已有内容的固定译名（她自己的名称/画师名，机器直译会变味） */
     '抱小猪': 'Hug the Piggy', '拍立得稿件包天': 'Polaroid Commission (Full Day)', '盘中餐桓桓': 'Huanhuan on the Plate',
-    '抖音 小懒': 'Douyin Xiaolan', '抖音小懒': 'Douyin Xiaolan'
+    '抖音 小懒': 'Douyin Xiaolan', '抖音小懒': 'Douyin Xiaolan',
+    /* 她 20261128 新增稿件：双语名已由店主写好，英文页不再机翻出重复词 */
+    '雪天 Snowy Day': 'Snowy Day', '雪天': 'Snowy Day'
   };
   var REV = {};
   (function () {
