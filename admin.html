@@ -6435,36 +6435,6 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       if (done) done();
     }).catch(function () { toast('保存失败'); });
   }
-  /* 她 20261128：主页稿件展示=后台手动指定。白名单 site_settings.works_home_on = [稿件id]，
-     数组顺序即主页排列顺序（与商品 shop_home_on 同一范式）；不在名单 = 不上主页，无随机无轮换 */
-  function worksHomeList() {
-    try { var v = JSON.parse(SETTINGS['works_home_on'] || '[]'); return Array.isArray(v) ? v.map(String) : []; } catch (e) { return []; }
-  }
-  function isWorkHomeOn(id) { return worksHomeList().indexOf(String(id)) !== -1; }
-  function setWorkHomeOn(id, on) {
-    var list = worksHomeList();
-    var i = list.indexOf(String(id));
-    if (on && i === -1) list.push(String(id));
-    if (!on && i !== -1) list.splice(i, 1);
-    return saveSettingVerified('works_home_on', list).then(function (ok) {
-      if (!ok) throw new Error();
-      SETTINGS['works_home_on'] = JSON.stringify(list); // 写成功了才同步内存
-    });
-  }
-  function moveWorkHome(i, dir) { // 主页展示排序：名单内上移/下移一位，写库复核后重渲染
-    var id = WORKS[i] && WORKS[i].id;
-    if (!id) return;
-    var list = worksHomeList();
-    var k = list.indexOf(String(id));
-    var nk = k + dir;
-    if (k < 0 || nk < 0 || nk >= list.length) return;
-    var t = list[k]; list[k] = list[nk]; list[nk] = t;
-    saveSettingVerified('works_home_on', list).then(function (ok) {
-      if (!ok) { toast('保存失败'); return; }
-      SETTINGS['works_home_on'] = JSON.stringify(list);
-      renderWorks();
-    }).catch(function () { toast('保存失败'); });
-  }
   function renderWorks() {
     initToolbars();
     var list = document.getElementById('works-list');
@@ -6472,10 +6442,6 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
     list.innerHTML = WORKS.map(function (w, i) {
       if (i !== WORKS_EDIT) {
         // 20261107 晚后台卡统一标准（她指定）：封面→标题→作者/分类→价格→主页展示→编辑按钮
-        // 20261128：原「主页展示」开关实为前台显示开关，改回真名「显示」；新增真正的「主页展示」开关+排序（白名单 works_home_on）
-        var wh = w.id ? worksHomeList().indexOf(String(w.id)) : -1;
-        var whLen = worksHomeList().length;
-        var arrowCss = 'width:24px;height:24px;padding:0;border:1px solid #F9E5ED;background:#fff;border-radius:6px;cursor:pointer;font-size:14px;line-height:1;color:var(--text);';
         return '<div class="card work-item" data-i="' + i + '" style="position:relative;padding:0;overflow:hidden;">' +
           '<button class="kebab work-kebab" title="菜单">⋮</button>' +
           '<div class="sc-card-img">' +
@@ -6485,11 +6451,7 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
           '<b class="sc-name">' + esc(w.name || '未命名稿件') + '</b>' +
           '<div class="sc-shop">' + ([w.cat, w.artist, w.date].filter(Boolean).map(esc).join(' · ') || '&nbsp;') + '</div>' +
           '<div class="sc-shop adm-price-line">' + (parseFloat(w.price) ? '<span style="color:var(--price,#F48FB1);font-weight:600;">¥' + fmtMoney(w.price) + '</span>' : '<span style="color:var(--muted);">—</span>') + '</div>' +
-          '<span class="tgl-label" style="margin-top:7px;"><button type="button" class="tgl w-vis-toggle' + (w.visible !== false ? ' on' : '') + '" aria-pressed="' + (w.visible !== false) + '" aria-label="前台显示"><span class="tgl-knob"></span></button>显示</span>' +
-          '<span class="tgl-label" style="margin-top:7px;"><button type="button" class="tgl w-home-toggle' + (wh >= 0 ? ' on' : '') + '" aria-pressed="' + (wh >= 0) + '"><span class="tgl-knob"></span></button>主页展示</span>' +
-          (wh >= 0 ? '<span class="tgl-label" style="margin-top:7px;color:var(--muted);">主页第 ' + (wh + 1) + ' 位' +
-            '<button type="button" class="w-home-up" aria-label="上移"' + (wh === 0 ? ' disabled style="' + arrowCss + 'opacity:.4;cursor:default;"' : ' style="' + arrowCss + '"') + '>↑</button>' +
-            '<button type="button" class="w-home-down" aria-label="下移"' + (wh === whLen - 1 ? ' disabled style="' + arrowCss + 'opacity:.4;cursor:default;"' : ' style="' + arrowCss + '"') + '>↓</button></span>' : '') +
+          '<span class="tgl-label" style="margin-top:7px;"><button type="button" class="tgl w-vis-toggle' + (w.visible !== false ? ' on' : '') + '" aria-pressed="' + (w.visible !== false) + '" aria-label="主页展示"><span class="tgl-knob"></span></button>主页展示</span>' +
           '<button type="button" class="w-list-edit adm-edit-btn" data-i="' + i + '">编辑</button>' +
           '</div>' +
           '</div>';
@@ -6582,16 +6544,6 @@ h1, h2, .subpage-title { font-family: "Millo Body Heavy", -apple-system, "PingFa
       popOpen(i === WORKS_EDIT ? 'work-e' : 'work', i, -1, -1, kebab);
       return;
     }
-    var htg = e.target.closest('.w-home-toggle');
-    if (htg) { // 她 20261128：卡上主页展示开关（白名单 works_home_on，默认关；开了才上主页）
-      var whw = normWork(WORKS[i]);
-      setWorkHomeOn(whw.id, !isWorkHomeOn(whw.id))
-        .then(function () { toast(isWorkHomeOn(whw.id) ? '已设为主页展示' : '已取消主页展示'); renderWorks(); })
-        .catch(function () { toast('操作失败：没有真的保存主页展示状态，请重新登录后再试'); });
-      return;
-    }
-    if (e.target.closest('.w-home-up')) { moveWorkHome(i, -1); return; } // 主页展示排序
-    if (e.target.closest('.w-home-down')) { moveWorkHome(i, 1); return; }
     var tgl = e.target.closest('.w-vis-toggle');
     if (tgl) {
       var wv = normWork(WORKS[i]);
